@@ -41,33 +41,33 @@ edit_uri: ""
 docs_dir: docs
 markdown_extensions:
   admonition: {}              # https://python-markdown.github.io/extensions/admonition/
-    abbr: {}                    # https://squidfunk.github.io/mkdocs-material/reference/abbreviations/ extension to add additional content on hover
-    meta: {}
-    attr_list: {}               # https://python-markdown.github.io/extensions/attr_list/
-    def_list: {}                # https://python-markdown.github.io/extensions/definition_lists/
-    toc:
-      permalink: true       # Generate permanent links at the end of each header
-      separator: "-"        # Replace any white space in generated IDs with a dash
-      toc_depth: 2          # Two levels on the "On this page" menu
-      title: On this page   # Sets the title of the topic toc
-    pymdownx.details: {}        # Enables expandable sections https://facelessuser.github.io/pymdown-extensions/extensions/details/
-    pymdownx.tabbed:         # Enables tabs https://facelessuser.github.io/pymdown-extensions/extensions/tabbed/
-      alternate_style: true
-      slugify: !!python/object/apply:pymdownx.slugs.slugify
-        kwds:
-          case: lower
-    pymdownx.superfences: {}    # Allows code samples to be nested in tabs https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
-    pymdownx.magiclink: {}      # Automatically links websites and email addresses https://facelessuser.github.io/pymdown-extensions/extensions/magiclink/
-    pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
-    md_in_html: {}              # Allows markdown to be within html elements https://github.com/Python-Markdown/markdown/blob/master/docs/extensions/md_in_html.md
-    footnotes: {}
-    pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+  abbr: {}                    # https://squidfunk.github.io/mkdocs-material/reference/abbreviations/ extension to add additional content on hover
+  meta: {}
+  attr_list: {}               # https://python-markdown.github.io/extensions/attr_list/
+  def_list: {}                # https://python-markdown.github.io/extensions/definition_lists/
+  toc:
+    permalink: true       # Generate permanent links at the end of each header
+    separator: "-"        # Replace any white space in generated IDs with a dash
+    toc_depth: 2          # Two levels on the "On this page" menu
+    title: On this page   # Sets the title of the topic toc
+  pymdownx.details: {}        # Enables expandable sections https://facelessuser.github.io/pymdown-extensions/extensions/details/
+  pymdownx.tabbed:         # Enables tabs https://facelessuser.github.io/pymdown-extensions/extensions/tabbed/
+    alternate_style: true
+    slugify: !!python/object/apply:pymdownx.slugs.slugify
+      kwds:
+        case: lower
+  pymdownx.superfences: {}    # Allows code samples to be nested in tabs https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
+  pymdownx.magiclink: {}      # Automatically links websites and email addresses https://facelessuser.github.io/pymdown-extensions/extensions/magiclink/
+  pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  md_in_html: {}              # Allows markdown to be within html elements https://github.com/Python-Markdown/markdown/blob/master/docs/extensions/md_in_html.md
+  footnotes: {}
+  pymdownx.superfences:
+    custom_fences:
+      - name: mermaid
+        class: mermaid
+        format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
   - Home: index.md
