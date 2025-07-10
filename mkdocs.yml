@@ -72,4 +72,5 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Changelog: changelog.md
-  - Functions: /functions
+  - Functions:
+    - functions/*.md
