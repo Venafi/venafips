@@ -57,14 +57,14 @@ jobs:
               Path        = '${{ github.workspace }}/CHANGELOG.md'
               ErrorAction = 'SilentlyContinue'
           }
+          $readmeText = (Get-Content -Path '${{ github.workspace }}/README.md') -join "`n"
+          $readmeText | Set-Content "${{ github.workspace }}/docs/index.md"
+
           $changeLogText = (Get-Content @parameters) -join "`n"
-          if ($changeLogText) {
-              $changeLogText | Set-Content "${{ github.workspace }}/docs/changelog.md"
-              $YMLText = "$YMLtext  - Changelog: changelog.md`n"
-          }
+          $changeLogText | Set-Content "${{ github.workspace }}/docs/changelog.md"
+          $YMLText = "$YMLtext  - Changelog: changelog.md`n"
 
           $YMLText = "$YMLtext  - Functions:`n"
-          # Drain the swamp
           $parameters = @{
               Recurse     = $true
               Force       = $true
@@ -99,56 +99,8 @@ jobs:
           git add VenafiPS/VenafiPS.psd1
           git add docs
           git add mkdocs.yml
+          git add index.md
           git add CHANGELOG.md
           git status
           git commit -m "Update manifest and docs to ${{ env.venafips_new_version }}"
           git push
-
-      # - name: Generate file hash
-      #   shell: pwsh
-      #   run: |
-      #     $fullPath = Resolve-Path ./${{ env.module_name }} | Select-Object -ExpandProperty Path
-      #     Get-ChildItem -Path ./${{ env.module_name }} -File -Recurse | Get-FileHash -Algorithm SHA256 | Select-Object Hash,
-      #     @{
-      #     'n' = 'File'
-      #     'e' = {
-      #     $_.Path.Replace("$fullPath/", '')
-      #     }
-      #     } | ConvertTo-Json | Out-File -FilePath ${{ github.workspace }}/hash.json
-
-      # - name: Upload hash.json artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: hash.json
-      #     path: ${{ github.workspace }}/hash.json
-
-      # - name: Create GitHub release
-      #   if: github.ref == 'refs/heads/main'
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: ${{ github.workspace }}/hash.json
-      #     tag_name: v${{ env.venafips_new_version }}
-      #     body_path: ${{ github.workspace }}/RELEASE.md
-
-      # - name: Publish
-      #   if: github.ref == 'refs/heads/main'
-      #   shell: pwsh
-      #   run: |
-      #     Publish-Module -Path "${{ github.workspace }}/${{ env.module_name }}" -NuGetApiKey ${{ secrets.NUGET_KEY }} -Verbose
-
-      # - name: Login to dockerhub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKER_USERNAME }}
-      #     password: ${{ secrets.DOCKER_PASSWORD }}
-
-      # - name: Build image
-      #   run: >
-      #     docker build
-      #     --pull
-      #     -t venafi/venafips-module:latest
-      #     -t venafi/venafips-module:${{ env.venafips_new_version }}
-      #     .
-
-      # - name: Publish image and tags
-      #   run: docker push --all-tags venafi/venafips-module

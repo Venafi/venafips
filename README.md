@@ -14,7 +14,7 @@ Welcome to VenafiPS (where the PS stands for PowerShell, not Professional Servic
 
 ## Documentation
 
-Documentation can be found at [http://VenafiPS.readthedocs.io](http://VenafiPS.readthedocs.io) or by using built-in PowerShell help.  Every effort has been made to document each parameter and provide good examples.
+Documentation can be found at [https://venafi.github.io/VenafiPS](https://venafi.github.io/VenafiPS) or by using built-in PowerShell help.  Every effort has been made to document each parameter and provide good examples.
 
 ## Supported Platforms
 

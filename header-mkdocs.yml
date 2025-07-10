@@ -4,24 +4,70 @@ theme:
   logo: images/v.svg
   features:
     - navigation.expand
-  palette:
-    primary: indigo
+    - navigation.sections   # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-sections
+    - navigation.instant    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#instant-loading
+    # - navigation.tabs       # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-tabs
+    - navigation.footer     # https://squidfunk.github.io/mkdocs-material/setup/setting-up-the-footer/#navigation
+    - search.highlight      # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/#search-highlighting
+    - search.suggest        # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/#search-suggestions
+    - search.share          # https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-search/#search-sharing
+    - announce.dismiss      # https://squidfunk.github.io/mkdocs-material/setup/setting-up-the-header/#announcement-bar
+    - content.code.copy     # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button
+    - content.code.annotate # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/?h=code+anno#code-annotations
+    - content.tabs.link     # https://squidfunk.github.io/mkdocs-material/reference/content-tabs/#linked-content-tabs
+  font:                     # Can use any google font.
+    text: 'Public Sans'
+    code: 'Roboto Mono'
+  palette:                  # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/?h=dark#color-palette-toggle
+                            # Dark mode colors are set in assets/css/dark-mode.css
+  # Palette toggle for light mode
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    toggle:
+      icon: material/toggle-switch-off-outline
+      name: Switch to dark mode
+  # Palette toggle for dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    toggle:
+      icon: material/toggle-switch
+      name: Switch to light mode
+
+  # palette:
+  #   primary: indigo
 repo_url: https://github.com/Venafi/VenafiPS
 repo_name: VenafiPS
 edit_uri: ""
 docs_dir: docs
 markdown_extensions:
-  - toc:
-      permalink: true
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
-  - admonition
-  - pymdownx.details
-  - def_list
-  - pymdownx.tasklist:
-      custom_checkbox: true
+  admonition: {}              # https://python-markdown.github.io/extensions/admonition/
+  abbr: {}                    # https://squidfunk.github.io/mkdocs-material/reference/abbreviations/ extension to add additional content on hover
+  meta: {}
+  attr_list: {}               # https://python-markdown.github.io/extensions/attr_list/
+  def_list: {}                # https://python-markdown.github.io/extensions/definition_lists/
+  toc:
+    permalink: true       # Generate permanent links at the end of each header
+    separator: "-"        # Replace any white space in generated IDs with a dash
+    toc_depth: 2          # Two levels on the "On this page" menu
+    title: On this page   # Sets the title of the topic toc
+  pymdownx.details: {}        # Enables expandable sections https://facelessuser.github.io/pymdown-extensions/extensions/details/
+  pymdownx.tabbed:         # Enables tabs https://facelessuser.github.io/pymdown-extensions/extensions/tabbed/
+    alternate_style: true
+    slugify: !!python/object/apply:pymdownx.slugs.slugify
+      kwds:
+        case: lower
+  pymdownx.superfences: {}    # Allows code samples to be nested in tabs https://facelessuser.github.io/pymdown-extensions/extensions/superfences/
+  pymdownx.magiclink: {}      # Automatically links websites and email addresses https://facelessuser.github.io/pymdown-extensions/extensions/magiclink/
+  pymdownx.emoji:
+    emoji_index: !!python/name:material.extensions.emoji.twemoji
+    emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  md_in_html: {}              # Allows markdown to be within html elements https://github.com/Python-Markdown/markdown/blob/master/docs/extensions/md_in_html.md
+  footnotes: {}
+  pymdownx.superfences:
+    custom_fences:
+      - name: mermaid
+        class: mermaid
+        format: !!python/name:pymdownx.superfences.fence_code_format
+
 nav:
   - Home: index.md
