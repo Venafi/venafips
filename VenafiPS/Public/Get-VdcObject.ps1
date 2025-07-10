@@ -34,7 +34,7 @@ function Get-VdcObject {
     Get an object by guid
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcObject.ps1

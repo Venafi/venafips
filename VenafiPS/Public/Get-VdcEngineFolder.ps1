@@ -43,7 +43,7 @@ function Get-VdcEngineFolder {
     Otherwise nothing will be returned.
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcEngineFolder/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcEngineFolder/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcEngineFolder.ps1

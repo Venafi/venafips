@@ -35,7 +35,7 @@ function Remove-VdcClient {
         Remove clients and associated devices
 
     .LINK
-        http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcClient/
+        https://venafi.github.io/VenafiPS/functions/Remove-VdcClient/
 
     .LINK
         https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcClient.ps1

@@ -35,7 +35,7 @@ function Remove-VdcPermission {
     Remove all permissions for a specific user
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcPermission/
+    https://venafi.github.io/VenafiPS/functions/Remove-VdcPermission/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcPermission.ps1

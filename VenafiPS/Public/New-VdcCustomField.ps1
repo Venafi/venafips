@@ -94,7 +94,7 @@ function New-VdcCustomField {
     Create new custom field for certificates
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCustomField/
+    https://venafi.github.io/VenafiPS/functions/New-VdcCustomField/
 
     .LINK
     https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Metadata-DefineItem.php

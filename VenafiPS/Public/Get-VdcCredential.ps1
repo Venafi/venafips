@@ -31,7 +31,7 @@ function Get-VdcCredential {
     Get a credential
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcCredential/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcCredential/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcCredential.ps1

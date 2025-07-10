@@ -26,7 +26,7 @@ function Find-VdcVaultId {
     For certificates with historical references, the vault IDs will
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcVaultId/
+    https://venafi.github.io/VenafiPS/functions/Find-VdcVaultId/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcVaultId.ps1

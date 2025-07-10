@@ -84,7 +84,7 @@ function Get-VdcPermission {
     Find assigned permissions for a specific user across all objects
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcPermission/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcPermission/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcPermission.ps1

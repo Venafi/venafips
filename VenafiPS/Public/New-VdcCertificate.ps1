@@ -115,7 +115,7 @@ function New-VdcCertificate {
     Create a new certificate with associated device and app objects
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCertificate/
+    https://venafi.github.io/VenafiPS/functions/New-VdcCertificate/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcCertificate.ps1

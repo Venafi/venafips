@@ -44,7 +44,7 @@ function Revoke-VdcToken {
     Revoke a token obtained from TLSPDC, not necessarily via VenafiPS
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Revoke-VdcToken/
+    https://venafi.github.io/VenafiPS/functions/Revoke-VdcToken/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Revoke-VdcToken.ps1

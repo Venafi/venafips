@@ -30,7 +30,7 @@ function Rename-VdcObject {
     Move an object
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Rename-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Rename-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Rename-VdcObject.ps1

@@ -41,7 +41,7 @@ function Get-VdcCustomField {
     Get custom fields for certificates
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcCustomField/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcCustomField/
 
     .LINK
     https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Metadata-GetItemsForClass.php

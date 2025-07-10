@@ -39,7 +39,7 @@ function Get-VdcWorkflowTicket {
     Get ticket details for multiple certificates
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcWorkflowTicket/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcWorkflowTicket/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcWorkflowTicket.ps1

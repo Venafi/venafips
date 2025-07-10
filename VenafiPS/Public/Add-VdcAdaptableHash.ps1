@@ -45,7 +45,7 @@ function Add-VdcAdaptableHash {
     Update the hash on an adaptable log object.
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Add-VdcAdaptableHash/
+    https://venafi.github.io/VenafiPS/functions/Add-VdcAdaptableHash/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Add-VdcAdaptableHash.ps1

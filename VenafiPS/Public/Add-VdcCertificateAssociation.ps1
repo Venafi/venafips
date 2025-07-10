@@ -39,7 +39,7 @@ function Add-VdcCertificateAssociation {
     Add the association and push the certificate
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Add-VdcCertificateAssociation/
+    https://venafi.github.io/VenafiPS/functions/Add-VdcCertificateAssociation/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Add-VdcCertificateAssociation.ps1

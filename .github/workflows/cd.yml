@@ -104,3 +104,8 @@ jobs:
           git status
           git commit -m "Update manifest and docs to ${{ env.venafips_new_version }}"
           git push
+
+      - name: Deploy docs
+        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

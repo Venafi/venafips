@@ -33,7 +33,7 @@ function Test-VdcIdentity {
     Retrieve existence for only one identity, returns boolean
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcIdentity/
+    https://venafi.github.io/VenafiPS/functions/Test-VdcIdentity/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Test-VdcIdentity.ps1

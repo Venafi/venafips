@@ -185,7 +185,7 @@ PrivateData = @{
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-HelpInfoURI = 'http://venafips.readthedocs.io/'
+HelpInfoURI = 'https://venafi.github.io/VenafiPS'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
