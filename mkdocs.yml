@@ -36,7 +36,7 @@ theme:
       name: Switch to light mode
 
   # palette:
-  #   primary: indigo
+    primary: indigo
 repo_url: https://github.com/Venafi/VenafiPS
 repo_name: VenafiPS
 # edit_uri: ""
