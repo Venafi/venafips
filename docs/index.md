@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="images/full-venafi-logo.png" alt="Venafi"/>
+  <img src="images/cybr-mis.jpeg" alt="CyberArk"/>
 </p>
 
-# VenafiPS - Automate your Venafi TLS Protect Datacenter and Cloud platforms!
+# VenafiPS - Automate your CyberArk Certificate Manager (Venafi TLS Protect) Self-Hosted and SaaS platforms!
 
 [![Testing](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml)
 [![Deployment](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml)
@@ -31,8 +31,8 @@ VenafiPS is published to the PowerShell Gallery.  The most recent version is lis
 
 ### Additional Modules
 
-- If running on Windows with PowerShell v5, multithreading is supported with [Microsoft.PowerShell.ThreadJob](https://github.com/PowerShell/ThreadJob), a Microsoft PowerShell module.  Install this for increased performance on the functions that support it.  Version 2.1.0 has been tested.
-- There are a few TLSPC functions which require Sodium encryption.  These functions require the PSSodium module be installed from the PowerShell Gallery.  Also for those functions, on Windows, the latest C++ runtime must be installed.  Version 0.4.2 has been tested.
+- If running on Windows with PowerShell v5, multithreading is supported with [Microsoft.PowerShell.ThreadJob](https://github.com/PowerShell/ThreadJob), a Microsoft PowerShell module.  Install this via `Install-Module -Name Microsoft.PowerShell.ThreadJob` for increased performance on the functions that support it.  Version 2.1.0 has been tested.
+- There are a few TLSPC functions which require Sodium encryption.  These functions require the PSSodium module be installed from the PowerShell Gallery via `Install-Module -Name PSSodium -RequiredVersion '0.4.2'`.  Optionally, you can provide `-Force` to the function for the module to be automatically installed .  Also for those functions, on Windows, the latest C++ runtime must be installed.  Version 0.4.2 has been tested.
 
 ## Usage
 
@@ -44,9 +44,7 @@ Get-Command -Module VenafiPS -Name '*-Vc*' # for TLSPC functions
 
 For TLSPDC, [token based authentication](https://docs.venafi.com/Docs/current/TopNav/Content/SDK/AuthSDK/t-SDKa-Setup-OAuth.php) must be setup and configured.
 
-### Interactive Session
-
-For an interactive session, we want to create a Venafi session which will hold the details needed for future operations.  Start a new PowerShell prompt (even if you have one from the install-module step) and create a new VenafiPS session with:
+We want to create a Venafi session which will hold the details needed for future operations.  Start a new PowerShell prompt (even if you have one from the install-module step) and create a new VenafiPS session with:
 
 ```powershell
 # username/password for TLSPDC.  TLSPC uses any value for username and your api key for the password
@@ -66,10 +64,6 @@ View the help on all the ways you can create a new Venafi session with
 help New-VenafiSession -full
 ```
 To utilize the SecretManagement vault functionality, ensure you [complete the setup below](https://github.com/Venafi/VenafiPS#tokenkey-secret-storage).
-
-### Automated Scenarios
-
-For non-interactive usage including ci/cd, the module can be used without creating a session.  For all functions, you can substitute a VenafiSession object with either a TLSPDC token or TLSPC key, eg. `-VenafiSession 'e9fe8860-a4c5-427f-bece-18204b04ac85'`.  You can also provide these as environment variables, VDC_TOKEN or VC_KEY.  If providing a TLSPDC token, either as the value for -VenafiSession or as an environment variable, a server environment variable, VDC_SERVER, must also be set.
 
 ## TLSPDC Examples
 
