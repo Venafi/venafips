@@ -4,9 +4,8 @@
 
 # VenafiPS - Automate your CyberArk Certificate Manager (Venafi TLS Protect) Self-Hosted and SaaS platforms!
 
-[![Testing](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml)
+[![CI](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml/badge.svg)](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml)
 [![Deployment](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml)
-[![Documentation Status](https://readthedocs.org/projects/venafips/badge/?version=latest)](https://venafips.readthedocs.io/en/latest/?badge=latest)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/VenafiPS?style=plastic)](https://www.powershellgallery.com/packages/VenafiPS)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/VenafiPS?style=plastic)
 
@@ -14,7 +13,7 @@ Welcome to VenafiPS (where the PS stands for PowerShell, not Professional Servic
 
 ## Documentation
 
-Documentation can be found at [http://VenafiPS.readthedocs.io](http://VenafiPS.readthedocs.io) or by using built-in PowerShell help.  Every effort has been made to document each parameter and provide good examples.
+Documentation can be found at [https://venafi.github.io/VenafiPS](https://venafi.github.io/VenafiPS) or by using built-in PowerShell help.  Every effort has been made to document each parameter and provide good examples.
 
 ## Supported Platforms
 
