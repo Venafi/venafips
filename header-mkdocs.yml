@@ -1,7 +1,7 @@
-site_name: VenafiPS
+site_name: VenafiPS PowerShell Module
 theme:
   name: material
-  logo: images/v.svg
+  logo: images/Venafi_LOGO_OrangeWhite_rgb_f.svg
   features:
     - navigation.expand
     - navigation.sections   # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-sections
@@ -34,11 +34,10 @@ theme:
       name: Switch to light mode
 
   # palette:
-  #   primary: indigo
+    primary: indigo
 repo_url: https://github.com/Venafi/VenafiPS
 repo_name: VenafiPS
-edit_uri: ""
-docs_dir: docs
+# edit_uri: ""
 markdown_extensions:
   admonition: {}              # https://python-markdown.github.io/extensions/admonition/
   abbr: {}                    # https://squidfunk.github.io/mkdocs-material/reference/abbreviations/ extension to add additional content on hover

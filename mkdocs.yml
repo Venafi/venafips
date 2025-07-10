@@ -2,8 +2,6 @@ site_name: VenafiPS PowerShell Module
 theme:
   name: material
   logo: images/Venafi_LOGO_OrangeWhite_rgb_f.svg
-  icon:
-    repo: fontawesome/brands/gitlab
   features:
     - navigation.expand
     - navigation.sections   # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-sections
