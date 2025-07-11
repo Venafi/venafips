@@ -70,3 +70,4 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Changelog: changelog.md
