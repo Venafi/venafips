@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/CyberArk_Logo_Horizontal_Navy_Tag-No-R.svg" alt="CyberArk"/>
+  <img src="images/CyberArk_Logo_Horizontal_Navy_Tag-No-R.svg#only-light" alt="CyberArk"/>
 </p>
 
 # VenafiPS - Automate your CyberArk Certificate Manager (Venafi TLS Protect) Self-Hosted and SaaS platforms!
