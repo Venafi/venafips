@@ -3,7 +3,7 @@ theme:
   name: material
   logo: images/Venafi_LOGO_OrangeWhite_rgb_f.svg
   features:
-    - navigation.expand
+    # - navigation.expand
     - navigation.sections   # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-sections
     - navigation.instant    # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#instant-loading
     # - navigation.tabs       # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-tabs

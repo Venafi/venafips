@@ -5,18 +5,21 @@ on:
   pull_request:
 
 jobs:
-  test-pssa:
+  build:
+    name: Deploy docs
     runs-on: ubuntu-latest
     steps:
-
-      - uses: actions/checkout@main
-        with:
-          token: ${{ secrets.CD_TOKEN }}
+      - name: Checkout main
+        uses: actions/checkout@v2
 
       - name: Deploy docs
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  test-pssa:
+    runs-on: ubuntu-latest
+    steps:
 
       - name: folder list
         shell: pwsh
