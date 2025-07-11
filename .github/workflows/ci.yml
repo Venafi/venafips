@@ -9,6 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+      - uses: actions/checkout@main
+        with:
+          token: ${{ secrets.CD_TOKEN }}
+
       - name: Deploy docs
         uses: mhausenblas/mkdocs-deploy-gh-pages@master
         env:
