@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/full-venafi-logo.png" alt="Venafi, A CyberArk Company"/>
+  <img src="images/CyberArk_Logo_Horizontal_Navy_Tag-No-R.svg" alt="Venafi, A CyberArk Company"/>
 </p>
 
 # VenafiPS - Automate your CyberArk Certificate Manager (Venafi TLS Protect) Self-Hosted and SaaS platforms!
