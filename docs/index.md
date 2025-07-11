@@ -1,6 +1,6 @@
 -----
 
-# Documentation on readthedocs will be deprecated.  Use [https://venafi.github.io/VenafiPS/](https://venafi.github.io/VenafiPS/) going forward.
+# Documentation on readthedocs will be deprecated.  Use [https://venafi.github.io/venafips/](https://venafi.github.io/venafips/) going forward.
 
 
 
