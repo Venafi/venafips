@@ -1,3 +1,7 @@
+# Documentation on readthedocs will be deprecated.  Use https://venafi.github.io/VenafiPS/ going forward.
+
+-----
+
 <p align="center">
   <img src="images/full-venafi-logo.png" alt="Venafi"/>
 </p>
