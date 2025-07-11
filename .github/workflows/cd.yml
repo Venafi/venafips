@@ -50,46 +50,34 @@ jobs:
           Remove-Module '${{ env.module_name }}' -Force -ea SilentlyContinue -Verbose
           Import-Module '${{ github.workspace }}/${{ env.module_name }}/${{ env.module_name }}.psd1' -Force -Verbose
 
-          #Build YAMLText starting with the header
-          $YMLtext = (Get-Content "${{ github.workspace }}/header-mkdocs.yml") -join "`n"
-          $YMLtext = "$YMLtext`n"
-          $parameters = @{
-              Path        = '${{ github.workspace }}/CHANGELOG.md'
-              ErrorAction = 'SilentlyContinue'
-          }
-          $readmeText = (Get-Content -Path '${{ github.workspace }}/README.md') -join "`n"
-          $readmeText | Set-Content "${{ github.workspace }}/docs/index.md"
+          Get-Content -Path "${{ github.workspace }}/README.md" | Set-Content -Path "${{ github.workspace }}/docs/index.md" -Force
+          Get-Content -Path "${{ github.workspace }}/CHANGELOG.md" | Set-Content -Path "${{ github.workspace }}/docs/changelog.md" -Force
 
-          $changeLogText = (Get-Content @parameters) -join "`n"
-          $changeLogText | Set-Content "${{ github.workspace }}/docs/changelog.md"
-          $YMLText = "$YMLtext  - Changelog: changelog.md`n"
+          $null = Remove-Item -Path "${{ github.workspace }}/docs/functions" -Recurse -Force
+          $null = New-Item -Path "${{ github.workspace }}/docs/functions" -Type 'Directory'
+          $md = New-MarkdownHelp -Module '${{ env.module_name }}' -OutputFolder '${{ github.workspace }}/docs/functions' -Force -NoMetadata
 
-          $YMLText = "$YMLtext  - Functions:`n"
-          $parameters = @{
-              Recurse     = $true
-              Force       = $true
-              Path        = "${{ github.workspace }}/docs/functions"
-              ErrorAction = 'SilentlyContinue'
+          $YMLtext = Get-Content "${{ github.workspace }}/header-mkdocs.yml")
+          $YMLText += "  - Functions:"
+
+          $vdcFunctions = $vcFunctions = @()
+
+          $md | foreach-object {
+            $functionName = $_.Name -replace '\.md', ''
+            $newEntry = "    - {0}: functions/{1}" -f $functionName, $_.Name
+            $newEntry
+
+            if ( $functionName -match '-Venafi' ) {
+                $YMLText += "newEntry"
+            }
+            elseif ( $functionName -match '-Vdc' ) {
+                $vdcFunctions += "  $newEntry"
+            }
+            else {
+                $vcFunctions += "  $newEntry"
+            }
           }
-          $null = Remove-Item @parameters
-          $Params = @{
-              Path        = "${{ github.workspace }}/docs/functions"
-              type        = 'directory'
-              ErrorAction = 'SilentlyContinue'
-          }
-          $null = New-Item @Params
-          $Params = @{
-              Module       = '${{ env.module_name }}'
-              Force        = $true
-              OutputFolder = '${{ github.workspace }}/docs/functions'
-              NoMetadata   = $true
-          }
-          New-MarkdownHelp @Params | ForEach-Object {
-              $Function = $_.Name -replace '\.md', ''
-              $Part = "    - {0}: functions/{1}" -f $Function, $_.Name
-              $YMLText = "{0}{1}`n" -f $YMLText, $Part
-              $Part
-          }
+
           $YMLtext | Set-Content -Path '${{ github.workspace }}/mkdocs.yml'
 
       - name: Update repo
@@ -100,7 +88,7 @@ jobs:
           git add docs
           git add mkdocs.yml
           git add index.md
-          git add CHANGELOG.md
+          git add changelog.md
           git status
           git commit -m "Update manifest and docs to ${{ env.venafips_new_version }}"
           git push
