@@ -107,7 +107,7 @@ function Find-VdcObject {
     Useful if there are conflicting custom field and built-in attribute names and you want to force the lookup against built-in.
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Find-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcObject.ps1

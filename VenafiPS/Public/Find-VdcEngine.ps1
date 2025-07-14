@@ -27,7 +27,7 @@ function Find-VdcEngine {
     Get engines whose name matches the supplied pattern
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcEngine/
+    https://venafi.github.io/VenafiPS/functions/Find-VdcEngine/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcEngine.ps1

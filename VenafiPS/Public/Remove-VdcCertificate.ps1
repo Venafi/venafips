@@ -43,7 +43,7 @@ function Remove-VdcCertificate {
     Remove a certificate and first remove all associations, keeping the apps
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcCertificate/
+    https://venafi.github.io/VenafiPS/functions/Remove-VdcCertificate/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcCertificate.ps1

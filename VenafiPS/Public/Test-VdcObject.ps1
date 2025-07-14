@@ -40,7 +40,7 @@ function Test-VdcObject {
     Retrieve existence for only one object
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Test-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Test-VdcObject.ps1

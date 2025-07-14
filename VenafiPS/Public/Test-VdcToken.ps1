@@ -67,7 +67,7 @@ function Test-VdcToken {
     Verify that accesstoken stored in $VenafiSession object is valid and return PsCustomObject as output with details.
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcToken/
+    https://venafi.github.io/VenafiPS/functions/Test-VdcToken/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Test-VdcToken.ps1

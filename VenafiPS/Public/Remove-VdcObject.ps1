@@ -47,7 +47,7 @@ function Remove-VdcObject {
     Remove an object without prompting for confirmation.  Be careful!
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Remove-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcObject.ps1

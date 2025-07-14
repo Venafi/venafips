@@ -43,7 +43,7 @@ function Set-VdcWorkflowTicketStatus {
     Approve all tickets for a certificate after a certain date with an explanation
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcWorkflowTicketStatus/
+    https://venafi.github.io/VenafiPS/functions/Set-VdcWorkflowTicketStatus/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcWorkflowTicketStatus.ps1

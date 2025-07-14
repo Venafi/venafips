@@ -161,7 +161,7 @@ function New-VenafiSession {
     Create session against TLSPC with a key stored in a vault
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VenafiSession/
+    https://venafi.github.io/VenafiPS/functions/New-VenafiSession/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VenafiSession.ps1

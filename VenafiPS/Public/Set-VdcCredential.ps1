@@ -76,7 +76,7 @@ function Set-VdcCredential {
     Set an existing TLSPDC certificate object as the certificate for a certificate credential
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcCredential/
+    https://venafi.github.io/VenafiPS/functions/Set-VdcCredential/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcCredential.ps1

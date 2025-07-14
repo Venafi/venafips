@@ -29,7 +29,7 @@ function Find-VdcClient {
     Find clients with the specific type
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcClient/
+    https://venafi.github.io/VenafiPS/functions/Find-VdcClient/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcClient.ps1

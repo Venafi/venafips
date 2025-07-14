@@ -21,7 +21,7 @@ function Get-VdcVersion {
     Get the version
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcVersion/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcVersion/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcVersion.ps1

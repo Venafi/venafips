@@ -30,7 +30,7 @@ CompanyName = 'Venafi'
 Copyright = '(c) Venafi. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Automate your Venafi TLS Protect Datacenter and Cloud platforms!'
+Description = 'Automate your CyberArk Certificate Manager (Venafi TLS Protect) Self-Hosted and SaaS platforms!'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
@@ -185,7 +185,7 @@ PrivateData = @{
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-HelpInfoURI = 'http://venafips.readthedocs.io/'
+HelpInfoURI = 'https://venafi.github.io/VenafiPS'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''

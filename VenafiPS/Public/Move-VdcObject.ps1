@@ -32,10 +32,10 @@ function Move-VdcObject {
     Move all objects found in 1 folder to another
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Move-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Move-VdcObject/
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Test-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Move-VdcObject.ps1

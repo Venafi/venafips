@@ -82,7 +82,7 @@ function Set-VdcAttribute {
     - X509 SubjectAltName URI
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcAttribute/
+    https://venafi.github.io/VenafiPS/functions/Set-VdcAttribute/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcAttribute.ps1

@@ -28,7 +28,7 @@ function Add-VdcEngineFolder {
     $EngineObjects | Add-VdcEngineFolder -FolderPath @('\VED\Policy\Certificates\Web Team','\VED\Policy\Certificates\Database Team') -Confirm:$false
     Add one or more processing engines via the pipeline to multiple policy folders. Suppress the confirmation prompt.
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Add-VdcEngineFolder/
+    https://venafi.github.io/VenafiPS/functions/Add-VdcEngineFolder/
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Add-VdcEngineFolder.ps1
     .LINK

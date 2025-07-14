@@ -38,7 +38,7 @@ function Remove-VdcEngineFolder {
     Remove-VdcEngineFolder -EnginePath @('\VED\Engines\MYVENAFI01','\VED\Engines\MYVENAFI02') -Confirm:$false
     Removed all policy folder assignments from the processing engines MYVENAFI01 and MYVENAFI02. Suppress the confirmation prompt.
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcEngineFolder/
+    https://venafi.github.io/VenafiPS/functions/Remove-VdcEngineFolder/
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcEngineFolder.ps1
     .LINK

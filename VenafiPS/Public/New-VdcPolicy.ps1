@@ -82,13 +82,13 @@ function New-VdcPolicy {
     Create a new policy folder returning the policy object created
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcPolicy/
+    https://venafi.github.io/VenafiPS/functions/New-VdcPolicy/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcPolicy.ps1
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/New-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1

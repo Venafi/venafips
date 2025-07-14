@@ -21,7 +21,7 @@ function Get-VdcSystemStatus {
     Get the status
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcSystemStatus/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcSystemStatus/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcSystemStatus.ps1

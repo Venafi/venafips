@@ -44,13 +44,13 @@ function New-VdcDevice {
     Pipe policy path and provide device details
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcDevice/
+    https://venafi.github.io/VenafiPS/functions/New-VdcDevice/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcDevice.ps1
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/New-VdcObject/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1

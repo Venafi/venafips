@@ -57,7 +57,7 @@ function Write-VdcLog {
     Log an event to a custom group
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Write-VdcLog/
+    https://venafi.github.io/VenafiPS/functions/Write-VdcLog/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Write-VdcLog.ps1

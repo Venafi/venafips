@@ -34,7 +34,7 @@ function Revoke-VdcGrant {
     Revoke all grants getting universal id from other identity functions
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Revoke-VdcGrant/
+    https://venafi.github.io/VenafiPS/functions/Revoke-VdcGrant/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Revoke-VdcGrant.ps1

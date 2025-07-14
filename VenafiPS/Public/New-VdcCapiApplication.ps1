@@ -83,7 +83,7 @@ function New-VdcCapiApplication {
     Create a new application and return a TppObject for the newly created app
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCapiApplication/
+    https://venafi.github.io/VenafiPS/functions/New-VdcCapiApplication/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcCapiApplication.ps1
@@ -92,10 +92,10 @@ function New-VdcCapiApplication {
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcCertificate/
+    https://venafi.github.io/VenafiPS/functions/Find-VdcCertificate/
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcObject/
+    https://venafi.github.io/VenafiPS/functions/Get-VdcObject/
 
     .LINK
     https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-create.php

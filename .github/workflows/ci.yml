@@ -5,6 +5,18 @@ on:
   pull_request:
 
 jobs:
+#   build:
+#     name: Deploy docs
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout main
+#         uses: actions/checkout@v2
+
+#       - name: Deploy docs
+#         uses: mhausenblas/mkdocs-deploy-gh-pages@master
+#         env:
+#             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   test-pssa:
     runs-on: ubuntu-latest
     steps:
@@ -16,27 +28,6 @@ jobs:
           cd ${{ github.workspace }}
           pwd
           (gci | select -exp name) -join ', '
-
-      # - name: Build psm1
-      #   shell: pwsh
-      #   run: |
-      #     # Set-PSRepository PSGallery -InstallationPolicy Trusted
-      #     Install-Module -Name PowerShellBuild -Scope CurrentUser -Force -Confirm:$false -ErrorAction Stop
-      #     # setting a path other than the current dir for Build-PSBuildModule didn't work
-      #     # cd ${{ github.workspace }}/${{ env.module_name }}
-      #     # pwd
-      #     # new-item -path ${{ github.workspace }}/merged -ItemType directory
-      #     # Build-PSBuildModule -Path ./VenafiPS -DestinationPath ./merged -ModuleName VenafiPS -Compile -Verbose
-      #     cd ..
-      #     Build-PSBuildModule -Path ./VenafiPS -DestinationPath ./merged -ModuleName VenafiPS -Compile -Verbose
-
-      # - name: Upload module artifact
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: published_module
-      #     path: |
-      #       ${{ github.workspace }}/merged/${{ env.module_name }}.psm1
-      #       ${{ github.workspace }}/merged/${{ env.module_name }}.psd1
 
       - uses: actions/checkout@main
       - name: Install PSScriptAnalyzer module

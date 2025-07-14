@@ -115,7 +115,7 @@ function Set-VdcPermission {
     Reset permissions for a specific user/group for all objects.  Note the use of -Force to overwrite existing permissions.
 
     .LINK
-    http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcPermission/
+    https://venafi.github.io/VenafiPS/functions/Set-VdcPermission/
 
     .LINK
     https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcPermission.ps1
