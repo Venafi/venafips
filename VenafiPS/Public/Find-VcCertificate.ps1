@@ -200,6 +200,7 @@ function Find-VcCertificate {
         [string] $SanDns,
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
+        [ValidateNotNullOrEmpty()]
         [string[]] $Application,
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
@@ -291,7 +292,7 @@ function Find-VcCertificate {
                 'SanDns' { $null = $newFilter.Add(@('subjectAlternativeNameDns', 'FIND', $SanDns)) }
                 'CN' { $null = $newFilter.Add(@('subjectCN', 'FIND', $CN)) }
                 'Issuer' { $null = $newFilter.Add(@('issuerCN', 'FIND', $Issuer)) }
-                'Application' { $null = $newFilter.Add(@('applicationId', 'IN', @(($Application | Get-VcData -Type Application)))) }
+                'Application' { $null = $newFilter.Add(@('applicationIds', 'IN', @(($Application | Get-VcData -Type Application)))) }
                 'Tag' {
                     $null = $newFilter.Add(@('tags', 'MATCH', $Tag))
                 }

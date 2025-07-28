@@ -35,7 +35,7 @@ theme:
 
   # palette:
     primary: indigo
-repo_url: https://github.com/Venafi/VenafiPS
+repo_url: https://github.com/Venafi/venafips
 repo_name: VenafiPS
 # edit_uri: ""
 markdown_extensions:
