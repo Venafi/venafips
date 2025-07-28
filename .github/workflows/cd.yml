@@ -78,6 +78,11 @@ jobs:
             }
           }
 
+          $YMLText += "    - Self-Hosted:"
+          $vdcFunctions | ForEach { $YMLText += $_ }
+          $YMLText += "    - SaaS:"
+          $vcFunctions | ForEach { $YMLText += $_ }
+
           $YMLtext | Set-Content -Path '${{ github.workspace }}/mkdocs.yml'
 
       - name: Update repo
