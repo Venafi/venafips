@@ -57,7 +57,7 @@ jobs:
           $null = New-Item -Path "${{ github.workspace }}/docs/functions" -Type 'Directory'
           $md = New-MarkdownHelp -Module '${{ env.module_name }}' -OutputFolder '${{ github.workspace }}/docs/functions' -Force -NoMetadata
 
-          $YMLtext = Get-Content "${{ github.workspace }}/header-mkdocs.yml")
+          $YMLtext = Get-Content "${{ github.workspace }}/header-mkdocs.yml"
           $YMLText += "  - Functions:"
 
           $vdcFunctions = $vcFunctions = @()
