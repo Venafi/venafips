@@ -66,7 +66,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcSystemStatus/](http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcSystemStatus/)
+[https://venafi.github.io/VenafiPS/functions/Get-VdcSystemStatus/](https://venafi.github.io/VenafiPS/functions/Get-VdcSystemStatus/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcSystemStatus.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcSystemStatus.ps1)
 

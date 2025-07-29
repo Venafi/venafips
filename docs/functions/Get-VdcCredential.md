@@ -100,7 +100,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcCredential/](http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcCredential/)
+[https://venafi.github.io/VenafiPS/functions/Get-VdcCredential/](https://venafi.github.io/VenafiPS/functions/Get-VdcCredential/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcCredential.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcCredential.ps1)
 

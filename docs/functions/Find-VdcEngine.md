@@ -85,7 +85,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcEngine/](http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcEngine/)
+[https://venafi.github.io/VenafiPS/functions/Find-VdcEngine/](https://venafi.github.io/VenafiPS/functions/Find-VdcEngine/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcEngine.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcEngine.ps1)
 

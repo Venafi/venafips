@@ -158,7 +158,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcPermission/](http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcPermission/)
+[https://venafi.github.io/VenafiPS/functions/Remove-VdcPermission/](https://venafi.github.io/VenafiPS/functions/Remove-VdcPermission/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcPermission.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcPermission.ps1)
 

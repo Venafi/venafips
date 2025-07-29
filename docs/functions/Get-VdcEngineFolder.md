@@ -124,7 +124,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcEngineFolder/](http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcEngineFolder/)
+[https://venafi.github.io/VenafiPS/functions/Get-VdcEngineFolder/](https://venafi.github.io/VenafiPS/functions/Get-VdcEngineFolder/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcEngineFolder.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcEngineFolder.ps1)
 

@@ -114,7 +114,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/Get-VdcObject/](https://venafi.github.io/VenafiPS/functions/Get-VdcObject/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcObject.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcObject.ps1)
 

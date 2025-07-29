@@ -106,7 +106,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcIdentity/](http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcIdentity/)
+[https://venafi.github.io/VenafiPS/functions/Test-VdcIdentity/](https://venafi.github.io/VenafiPS/functions/Test-VdcIdentity/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Test-VdcIdentity.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Test-VdcIdentity.ps1)
 

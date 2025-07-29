@@ -1,3 +1,6 @@
+## 6.11.1
+- Fix `Find-VcCertificate -Application` error, [#354](https://github.com/Venafi/VenafiPS/issues/354)
+
 ## 6.11.0
 - Add token based authentication to VC with `New-VenafiSession -VcEndpoint` and `New-VcToken`.  If the JWT has not expired, but the access token has, `New-VcToken` supports refresh.
 - Caching framework created for many VC objects (and some VDC ones as well).  If a requested item is not found, the cache will try and refresh in case it's been newly created.
@@ -796,6 +799,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

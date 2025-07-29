@@ -99,7 +99,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcWorkflowTicket/](http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcWorkflowTicket/)
+[https://venafi.github.io/VenafiPS/functions/Get-VdcWorkflowTicket/](https://venafi.github.io/VenafiPS/functions/Get-VdcWorkflowTicket/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcWorkflowTicket.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-VdcWorkflowTicket.ps1)
 

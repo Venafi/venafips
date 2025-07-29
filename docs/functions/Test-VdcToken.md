@@ -215,7 +215,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcToken/](http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcToken/)
+[https://venafi.github.io/VenafiPS/functions/Test-VdcToken/](https://venafi.github.io/VenafiPS/functions/Test-VdcToken/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Test-VdcToken.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Test-VdcToken.ps1)
 

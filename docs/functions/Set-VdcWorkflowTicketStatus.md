@@ -183,7 +183,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcWorkflowTicketStatus/](http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcWorkflowTicketStatus/)
+[https://venafi.github.io/VenafiPS/functions/Set-VdcWorkflowTicketStatus/](https://venafi.github.io/VenafiPS/functions/Set-VdcWorkflowTicketStatus/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcWorkflowTicketStatus.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcWorkflowTicketStatus.ps1)
 

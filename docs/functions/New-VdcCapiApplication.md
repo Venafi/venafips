@@ -376,15 +376,15 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCapiApplication/](http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCapiApplication/)
+[https://venafi.github.io/VenafiPS/functions/New-VdcCapiApplication/](https://venafi.github.io/VenafiPS/functions/New-VdcCapiApplication/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcCapiApplication.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcCapiApplication.ps1)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1)
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcCertificate/](http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcCertificate/)
+[https://venafi.github.io/VenafiPS/functions/Find-VdcCertificate/](https://venafi.github.io/VenafiPS/functions/Find-VdcCertificate/)
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/Get-VdcObject/](https://venafi.github.io/VenafiPS/functions/Get-VdcObject/)
 
 [https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-create.php](https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-create.php)
 

@@ -290,7 +290,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcCredential/](http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcCredential/)
+[https://venafi.github.io/VenafiPS/functions/Set-VdcCredential/](https://venafi.github.io/VenafiPS/functions/Set-VdcCredential/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcCredential.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcCredential.ps1)
 

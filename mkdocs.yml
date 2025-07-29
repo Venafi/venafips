@@ -35,7 +35,7 @@ theme:
 
   # palette:
     primary: indigo
-repo_url: https://github.com/Venafi/VenafiPS
+repo_url: https://github.com/Venafi/venafips
 repo_name: VenafiPS
 # edit_uri: ""
 markdown_extensions:
@@ -72,8 +72,8 @@ nav:
   - Home: index.md
   - Changelog: changelog.md
   - Functions:
-    - Invoke-VenafiRestMethod: functions/Invoke-VenafiRestMethod.md
-    - New-VenafiSession: functions/New-VenafiSession.md
+newEntry
+newEntry
     - Self-Hosted:
       - Add-VdcAdaptableHash: functions/Add-VdcAdaptableHash.md
       - Add-VdcCertificateAssociation: functions/Add-VdcCertificateAssociation.md

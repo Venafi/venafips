@@ -274,7 +274,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Write-VdcLog/](http://VenafiPS.readthedocs.io/en/latest/functions/Write-VdcLog/)
+[https://venafi.github.io/VenafiPS/functions/Write-VdcLog/](https://venafi.github.io/VenafiPS/functions/Write-VdcLog/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Write-VdcLog.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Write-VdcLog.ps1)
 

@@ -436,7 +436,7 @@ Confirmation impact is set to Medium, set ConfirmPreference accordingly.
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcPermission/](http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcPermission/)
+[https://venafi.github.io/VenafiPS/functions/Set-VdcPermission/](https://venafi.github.io/VenafiPS/functions/Set-VdcPermission/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcPermission.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcPermission.ps1)
 

@@ -186,7 +186,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Revoke-VdcToken/](http://VenafiPS.readthedocs.io/en/latest/functions/Revoke-VdcToken/)
+[https://venafi.github.io/VenafiPS/functions/Revoke-VdcToken/](https://venafi.github.io/VenafiPS/functions/Revoke-VdcToken/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Revoke-VdcToken.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Revoke-VdcToken.ps1)
 

@@ -249,7 +249,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/New-VdcObject/](https://venafi.github.io/VenafiPS/functions/New-VdcObject/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1)
 

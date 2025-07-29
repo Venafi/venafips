@@ -89,7 +89,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcClient/](http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcClient/)
+[https://venafi.github.io/VenafiPS/functions/Find-VdcClient/](https://venafi.github.io/VenafiPS/functions/Find-VdcClient/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcClient.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcClient.ps1)
 

@@ -100,7 +100,7 @@ All custom fields are retrieved upon inital connect to the server and a property
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcCustomField/](http://VenafiPS.readthedocs.io/en/latest/functions/Get-VdcCustomField/)
+[https://venafi.github.io/VenafiPS/functions/Get-VdcCustomField/](https://venafi.github.io/VenafiPS/functions/Get-VdcCustomField/)
 
 [https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Metadata-GetItemsForClass.php](https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Metadata-GetItemsForClass.php)
 

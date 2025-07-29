@@ -295,7 +295,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/Find-VdcObject/](https://venafi.github.io/VenafiPS/functions/Find-VdcObject/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcObject.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcObject.ps1)
 

@@ -256,7 +256,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcAttribute/](http://VenafiPS.readthedocs.io/en/latest/functions/Set-VdcAttribute/)
+[https://venafi.github.io/VenafiPS/functions/Set-VdcAttribute/](https://venafi.github.io/VenafiPS/functions/Set-VdcAttribute/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcAttribute.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Set-VdcAttribute.ps1)
 

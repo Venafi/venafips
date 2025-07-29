@@ -167,7 +167,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/Remove-VdcObject/](https://venafi.github.io/VenafiPS/functions/Remove-VdcObject/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcObject.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcObject.ps1)
 

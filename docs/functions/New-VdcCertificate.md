@@ -415,7 +415,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCertificate/](http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCertificate/)
+[https://venafi.github.io/VenafiPS/functions/New-VdcCertificate/](https://venafi.github.io/VenafiPS/functions/New-VdcCertificate/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcCertificate.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcCertificate.ps1)
 

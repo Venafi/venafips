@@ -197,11 +197,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcDevice/](http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcDevice/)
+[https://venafi.github.io/VenafiPS/functions/New-VdcDevice/](https://venafi.github.io/VenafiPS/functions/New-VdcDevice/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcDevice.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcDevice.ps1)
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/New-VdcObject/](https://venafi.github.io/VenafiPS/functions/New-VdcObject/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VdcObject.ps1)
 

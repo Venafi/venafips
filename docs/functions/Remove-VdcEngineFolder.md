@@ -162,7 +162,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcEngineFolder/](http://VenafiPS.readthedocs.io/en/latest/functions/Remove-VdcEngineFolder/)
+[https://venafi.github.io/VenafiPS/functions/Remove-VdcEngineFolder/](https://venafi.github.io/VenafiPS/functions/Remove-VdcEngineFolder/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcEngineFolder.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-VdcEngineFolder.ps1)
 

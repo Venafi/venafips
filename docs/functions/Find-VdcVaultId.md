@@ -84,7 +84,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcVaultId/](http://VenafiPS.readthedocs.io/en/latest/functions/Find-VdcVaultId/)
+[https://venafi.github.io/VenafiPS/functions/Find-VdcVaultId/](https://venafi.github.io/VenafiPS/functions/Find-VdcVaultId/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcVaultId.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Find-VdcVaultId.ps1)
 

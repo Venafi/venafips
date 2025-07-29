@@ -375,7 +375,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCustomField/](http://VenafiPS.readthedocs.io/en/latest/functions/New-VdcCustomField/)
+[https://venafi.github.io/VenafiPS/functions/New-VdcCustomField/](https://venafi.github.io/VenafiPS/functions/New-VdcCustomField/)
 
 [https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Metadata-DefineItem.php](https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Metadata-DefineItem.php)
 

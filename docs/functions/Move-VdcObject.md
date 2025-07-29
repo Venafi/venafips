@@ -136,9 +136,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Move-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/Move-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/Move-VdcObject/](https://venafi.github.io/VenafiPS/functions/Move-VdcObject/)
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcObject/](http://VenafiPS.readthedocs.io/en/latest/functions/Test-VdcObject/)
+[https://venafi.github.io/VenafiPS/functions/Test-VdcObject/](https://venafi.github.io/VenafiPS/functions/Test-VdcObject/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Move-VdcObject.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Move-VdcObject.ps1)
 

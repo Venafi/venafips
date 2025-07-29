@@ -155,7 +155,7 @@ You must have:
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Add-VdcCertificateAssociation/](http://VenafiPS.readthedocs.io/en/latest/functions/Add-VdcCertificateAssociation/)
+[https://venafi.github.io/VenafiPS/functions/Add-VdcCertificateAssociation/](https://venafi.github.io/VenafiPS/functions/Add-VdcCertificateAssociation/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Add-VdcCertificateAssociation.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Add-VdcCertificateAssociation.ps1)
 

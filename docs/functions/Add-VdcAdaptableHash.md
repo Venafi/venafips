@@ -168,7 +168,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-[http://VenafiPS.readthedocs.io/en/latest/functions/Add-VdcAdaptableHash/](http://VenafiPS.readthedocs.io/en/latest/functions/Add-VdcAdaptableHash/)
+[https://venafi.github.io/VenafiPS/functions/Add-VdcAdaptableHash/](https://venafi.github.io/VenafiPS/functions/Add-VdcAdaptableHash/)
 
 [https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Add-VdcAdaptableHash.ps1](https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Add-VdcAdaptableHash.ps1)
 
