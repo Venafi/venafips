@@ -72,8 +72,8 @@ nav:
   - Home: index.md
   - Changelog: changelog.md
   - Functions:
-newEntry
-newEntry
+    - Invoke-VenafiRestMethod: functions/Invoke-VenafiRestMethod.md
+    - New-VenafiSession: functions/New-VenafiSession.md
     - Self-Hosted:
       - Add-VdcAdaptableHash: functions/Add-VdcAdaptableHash.md
       - Add-VdcCertificateAssociation: functions/Add-VdcCertificateAssociation.md
