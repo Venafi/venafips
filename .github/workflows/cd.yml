@@ -68,7 +68,7 @@ jobs:
             $newEntry
 
             if ( $functionName -match '-Venafi' ) {
-                $YMLText += "newEntry"
+                $YMLText += $newEntry
             }
             elseif ( $functionName -match '-Vdc' ) {
                 $vdcFunctions += "  $newEntry"
