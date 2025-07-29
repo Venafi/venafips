@@ -89,11 +89,7 @@ jobs:
         run: |
           git config --global user.name 'Greg Brownstein'
           git config --global user.email 'greg@jagtechnical.com'
-          git add VenafiPS/VenafiPS.psd1
-          git add docs
-          git add mkdocs.yml
-          git add index.md
-          git add changelog.md
+          git add .
           git status
           git commit -m "Update manifest and docs to ${{ env.venafips_new_version }}"
           git push
