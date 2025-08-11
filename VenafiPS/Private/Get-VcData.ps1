@@ -3,6 +3,7 @@ function Get-VcData {
     <#
     .SYNOPSIS
         Helper function to get data from Venafi
+        Although the name is 'vc', it is currently used for vc and vdc.  This is a todo.
     #>
 
 
@@ -18,7 +19,7 @@ function Get-VcData {
         [string] $InputObject,
 
         [parameter(Mandatory)]
-        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User')]
+        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider')]
         [string] $Type,
 
         [parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Name')]
@@ -62,7 +63,7 @@ function Get-VcData {
         if ( $PSCmdlet.ParameterSetName -in 'ID', 'Name' ) {
             switch ($Type) {
                 { $_ -in 'Application', 'Team' } {
-                    $gqltype = '{0}s' -f $Type.ToLower()
+                    $gqltype = '{0}s' -f ($Type.Substring(0, 1).ToLower() + $Type.Substring(1))
                     $allObject = (Invoke-VcGraphQL -Query ($idNameQuery -f $gqltype)).$gqltype.nodes
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.id }
                     break
@@ -92,6 +93,25 @@ function Get-VcData {
         }
 
         switch ($Type) {
+            'CloudProvider' {
+                if ( -not $script:vcCloudProvider ) {
+                    $script:vcCloudProvider = Get-VcCloudProvider -All | Sort-Object -Property name
+                    $latest = $true
+                }
+
+                $allObject = $script:vcCloudProvider
+
+                if ( $InputObject ) {
+                    $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.cloudProviderId }
+                    if ( -not $thisObject -and -not $latest ) {
+                        $script:vcCloudProvider = Get-VcCloudProvider -All | Sort-Object -Property name
+                        $thisObject = $script:vcCloudProvider | Where-Object { $InputObject -in $_.name, $_.cloudProviderId }
+                    }
+                }
+
+                break
+            }
+
             'VSatellite' {
                 if ( -not $script:vcSatellite ) {
                     $script:vcSatellite = Get-VcSatellite -All | Sort-Object -Property name

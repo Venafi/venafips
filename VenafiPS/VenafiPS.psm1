@@ -51,27 +51,62 @@ $moduleCommands = Get-Command -Module VenafiPS | Select-Object -ExpandProperty N
 $vdcCommands = $moduleCommands | Where-Object { $_ -like '*-Vdc*' }
 $vcCommands = $moduleCommands | Where-Object { $_ -like '*-Vc*' }
 
+# define the argument completer details
+# d = description, required
+# l = lookup, required if lookup value is different than 'name'
+$vcCompletions = @{
+    'CloudProvider'   = @{
+        'd' = { 'type: {0}, status: {1}' -f $_.type, $_.status }
+    }
+    'Application'     = @{
+        'd' = { if ( $_.description ) { $_.description } else { $itemText } }
+    }
+    'IssuingTemplate' = @{
+        'd' = { 'product: {0}, validity: {1}' -f $_.product.productName, $_.product.validityPeriod }
+    }
+    'VSatellite'      = @{
+        'd' = { 'status: {0}, version: {1}' -f $_.edgeStatus, $_.satelliteVersion }
+    }
+    'Credential'      = @{
+        'd' = { 'type: {0}, authentication: {1}' -f $_.cmsType, $_.authType }
+    }
+    'Team'            = @{
+        'd' = { 'role: {0}' -f $_.role }
+    }
+    'Tag'             = @{
+        'l' = 'tagId'
+        'd' = {
+            if ($_.value) {
+                'values: {0}' -f ($_.value -join ', ')
+            }
+            else {
+                'no values set'
+            }
+        }
+    }
+    'User'            = @{
+        'l' = 'username'
+        'd' = { 'user type: {0}, system roles: {1}' -f $_.userType, $_.systemRoles -join ',' }
+    }
+}
+
 $vcGenericArgCompleterSb = {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
-    $objectType = $parameterName
+    # $objectType = $parameterName
     if ( $parameterName -eq 'ID' ) {
         # figure out object type based on function name since 'ID' is used in many functions
 
     }
 
-    switch ($objectType) {
-        'Application' {
-            if ( -not $script:vcApplication ) {
-                $script:vcApplication = Get-VcApplication -All | Sort-Object -Property name
-            }
-            $script:vcApplication | Where-Object name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
-                $itemText = "'{0}'" -f $_.name
-                $itemDescription = if ( $_.description ) { $_.description } else { $itemText }
+    $lookup = if ($vcCompletions.$parameterName.l) {
+        $vcCompletions.$parameterName.l
+    }
+    else {
+        'name'
+    }
 
-                [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
-            }
-        }
+    switch ($parameterName) {
 
         'MachineType' {
             if ( -not $script:vcMachineType ) {
@@ -88,22 +123,6 @@ $vcGenericArgCompleterSb = {
             }
         }
 
-        'IssuingTemplate' {
-            Get-VcData -Type IssuingTemplate | Where-Object name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
-                $itemText = "'{0}'" -f $_.name
-                $itemDescription = 'product: {0}, validity: {1}' -f $_.product.productName, $_.product.validityPeriod
-                [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
-            }
-        }
-
-        'VSatellite' {
-            Get-VcData -Type VSatellite | Where-Object Name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
-                $itemText = "'{0}'" -f $_.name
-                $itemDescription = 'status: {0}, version: {1}' -f $_.edgeStatus, $_.satelliteVersion
-                [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
-            }
-        }
-
         'Certificate' {
             # there might be a ton of certs so ensure they provide at least 3 characters
             if ( $wordToComplete.Length -ge 3 ) {
@@ -111,46 +130,18 @@ $vcGenericArgCompleterSb = {
             }
         }
 
-        'Credential' {
-            Get-VcData -Type Credential | Where-Object name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
-                $itemText = "'{0}'" -f $_.name
-                $itemDescription = 'type: {0}, authentication: {1}' -f $_.cmsType, $_.authType
-                [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
-            }
-        }
-
-        'Tag' {
-            Get-VcData -Type Tag | Where-Object tagId -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
-                $itemText = "'{0}'" -f $_.tagId
-                $itemDescription = if ($_.value) {
-                    'values: {0}' -f ($_.value -join ', ')
-                }
-                else {
-                    'no values set'
-                }
-                [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
-            }
-        }
-
-        { $_ -in 'Team', 'Owner' } {
-            Get-VcData -Type Team | Where-Object Name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
-                $itemText = "'{0}'" -f $_.name
-                $itemDescription = 'role: {0}' -f $_.role
-                [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
-            }
-        }
-
-        'User' {
-            Get-VcData -Type User | Where-Object username -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
-                $itemText = "'{0}'" -f $_.username
-                $itemDescription = 'user type: {0}, system roles: {1}' -f $_.userType, $_.systemRoles -join ','
+        default {
+            # catch all for $vcCompletions
+            Get-VcData -Type $parameterName | Where-Object $lookup -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
+                $itemText = "'{0}'" -f $_.$lookup
+                $itemDescription = & $vcCompletions.$parameterName.d
                 [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
             }
         }
     }
 }
 
-'Application', 'MachineType', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Credential', 'Team', 'Owner', 'Tag', 'User' | ForEach-Object {
+'MachineType', 'Certificate' + $vcCompletions.Keys | ForEach-Object {
     Register-ArgumentCompleter -CommandName $vcCommands -ParameterName $_ -ScriptBlock $vcGenericArgCompleterSb
 }
 
