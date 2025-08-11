@@ -3,30 +3,26 @@ function Invoke-VcGraphQL {
     .SYNOPSIS
     Execute a GraphQL query against the Venafi Cloud API
 
-    .NOTES
-    Currently no eu or au region support when providing an api key directly
-    Use a session from New-VenafiSession
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'Session')]
+    [CmdletBinding()]
 
     param (
-        [Parameter(ParameterSetName = 'Session')]
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key', 'AccessToken')]
         [psobject] $VenafiSession,
 
-        [Parameter(Mandatory, ParameterSetName = 'URL')]
-        [ValidateNotNullOrEmpty()]
-        [Alias('ServerUrl')]
-        [String] $Server,
+        # [Parameter(Mandatory, ParameterSetName = 'URL')]
+        # [ValidateNotNullOrEmpty()]
+        # [Alias('ServerUrl')]
+        # [String] $Server,
 
-        [Parameter(ParameterSetName = 'URL')]
-        [Alias('UseDefaultCredentials')]
-        [switch] $UseDefaultCredential,
+        # [Parameter(ParameterSetName = 'URL')]
+        # [Alias('UseDefaultCredentials')]
+        # [switch] $UseDefaultCredential,
 
-        [Parameter(ParameterSetName = 'URL')]
-        [X509Certificate] $Certificate,
+        # [Parameter(ParameterSetName = 'URL')]
+        # [X509Certificate] $Certificate,
 
         [Parameter()]
         [ValidateSet('Post')]
@@ -59,34 +55,34 @@ function Invoke-VcGraphQL {
     }
 
 
-    if ( $PSCmdLet.ParameterSetName -eq 'Session' ) {
+    # if ( $PSCmdLet.ParameterSetName -eq 'Session' ) {
 
-        $VenafiSession = Get-VenafiSession
+    $VenafiSession = Get-VenafiSession
 
-        switch ($VenafiSession.GetType().Name) {
-            'PSCustomObject' {
-                $Server = $VenafiSession.Server
-                $auth = $VenafiSession.Key.GetNetworkCredential().password
-                $SkipCertificateCheck = $VenafiSession.SkipCertificateCheck
-                $params.TimeoutSec = $VenafiSession.TimeoutSec
-                break
-            }
+    $Server = $VenafiSession.Server
+    $auth = $VenafiSession.Key.GetNetworkCredential().password
+    $SkipCertificateCheck = $VenafiSession.SkipCertificateCheck
+    $params.TimeoutSec = $VenafiSession.TimeoutSec
+    # switch ($VenafiSession.GetType().Name) {
+    #     'PSCustomObject' {
+    #         break
+    #     }
 
-            'String' {
-                $auth = $VenafiSession
-                # TODO: defaults to US, add other region support
-                $Server = ($script:VcRegions).'us'
-            }
+    #     'String' {
+    #         $auth = $VenafiSession
+    #         # TODO: defaults to US, add other region support
+    #         $Server = ($script:VcRegions).'us'
+    #     }
 
-            Default {
-                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a TLSPC key."
-            }
-        }
+    #     Default {
+    #         throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a TLSPC key."
+    #     }
+    # }
 
-        $allHeaders = @{
-            "tppl-api-key" = $auth
-        }
+    $allHeaders = @{
+        "tppl-api-key" = $auth
     }
+    # }
 
     $params.Uri = "$Server/graphql"
 
@@ -96,13 +92,13 @@ function Invoke-VcGraphQL {
     # in the case of inital authentication, eg, there won't be any
     if ( $allHeaders ) { $params.Headers = $allHeaders }
 
-    if ( $UseDefaultCredential.IsPresent -and $Certificate ) {
-        throw 'You cannot use UseDefaultCredential and Certificate parameters together'
-    }
+    # if ( $UseDefaultCredential.IsPresent -and $Certificate ) {
+    #     throw 'You cannot use UseDefaultCredential and Certificate parameters together'
+    # }
 
-    if ( $UseDefaultCredential.IsPresent ) {
-        $params.Add('UseDefaultCredentials', $true)
-    }
+    # if ( $UseDefaultCredential.IsPresent ) {
+    #     $params.Add('UseDefaultCredentials', $true)
+    # }
 
     $body = @{'query' = $Query }
     if ( $Variables ) {
@@ -122,9 +118,9 @@ function Invoke-VcGraphQL {
 
     # ConvertTo-Json, used in Write-VerboseWithSecret, has an issue with certificates
     # add this param after
-    if ( $Certificate ) {
-        $params.Add('Certificate', $Certificate)
-    }
+    # if ( $Certificate ) {
+    #     $params.Add('Certificate', $Certificate)
+    # }
 
     if ( $SkipCertificateCheck -or $env:VENAFIPS_SKIP_CERT_CHECK -eq '1' ) {
         if ( $PSVersionTable.PSVersion.Major -lt 6 ) {
@@ -162,50 +158,50 @@ function Invoke-VcGraphQL {
         Write-Verbose ('Response status code {0}' -f $statusCode)
 
         switch ($statusCode) {
-            403 {
+            # 403 {
 
-                $permMsg = ''
+            #     $permMsg = ''
 
-                # get scope details for tpp
-                # if ( $platform -ne 'VC' ) {
-                $callingFunction = @(Get-PSCallStack)[1].InvocationInfo.MyCommand.Name
-                $callingFunctionScope = ($script:functionConfig).$callingFunction.TppTokenScope
-                if ( $callingFunctionScope ) { $permMsg += "$callingFunction requires a token scope of '$callingFunctionScope'." }
+            #     # get scope details for tpp
+            #     # if ( $platform -ne 'VC' ) {
+            #     $callingFunction = @(Get-PSCallStack)[1].InvocationInfo.MyCommand.Name
+            #     $callingFunctionScope = ($script:functionConfig).$callingFunction.TppTokenScope
+            #     if ( $callingFunctionScope ) { $permMsg += "$callingFunction requires a token scope of '$callingFunctionScope'." }
 
-                $rejectedScope = Select-String -InputObject $originalError.ErrorDetails.Message -Pattern 'Grant rejected scope ([^.]+)'
+            #     $rejectedScope = Select-String -InputObject $originalError.ErrorDetails.Message -Pattern 'Grant rejected scope ([^.]+)'
 
-                if ( $rejectedScope.Matches.Groups.Count -gt 1 ) {
-                    $permMsg += ("  The current scope of {0} is insufficient." -f $rejectedScope.Matches.Groups[1].Value.Replace('\u0027', "'"))
-                }
-                $permMsg += '  Call New-VenafiSession with the correct scope.'
-                # }
-                # else {
-                #     $permMsg = $originalError.ErrorDetails.Message
-                # }
+            #     if ( $rejectedScope.Matches.Groups.Count -gt 1 ) {
+            #         $permMsg += ("  The current scope of {0} is insufficient." -f $rejectedScope.Matches.Groups[1].Value.Replace('\u0027', "'"))
+            #     }
+            #     $permMsg += '  Call New-VenafiSession with the correct scope.'
+            #     # }
+            #     # else {
+            #     #     $permMsg = $originalError.ErrorDetails.Message
+            #     # }
 
 
-                throw $permMsg
-            }
+            #     throw $permMsg
+            # }
 
-            409 {
-                # 409 = item already exists.  some functions use this for a 'force' option, eg. Set-VdcPermission
-                # treat this as non error/exception if FullResponse provided
-                if ( $FullResponse ) {
-                    $response = [pscustomobject] @{
-                        StatusCode = $statusCode
-                        Error      =
-                        try {
-                            $originalError.ErrorDetails.Message | ConvertFrom-Json
-                        }
-                        catch {
-                            $originalError.ErrorDetails.Message
-                        }
-                    }
-                }
-                else {
-                    throw $originalError
-                }
-            }
+            # 409 {
+            #     # 409 = item already exists.  some functions use this for a 'force' option, eg. Set-VdcPermission
+            #     # treat this as non error/exception if FullResponse provided
+            #     if ( $FullResponse ) {
+            #         $response = [pscustomobject] @{
+            #             StatusCode = $statusCode
+            #             Error      =
+            #             try {
+            #                 $originalError.ErrorDetails.Message | ConvertFrom-Json
+            #             }
+            #             catch {
+            #                 $originalError.ErrorDetails.Message
+            #             }
+            #         }
+            #     }
+            #     else {
+            #         throw $originalError
+            #     }
+            # }
 
             Default {
                 throw $originalError
