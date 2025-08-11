@@ -10,7 +10,7 @@ function Get-VcCloudProvider {
     Cloud provider ID or name, tab completion supported
 
     .PARAMETER All
-    Get all applications
+    Get all cloud providers
 
     .PARAMETER VenafiSession
     Authentication for the function.
