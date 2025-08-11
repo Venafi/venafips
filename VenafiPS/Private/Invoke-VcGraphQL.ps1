@@ -8,22 +8,14 @@ function Invoke-VcGraphQL {
     [CmdletBinding()]
 
     param (
-        [Parameter()]
-        [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession,
-
-        [Parameter()]
-        [ValidateSet('Post')]
-        [String] $Method = 'Post',
-
-        [Parameter()]
-        [hashtable] $Header,
-
         [Parameter(Mandatory)]
         [string] $Query,
 
         [Parameter()]
         [hashtable] $Variables,
+
+        [Parameter()]
+        [hashtable] $Header,
 
         [Parameter()]
         [switch] $FullResponse,
@@ -32,14 +24,20 @@ function Invoke-VcGraphQL {
         [Int32] $TimeoutSec = 0,
 
         [Parameter()]
-        [switch] $SkipCertificateCheck
+        [switch] $SkipCertificateCheck,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [psobject] $VenafiSession
     )
 
     $params = @{
-        Method          = $Method
+        Method          = 'Post'
         ContentType     = 'application/json'
         UseBasicParsing = $true
         TimeoutSec      = $TimeoutSec
+        ErrorAction     = 'Stop'
+        ProgressAction  = 'SilentlyContinue'
     }
 
     $VenafiSession = Get-VenafiSession
@@ -97,7 +95,7 @@ function Invoke-VcGraphQL {
         }
     }
 
-    $verboseOutput = $($response = Invoke-WebRequest @params -ErrorAction Stop -ProgressAction SilentlyContinue) 4>&1
+    $verboseOutput = $($response = Invoke-WebRequest @params) 4>&1
     $verboseOutput.Message | Write-VerboseWithSecret
 
     if ( $FullResponse ) {
