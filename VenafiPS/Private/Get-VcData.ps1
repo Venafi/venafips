@@ -19,7 +19,7 @@ function Get-VcData {
         [string] $InputObject,
 
         [parameter(Mandatory)]
-        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider')]
+        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider', 'CloudKeystore')]
         [string] $Type,
 
         [parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Name')]
@@ -93,6 +93,25 @@ function Get-VcData {
         }
 
         switch ($Type) {
+            'CloudKeystore' {
+                if ( -not $script:vcCloudKeystore ) {
+                    $script:vcCloudKeystore = Get-VcCloudKeystore -All | Sort-Object -Property name
+                    $latest = $true
+                }
+
+                $allObject = $script:vcCloudKeystore
+
+                if ( $InputObject ) {
+                    $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.cloudKeystoreId }
+                    if ( -not $thisObject -and -not $latest ) {
+                        $script:vcCloudKeystore = Get-VcCloudKeystore -All | Sort-Object -Property name
+                        $thisObject = $script:vcCloudKeystore | Where-Object { $InputObject -in $_.name, $_.cloudKeystoreId }
+                    }
+                }
+
+                break
+            }
+
             'CloudProvider' {
                 if ( -not $script:vcCloudProvider ) {
                     $script:vcCloudProvider = Get-VcCloudProvider -All | Sort-Object -Property name

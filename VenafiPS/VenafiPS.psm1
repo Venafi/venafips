@@ -55,6 +55,9 @@ $vcCommands = $moduleCommands | Where-Object { $_ -like '*-Vc*' }
 # d = description, required
 # l = lookup, required if lookup value is different than 'name'
 $vcCompletions = @{
+    'CloudKeystore'   = @{
+        'd' = { 'type: {0}, provider: {1}' -f $_.type, $_.cloudProvider.name }
+    }
     'CloudProvider'   = @{
         'd' = { 'type: {0}, status: {1}' -f $_.type, $_.status }
     }
