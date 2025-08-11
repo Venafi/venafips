@@ -61,7 +61,7 @@ function Invoke-VcGraphQL {
     # in the case of inital authentication, eg, there won't be any
     if ( $allHeaders ) { $params.Headers = $allHeaders }
 
-    $body = @{'query' = $Query }
+    $body = @{'query' = ($Query -replace "`r`n|`n", " ").Trim() }
     if ( $Variables ) {
         $body['variables'] = $Variables
     }
