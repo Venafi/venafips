@@ -290,8 +290,12 @@ function New-VcCloudProvider {
                 name            = $Name
                 teamId          = $ownerId
                 type            = $PSCmdlet.ParameterSetName
-                authorizedTeams = @($AuthorizedTeam | Get-VcData -Type Team)
+                authorizedTeams = @()
             }
+        }
+
+        if ( $PSBoundParameters.ContainsKey('AuthorizedTeam') ) {
+            $variables.input.authorizedTeams = @($AuthorizedTeam | Get-VcData -Type Team)
         }
 
         switch ($PSCmdlet.ParameterSetName) {
