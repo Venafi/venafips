@@ -285,7 +285,6 @@ function New-VcCloudProvider {
 
     process {
 
-
         $variables = @{
             'input' = @{
                 name            = $Name
@@ -331,7 +330,7 @@ function New-VcCloudProvider {
             }
         }
 
-        if ( $PSCmdlet.ShouldProcess($Name, 'Create cloud provider') ) {
+        if ( $PSCmdlet.ShouldProcess($Name, ('Create {0} cloud provider' -f $variables.input.type)) ) {
 
             $response = Invoke-VcGraphQL -Query $query -Variables $variables | Select-Object -ExpandProperty createCloudProvider
 
