@@ -23,7 +23,7 @@ function New-VcCloudKeystore {
     Unlike the Owning Team, users may not have the authority to update and delete Cloud Keystores.
 
     .PARAMETER GCM
-    Create a GCM cloud keystore.
+    Create a Google Certificate Manager (GCM) keystore.
     Details can be found at https://docs.venafi.cloud/vaas/installations/cloud-keystores/add-cloud-keystore-google/
 
     .PARAMETER Location
@@ -33,14 +33,14 @@ function New-VcCloudKeystore {
     GCM Project ID
 
     .PARAMETER AKV
-    Create a Azure KeyVault keystore
+    Create a Azure KeyVault (AKV) keystore
     Details can be found at https://docs.venafi.cloud/vaas/installations/cloud-keystores/add-cloud-keystore-azure/
 
     .PARAMETER KeyVaultName
     Azure KeyVault name
 
     .PARAMETER ACM
-    Create a ACM cloud keystore
+    Create a AWS Certificate Manager (ACM) keystore
     Details can be found at https://docs.venafi.cloud/vaas/installations/cloud-keystores/add-cloud-keystore-aws/
 
     .PARAMETER Region
