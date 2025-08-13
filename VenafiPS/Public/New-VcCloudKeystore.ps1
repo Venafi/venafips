@@ -49,6 +49,9 @@ function New-VcCloudKeystore {
     .PARAMETER IncludeExpiredCertificates
     Provide this switch to include expired certificates when discovery is run
 
+    .PARAMETER DiscoverySchedule
+    A crontab expression representing when the discovery will run, eg. 0 0 * * *, run daily at 12a
+
     .PARAMETER PassThru
     Return newly created cloud keystore object
 
@@ -138,6 +141,9 @@ function New-VcCloudKeystore {
         [switch] $IncludeExpiredCertificates,
 
         [Parameter()]
+        [string] $DiscoverySchedule = $null,
+
+        [Parameter()]
         [switch] $PassThru,
 
         [Parameter()]
@@ -206,7 +212,7 @@ function New-VcCloudKeystore {
                 discoveryConfiguration = @{
                     includeExpiredCertificates = $IncludeExpiredCertificates.IsPresent
                     includeRevokedCertificates = $false
-                    scheduleSpecification      = $null
+                    scheduleSpecification      = $DiscoverySchedule
                 }
             }
         }

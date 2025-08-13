@@ -73,21 +73,25 @@ function Get-VcCloudKeystore {
                         filter: {cloudProviderId: $cloudProviderId, cloudKeystoreId: $cloudKeystoreId, cloudProviderName: $cloudProviderName, cloudKeystoreName: $cloudKeystoreName}
                     ) {
                         nodes {
-                        cloudKeystoreId: id
-                        name
-                        type
-                        createdOn
-                        machineIdentitiesCount
-                        configuration {
-                            ...CloudKeystoresList_CloudKeystoreACMConfiguration
-                            ...CloudKeystoresList_CloudKeystoreAKVConfiguration
-                            ...CloudKeystoreList_CloudKeystoreGCMConfiguration
-                            ...CloudKeystoresList_CloudKeystoreAkamaiCDNConfiguration
-                            __typename
-                        }
-                        cloudProvider {
-                            ...CloudKeystoresList_CloudProvider
-                        }
+                            cloudKeystoreId: id
+                            name
+                            type
+                            createdOn
+                            machineIdentitiesCount
+                            configuration {
+                                ...CloudKeystoresList_CloudKeystoreACMConfiguration
+                                ...CloudKeystoresList_CloudKeystoreAKVConfiguration
+                                ...CloudKeystoreList_CloudKeystoreGCMConfiguration
+                                ...CloudKeystoresList_CloudKeystoreAkamaiCDNConfiguration
+                            }
+                            cloudProvider {
+                                ...CloudKeystoresList_CloudProvider
+                            }
+                            discoveryConfiguration {
+                                scheduleSpecification
+                                includeExpiredCertificates
+                                includeRevokedCertificates
+                            }
                         }
                     }
                     }
