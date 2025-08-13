@@ -104,11 +104,17 @@ function Invoke-VcGraphQL {
     else {
         if ( $response.Content ) {
             try {
-                $response.Content | ConvertFrom-Json | Select-Object -ExpandProperty 'data'
+                $content = $response.Content | ConvertFrom-Json
             }
             catch {
                 throw ('Invalid JSON response {0}' -f $response.Content)
             }
+
+            if ( $content.errors ) {
+                throw $content.errors.message
+            }
+
+            $content.data
         }
     }
 }
