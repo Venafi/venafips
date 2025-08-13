@@ -27,7 +27,7 @@ function New-VcCloudKeystore {
     Details can be found at https://docs.venafi.cloud/vaas/installations/cloud-keystores/add-cloud-keystore-google/
 
     .PARAMETER Location
-    GCM region of leave blank for 'global'
+    GCM region, default is 'global'
 
     .PARAMETER ProjectID
     GCM Project ID
