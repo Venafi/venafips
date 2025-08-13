@@ -1,73 +1,56 @@
 function New-VcCloudKeystore {
     <#
     .SYNOPSIS
-    Create a new cloud provider
+    Create a new cloud keystore
 
     .DESCRIPTION
-    Create a new cloud provider for either AWS, Azure, or GCP
+    Create a new cloud keystore
+
+    .PARAMETER CloudProvider
+    Cloud provider ID or name
 
     .PARAMETER Name
-    Cloud provider name
+    Cloud keystore name
 
     .PARAMETER OwnerTeam
     ID or name of owning team.
-    The Owning Team is responsible for the administration, management, and control of a designated cloud provider, with the authority to update, modify, and delete cloud provider resources.
+    The Owning Team is responsible for the administration, management, and control of a designated cloud keystore, with the authority to update, modify, and delete cloud keystore resources.
 
     .PARAMETER AuthorizedTeam
     1 or more IDs or names of authorized teams.
-    Authorized teams are granted permission to use specific resources of a cloud provider. Although team members can perform tasks like creating a keystore, their permissions may be limited regarding broader modifications to the provider's configuration. Unlike the Owning Team, users may not have the authority to update and delete Cloud Providers.
+    Authorized teams are granted permission to use specific resources of a cloud keystore.
+    Although team members can perform tasks like creating a keystore, their permissions may be limited regarding broader modifications to the keystore's configuration.
+    Unlike the Owning Team, users may not have the authority to update and delete Cloud Keystores.
 
-    .PARAMETER GCP
-    Create a GCP cloud provider.
-    Details can be found at https://docs.venafi.cloud/vaas/integrations/gcp/gcp/.
+    .PARAMETER GCM
+    Create a GCM cloud keystore.
+    Details can be found at https://docs.venafi.cloud/vaas/installations/cloud-keystores/add-cloud-keystore-google/
 
-    .PARAMETER ServiceAccountEmail
-    Service account email address.
-    Provide for GCP connections with either Workload Identity Federation or Venafi Generated Key.
-    Venafi Generated Key, https://docs.venafi.cloud/vaas/integrations/gcp/gcp-serviceaccount/
-    Workload Identity Federation, https://docs.venafi.cloud/vaas/integrations/gcp/gcp-workload-identity/
+    .PARAMETER Location
+    GCM region of leave blank for 'global'
 
-    .PARAMETER ProjectNumber
-    GCP project number, needed for WIF
+    .PARAMETER ProjectID
+    GCM Project ID
 
-    .PARAMETER PoolID
-    Workload Identity Pool ID, located in the GCP Workload Identity Federation section
-    This must be 4 to 32 lowercase letters, digits, or hyphens.
+    .PARAMETER AKV
+    Create a Azure KeyVault keystore
+    Details can be found at https://docs.venafi.cloud/vaas/installations/cloud-keystores/add-cloud-keystore-azure/
 
-    .PARAMETER PoolProviderID
-    Unique, meaningful name related to this specific cloud provider, such as venafi-provider.
-    This will be created.
-    This must be 4 to 32 lowercase letters, digits, or hyphens.
+    .PARAMETER KeyVaultName
+    Azure KeyVault name
 
-    .PARAMETER Azure
-    Create a Azure cloud provider
-    Details can be found at https://docs.venafi.cloud/vaas/integrations/azure/azure-key-vault/
+    .PARAMETER ACM
+    Create a ACM cloud keystore
+    Details can be found at https://docs.venafi.cloud/vaas/installations/cloud-keystores/add-cloud-keystore-aws/
 
-    .PARAMETER ApplicationID
-    Active Directory Application (client) Id. The client Id is the unique identifier of an application created in Active Directory. You can have many applications in an Active Directory and each application will have a different access levels.
+    .PARAMETER Region
+    ACM region
 
-    .PARAMETER DirectoryID
-    Unique identifier of the Azure Active Directory instance. One subscription can have multiple tenants. Using this Tenant Id you register and manage your apps.
-
-    .PARAMETER ClientSecret
-    Credential that is used to authenticate and authorize a client application when it interacts with Azure services.
-
-    .PARAMETER AWS
-    Create a AWS cloud provider
-    Details can be found at https://docs.venafi.cloud/vaas/integrations/Aws/aws-acm/
-
-    .PARAMETER AccountID
-    12 digit AWS Account ID
-
-    .PARAMETER IamRoleName
-    Role name, to be created, that carries significance and can be readily linked to this specific cloud provider
-
-    .PARAMETER Validate
-    Invoke cloud provider validation once created.
-    If using -PassThru, the validation result will be provided with the new cloud provider details.
+    .PARAMETER IncludeExpiredCertificates
+    Provide this switch to include expired certificates when discovery is run
 
     .PARAMETER PassThru
-    Return newly created cloud provider object
+    Return newly created cloud keystore object
 
     .PARAMETER VenafiSession
     Authentication for the function.
@@ -78,34 +61,29 @@ function New-VcCloudKeystore {
     PSCustomObject, if PassThru provided
 
     .EXAMPLE
-    New-VcCloudProvider -Name 'MyGCP' -OwnerTeam 'SpecialTeam' -GCP -ServiceAccountEmail 'greg-brownstein@my-secret-project.iam.gserviceaccount.com'
+    New-VcCloudKeystore -CloudProvider 'MyGCP' -Name 'MyGCM' -OwnerTeam 'SpecialTeam' -GCM -ProjectID 'woot1'
 
-    Create a new GCP Venafi Generated Key provider
-
-    .EXAMPLE
-    New-VcCloudProvider -Name 'MyGCP' -OwnerTeam 'SpecialTeam' -GCP -ServiceAccountEmail 'greg-brownstein@my-secret-project.iam.gserviceaccount.com' -ProjectNumber 12345 -PoolID hithere -PoolProviderID blahblah1
-
-    Create a new GCP Workload Identity Foundation provider
+    Create a new GCM keystore
 
     .EXAMPLE
-    New-VcCloudProvider -Name 'MyAzure' -OwnerTeam 'SpecialTeam' -Azure -ApplicationID '5e256486-ef8f-443f-84ad-221a7ac1d52e' -DirectoryID '45f2133f-8317-44d5-9813-ed08bf92eb7b' -ClientSecret 'youllneverguess'
+    New-VcCloudKeystore -CloudProvider 'MyAzure' -Name 'MyAKV' -OwnerTeam 'SpecialTeam' -AKV -KeyVaultName 'thisisakeyvault'
 
-    Create a new Azure provider
-
-    .EXAMPLE
-    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'TlspcIntegrationRole'
-
-    Create a new AWS provider
+    Create a new AKV keystore
 
     .EXAMPLE
-    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'TlspcIntegrationRole' -Validate
+    New-VcCloudKeystore -CloudProvider 'MyAWS' -Name 'MyACM' -OwnerTeam 'SpecialTeam' -ACM -Region 'us-east-1'
 
-    Create a new provider and validate once created
+    Create a new ACM keystore
 
     .EXAMPLE
-    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'TlspcIntegrationRole' -PassThru
+    New-VcCloudKeystore -CloudProvider 'MyAWS' -Name 'MyACM' -OwnerTeam 'SpecialTeam' -ACM -Region 'us-east-1' -IncludeExpiredCertificates
 
-    Create a new provider and provide the details of the new object
+    Create a new keystore and include expired certificates during discovery
+
+    .EXAMPLE
+    New-VcCloudKeystore -CloudProvider 'MyAWS' -Name 'MyACM' -OwnerTeam 'SpecialTeam' -ACM -Region 'us-east-1' -PassThru
+
+    Create a new keystore and provide the details of the new object
 
     #>
 
@@ -116,6 +94,7 @@ function New-VcCloudKeystore {
         [Parameter(Mandatory, ParameterSetName = 'AKV')]
         [Parameter(Mandatory, ParameterSetName = 'ACM')]
         [ValidateNotNullOrEmpty()]
+        [Alias('cloudProviderId', 'cp')]
         [string] $CloudProvider,
 
         [Parameter(Mandatory, ParameterSetName = 'GCM')]
