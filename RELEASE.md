@@ -1,1 +1,3 @@
-- Fix `Find-VcCertificate -Application` error, [#354](https://github.com/Venafi/VenafiPS/issues/354)
+- Add cloud provider and keystore management functions `Get-VcCloudProvider`, `Get-VcCloudKeystore`, `New-VcCloudProvider`, `New-VcCloudKeystore`, `Remove-VcCloudProvider`, and `Remove-VcCloudKeystore`, [#352](https://github.com/Venafi/VenafiPS/issues/352)
+- Argument completers added for CloudProvider and CloudKeystore
+- Better graphql error handling and messaging in `Invoke-VcGraphQL`
