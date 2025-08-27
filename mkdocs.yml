@@ -151,6 +151,8 @@ nav:
       - Get-VcApplication: functions/Get-VcApplication.md
       - Get-VcCertificate: functions/Get-VcCertificate.md
       - Get-VcCertificateRequest: functions/Get-VcCertificateRequest.md
+      - Get-VcCloudKeystore: functions/Get-VcCloudKeystore.md
+      - Get-VcCloudProvider: functions/Get-VcCloudProvider.md
       - Get-VcConnector: functions/Get-VcConnector.md
       - Get-VcIssuingTemplate: functions/Get-VcIssuingTemplate.md
       - Get-VcMachine: functions/Get-VcMachine.md
@@ -166,6 +168,8 @@ nav:
       - Invoke-VcWorkflow: functions/Invoke-VcWorkflow.md
       - New-VcApplication: functions/New-VcApplication.md
       - New-VcCertificate: functions/New-VcCertificate.md
+      - New-VcCloudKeystore: functions/New-VcCloudKeystore.md
+      - New-VcCloudProvider: functions/New-VcCloudProvider.md
       - New-VcConnector: functions/New-VcConnector.md
       - New-VcMachine: functions/New-VcMachine.md
       - New-VcMachineCommonKeystore: functions/New-VcMachineCommonKeystore.md
@@ -175,6 +179,8 @@ nav:
       - New-VcWebhook: functions/New-VcWebhook.md
       - Remove-VcApplication: functions/Remove-VcApplication.md
       - Remove-VcCertificate: functions/Remove-VcCertificate.md
+      - Remove-VcCloudKeystore: functions/Remove-VcCloudKeystore.md
+      - Remove-VcCloudProvider: functions/Remove-VcCloudProvider.md
       - Remove-VcConnector: functions/Remove-VcConnector.md
       - Remove-VcIssuingTemplate: functions/Remove-VcIssuingTemplate.md
       - Remove-VcMachine: functions/Remove-VcMachine.md

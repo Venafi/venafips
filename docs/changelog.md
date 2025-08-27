@@ -1,3 +1,9 @@
+## 6.12.0
+- Add cloud provider and keystore management functions `Get-VcCloudProvider`, `Get-VcCloudKeystore`, `New-VcCloudProvider`, `New-VcCloudKeystore`, `Remove-VcCloudProvider`, and `Remove-VcCloudKeystore`, [#352](https://github.com/Venafi/VenafiPS/issues/352)
+- Argument completers added for CloudProvider and CloudKeystore
+- Better graphql error handling and messaging in `Invoke-VcGraphQL`
+
+
 ## 6.11.1
 - Fix `Find-VcCertificate -Application` error, [#354](https://github.com/Venafi/VenafiPS/issues/354)
 
@@ -799,6 +805,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
