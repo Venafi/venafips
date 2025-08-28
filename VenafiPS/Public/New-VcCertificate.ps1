@@ -180,11 +180,11 @@ function New-VcCertificate {
         [ValidateNotNullOrEmpty()]
         [String[]] $SanEmail,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ASK')]
         [ValidateSet(2048, 3072, 4096)]
         [Int32] $KeySize,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ASK')]
         [ValidateSet('P256', 'P384', 'P521', 'ED25519')]
         [string] $KeyCurve,
 
