@@ -303,7 +303,7 @@ function New-VcCertificate {
                     $params.Body.csrAttributes.organizationalUnits = @($OrganizationalUnit)
                 }
                 elseif ( $thisTemplate.recommendedSettings.subjectOUValue ) {
-                    $params.Body.csrAttributes.organizationalUnits = $thisTemplate.recommendedSettings.subjectOUValue
+                    $params.Body.csrAttributes.organizationalUnits = @($thisTemplate.recommendedSettings.subjectOUValue)
                 }
 
                 if ( $PSBoundParameters.ContainsKey('City') ) {
