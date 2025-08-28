@@ -128,9 +128,11 @@ function New-VcCertificate {
     param (
 
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [String] $Application,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [String] $IssuingTemplate,
 
         [Parameter(ParameterSetName = 'ASK', Mandatory)]
@@ -157,7 +159,16 @@ function New-VcCertificate {
         [ValidateNotNullOrEmpty()]
         [String] $Country,
 
+        [Parameter(ParameterSetName = 'ASK')]
+        [ValidateSet(2048, 3072, 4096)]
+        [Int32] $KeySize,
+
+        [Parameter(ParameterSetName = 'ASK')]
+        [ValidateSet('P256', 'P384', 'P521', 'ED25519')]
+        [string] $KeyCurve,
+
         [Parameter(ParameterSetName = 'CSR', Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string] $Csr,
 
         # [Parameter(ParameterSetName = 'ExistingCSR', Mandatory, ValueFromPipelineByPropertyName)]
@@ -179,14 +190,6 @@ function New-VcCertificate {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [String[]] $SanEmail,
-
-        [Parameter(ParameterSetName = 'ASK')]
-        [ValidateSet(2048, 3072, 4096)]
-        [Int32] $KeySize,
-
-        [Parameter(ParameterSetName = 'ASK')]
-        [ValidateSet('P256', 'P384', 'P521', 'ED25519')]
-        [string] $KeyCurve,
 
         [Parameter()]
         [ValidateScript(
@@ -345,8 +348,8 @@ function New-VcCertificate {
                 }
                 elseif ( $thisTemplate.recommendedSettings.key.type -eq 'EC' ) {
                     $params.Body.csrAttributes.keyTypeParameters = @{
-                        keyType   = 'EC'
-                        keyLength = $thisTemplate.recommendedSettings.key.curve
+                        keyType  = 'EC'
+                        keyCurve = $thisTemplate.recommendedSettings.key.curve
                     }
                 }
             }
