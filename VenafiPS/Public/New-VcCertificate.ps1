@@ -68,7 +68,7 @@ function New-VcCertificate {
 
     .PARAMETER PassThru
     Return the certificate request.
-    If the certificate was successfully issued, it will be returned as the property 'certificate'.
+    If the certificate was successfully issued, it will be returned as the property 'certificate' along with 'certificateId'.
 
     .PARAMETER VenafiSession
     Authentication for the function.
@@ -76,7 +76,7 @@ function New-VcCertificate {
     A TLSPC key can also provided directly.
 
     .INPUTS
-    CommonName
+    none
 
     .OUTPUTS
     pscustomobject, if PassThru is provided
