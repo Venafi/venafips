@@ -9,9 +9,9 @@ Create certificate request
 ```
 New-VcCertificate -Application <String> [-IssuingTemplate <String>] -CommonName <String>
  [-Organization <String>] [-OrganizationalUnit <String[]>] [-City <String>] [-State <String>]
- [-Country <String>] [-SanDns <String[]>] [-SanIP <String[]>] [-SanUri <String[]>] [-SanEmail <String[]>]
- [-ValidUntil <DateTime>] [-Tag <String[]>] [-PassThru] [-VenafiSession <PSObject>]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-Country <String>] [-KeySize <Int32>] [-KeyCurve <String>] [-SanDns <String[]>] [-SanIP <String[]>]
+ [-SanUri <String[]>] [-SanEmail <String[]>] [-ValidUntil <DateTime>] [-Tag <String[]>] [-PassThru]
+ [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### CSR
@@ -202,6 +202,42 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -KeySize
+Specify a key size for RSA keys
+Valid values are: 2048, 3072, 4096
+If not provided, the default from the issuing template will be used.
+Cannot be used with -KeyCurve.
+
+```yaml
+Type: Int32
+Parameter Sets: ASK
+Aliases:
+
+Required: False
+Position: Named
+Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -KeyCurve
+Specify the elliptic curve for key generation.
+Valid values are: P256, P384, P521, ED25519
+If not provided, the default from the issuing template will be used.
+Cannot be used with -KeySize.
+
+```yaml
+Type: String
+Parameter Sets: ASK
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Csr
 CSR in PKCS#10 format which conforms to the rules of the issuing template
 
@@ -310,7 +346,7 @@ Accept wildcard characters: False
 
 ### -PassThru
 Return the certificate request.
-If the certificate was successfully issued, it will be returned as the property 'certificate'.
+If the certificate was successfully issued, it will be returned as the property 'certificate' along with 'certificateId'.
 
 ```yaml
 Type: SwitchParameter
@@ -392,7 +428,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### CommonName
+### none
 ## OUTPUTS
 
 ### pscustomobject, if PassThru is provided

@@ -1,3 +1,7 @@
+## 6.12.1
+- Add support to `New-VcCertificate` for default subject and key values if assigned in template, [#360](https://github.com/Venafi/VenafiPS/issues/360)
+- Add `New-VcCertificate -KeySize` and `New-VcCertificate -KeyCurve`
+
 ## 6.12.0
 - Add cloud provider and keystore management functions `Get-VcCloudProvider`, `Get-VcCloudKeystore`, `New-VcCloudProvider`, `New-VcCloudKeystore`, `Remove-VcCloudProvider`, and `Remove-VcCloudKeystore`, [#352](https://github.com/Venafi/VenafiPS/issues/352)
 - Argument completers added for CloudProvider and CloudKeystore
@@ -805,6 +809,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
