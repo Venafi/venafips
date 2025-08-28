@@ -47,6 +47,18 @@ function New-VcCertificate {
     .PARAMETER SanEmail
     One or more subject alternative name email entries
 
+    .PARAMETER KeySize
+    Specify a key size for RSA keys
+    Valid values are: 2048, 3072, 4096
+    If not provided, the default from the issuing template will be used.
+    Cannot be used with -KeyCurve.
+
+    .PARAMETER KeyCurve
+    Specify the elliptic curve for key generation.
+    Valid values are: P256, P384, P521, ED25519
+    If not provided, the default from the issuing template will be used.
+    Cannot be used with -KeySize.
+
     .PARAMETER ValidUntil
     Date at which the certificate becomes invalid.
     The day and hour will be set and not to the minute level.
@@ -169,6 +181,14 @@ function New-VcCertificate {
         [String[]] $SanEmail,
 
         [Parameter()]
+        [ValidateSet(2048, 3072, 4096)]
+        [Int32] $KeySize,
+
+        [Parameter()]
+        [ValidateSet('P256', 'P384', 'P521', 'ED25519')]
+        [string] $KeyCurve,
+
+        [Parameter()]
         [ValidateScript(
             {
                 $span = $_ - (Get-Date)
@@ -240,6 +260,10 @@ function New-VcCertificate {
             # end date not provided, use default from template
             $validity = $thisTemplate.product.validityPeriod
         }
+
+        if ( $KeySize -and $KeyCurve ) {
+            throw 'You cannot specify both -KeySize and -KeyCurve'
+        }
     }
 
     process {
@@ -250,7 +274,7 @@ function New-VcCertificate {
             UriRoot = 'outagedetection/v1'
             UriLeaf = 'certificaterequests'
             Body    = @{
-                isVaaSGenerated              = $PSCmdlet.ParameterSetName -eq 'Ask'
+                isVaaSGenerated              = $PSCmdlet.ParameterSetName -eq 'ASK'
                 applicationId                = $thisApp.applicationId
                 certificateIssuingTemplateId = $thisTemplate.issuingTemplateId
                 validityPeriod               = $validity
@@ -268,21 +292,62 @@ function New-VcCertificate {
                 if ( $PSBoundParameters.ContainsKey('Organization') ) {
                     $params.Body.csrAttributes.organization = $Organization
                 }
+                elseif ( $thisTemplate.recommendedSettings.subjectOValue ) {
+                    $params.Body.csrAttributes.organization = $thisTemplate.recommendedSettings.subjectOValue
+                }
 
                 if ( $PSBoundParameters.ContainsKey('OrganizationalUnit') ) {
                     $params.Body.csrAttributes.organizationalUnits = @($OrganizationalUnit)
+                }
+                elseif ( $thisTemplate.recommendedSettings.subjectOUValue ) {
+                    $params.Body.csrAttributes.organizationalUnits = $thisTemplate.recommendedSettings.subjectOUValue
                 }
 
                 if ( $PSBoundParameters.ContainsKey('City') ) {
                     $params.Body.csrAttributes.locality = $City
                 }
+                elseif ( $thisTemplate.recommendedSettings.subjectLValue ) {
+                    $params.Body.csrAttributes.locality = $thisTemplate.recommendedSettings.subjectLValue
+                }
 
                 if ( $PSBoundParameters.ContainsKey('State') ) {
                     $params.Body.csrAttributes.state = $State
                 }
+                elseif ( $thisTemplate.recommendedSettings.subjectSTValue ) {
+                    $params.Body.csrAttributes.state = $thisTemplate.recommendedSettings.subjectSTValue
+                }
 
                 if ( $PSBoundParameters.ContainsKey('Country') ) {
                     $params.Body.csrAttributes.country = $Country
+                }
+                elseif ( $thisTemplate.recommendedSettings.subjectCValue ) {
+                    $params.Body.csrAttributes.country = $thisTemplate.recommendedSettings.subjectCValue
+                }
+
+                if ( $KeySize ) {
+                    $params.Body.csrAttributes.keyTypeParameters = @{
+                        keyType   = 'RSA'
+                        keyLength = $KeySize
+                    }
+                }
+                elseif ( $thisTemplate.recommendedSettings.key.type -eq 'RSA' ) {
+                    $params.Body.csrAttributes.keyTypeParameters = @{
+                        keyType   = 'RSA'
+                        keyLength = $thisTemplate.recommendedSettings.key.length
+                    }
+                }
+
+                if ( $KeyCurve ) {
+                    $params.Body.csrAttributes.keyTypeParameters = @{
+                        keyType  = 'EC'
+                        keyCurve = $KeyCurve
+                    }
+                }
+                elseif ( $thisTemplate.recommendedSettings.key.type -eq 'EC' ) {
+                    $params.Body.csrAttributes.keyTypeParameters = @{
+                        keyType   = 'EC'
+                        keyLength = $thisTemplate.recommendedSettings.key.curve
+                    }
                 }
             }
 
