@@ -21,9 +21,11 @@ function Get-VdcAttribute {
     Only retrieve the value/values for these attribute(s).
     For custom fields, you can provide either the Guid or Label.
 
-    .PARAMETER AsValue
-    Return only the value of the attribute requested.
-    Only applicable when using -Attribute with a single attribute.
+    .PARAMETER All
+    Get all object attributes or policy attributes.
+    This will perform 3 steps, get the object type, enumerate the attributes for the object type, and get all the values.
+    Note, expect this to take longer than usual given the number of api calls.
+    It is recommended to use this once to see what attributes are available, then use -Attribute to get specific ones in the future.
 
     .PARAMETER Class
     Get policy attributes instead of object attributes.
@@ -32,11 +34,9 @@ function Get-VdcAttribute {
 
     If unsure of the class name, add the value through the TLSPDC UI and go to Support->Policy Attributes to find it.
 
-    .PARAMETER All
-    Get all object attributes or policy attributes.
-    This will perform 3 steps, get the object type, enumerate the attributes for the object type, and get all the values.
-    Note, expect this to take longer than usual given the number of api calls.
-    It is recommended to use this once to see what attributes are available, then use -Attribute to get specific ones in the future.
+    .PARAMETER AsValue
+    Return only the value of the attribute requested.
+    Only applicable when using -Attribute with a single attribute.
 
     .PARAMETER NoLookup
     Default functionality is to perform lookup of attributes names to see if they are custom fields or not.
@@ -48,7 +48,7 @@ function Get-VdcAttribute {
     .PARAMETER ThrottleLimit
     Limit the number of threads when running in parallel; the default is 100.
     Setting the value to 1 will disable multithreading.
-    On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
+    On PS v5 the ThreadJob module is required at module loading time.  If not found, multithreading will be disabled.
 
     .PARAMETER VenafiSession
     Authentication for the function.
@@ -186,6 +186,11 @@ function Get-VdcAttribute {
 
     Retrieve specific attributes for all certificates.  Throttle the number of threads to 50, the default is 100
 
+    .EXAMPLE
+    Get-VdcAttribute -Path 'certs' -Attribute 'Contact' -AsValue
+
+    Retrieve just the value associated with an attribute as opposed to the entire object
+
     .LINK
     https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-findpolicy.php
 
@@ -206,12 +211,13 @@ function Get-VdcAttribute {
         [ValidateNotNullOrEmpty()]
         [String[]] $Attribute,
 
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [switch] $All,
+
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [Alias('ClassName', 'PolicyClass')]
         [string] $Class,
-
-        [Parameter(Mandatory, ParameterSetName = 'All')]
-        [switch] $All,
 
         [Parameter(ParameterSetName = 'Attribute')]
         [switch] $AsValue,
@@ -232,24 +238,36 @@ function Get-VdcAttribute {
         $allObjects = [System.Collections.Generic.List[object]]::new()
         $allItems = [System.Collections.Generic.List[hashtable]]::new()
         $classAttributes = @{}
+
+        if ( $Class -and $All ) {
+            Write-Verbose ('getting attributes for {0}' -f $Class)
+            $classAttributes.$Class = Get-VdcClassAttribute -ClassName $Class | Select-Object -ExpandProperty Name -Unique
+        }
     }
 
     process {
 
         $attrib = if ( $All ) {
-            # -All, get attributes
-
-            $thisObject = Get-VdcObject -Path $Path
-            $allObjects.Add($thisObject)
-
-            $thisType = $thisObject.TypeName
-
-            if ( -not $classAttributes.$thisType ) {
-                Write-Verbose ('getting attributes for {0}' -f $thisType)
-                $classAttributes.$thisType = Get-VdcClassAttribute -ClassName $thisObject.TypeName | Select-Object -ExpandProperty Name -Unique
+            if ( $Class ) {
+                # policy attributes, already retrieved in begin block
+                $classAttributes.$Class
             }
+            else {
 
-            $classAttributes.$thisType
+                # object attributes, get attributes for this specific type
+
+                $thisObject = Get-VdcObject -Path $Path
+                $allObjects.Add($thisObject)
+
+                $thisType = $thisObject.TypeName
+
+                if ( -not $classAttributes.$thisType ) {
+                    Write-Verbose ('getting attributes for {0}' -f $thisType)
+                    $classAttributes.$thisType = Get-VdcClassAttribute -ClassName $thisObject.TypeName | Select-Object -ExpandProperty Name -Unique
+                }
+
+                $classAttributes.$thisType
+            }
         }
         else {
             $Attribute
@@ -372,6 +390,7 @@ function Get-VdcAttribute {
             [PSCustomObject]$return
         } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes'
 
+        # caller just wants this one value
         if ( $AsValue -and $attribValues.count -eq 1 ) {
             return $attribValues[0].Value
         }
@@ -379,7 +398,11 @@ function Get-VdcAttribute {
         $attribValues | Group-Object -Property Path | ForEach-Object {
             $result = @{
                 Path      = $_.Name
-                Attribute = $_.Group
+                Attribute = $_.Group | Select-Object -Property * -ExcludeProperty Path
+            }
+
+            if ( $Class ) {
+                $result.Class = $Class
             }
 
             # Add each attribute as a direct property
