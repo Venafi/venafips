@@ -115,7 +115,7 @@ function Invoke-VenafiParallel {
 
 
     if ( $PSVersionTable.PSVersion.Major -eq 5 ) {
-        # Start-ThreadJob does not have any child jobs for some reason so there will be no progress and just exist
+        # Start-ThreadJob does not have any child jobs for some reason so there will be no progress
         $sb = ([ScriptBlock]::Create($starterSb.ToString() + '$using:InputObject | % { ' + $ScriptBlock.ToString() + '}'))
         return Start-ThreadJob -ScriptBlock $sb -ThrottleLimit $ThrottleLimit | Receive-Job -Wait -AutoRemoveJob
     }
@@ -140,6 +140,12 @@ function Invoke-VenafiParallel {
             $childJobs = $job.ChildJobs
             $childJobsCount = $childJobs.Count
 
+            # Calculate progress update threshold for better performance
+            $progressThreshold = [Math]::Max(1, [Math]::Floor($childJobsCount / 100))  # Update every 1% or minimum every job
+            if ($childJobsCount -lt 20) { $progressThreshold = 1 }  # Always show progress for small sets
+
+            $lastReportedCount = 0
+
             do {
                 Start-Sleep -Milliseconds 100
 
@@ -149,8 +155,13 @@ function Invoke-VenafiParallel {
                 $job | Receive-Job
 
                 $completedCount = $completedJobs.Count
-                [int] $percent = ($completedCount / $childJobsCount) * 100
-                Write-Progress -Activity $ProgressTitle -Status ('{0}% complete ({1}/{2})' -f $percent, $completedCount, $childJobsCount) -PercentComplete $percent
+
+                # Only update progress when we've crossed the threshold or reached the end
+                if (($completedCount - $lastReportedCount) -ge $progressThreshold -or $completedCount -eq $childJobsCount) {
+                    [int] $percent = ($completedCount / $childJobsCount) * 100
+                    Write-Progress -Activity $ProgressTitle -Status ('{0}% complete ({1}/{2})' -f $percent, $completedCount, $childJobsCount) -PercentComplete $percent
+                    $lastReportedCount = $completedCount
+                }
 
             } while ($completedJobs.Count -lt $childJobsCount)
 
