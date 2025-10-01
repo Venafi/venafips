@@ -87,7 +87,37 @@ function Invoke-VenafiParallel {
     # throttle to 1 = no parallel
     if ( $ThrottleLimit -le 1 ) {
         # remove $using: from vars, not threaded and not supported
-        $InputObject | ForEach-Object -Process ([ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
+          $scriptBlockWithoutUsing = [ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$'))
+
+        # Add progress bar for non-parallel execution if progress is enabled
+        if ( $ProgressPreference -eq 'Continue' ) {
+            $totalCount = $InputObject.Count
+            $currentCount = 0
+
+            Write-Progress -Activity $ProgressTitle -Status "Initializing..." -PercentComplete 0
+
+            # Calculate progress update interval for better performance
+            $progressInterval = [Math]::Max(1, [Math]::Floor($totalCount / 100))  # Update every 1% or minimum every item
+            if ($totalCount -lt 20) { $progressInterval = 1 }  # Always show progress for small sets
+
+            $InputObject | ForEach-Object -Process {
+                $currentCount++
+
+                # Only update progress at intervals or for the last item
+                if (($currentCount % $progressInterval -eq 0) -or ($currentCount -eq $totalCount)) {
+                    [int] $percent = ($currentCount / $totalCount) * 100
+                    Write-Progress -Activity $ProgressTitle -Status ("{0}% complete ({1}/{2})" -f $percent, $currentCount, $totalCount) -PercentComplete $percent
+                }
+
+                & $scriptBlockWithoutUsing
+            }
+
+            Write-Progress -Completed -Activity $ProgressTitle
+        }
+        else {
+            # No progress bar needed
+            $InputObject | ForEach-Object -Process $scriptBlockWithoutUsing
+        }
         return
     }
 
