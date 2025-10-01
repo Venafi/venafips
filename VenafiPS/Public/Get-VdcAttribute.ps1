@@ -15,10 +15,17 @@ function Get-VdcAttribute {
 
     .PARAMETER Path
     Path to the object.  If the root is excluded, \ved\policy will be prepended.
+    If retrieving policy attributes with -Class, this value must be a path to a Policy.
 
     .PARAMETER Attribute
-    Only retrieve the value/values for this attribute.
+    Only retrieve the value/values for these attribute(s).
     For custom fields, you can provide either the Guid or Label.
+
+    .PARAMETER All
+    Get all object attributes or policy attributes.
+    This will perform 3 steps, get the object type, enumerate the attributes for the object type, and get all the values.
+    Note, expect this to take longer than usual given the number of api calls.
+    It is recommended to use this once to see what attributes are available, then use -Attribute to get specific ones in the future.
 
     .PARAMETER Class
     Get policy attributes instead of object attributes.
@@ -27,14 +34,13 @@ function Get-VdcAttribute {
 
     If unsure of the class name, add the value through the TLSPDC UI and go to Support->Policy Attributes to find it.
 
-    .PARAMETER All
-    Get all object attributes or policy attributes.
-    This will perform 3 steps, get the object type, enumerate the attributes for the object type, and get all the values.
-    Note, expect this to take longer than usual given the number of api calls.
+    .PARAMETER AsValue
+    Return only the value of the attribute requested.
+    Only applicable when using -Attribute with a single attribute.
 
     .PARAMETER NoLookup
     Default functionality is to perform lookup of attributes names to see if they are custom fields or not.
-    If they are, pass along the guid instead of name required by the api for custom fields.
+    If they are, pass along the guid instead of the name, as required by the api for custom fields.
     To override this behavior and use the attribute name as is, add -NoLookup.
     Useful if, on the off chance, you have a custom field with the same name as a built-in attribute.
     Can also be used with -All and the output will contain guids instead of looked up names.
@@ -42,7 +48,7 @@ function Get-VdcAttribute {
     .PARAMETER ThrottleLimit
     Limit the number of threads when running in parallel; the default is 100.
     Setting the value to 1 will disable multithreading.
-    On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
+    On PS v5 the ThreadJob module is required at module loading time.  If not found, multithreading will be disabled.
 
     .PARAMETER VenafiSession
     Authentication for the function.
@@ -180,6 +186,11 @@ function Get-VdcAttribute {
 
     Retrieve specific attributes for all certificates.  Throttle the number of threads to 50, the default is 100
 
+    .EXAMPLE
+    Get-VdcAttribute -Path 'certs' -Attribute 'Contact' -AsValue
+
+    Retrieve just the value associated with an attribute as opposed to the entire object
+
     .LINK
     https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-findpolicy.php
 
@@ -188,7 +199,6 @@ function Get-VdcAttribute {
 
     #>
     [CmdletBinding(DefaultParameterSetName = 'Attribute')]
-    [Alias('Get-TppAttribute')]
 
     param (
 
@@ -201,12 +211,16 @@ function Get-VdcAttribute {
         [ValidateNotNullOrEmpty()]
         [String[]] $Attribute,
 
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [switch] $All,
+
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [Alias('ClassName', 'PolicyClass')]
         [string] $Class,
 
-        [Parameter(Mandatory, ParameterSetName = 'All')]
-        [switch] $All,
+        [Parameter(ParameterSetName = 'Attribute')]
+        [switch] $AsValue,
 
         [Parameter()]
         [switch] $NoLookup,
@@ -221,101 +235,80 @@ function Get-VdcAttribute {
 
     begin {
 
-        Write-Verbose $PSCmdlet.ParameterSetName
-
-        $sess = Get-VenafiSession
-
-        $newAttribute = $Attribute
-        if ( $All -and $Class ) {
-            Write-Verbose "Getting attributes for class $Class"
-            $newAttribute = Get-VdcClassAttribute -ClassName $Class | Select-Object -ExpandProperty Name -Unique
-        }
-
         $allItems = [System.Collections.Generic.List[hashtable]]::new()
+        $classAttributes = @{}
+
+        if ( $Class -and $All ) {
+            Write-Verbose ('getting attributes for {0}' -f $Class)
+            $classAttributes.$Class = Get-VdcClassAttribute -ClassName $Class | Select-Object -ExpandProperty Name -Unique
+        }
     }
 
     process {
 
-        if ( $PSCmdlet.ParameterSetName -eq 'Attribute') {
-            # small number of attributes so focus parallelism on the objects
-            # this is done in the end block
-            $allItems.Add(
-                @{
-                    Path      = $Path | ConvertTo-VdcFullPath
-                    Attribute = $newAttribute
-                }
-            )
-
-            return
-        }
-
-        # All parameter set below
-
-        # with -All there is a large list of attributes so focus parallelism on them
-
-        $newPath = $Path | ConvertTo-VdcFullPath
-        $thisObject = Get-VdcObject -Path $newPath
-
-        if ( $Class -and ($thisObject.TypeName -ne 'Policy') ) {
-            Write-Error ('You are attempting to retrieve policy attributes, but {0} is not a policy path' -f $newPath)
-            return
-        }
-
-        $return = [pscustomobject] @{
-            Name      = $thisObject.Name
-            Path      = $newPath
-            TypeName  = $thisObject.TypeName
-            Guid      = $thisObject.Guid
-            Attribute = [pscustomobject] @{}
-        }
-
-        if ( $Class ) {
-            $return | Add-Member @{ 'ClassName' = $Class }
-        }
-        else {
-            # get list of attributes for this specific class
-            $newAttribute = Get-VdcClassAttribute -ClassName $thisObject.TypeName | Select-Object -ExpandProperty Name -Unique
-        }
-
-        $allAttributes = Invoke-VenafiParallel -InputObject $newAttribute -ScriptBlock {
-
-            $thisAttribute = $PSItem
-
-            if ( $using:Class ) {
-
-                $params = @{
-                    Method  = 'Post'
-                    Body    = @{
-                        Class         = $using:Class
-                        ObjectDN      = $using:newPath
-                        AttributeName = $thisAttribute
-                    }
-                    UriLeaf = 'config/FindPolicy'
-                }
+        $attrib = if ( $All ) {
+            if ( $Class ) {
+                # policy attributes, already retrieved in begin block
+                $classAttributes.$Class
             }
             else {
-                $params = @{
-                    Method  = 'Post'
-                    Body    = @{
-                        ObjectDN      = $using:newPath
-                        AttributeName = $thisAttribute
-                    }
-                    UriLeaf = 'config/ReadEffectivePolicy'
-                }
-            }
 
-            Write-Verbose "Processing attribute $thisAttribute"
+                # object attributes, get attributes for this specific type
+
+                $thisObject = Get-VdcObject -Path $Path
+
+                $thisType = $thisObject.TypeName
+
+                if ( -not $classAttributes.$thisType ) {
+                    Write-Verbose ('getting attributes for {0}' -f $thisType)
+                    $classAttributes.$thisType = Get-VdcClassAttribute -ClassName $thisObject.TypeName | Select-Object -ExpandProperty Name -Unique
+                }
+
+                $classAttributes.$thisType
+            }
+        }
+        else {
+            $Attribute
+        }
+
+        $allItems.AddRange(
+            [hashtable[]](
+                $attrib | ForEach-Object {
+                    @{
+                        Path      = $Path
+                        Attribute = $_
+                    }
+                }
+            )
+        )
+    }
+
+    end {
+
+        # each item in $allItems with have 1 path and 1 attribute
+        $attribValues = Invoke-VenafiParallel -InputObject $allItems -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes' -ScriptBlock {
+
+            $attribute = $PSItem.Attribute
+
+            $params = @{
+                Method  = 'Post'
+                Body    = @{
+                    ObjectDN      = $PSItem.Path
+                    AttributeName = $attribute
+                }
+                UriLeaf = 'config/ReadEffectivePolicy'
+            }
+            if ( $using:Class ) {
+                $params.Body.Class = $using:Class
+                $params.UriLeaf = 'config/FindPolicy'
+            }
 
             $customField = $null
 
             if ( -not $using:NoLookup ) {
-                # parallel lookup
-                $customField = $sess.CustomField | Where-Object { $_.Label -eq $thisAttribute -or $_.Guid -eq $thisAttribute }
 
-                if ( -not $customField ) {
-                    # sequential lookup
-                    $customField = $sess.CustomField | Where-Object { $_.Label -eq $thisAttribute -or $_.Guid -eq $thisAttribute }
-                }
+                # parallel lookup
+                $customField = $script:VenafiSession.CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
 
                 if ( $customField ) {
                     $params.Body.AttributeName = $customField.Guid
@@ -335,7 +328,7 @@ function Get-VdcAttribute {
 
             if ( $response.Error ) {
                 if ( $response.Result -in 601, 112) {
-                    Write-Error "'$thisAttribute' is not a valid attribute for $newPath.  Are you looking for a policy attribute?  If so, add -Class."
+                    Write-Error "'$attribute' is not a valid attribute for $($PSItem.Path).  Are you looking for a policy attribute?  If so, add -Class."
                     continue
                 }
                 elseif ( $response.Result -eq 102) {
@@ -369,205 +362,51 @@ function Get-VdcAttribute {
                 }
             }
 
-            $newProp = [pscustomobject] @{}
-
-            # only add attributes to the root of the response object if they have a value
-            # always add them to .Attribute ($newProp)
-            if ( $CustomField ) {
-                $newProp | Add-Member @{
-                    Name              = $customField.Label
-                    'CustomFieldGuid' = $customField.Guid
-                }
-
-                if ( $valueOut ) {
-                    $using:return | Add-Member @{ $customField.Label = $valueOut }
-                }
-
-            }
-            else {
-
-                if ( $valueOut ) {
-                    $using:return | Add-Member @{ $thisAttribute = $valueOut } -ErrorAction SilentlyContinue
-                }
-
-                $newProp | Add-Member @{ Name = $thisAttribute }
-            }
-
-            $newProp | Add-Member @{
+            $return = @{
+                Path       = $PSItem.Path
+                Name       = $attribute
                 Value      = $valueOut
                 PolicyPath = $response.PolicyDN
                 Locked     = $response.Locked
             }
 
+            if ( $CustomField ) {
+                $return.Name = $customField.Label
+                $return.CustomFieldGuid = $customField.Guid
+            }
+
             # overridden not available at policy level
-            if ( -not $PSBoundParameters.ContainsKey('Class') ) {
-                $newProp | Add-Member @{ 'Overridden' = $response.Overridden }
+            if ( -not $using:Class ) {
+                $return.Overridden = $response.Overridden
             }
 
-            $newProp
+            [PSCustomObject]$return
+        }
 
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes'
+        # caller just wants this one value
+        if ( $AsValue -and $attribValues.count -eq 1 ) {
+            return $attribValues[0].Value
+        }
 
-        $return.Attribute = @($allAttributes)
-        $return
-    }
-
-    end {
-
-        # parallelism is focused on the objects, not attributes
-        # used when -Attribute is provided, not -All
-        Invoke-VenafiParallel -InputObject $allItems -ScriptBlock {
-
-            $newPath = $PSItem.Path
-            $thisObject = Get-VdcObject -Path $newPath
-
-            if ( $using:Class -and ($thisObject.TypeName -ne 'Policy') ) {
-                Write-Error ('You are attempting to retrieve policy attributes, but {0} is not a policy path' -f $newPath)
-                return
+        $attribValues | Group-Object -Property Path | ForEach-Object {
+            $result = @{
+                Path      = $_.Name
+                Attribute = $_.Group | Select-Object -Property * -ExcludeProperty Path
             }
 
-            $newAttribute = $PSItem.Attribute
-
-            $return = [pscustomobject] @{
-                Name      = $thisObject.Name
-                Path      = $newPath
-                TypeName  = $thisObject.TypeName
-                Guid      = $thisObject.Guid
-                Attribute = [pscustomobject] @{}
+            if ( $Class ) {
+                $result.ClassName = $Class
             }
 
-            if ( $using:Class ) {
-                $return | Add-Member @{ 'ClassName' = $using:Class }
-
-                $params = @{
-                    Method  = 'Post'
-                    Body    = @{
-                        Class    = $using:Class
-                        ObjectDN = $newPath
-                    }
-                    UriLeaf = 'config/FindPolicy'
-                }
-            }
-            else {
-                $params = @{
-                    Method  = 'Post'
-                    Body    = @{
-                        ObjectDN = $newPath
-                    }
-                    UriLeaf = 'config/ReadEffectivePolicy'
+            # Add each attribute as a direct property
+            foreach ($attr in $_.Group) {
+                if ($attr.Value -and $attr.Name) {
+                    $result[$attr.Name] = $attr.Value
                 }
             }
 
-            $allAttributes = foreach ($thisAttribute in $newAttribute) {
-
-                Write-Verbose "Processing attribute $thisAttribute"
-
-                $params.Body.AttributeName = $thisAttribute
-                $customField = $null
-
-                if ( -not $using:NoLookup ) {
-                    # parallel lookup
-                    $customField = $sess.CustomField | Where-Object { $_.Label -eq $thisAttribute -or $_.Guid -eq $thisAttribute }
-
-                    if ( -not $customField ) {
-                        # sequential lookup
-                        $customField = $sess.CustomField | Where-Object { $_.Label -eq $thisAttribute -or $_.Guid -eq $thisAttribute }
-                    }
-
-                    if ( $customField ) {
-                        $params.Body.AttributeName = $customField.Guid
-                    }
-                }
-
-                # disabled is a special kind of attribute which cannot be read with readeffectivepolicy
-                if ( $params.Body.AttributeName -eq 'Disabled' ) {
-                    $oldUri = $params.UriLeaf
-                    $params.UriLeaf = 'Config/Read'
-                    $response = Invoke-VenafiRestMethod @params
-                    $params.UriLeaf = $oldUri
-                }
-                else {
-                    $response = Invoke-VenafiRestMethod @params
-                }
-
-                if ( $response.Error ) {
-                    if ( $response.Result -in 601, 112) {
-                        Write-Error "'$thisAttribute' is not a valid attribute for $newPath.  Are you looking for a policy attribute?  If so, add -Class."
-                        continue
-                    }
-                    elseif ( $response.Result -eq 102) {
-                        # attribute is valid, but value not set
-                        # we're ok with this one
-                    }
-                    else {
-                        Write-Error $response.Error
-                        continue
-                    }
-                }
-
-                $valueOut = $null
-
-                if ( $response.Values ) {
-                    switch ($response.Values.GetType().Name) {
-                        'Object[]' {
-                            switch ($response.Values.Count) {
-                                1 {
-                                    $valueOut = $response.Values[0]
-                                }
-
-                                Default {
-                                    $valueOut = $response.Values
-                                }
-                            }
-                        }
-                        Default {
-                            $valueOut = $response.Values
-                        }
-                    }
-                }
-
-                $newProp = [pscustomobject] @{}
-
-                # only add attributes to the root of the response object if they have a value
-                # always add them to .Attribute ($newProp)
-                if ( $CustomField ) {
-                    $newProp | Add-Member @{
-                        Name              = $customField.Label
-                        'CustomFieldGuid' = $customField.Guid
-                    }
-
-                    if ( $valueOut ) {
-                        $return | Add-Member @{ $customField.Label = $valueOut }
-                    }
-
-                }
-                else {
-
-                    if ( $valueOut ) {
-                        $return | Add-Member @{ $thisAttribute = $valueOut } -ErrorAction SilentlyContinue
-                    }
-
-                    $newProp | Add-Member @{ Name = $thisAttribute }
-                }
-
-                $newProp | Add-Member @{
-                    Value      = $valueOut
-                    PolicyPath = $response.PolicyDN
-                    Locked     = $response.Locked
-                }
-
-                # overridden not available at policy level
-                if ( -not $using:Class ) {
-                    $newProp | Add-Member @{ 'Overridden' = $response.Overridden }
-                }
-
-                $newProp
-            }
-
-            $return.Attribute = @($allAttributes)
-            $return
-
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes'
+            [PSCustomObject]$result
+        }
     }
 }
 
