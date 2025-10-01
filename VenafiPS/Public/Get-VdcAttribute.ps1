@@ -235,7 +235,6 @@ function Get-VdcAttribute {
 
     begin {
 
-        $allObjects = [System.Collections.Generic.List[object]]::new()
         $allItems = [System.Collections.Generic.List[hashtable]]::new()
         $classAttributes = @{}
 
@@ -257,7 +256,6 @@ function Get-VdcAttribute {
                 # object attributes, get attributes for this specific type
 
                 $thisObject = Get-VdcObject -Path $Path
-                $allObjects.Add($thisObject)
 
                 $thisType = $thisObject.TypeName
 
@@ -288,15 +286,9 @@ function Get-VdcAttribute {
     end {
 
         # each item in $allItems with have 1 path and 1 attribute
-        $attribValues = Invoke-VenafiParallel -InputObject $allItems -ScriptBlock {
+        $attribValues = Invoke-VenafiParallel -InputObject $allItems -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes' -ScriptBlock {
 
-            # $path = $PSItem.Path
             $attribute = $PSItem.Attribute
-
-            $return = @{
-                Path = $PSItem.Path
-                Name = $attribute
-            }
 
             $params = @{
                 Method  = 'Post'
@@ -370,8 +362,12 @@ function Get-VdcAttribute {
                 }
             }
 
-            if ( $valueOut ) {
-                $return.Value = $valueOut
+            $return = @{
+                Path       = $PSItem.Path
+                Name       = $attribute
+                Value      = $valueOut
+                PolicyPath = $response.PolicyDN
+                Locked     = $response.Locked
             }
 
             if ( $CustomField ) {
@@ -379,16 +375,13 @@ function Get-VdcAttribute {
                 $return.CustomFieldGuid = $customField.Guid
             }
 
-            $return.PolicyPath = $response.PolicyDN
-            $return.Locked = $response.Locked
-
             # overridden not available at policy level
             if ( -not $using:Class ) {
                 $return.Overridden = $response.Overridden
             }
 
             [PSCustomObject]$return
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes'
+        }
 
         # caller just wants this one value
         if ( $AsValue -and $attribValues.count -eq 1 ) {
@@ -402,7 +395,7 @@ function Get-VdcAttribute {
             }
 
             if ( $Class ) {
-                $result.Class = $Class
+                $result.ClassName = $Class
             }
 
             # Add each attribute as a direct property
