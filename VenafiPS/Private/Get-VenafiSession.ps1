@@ -55,7 +55,6 @@ function Get-VenafiSession {
             throw "You are attemping to call a $Platform function with an invalid session"
         }
 
-
         if ( $sess.Token.Expires -and $sess.Token.Expires -lt (Get-Date).ToUniversalTime() ) {
             throw 'TLSPDC token has expired.  Execute New-VenafiSession and rerun your command.'
         }

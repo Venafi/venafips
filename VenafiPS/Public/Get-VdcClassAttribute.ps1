@@ -34,7 +34,7 @@ function Get-VdcClassAttribute {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -48,16 +48,17 @@ function Get-VdcClassAttribute {
         Write-Verbose "Processing $ClassName"
 
         $params = @{
-            Method  = 'Post'
-            UriLeaf = 'configschema/class'
-            Body    = @{
+            Method        = 'Post'
+            UriLeaf       = 'configschema/class'
+            Body          = @{
                 'Class' = $ClassName
             }
+            VenafiSession = $VenafiSession
         }
         $classDetails = Invoke-VenafiRestMethod @params | Select-Object -ExpandProperty 'ClassDefinition'
 
         if ($ClassName -ne 'Top') {
-            $recurseAttribs = $classDetails.SuperClassNames | Get-VdcClassAttribute
+            $recurseAttribs = $classDetails.SuperClassNames | Get-VdcClassAttribute -VenafiSession $VenafiSession
             foreach ($item in $recurseAttribs) {
                 $allAttributes.Add($item)
             }

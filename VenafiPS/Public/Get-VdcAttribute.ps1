@@ -230,7 +230,7 @@ function Get-VdcAttribute {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -240,7 +240,7 @@ function Get-VdcAttribute {
 
         if ( $Class -and $All ) {
             Write-Verbose ('getting attributes for {0}' -f $Class)
-            $classAttributes.$Class = Get-VdcClassAttribute -ClassName $Class | Select-Object -ExpandProperty Name -Unique
+            $classAttributes.$Class = Get-VdcClassAttribute -ClassName $Class -VenafiSession $VenafiSession | Select-Object -ExpandProperty Name -Unique
         }
     }
 
@@ -255,13 +255,13 @@ function Get-VdcAttribute {
 
                 # object attributes, get attributes for this specific type
 
-                $thisObject = Get-VdcObject -Path $Path
+                $thisObject = Get-VdcObject -Path $Path -VenafiSession $VenafiSession
 
                 $thisType = $thisObject.TypeName
 
                 if ( -not $classAttributes.$thisType ) {
                     Write-Verbose ('getting attributes for {0}' -f $thisType)
-                    $classAttributes.$thisType = Get-VdcClassAttribute -ClassName $thisObject.TypeName | Select-Object -ExpandProperty Name -Unique
+                    $classAttributes.$thisType = Get-VdcClassAttribute -ClassName $thisObject.TypeName -VenafiSession $VenafiSession | Select-Object -ExpandProperty Name -Unique
                 }
 
                 $classAttributes.$thisType
@@ -286,26 +286,30 @@ function Get-VdcAttribute {
     end {
 
         # each item in $allItems with have 1 path and 1 attribute
+        # $attribValues = $allItems | foreach {
         $attribValues = Invoke-VenafiParallel -InputObject $allItems -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes' -ScriptBlock {
+            $Class = $using:Class
+            $NoLookup = $using:NoLookup
 
             $attribute = $PSItem.Attribute
 
             $params = @{
-                Method  = 'Post'
-                Body    = @{
+                Method        = 'Post'
+                Body          = @{
                     ObjectDN      = $PSItem.Path
                     AttributeName = $attribute
                 }
-                UriLeaf = 'config/ReadEffectivePolicy'
+                UriLeaf       = 'config/ReadEffectivePolicy'
+                VenafiSession = $script:VenafiSession
             }
-            if ( $using:Class ) {
-                $params.Body.Class = $using:Class
+            if ( $Class ) {
+                $params.Body.Class = $Class
                 $params.UriLeaf = 'config/FindPolicy'
             }
 
             $customField = $null
 
-            if ( -not $using:NoLookup ) {
+            if ( -not $NoLookup ) {
 
                 # parallel lookup
                 $customField = $script:VenafiSession.CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
@@ -341,25 +345,26 @@ function Get-VdcAttribute {
                 }
             }
 
-            $valueOut = $null
-
-            if ( $response.Values ) {
+            $valueOut = if ( $response.Values ) {
                 switch ($response.Values.GetType().Name) {
                     'Object[]' {
                         switch ($response.Values.Count) {
                             1 {
-                                $valueOut = $response.Values[0]
+                                $response.Values[0]
                             }
 
                             Default {
-                                $valueOut = $response.Values
+                                $response.Values
                             }
                         }
                     }
                     Default {
-                        $valueOut = $response.Values
+                        $response.Values
                     }
                 }
+            }
+            else {
+                $null
             }
 
             $return = @{
@@ -376,7 +381,7 @@ function Get-VdcAttribute {
             }
 
             # overridden not available at policy level
-            if ( -not $using:Class ) {
+            if ( -not $Class ) {
                 $return.Overridden = $response.Overridden
             }
 

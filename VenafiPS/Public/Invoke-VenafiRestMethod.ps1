@@ -93,6 +93,7 @@ function Invoke-VenafiRestMethod {
         [String] $Method = 'Get',
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [String] $UriRoot = 'vedsdk',
 
         # [Parameter(Mandatory)]
@@ -116,6 +117,7 @@ function Invoke-VenafiRestMethod {
         [string] $Platform,
 
         [Parameter()]
+        [ValidateNotNullOrEmpty()]
         [hashtable] $Header,
 
         [Parameter()]
@@ -145,17 +147,17 @@ function Invoke-VenafiRestMethod {
     # default parameter set, no explicit session will come here
     if ( $PSCmdLet.ParameterSetName -eq 'Session' ) {
 
-        $VenafiSession = Get-VenafiSession
+        if ( -not $VenafiSession ) { $VenafiSession = Get-VenafiSession }
 
         switch ($VenafiSession.GetType().Name) {
             'PSCustomObject' {
                 $Server = $VenafiSession.Server
                 $thisPlatform = $VenafiSession.Platform
-                if ( $VenafiSession.Key ) {
+                if ( $null -ne $VenafiSession.Key ) {
                     $auth = $VenafiSession.Key.GetNetworkCredential().password
                     $authType = 'apikey'
                 }
-                elseif ( $VenafiSession.Token ) {
+                elseif ( $null -ne $VenafiSession.Token ) {
                     $auth = $VenafiSession.Token.AccessToken.GetNetworkCredential().password
                 }
                 else {
@@ -190,18 +192,6 @@ function Invoke-VenafiRestMethod {
                     else {
                         throw 'Venafi Platform, VC or VDC, could not be determined'
                     }
-
-                    # TLSPDC access token
-                    # get server from environment variable
-                    # if ( $thisPlatform -eq 'VDC' ) {
-                    #     if ( -not $env:VDC_SERVER ) {
-                    #         throw 'VDC_SERVER environment variable was not found.  When providing an access token directly this is required.'
-                    #     }
-                    #     $Server = $env:VDC_SERVER
-                    #     if ( $Server -notlike 'https://*') {
-                    #         $Server = 'https://{0}' -f $Server
-                    #     }
-                    # }
                 }
             }
 
@@ -211,51 +201,41 @@ function Invoke-VenafiRestMethod {
         }
 
         # set auth header
-        if ( $thisPlatform -eq 'VC' ) {
-            if ( $authType -eq 'token' ) {
-                $allHeaders = @{
-                    'Authorization' = "Bearer $auth"
-                }
-            }
-            else {
-                $allHeaders = @{
-                    "tppl-api-key" = $auth
-                }
-            }
-
-            if ( -not $PSBoundParameters.ContainsKey('UriRoot') ) {
-                $UriRoot = 'v1'
-            }
-        }
-        else {
-            $allHeaders = @{
+        $params.Headers = if ( $authType -eq 'token' ) {
+            # vc and vdc
+            @{
                 'Authorization' = "Bearer $auth"
             }
         }
+        else {
+            # vc only
+            @{
+                "tppl-api-key" = $auth
+            }
+        }
+        if ( $null -ne $Header ) { $params.Headers += $Header }
     }
 
-    if ( $UriRoot -eq 'graphql' ) {
-        $params.Uri = "$Server/graphql"
+    if ( $thisPlatform -eq 'VC' ) {
+        # switch the default uri root for VC
+        if ( $UriRoot -eq 'vedsdk' ) {
+            $UriRoot = 'v1'
+        }
     }
     else {
-        $params.Uri = '{0}/{1}/{2}' -f $Server, $UriRoot, $UriLeaf
+        # VDC specific
+        if ( $UseDefaultCredential.IsPresent ) {
+            $params.Add('UseDefaultCredentials', $true)
+        }
+
+        if ( $null -ne $Certificate ) {
+            $params.Add('Certificate', $Certificate)
+        }
     }
 
-    # append any headers passed in
-    if ( $Header ) { $allHeaders += $Header }
-    # if there are any headers, add to the rest payload
-    # in the case of inital authentication, eg, there won't be any
-    if ( $allHeaders ) { $params.Headers = $allHeaders }
+    $params.Uri = '{0}/{1}/{2}' -f $Server, $UriRoot, $UriLeaf
 
-    if ( $UseDefaultCredential.IsPresent -and $Certificate ) {
-        throw 'You cannot use UseDefaultCredential and Certificate parameters together'
-    }
-
-    if ( $UseDefaultCredential.IsPresent ) {
-        $params.Add('UseDefaultCredentials', $true)
-    }
-
-    if ( $Body ) {
+    if ( $null -ne $Body ) {
         switch ($Method.ToLower()) {
             'head' {
                 # a head method requires the params be provided as a query string, not body

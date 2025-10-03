@@ -11,14 +11,13 @@ function Add-VdcAdaptableHash {
 
     .PARAMETER Path
     Required. Path to the object to add or update the hash.
-    Note: For an adaptable app or an onboard discovery, 'Path' must always be a policy folder as this is where
-    the hash is saved.
+    For an adaptable app or an onboard discovery, 'Path' must always be a policy folder as this is where the hash is saved.
 
     .PARAMETER Keyname
     The name of the Secret Encryption Key (SEK) to used when encrypting this item. Default is "Software:Default"
 
     .PARAMETER FilePath
-    Required. The full path to the adaptable script file. This should normally be in a
+    Required. The full path to the adaptable script file. This should typically be in a
     '<drive>:\Program Files\Venafi\Scripts\<subdir>' directory for TLSPDC to recognize the script.
 
     .PARAMETER VenafiSession
@@ -32,12 +31,9 @@ function Add-VdcAdaptableHash {
     None
 
     .EXAMPLE
-    Add-VdcAdaptableHash -Path $Path -FilePath 'C:\Program Files\Venafi\Scripts\AdaptableApp\AppDriver.ps1'
+    Add-VdcAdaptableHash -Path '\ved\policy\MyAppDriver' -FilePath 'C:\Program Files\Venafi\Scripts\AdaptableApp\AppDriver.ps1'
 
     Update the hash on an adaptable app object.
-
-    Note: For an adaptable app or an onboard discovery, 'Path' must always be a policy folder as this is where
-    the hash is saved.
 
     .EXAMPLE
     Add-VdcAdaptableHash -Path $Path -FilePath 'C:\Program Files\Venafi\Scripts\AdaptableLog\Generic-LogDriver.ps1'
@@ -69,7 +65,8 @@ function Add-VdcAdaptableHash {
         [ValidateScript( {
                 if ( $_ | Test-TppDnPath ) {
                     $true
-                } else {
+                }
+                else {
                     throw "'$_' is not a valid DN path"
                 }
             })]
@@ -77,7 +74,7 @@ function Add-VdcAdaptableHash {
         [String] $Path,
 
         [Parameter()]
-		[string] $Keyname = "Software:Default",
+        [string] $Keyname = "Software:Default",
 
         [Parameter(Mandatory)]
         [Alias('File')]
@@ -90,86 +87,93 @@ function Add-VdcAdaptableHash {
 
     begin {
         Test-VenafiSession $PSCmdlet.MyInvocation
+    }
 
-        $params = @{
-            Method        = 'Post'
+    process {
+        $thisObject = Get-VdcObject -Path $Path
+
+        $existingVaultId = if ( $thisObject.TypeName -eq 'Policy' ) {
+            Get-VdcAttribute -Path $thisObject.Path -Class 'Adaptable App' -Attribute 'PowerShell Script Hash Vault Id' -AsValue
         }
-
-        $TypeName = (Get-VdcObject -Path $Path).TypeName
-
-        if ( $TypeName -eq 'Policy' ) {
-            $retrieveVaultID = ( Get-VdcAttribute -Path $Path -Class 'Adaptable App' -Attribute 'PowerShell Script Hash Vault Id' ).'PowerShell Script Hash Vault Id'
-        } else {
-            $retrieveVaultID = ( Get-VdcAttribute -Path $Path -Attribute 'PowerShell Script Hash Vault Id' ).'PowerShell Script Hash Vault Id'
+        else {
+            Get-VdcAttribute -Path $thisObject.Path -Attribute 'PowerShell Script Hash Vault Id' -AsValue
         }
 
         $bytes = [Text.Encoding]::UTF32.GetBytes([IO.File]::ReadAllText($FilePath))
         $hash = Get-FileHash -InputStream ([System.IO.MemoryStream]::New($bytes))
-        $base64data = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($hash.hash.ToLower()))
+        $newBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($hash.hash.ToLower()))
 
-    }
-
-    process {
-        if ( -not $PSCmdlet.ShouldProcess($Path) ) {
-            continue
-        }
-
-        if ( $retrieveVaultID ) {
-            $paramsretrieve = $params.Clone()
-            $paramsretrieve.UriLeaf = 'SecretStore/retrieve'
-            $paramsretrieve.Body = @{
-                VaultID = $retrieveVaultID
+        if ( $existingVaultId ) {
+            $paramsRetrieve = @{
+                Method  = 'Post'
+                UriLeaf = 'SecretStore/retrieve'
+                Body    = @{
+                    VaultID = $existingVaultId
+                }
             }
 
-            $retrieveResponse = Invoke-VenafiRestMethod @paramsretrieve
+            $retrieveResponse = Invoke-VenafiRestMethod @paramsRetrieve
 
             if ( $retrieveResponse.Result -ne [TppSecretStoreResult]::Success ) {
                 Write-Error ("Error retrieving VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $retrieveResponse.Result)) -ErrorAction Stop
             }
 
-            if($null -ne $retrieveResponse.Base64Data) {
-                $retrieveBase64 = $retrieveResponse.Base64Data
+            if ($null -ne $retrieveResponse.Base64Data) {
+                $currentBase64 = $retrieveResponse.Base64Data
             }
         }
 
-        if ( $base64data -eq $retrieveBase64 ){
-            Write-Verbose "PowerShell Script Hash Vault Id unchanged for $($Path)."
-            continue
-        } else {
-            $paramsadd = $params.Clone()
-            $paramsadd.UriLeaf = 'SecretStore/Add'
-            $paramsadd.Body = @{
-                VaultType = '128'
-                Keyname = $Keyname
-                Base64Data = $Base64Data
-                Namespace = 'Config'
-                Owner = $Path
-            }
-
-            $addresponse = Invoke-VenafiRestMethod @paramsadd
-
-            if ( $addresponse.Result -ne [TppSecretStoreResult]::Success ) {
-                Write-Error ("Error adding VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $addResponse.Result)) -ErrorAction Stop
-            }
-
-            if ( $TypeName -eq 'Policy' ) {
-                Set-VdcAttribute -Path $Path -PolicyClass 'Adaptable App' -Attribute @{ 'PowerShell Script Hash Vault Id' = [string]$addresponse.VaultID } -Lock -ErrorAction Stop
-            } else {
-                Set-VdcAttribute -Path $Path -Attribute @{ 'PowerShell Script Hash Vault Id' = [string]$addresponse.VaultID } -ErrorAction Stop
-            }
-            Write-Verbose "PowerShell Script Hash Vault Id for $($Path) set to $($addresponse.VaultID)."
+        if ( $newBase64 -eq $currentBase64 ) {
+            'PowerShell Script Hash Vault Id unchanged for {0}' -f $thisObject.Path | Write-Verbose
+            return
         }
 
-        if (( $retrieveBase64 ) -and ( $addresponse.VaultID )) {
-            $paramsdelete = $params.Clone()
-            $paramsdelete.UriLeaf = 'SecretStore/OwnerDelete'
-            $paramsdelete.Body = @{
-                Namespace = 'Config'
-                Owner = $Path
-                VaultID = $retrieveVaultID
+        # if Owner happens to have a trailing slash, this call fails
+        $paramsAdd = @{
+            Method  = 'Post'
+            UriLeaf = 'SecretStore/Add'
+            Body    = @{
+                VaultType  = '128'
+                Keyname    = $Keyname
+                Base64Data = $newBase64
+                Namespace  = 'Config'
+                Owner      = $thisObject.Path
+            }
+        }
+
+        $addResponse = Invoke-VenafiRestMethod @paramsAdd
+
+        $addResponse | Write-Verbose
+
+        if ( $addResponse.Result -ne [TppSecretStoreResult]::Success ) {
+            throw ("Error adding VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $addResponse.Result))
+        }
+
+        if ( $thisObject.TypeName -eq 'Policy' ) {
+            Set-VdcAttribute -Path $thisObject.Path -PolicyClass 'Adaptable App' -Attribute @{ 'PowerShell Script Hash Vault Id' = [string]$addresponse.VaultID } -Lock -ErrorAction Stop
+        }
+        else {
+            Set-VdcAttribute -Path $thisObject.Path -Attribute @{ 'PowerShell Script Hash Vault Id' = [string]$addresponse.VaultID } -ErrorAction Stop
+        }
+
+        'PowerShell Script Hash Vault Id for {0} set to {1}' -f $thisObject.Path, $addResponse.VaultID | Write-Verbose
+
+        # cleanup old vault entry if we succeeded in adding the new
+        if ( $currentBase64 -and $addResponse.VaultID ) {
+
+            'Removing old VaultID {0}' -f $existingVaultId | Write-Verbose
+
+            $paramsDelete = @{
+                Method  = 'Post'
+                UriLeaf = 'SecretStore/OwnerDelete'
+                Body    = @{
+                    Namespace = 'Config'
+                    Owner     = $thisObject.Path
+                    VaultID   = $existingVaultId
+                }
             }
 
-            $deleteResponse = Invoke-VenafiRestMethod @paramsdelete
+            $deleteResponse = Invoke-VenafiRestMethod @paramsDelete
 
             if ( $deleteResponse.Result -ne [TppSecretStoreResult]::Success ) {
                 Write-Error ("Error removing VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $deleteResponse.Result)) -ErrorAction Stop
