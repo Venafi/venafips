@@ -72,25 +72,27 @@ function Invoke-VenafiParallel {
 
     if (-not $InputObject) { return }
 
+    $goParallel = $true
+
     # if ThreadJob module is not available, throttle to 1 so multithreading isn't used
     if ( $PSVersionTable.PSVersion.Major -eq 5 ) {
         if ( -not $script:ThreadJobAvailable ) {
-            $ThrottleLimit = 1
+            $goParallel = $false
         }
     }
 
-    # no need for parallel processing overhead if just processing 1 item
-    if ( $InputObject.Count -eq 1 ) {
-        $ThrottleLimit = 1
+    # no need for parallel processing overhead if just processing a few
+    if ( $InputObject.Count -lt 25 -or $ThrottleLimit -eq 1 ) {
+        $goParallel = $false
     }
 
     # throttle to 1 = no parallel
-    if ( $ThrottleLimit -le 1 ) {
+    if ( -not $goParallel ) {
         # remove $using: from vars, not threaded and not supported
-          $scriptBlockWithoutUsing = [ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$'))
+        $scriptBlockWithoutUsing = [ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$'))
 
         # Add progress bar for non-parallel execution if progress is enabled
-        if ( $ProgressPreference -eq 'Continue' ) {
+        if ( $ProgressPreference -eq 'Continue' -and $InputObject.Count -gt 25 ) {
             $totalCount = $InputObject.Count
             $currentCount = 0
 
@@ -105,7 +107,7 @@ function Invoke-VenafiParallel {
 
                 # Only update progress at intervals or for the last item
                 if (($currentCount % $progressInterval -eq 0) -or ($currentCount -eq $totalCount)) {
-                    [int] $percent = ($currentCount / $totalCount) * 100
+                    $percent = [int](($currentCount / $totalCount) * 100)
                     Write-Progress -Activity $ProgressTitle -Status ("{0}% complete ({1}/{2})" -f $percent, $currentCount, $totalCount) -PercentComplete $percent
                 }
 
