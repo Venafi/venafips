@@ -21,6 +21,17 @@ function Invoke-VcCertificateAction {
     If more than 1 application is associated with the certificate, provide -AdditionalParameters @{'Application'='application id'} to specify the id.
     Use -AdditionalParameters to provide additional parameters to the renewal request, see https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create.
 
+    .PARAMETER Revoke
+    Revoke a certificate.
+    Requires a reason and optionally you can provide a comment.
+
+    .PARAMETER Reason
+    Provide a revocation reason; defaults to UNSPECIFIED.
+    Allowed values are 'UNSPECIFIED', 'KEY_COMPROMISE', 'AFFILIATION_CHANGED', 'SUPERSEDED', 'CESSATION_OF_OPERATION'.
+
+    .PARAMETER Comment
+    Provide a revocation comment; defaults to 'revoked by VenafiPS'
+
     .PARAMETER Validate
     Initiates SSL/TLS network validation
 
@@ -135,6 +146,16 @@ function Invoke-VcCertificateAction {
         [Parameter(Mandatory, ParameterSetName = 'Validate')]
         [switch] $Validate,
 
+        [Parameter(Mandatory, ParameterSetName = 'Revoke')]
+        [switch] $Revoke,
+
+        [Parameter(ParameterSetName = 'Revoke')]
+        [ValidateSet('UNSPECIFIED', 'KEY_COMPROMISE', 'AFFILIATION_CHANGED', 'SUPERSEDED', 'CESSATION_OF_OPERATION')]
+        [string] $Reason = 'UNSPECIFIED',
+
+        [Parameter(ParameterSetName = 'Revoke')]
+        [string] $Comment = 'revoked by VenafiPS',
+
         [Parameter(Mandatory, ParameterSetName = 'Delete')]
         [switch] $Delete,
 
@@ -173,6 +194,26 @@ function Invoke-VcCertificateAction {
 
         $allCerts = [System.Collections.Generic.List[string]]::new()
         Write-Verbose $PSCmdlet.ParameterSetName
+
+        $revokeQuery = 'mutation RevokeCertificateRequest($fingerprint: ID!, $certificateAuthorityAccountId: UUID, $revocationReason: RevocationReason!, $revocationComment: String ) {
+            revokeCertificate(fingerprint: $fingerprint, certificateAuthorityAccountId: $certificateAuthorityAccountId, revocationReason: $revocationReason, revocationComment: $revocationComment) {
+                id
+                fingerprint
+                revocation {
+                    status
+                    error {
+                        arguments
+                        code
+                        message
+                    }
+                    approvalDetails {
+                        rejectionReason
+                    }
+                }
+                serialNumber
+            }
+        }
+    '
     }
 
     process {
@@ -335,7 +376,39 @@ function Invoke-VcCertificateAction {
                 return $out
             }
 
+            'Revoke' {
+                $out = @{
+                    CertificateId = $ID
+                    success       = $false
+                    error         = $null
+                }
+
+                $thisCert = Get-VcCertificate -ID $ID
+
+                $variables = @{
+                    fingerprint       = $thisCert.fingerprint
+                    revocationReason  = $Reason
+                    revocationComment = $Comment
+                }
+
+                try {
+                    if ( -not $PSCmdlet.ShouldProcess(('{0} (id: {1})' -f $thisCert.certificateName, $ID), 'Revoke certificate') ) {
+                        return
+                    }
+
+                    $null = Invoke-VcGraphQL -Query $revokeQuery -Variables $variables
+
+                    $out.success = $true
+                }
+                catch {
+                    $out.error = $_
+                }
+
+                return [pscustomobject]$out
+            }
+
             Default {
+                # queue these up to process in batches in the end block
                 $allCerts.Add($ID)
             }
         }
