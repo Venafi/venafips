@@ -1,2 +1,4 @@
-- Add support to `New-VcCertificate` for default subject and key values if assigned in template, [#360](https://github.com/Venafi/VenafiPS/issues/360)
-- Add `New-VcCertificate -KeySize` and `New-VcCertificate -KeyCurve`
+- Add `Invoke-VcCertificateAction -Revoke`
+- Improve performance with `Get-VdcAttribute`, [#362](https://github.com/Venafi/VenafiPS/issues/362).  Note, TypeName, GUID, and Name properties have been removed from the output; Path is still there.
+- Fix GUIDs not converting to Name with `Get-VdcAttribute`
+- Fix `Add-VdcAdaptableHash` not returning if old and new are the same
