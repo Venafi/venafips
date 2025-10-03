@@ -10,11 +10,12 @@ function ConvertTo-VdcFullPath {
     }
 
     process {
+        $newPath = $Path.TrimEnd('\')
         if ( $Path.ToLower() -notlike '\ved*') {
-            "\VED\Policy\$Path"
+            "\VED\Policy\$newPath"
         }
         else {
-            $Path
+            $newPath
         }
     }
 

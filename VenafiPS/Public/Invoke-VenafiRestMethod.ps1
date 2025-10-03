@@ -147,7 +147,7 @@ function Invoke-VenafiRestMethod {
     # default parameter set, no explicit session will come here
     if ( $PSCmdLet.ParameterSetName -eq 'Session' ) {
 
-        $VenafiSession = Get-VenafiSession
+        if ( -not $VenafiSession ) { $VenafiSession = Get-VenafiSession }
 
         switch ($VenafiSession.GetType().Name) {
             'PSCustomObject' {
@@ -234,7 +234,7 @@ function Invoke-VenafiRestMethod {
     }
 
     $params.Uri = '{0}/{1}/{2}' -f $Server, $UriRoot, $UriLeaf
-    
+
     if ( $null -ne $Body ) {
         switch ($Method.ToLower()) {
             'head' {
