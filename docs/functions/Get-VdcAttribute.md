@@ -7,13 +7,13 @@ Get object attributes as well as policy attributes
 
 ### Attribute (Default)
 ```
-Get-VdcAttribute -Path <String> -Attribute <String[]> [-Class <String>] [-NoLookup] [-ThrottleLimit <Int32>]
- [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-VdcAttribute -Path <String> -Attribute <String[]> [-Class <String>] [-AsValue] [-NoLookup]
+ [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### All
 ```
-Get-VdcAttribute -Path <String> [-Class <String>] [-All] [-NoLookup] [-ThrottleLimit <Int32>]
+Get-VdcAttribute -Path <String> [-All] [-Class <String>] [-NoLookup] [-ThrottleLimit <Int32>]
  [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -170,11 +170,19 @@ Want Renewal : 0
 Retrieve specific attributes for all certificates. 
 Throttle the number of threads to 50, the default is 100
 
+### EXAMPLE 9
+```
+Get-VdcAttribute -Path 'certs' -Attribute 'Contact' -AsValue
+```
+
+Retrieve just the value associated with an attribute as opposed to the entire object
+
 ## PARAMETERS
 
 ### -Path
 Path to the object. 
 If the root is excluded, \ved\policy will be prepended.
+If retrieving policy attributes with -Class, this value must be a path to a Policy.
 
 ```yaml
 Type: String
@@ -189,7 +197,7 @@ Accept wildcard characters: False
 ```
 
 ### -Attribute
-Only retrieve the value/values for this attribute.
+Only retrieve the value/values for these attribute(s).
 For custom fields, you can provide either the Guid or Label.
 
 ```yaml
@@ -200,6 +208,24 @@ Aliases:
 Required: True
 Position: Named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -All
+Get all object attributes or policy attributes.
+This will perform 3 steps, get the object type, enumerate the attributes for the object type, and get all the values.
+Note, expect this to take longer than usual given the number of api calls.
+It is recommended to use this once to see what attributes are available, then use -Attribute to get specific ones in the future.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: All
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -223,17 +249,16 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -All
-Get all object attributes or policy attributes.
-This will perform 3 steps, get the object type, enumerate the attributes for the object type, and get all the values.
-Note, expect this to take longer than usual given the number of api calls.
+### -AsValue
+Return only the value of the attribute requested.
+Only applicable when using -Attribute with a single attribute.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: All
+Parameter Sets: Attribute
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: False
 Accept pipeline input: False
@@ -242,7 +267,7 @@ Accept wildcard characters: False
 
 ### -NoLookup
 Default functionality is to perform lookup of attributes names to see if they are custom fields or not.
-If they are, pass along the guid instead of name required by the api for custom fields.
+If they are, pass along the guid instead of the name, as required by the api for custom fields.
 To override this behavior and use the attribute name as is, add -NoLookup.
 Useful if, on the off chance, you have a custom field with the same name as a built-in attribute.
 Can also be used with -All and the output will contain guids instead of looked up names.
@@ -262,7 +287,7 @@ Accept wildcard characters: False
 ### -ThrottleLimit
 Limit the number of threads when running in parallel; the default is 100.
 Setting the value to 1 will disable multithreading.
-On PS v5 the ThreadJob module is required. 
+On PS v5 the ThreadJob module is required at module loading time. 
 If not found, multithreading will be disabled.
 
 ```yaml
@@ -290,7 +315,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: (Get-VenafiSession)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

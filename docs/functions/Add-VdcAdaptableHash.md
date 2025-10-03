@@ -24,13 +24,10 @@ When updating an existing hash, it removes the old one from the Secret Store.
 
 ### EXAMPLE 1
 ```
-Add-VdcAdaptableHash -Path $Path -FilePath 'C:\Program Files\Venafi\Scripts\AdaptableApp\AppDriver.ps1'
+Add-VdcAdaptableHash -Path '\ved\policy\MyAppDriver' -FilePath 'C:\Program Files\Venafi\Scripts\AdaptableApp\AppDriver.ps1'
 ```
 
 Update the hash on an adaptable app object.
-
-Note: For an adaptable app or an onboard discovery, 'Path' must always be a policy folder as this is where
-the hash is saved.
 
 ### EXAMPLE 2
 ```
@@ -44,8 +41,7 @@ Update the hash on an adaptable log object.
 ### -Path
 Required.
 Path to the object to add or update the hash.
-Note: For an adaptable app or an onboard discovery, 'Path' must always be a policy folder as this is where
-the hash is saved.
+For an adaptable app or an onboard discovery, 'Path' must always be a policy folder as this is where the hash is saved.
 
 ```yaml
 Type: String
@@ -78,7 +74,7 @@ Accept wildcard characters: False
 ### -FilePath
 Required.
 The full path to the adaptable script file.
-This should normally be in a
+This should typically be in a
 '\<drive\>:\Program Files\Venafi\Scripts\\\<subdir\>' directory for TLSPDC to recognize the script.
 
 ```yaml

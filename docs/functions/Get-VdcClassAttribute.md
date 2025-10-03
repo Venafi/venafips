@@ -50,7 +50,7 @@ Aliases:
 
 Required: False
 Position: 2
-Default value: None
+Default value: (Get-VenafiSession)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

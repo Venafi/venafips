@@ -30,6 +30,13 @@ Invoke-VcCertificateAction -ID <Guid> [-Validate] [-BatchSize <Int32>] [-Additio
  [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
+### Revoke
+```
+Invoke-VcCertificateAction -ID <Guid> [-Revoke] [-Reason <String>] [-Comment <String>]
+ [-AdditionalParameters <Hashtable>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
+```
+
 ### Delete
 ```
 Invoke-VcCertificateAction -ID <Guid> [-Delete] [-BatchSize <Int32>] [-AdditionalParameters <Hashtable>]
@@ -185,6 +192,53 @@ Aliases:
 Required: True
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Revoke
+Revoke a certificate.
+Requires a reason and optionally you can provide a comment.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Revoke
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Reason
+Provide a revocation reason; defaults to UNSPECIFIED.
+Allowed values are 'UNSPECIFIED', 'KEY_COMPROMISE', 'AFFILIATION_CHANGED', 'SUPERSEDED', 'CESSATION_OF_OPERATION'.
+
+```yaml
+Type: String
+Parameter Sets: Revoke
+Aliases:
+
+Required: False
+Position: Named
+Default value: UNSPECIFIED
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Comment
+Provide a revocation comment; defaults to 'revoked by VenafiPS'
+
+```yaml
+Type: String
+Parameter Sets: Revoke
+Aliases:
+
+Required: False
+Position: Named
+Default value: Revoked by VenafiPS
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
