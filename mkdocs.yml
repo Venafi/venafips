@@ -196,3 +196,4 @@ nav:
       - Set-VcCertificateRequest: functions/Set-VcCertificateRequest.md
       - Set-VcConnector: functions/Set-VcConnector.md
       - Set-VcTeam: functions/Set-VcTeam.md
+      - Set-VcUser: functions/Set-VcUser.md

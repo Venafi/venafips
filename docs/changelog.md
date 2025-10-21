@@ -1,3 +1,7 @@
+## 6.12.3
+- Add `Set-VcUser`, [#366](https://github.com/Venafi/VenafiPS/issues/366), to update user properties including disabling
+
+
 ## 6.12.2
 - Add `Invoke-VcCertificateAction -Revoke`
 - Improve performance with `Get-VdcAttribute`, [#362](https://github.com/Venafi/VenafiPS/issues/362).  Note, TypeName, GUID, and Name properties have been removed from the output; Path is still there.
@@ -816,6 +820,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
