@@ -1,4 +1,1 @@
-- Add `Invoke-VcCertificateAction -Revoke`
-- Improve performance with `Get-VdcAttribute`, [#362](https://github.com/Venafi/VenafiPS/issues/362).  Note, TypeName, GUID, and Name properties have been removed from the output; Path is still there.
-- Fix GUIDs not converting to Name with `Get-VdcAttribute`
-- Fix `Add-VdcAdaptableHash` not returning if old and new are the same
+- Add `Set-VcUser`, [#366](https://github.com/Venafi/VenafiPS/issues/366), to update user properties including disabling
