@@ -40,7 +40,8 @@ function Invoke-VcCertificateAction {
     As only retired certificates can be deleted, this will be performed first.
 
     .PARAMETER Provision
-    Provision a certificate to all associated machine identities.
+    By default, provision a certificate to all associated machine identities.
+    When used with CloudKeystore, provision there instead.
 
     .PARAMETER CloudKeystore
     Name or ID of a cloud keystore to provision to
