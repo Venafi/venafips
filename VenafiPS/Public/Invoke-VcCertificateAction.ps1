@@ -42,6 +42,9 @@ function Invoke-VcCertificateAction {
     .PARAMETER Provision
     Provision a certificate to all associated machine identities.
 
+    .PARAMETER CloudKeystore
+    Name or ID of a cloud keystore to provision to
+
     .PARAMETER BatchSize
     How many certificates to retire per retirement API call. Useful to prevent API call timeouts.
     Defaults to 1000.
@@ -90,7 +93,7 @@ function Invoke-VcCertificateAction {
     Find all current certificates issued by i1 and renew them with a different issuer.
 
     .EXAMPLE
-    Find-VcCertificate -Version Current -Name 'mycert' | Invoke-VcCertificateAction -Renew -Wait
+    Find-VcCertificate -Version CURRENT -Name 'mycert' | Invoke-VcCertificateAction -Renew -Wait
 
     Renew a certificate and wait for it to pass the Requested state (and hopefully Issued).
     This can be helpful if an Issuer takes a bit to enroll the certificate.
@@ -114,6 +117,11 @@ function Invoke-VcCertificateAction {
     Find-VcCertificate -Status RETIRED | Invoke-VcCertificateAction -Delete -BatchSize 100
 
     Search for all retired certificates and delete them using a non default batch size of 100
+
+    .EXAMPLE
+    Find-VcCertificate -Version CURRENT -Name 'mycert' | Invoke-VcCertificateAction -CloudKeystore
+
+    Provision the certificate to a cloud keystore
 
     .LINK
     https://api.venafi.cloud/webjars/swagger-ui/index.html?configUrl=%2Fv3%2Fapi-docs%2Fswagger-config&urls.primaryName=outagedetection-service
@@ -162,6 +170,9 @@ function Invoke-VcCertificateAction {
         [Parameter(Mandatory, ParameterSetName = 'Provision')]
         [Parameter(ParameterSetName = 'Renew')]
         [switch] $Provision,
+
+        [Parameter(Mandatory, ParameterSetName = 'ProvisionToCloudKeystore')]
+        [string] $CloudKeystore,
 
         [Parameter(ParameterSetName = 'Retire')]
         [Parameter(ParameterSetName = 'Recover')]
@@ -212,8 +223,23 @@ function Invoke-VcCertificateAction {
                 }
                 serialNumber
             }
-        }
-    '
+            }
+            '
+
+        $provisionCloudKeystoreQuery = '
+            mutation ProvisionCertificate($certificateId: UUID!, $cloudKeystoreId: UUID!, $wsClientId: UUID!, $options: CertificateProvisioningOptionsInput) {
+            provisionToCloudKeystore(
+                certificateId: $certificateId
+                cloudKeystoreId: $cloudKeystoreId
+                wsClientId: $wsClientId
+                options: $options
+            ) {
+                workflowId
+                workflowName
+                __typename
+            }
+            }
+        '
     }
 
     process {
@@ -397,6 +423,35 @@ function Invoke-VcCertificateAction {
                     }
 
                     $null = Invoke-VcGraphQL -Query $revokeQuery -Variables $variables
+
+                    $out.success = $true
+                }
+                catch {
+                    $out.error = $_
+                }
+
+                return [pscustomobject]$out
+            }
+
+            'ProvisionToCloudKeystore' {
+                $out = @{
+                    certificateId = $ID
+                    success       = $false
+                    error         = $null
+                }
+
+                $variables = @{
+                    certificateId   = (Get-VcData -InputObject $ID -Type Certificate -FailOnNotFound)
+                    cloudKeystoreId = (Get-VcData -InputObject $CloudKeystore -Type CloudKeystore -FailOnNotFound)
+                    wsClientId      = (New-Guid).ToString()
+                }
+
+                try {
+                    if ( -not $PSCmdlet.ShouldProcess($ID, 'Provision certificate to cloud keystore') ) {
+                        return
+                    }
+
+                    $null = Invoke-VcGraphQL -Query $provisionCloudKeystoreQuery -Variables $variables
 
                     $out.success = $true
                 }
