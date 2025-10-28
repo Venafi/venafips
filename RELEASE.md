@@ -1,1 +1,1 @@
-- Add `Set-VcUser`, [#366](https://github.com/Venafi/VenafiPS/issues/366), to update user properties including disabling
+- Add `Invoke-VcCertificateAction -Provision -CloudKeystore` to provision a certificate to a cloud keystore
