@@ -171,7 +171,7 @@ function Invoke-VcCertificateAction {
         [Parameter(ParameterSetName = 'Renew')]
         [switch] $Provision,
 
-        [Parameter(Mandatory, ParameterSetName = 'ProvisionToCloudKeystore')]
+        [Parameter(ParameterSetName = 'Provision')]
         [string] $CloudKeystore,
 
         [Parameter(ParameterSetName = 'Retire')]
@@ -246,16 +246,47 @@ function Invoke-VcCertificateAction {
 
         switch ($PSCmdlet.ParameterSetName) {
             'Provision' {
-                # get all machine identities associated with certificate
-                # since ID is a guid, ensure its converted to string otherwise Find will think it's another filter
-                $mi = Find-VcMachineIdentity -Filter @('certificateId', 'eq', $ID.ToString()) | Select-Object -ExpandProperty machineIdentityId
+                if ( $CloudKeystore ) {
+                    $out = @{
+                        certificateId = $ID
+                        success       = $false
+                        error         = $null
+                    }
 
-                if ( -not $mi ) {
-                    throw "No machine identities found for certificate ID $ID"
+                    $variables = @{
+                        certificateId   = (Get-VcData -InputObject $ID -Type Certificate -FailOnNotFound)
+                        cloudKeystoreId = (Get-VcData -InputObject $CloudKeystore -Type CloudKeystore -FailOnNotFound)
+                        wsClientId      = (New-Guid).ToString()
+                    }
+
+                    try {
+                        if ( -not $PSCmdlet.ShouldProcess($ID, 'Provision certificate to cloud keystore') ) {
+                            return
+                        }
+
+                        $null = Invoke-VcGraphQL -Query $provisionCloudKeystoreQuery -Variables $variables
+
+                        $out.success = $true
+                    }
+                    catch {
+                        $out.error = $_
+                    }
+
+                    return [pscustomobject]$out
+
                 }
+                else {
+                    # get all machine identities associated with certificate
+                    # since ID is a guid, ensure its converted to string otherwise Find will think it's another filter
+                    $mi = Find-VcMachineIdentity -Filter @('certificateId', 'eq', $ID.ToString()) | Select-Object -ExpandProperty machineIdentityId
 
-                Write-Verbose ('Provisioning certificate ID {0} to machine identities {1}' -f $ID, ($mi -join ','))
-                $mi | Invoke-VcWorkflow -Workflow 'Provision'
+                    if ( -not $mi ) {
+                        throw "No machine identities found for certificate ID $ID"
+                    }
+
+                    Write-Verbose ('Provisioning certificate ID {0} to machine identities {1}' -f $ID, ($mi -join ','))
+                    $mi | Invoke-VcWorkflow -Workflow 'Provision'
+                }
             }
 
             'Renew' {
@@ -423,35 +454,6 @@ function Invoke-VcCertificateAction {
                     }
 
                     $null = Invoke-VcGraphQL -Query $revokeQuery -Variables $variables
-
-                    $out.success = $true
-                }
-                catch {
-                    $out.error = $_
-                }
-
-                return [pscustomobject]$out
-            }
-
-            'ProvisionToCloudKeystore' {
-                $out = @{
-                    certificateId = $ID
-                    success       = $false
-                    error         = $null
-                }
-
-                $variables = @{
-                    certificateId   = (Get-VcData -InputObject $ID -Type Certificate -FailOnNotFound)
-                    cloudKeystoreId = (Get-VcData -InputObject $CloudKeystore -Type CloudKeystore -FailOnNotFound)
-                    wsClientId      = (New-Guid).ToString()
-                }
-
-                try {
-                    if ( -not $PSCmdlet.ShouldProcess($ID, 'Provision certificate to cloud keystore') ) {
-                        return
-                    }
-
-                    $null = Invoke-VcGraphQL -Query $provisionCloudKeystoreQuery -Variables $variables
 
                     $out.success = $true
                 }
