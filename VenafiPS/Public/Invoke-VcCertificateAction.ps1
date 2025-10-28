@@ -72,9 +72,10 @@ function Invoke-VcCertificateAction {
     ID
 
     .OUTPUTS
-    When using retire and recover, PSCustomObject with the following properties:
-        CertificateID - Certificate uuid
-        Success - A value of true indicates that the action was successful
+    For most, but not all actions, PSCustomObject with the following properties:
+        certificateID - Certificate uuid
+        success - A value of true indicates that the action was successful
+        error - error message if we failed
 
     .EXAMPLE
     Invoke-VcCertificateAction -ID '3699b03e-ff62-4772-960d-82e53c34bf60' -Retire
