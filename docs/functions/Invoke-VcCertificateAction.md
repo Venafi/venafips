@@ -45,8 +45,9 @@ Invoke-VcCertificateAction -ID <Guid> [-Delete] [-BatchSize <Int32>] [-Additiona
 
 ### Provision
 ```
-Invoke-VcCertificateAction -ID <Guid> [-Provision] [-AdditionalParameters <Hashtable>]
- [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Invoke-VcCertificateAction -ID <Guid> [-Provision] [-CloudKeystore <String>]
+ [-AdditionalParameters <Hashtable>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -80,7 +81,7 @@ Find all current certificates issued by i1 and renew them with a different issue
 
 ### EXAMPLE 4
 ```
-Find-VcCertificate -Version Current -Name 'mycert' | Invoke-VcCertificateAction -Renew -Wait
+Find-VcCertificate -Version CURRENT -Name 'mycert' | Invoke-VcCertificateAction -Renew -Wait
 ```
 
 Renew a certificate and wait for it to pass the Requested state (and hopefully Issued).
@@ -116,6 +117,13 @@ Find-VcCertificate -Status RETIRED | Invoke-VcCertificateAction -Delete -BatchSi
 ```
 
 Search for all retired certificates and delete them using a non default batch size of 100
+
+### EXAMPLE 9
+```
+Find-VcCertificate -Version CURRENT -Name 'mycert' | Invoke-VcCertificateAction -CloudKeystore
+```
+
+Provision the certificate to a cloud keystore
 
 ## PARAMETERS
 
@@ -260,7 +268,8 @@ Accept wildcard characters: False
 ```
 
 ### -Provision
-Provision a certificate to all associated machine identities.
+By default, provision a certificate to all associated machine identities.
+When used with CloudKeystore, provision there instead.
 
 ```yaml
 Type: SwitchParameter
@@ -282,6 +291,21 @@ Aliases:
 Required: True
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CloudKeystore
+Name or ID of a cloud keystore to provision to
+
+```yaml
+Type: String
+Parameter Sets: Provision
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -423,9 +447,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ### ID
 ## OUTPUTS
 
-### When using retire and recover, PSCustomObject with the following properties:
-###     CertificateID - Certificate uuid
-###     Success - A value of true indicates that the action was successful
+### For most, but not all actions, PSCustomObject with the following properties:
+###     certificateID - Certificate uuid
+###     success - A value of true indicates that the action was successful
+###     error - error message if we failed
 ## NOTES
 If performing a renewal and subjectCN has more than 1 value, only the first will be submitted with the renewal.
 

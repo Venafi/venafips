@@ -1,3 +1,6 @@
+## 6.12.4
+- Add `Invoke-VcCertificateAction -Provision -CloudKeystore` to provision a certificate to a cloud keystore
+
 ## 6.12.3
 - Add `Set-VcUser`, [#366](https://github.com/Venafi/VenafiPS/issues/366), to update user properties including disabling
 
@@ -820,6 +823,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
