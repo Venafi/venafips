@@ -111,10 +111,12 @@ function Find-VcLog {
     param (
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
-        [string[]] $Type,
+        [Alias('Type')]
+        [string[]] $EventType,
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
-        [string[]] $Name,
+        [Alias('Name')]
+        [string[]] $EventName,
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
         [string] $Message,

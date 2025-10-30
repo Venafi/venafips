@@ -186,7 +186,7 @@ $vcLogArgCompleterSb = {
     }
 
     switch ($parameterName) {
-        'Type' {
+        'EventType' {
             $script:vcActivityType | Where-Object type -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
                 $itemText = "'{0}'" -f $_.type
                 $itemDescription = 'activity names: {0}' -f ($_.name -join ', ')
@@ -194,10 +194,10 @@ $vcLogArgCompleterSb = {
             }
         }
 
-        'Name' {
+        'EventName' {
             # If Type is provided, filter names for that type only
-            if ($fakeBoundParameters.ContainsKey('Type')) {
-                $typeValue = $fakeBoundParameters['Type'].Trim("'")
+            if ($fakeBoundParameters.ContainsKey('EventType')) {
+                $typeValue = $fakeBoundParameters['EventType'].Trim("'")
                 $names = $script:vcActivityType | Where-Object { $_.type -eq $typeValue } | Select-Object -ExpandProperty name
             }
             else {
@@ -210,8 +210,8 @@ $vcLogArgCompleterSb = {
         }
     }
 }
-Register-ArgumentCompleter -CommandName 'Find-VcLog' -ParameterName 'Type' -ScriptBlock $vcLogArgCompleterSb
-Register-ArgumentCompleter -CommandName 'Find-VcLog' -ParameterName 'Name' -ScriptBlock $vcLogArgCompleterSb
+Register-ArgumentCompleter -CommandName 'Find-VcLog', 'New-VcWebhook' -ParameterName 'EventType' -ScriptBlock $vcLogArgCompleterSb
+Register-ArgumentCompleter -CommandName 'Find-VcLog', 'New-VcWebhook' -ParameterName 'EventName' -ScriptBlock $vcLogArgCompleterSb
 
 $vdcGenericArgCompleterSb = {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)

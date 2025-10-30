@@ -4,21 +4,27 @@ function New-VcWebhook {
     Create a new webhook
 
     .DESCRIPTION
-    Create a new webhook
+    Create a new webhook to forward logged events to another service such as Slack, Teams, or a SIEM
 
     .PARAMETER Name
     Webhook name
 
+    .PARAMETER Type
+    slack, teams, or generic (for SIEM, ServiceNow, etc).
+    The default is generic.
+
     .PARAMETER Url
     Endpoint to be called when the event type/name is triggered.
     This should be the full url and will be validated during webhook creation.
+    See https://developer.venafi.com/tlsprotectcloud/docs/control-plane-forwarding-logged-events for more details.
 
     .PARAMETER EventType
     One or more event types to trigger on.
-    You can retrieve a list of possible values from the Event Log and filtering on Event Type.
+    This property has tab ahead to provide you with a list of values
 
     .PARAMETER EventName
     One or more event names to trigger on.
+    This property has tab ahead to provide you with a list of values
 
     .PARAMETER Secret
     Secret value used to calculate signature which will be sent to the endpoint in the header
@@ -41,6 +47,11 @@ function New-VcWebhook {
     New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Authentication'
 
     Create a new webhook for one event type
+
+    .EXAMPLE
+    New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Authentication' -Type slack
+
+    Create a new webhook to send events to Slack
 
     .EXAMPLE
     New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Authentication', 'Certificates', 'Applications'
@@ -71,6 +82,8 @@ function New-VcWebhook {
     .LINK
     https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=connectors-service#/Connectors/connectors_create
 
+    .LINK
+    https://developer.venafi.com/tlsprotectcloud/docs/control-plane-forwarding-logged-events
     #>
 
     [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'EventName')]
@@ -78,6 +91,10 @@ function New-VcWebhook {
     param (
         [Parameter(Mandatory)]
         [string] $Name,
+
+        [Parameter()]
+        [ValidateSet('generic', 'slack', 'teams')]
+        [string] $Type = 'generic',
 
         [Parameter(Mandatory)]
         [string] $Url,
@@ -127,15 +144,15 @@ function New-VcWebhook {
     process {
 
         $params = @{
-            Method        = 'Post'
-            UriRoot       = 'v1'
-            UriLeaf       = 'connectors'
-            Body          = @{
+            Method       = 'Post'
+            UriRoot      = 'v1'
+            UriLeaf      = 'connectors'
+            Body         = @{
                 name       = $Name
                 properties = @{
                     'connectorKind' = 'WEBHOOK'
                     'target'        = @{
-                        'type'       = 'generic'
+                        'type'       = $Type
                         'connection' = @{
                             'url' = $Url
                         }
@@ -145,7 +162,7 @@ function New-VcWebhook {
                     }
                 }
             }
-            FullResponse  = $true
+            FullResponse = $true
         }
 
         # either event type or name will be provided
