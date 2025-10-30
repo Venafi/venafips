@@ -1,1 +1,2 @@
-- Add `Invoke-VcCertificateAction -Provision -CloudKeystore` to provision a certificate to a cloud keystore
+- Add `New-VcWebhook -Type` to send your event data to either Slack, Teams, or a 'generic' target eg. SIEM, ServiceNow, etc.
+- Add tab completion to `New-VcWebhook` properties `EventType` and `EventName` to easily retrieve those values without trolling the event logs

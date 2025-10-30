@@ -6,10 +6,10 @@ function Find-VcLog {
     .DESCRIPTION
     Find log entries
 
-    .PARAMETER Type
+    .PARAMETER EventType
     One or more activity type, tab completion supported
 
-    .PARAMETER Name
+    .PARAMETER EventName
     One or more activity name, tab completion supported
 
     .PARAMETER Message
@@ -65,7 +65,7 @@ function Find-VcLog {
     Get the most recent 10 log items
 
     .EXAMPLE
-    Find-VcLog -Type 'Authentication'
+    Find-VcLog -EventType 'Authentication'
 
     Filter log results by specific value
 
@@ -75,7 +75,7 @@ function Find-VcLog {
     Find all logs from the past week containing "certificate" in the message
 
     .EXAMPLE
-    Find-VcLog -Type 'Authentication' -Message 'failed' -IncludeAny
+    Find-VcLog -EventType 'Authentication' -Message 'failed' -IncludeAny
 
     Find logs that are either Authentication type OR contain 'failed' in the message
 
@@ -86,18 +86,18 @@ function Find-VcLog {
     This filter will find authentication log entries by 1 of 2 people within the last month.
 
     .EXAMPLE
-    Find-VcLog -Type 'Authentication' -Order 'activityDate'
+    Find-VcLog -EventType 'Authentication' -Order 'activityDate'
 
     Filter log results and order them.
     By default, order will be ascending.
 
     .EXAMPLE
-    Find-VcLog -Type 'Authentication' -Order @{'activityDate'='desc'}
+    Find-VcLog -EventType 'Authentication' -Order @{'activityDate'='desc'}
 
     Filter log results and order them descending
 
     .EXAMPLE
-    Find-VcLog -Type 'Authentication' -Order @{'activityDate'='desc'}, 'criticality'
+    Find-VcLog -EventType 'Authentication' -Order @{'activityDate'='desc'}, 'criticality'
 
     Filter log results and order them by multiple fields
 
@@ -111,10 +111,12 @@ function Find-VcLog {
     param (
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
-        [string[]] $Type,
+        [Alias('Type')]
+        [string[]] $EventType,
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
-        [string[]] $Name,
+        [Alias('Name')]
+        [string[]] $EventName,
 
         [Parameter(ParameterSetName = 'SimpleFilter')]
         [string] $Message,
