@@ -6,10 +6,10 @@ function Find-VcLog {
     .DESCRIPTION
     Find log entries
 
-    .PARAMETER Type
+    .PARAMETER EventType
     One or more activity type, tab completion supported
 
-    .PARAMETER Name
+    .PARAMETER EventName
     One or more activity name, tab completion supported
 
     .PARAMETER Message
