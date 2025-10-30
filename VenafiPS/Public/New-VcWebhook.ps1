@@ -20,11 +20,11 @@ function New-VcWebhook {
 
     .PARAMETER EventType
     One or more event types to trigger on.
-    This property has tab ahead to provide you with a list of values
+    This property has tab completion to provide you with a list of values
 
     .PARAMETER EventName
     One or more event names to trigger on.
-    This property has tab ahead to provide you with a list of values
+    This property has tab completion to provide you with a list of values
 
     .PARAMETER Secret
     Secret value used to calculate signature which will be sent to the endpoint in the header
