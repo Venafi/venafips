@@ -7,18 +7,20 @@ Create a new webhook
 
 ### EventName (Default)
 ```
-New-VcWebhook -Name <String> -Url <String> -EventName <String[]> [-Secret <String>] [-CriticalOnly] [-PassThru]
- [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+New-VcWebhook -Name <String> [-Type <String>] -Url <String> -EventName <String[]> [-Secret <String>]
+ [-CriticalOnly] [-PassThru] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### EventType
 ```
-New-VcWebhook -Name <String> -Url <String> -EventType <String[]> [-Secret <String>] [-CriticalOnly] [-PassThru]
- [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+New-VcWebhook -Name <String> [-Type <String>] -Url <String> -EventType <String[]> [-Secret <String>]
+ [-CriticalOnly] [-PassThru] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Create a new webhook
+Create a new webhook to forward logged events to another service such as Slack, Teams, or a SIEM
 
 ## EXAMPLES
 
@@ -31,12 +33,19 @@ Create a new webhook for one event type
 
 ### EXAMPLE 2
 ```
+New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Authentication' -Type slack
+```
+
+Create a new webhook to send events to Slack
+
+### EXAMPLE 3
+```
 New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Authentication', 'Certificates', 'Applications'
 ```
 
 Create a new webhook with multiple event types
 
-### EXAMPLE 3
+### EXAMPLE 4
 ```
 New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventName 'Certificate Validation Started'
 ```
@@ -44,21 +53,21 @@ New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventName 'Certi
 Create a new webhook with event names as opposed to event types.
 This will result in fewer messages received as opposed to subscribing at the event type level.
 
-### EXAMPLE 4
+### EXAMPLE 5
 ```
 New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Certificates' -CriticalOnly
 ```
 
 Subscribe to critical messages only for a specific event type
 
-### EXAMPLE 5
+### EXAMPLE 6
 ```
 New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Authentication' -Secret 'MySecret'
 ```
 
 Create a new webhook with optional secret
 
-### EXAMPLE 6
+### EXAMPLE 7
 ```
 New-VcWebhook -Name 'MyWebhook' -Url 'https://my.com/endpoint' -EventType 'Authentication' -PassThru
 ```
@@ -82,9 +91,26 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Type
+slack, teams, or generic (for SIEM, ServiceNow, etc).
+The default is generic.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: Generic
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Url
 Endpoint to be called when the event type/name is triggered.
 This should be the full url and will be validated during webhook creation.
+See https://developer.venafi.com/tlsprotectcloud/docs/control-plane-forwarding-logged-events for more details.
 
 ```yaml
 Type: String
@@ -100,7 +126,7 @@ Accept wildcard characters: False
 
 ### -EventType
 One or more event types to trigger on.
-You can retrieve a list of possible values from the Event Log and filtering on Event Type.
+This property has tab completion to provide you with a list of values
 
 ```yaml
 Type: String[]
@@ -116,6 +142,7 @@ Accept wildcard characters: False
 
 ### -EventName
 One or more event names to trigger on.
+This property has tab completion to provide you with a list of values
 
 ```yaml
 Type: String[]
@@ -250,4 +277,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## RELATED LINKS
 
 [https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=connectors-service#/Connectors/connectors_create](https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=connectors-service#/Connectors/connectors_create)
+
+[https://developer.venafi.com/tlsprotectcloud/docs/control-plane-forwarding-logged-events](https://developer.venafi.com/tlsprotectcloud/docs/control-plane-forwarding-logged-events)
 

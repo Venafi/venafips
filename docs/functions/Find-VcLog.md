@@ -7,9 +7,9 @@ Find log entries on TLSPC
 
 ### SimpleFilter (Default)
 ```
-Find-VcLog [-Type <String[]>] [-Name <String[]>] [-Message <String>] [-Critical] [-DateFrom <DateTime>]
- [-DateTo <DateTime>] [-IncludeAny] [-Order <PSObject[]>] [-First <Int32>] [-VenafiSession <PSObject>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Find-VcLog [-EventType <String[]>] [-EventName <String[]>] [-Message <String>] [-Critical]
+ [-DateFrom <DateTime>] [-DateTo <DateTime>] [-IncludeAny] [-Order <PSObject[]>] [-First <Int32>]
+ [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### AdvancedFilter
@@ -32,7 +32,7 @@ Get the most recent 10 log items
 
 ### EXAMPLE 2
 ```
-Find-VcLog -Type 'Authentication'
+Find-VcLog -EventType 'Authentication'
 ```
 
 Filter log results by specific value
@@ -46,7 +46,7 @@ Find all logs from the past week containing "certificate" in the message
 
 ### EXAMPLE 4
 ```
-Find-VcLog -Type 'Authentication' -Message 'failed' -IncludeAny
+Find-VcLog -EventType 'Authentication' -Message 'failed' -IncludeAny
 ```
 
 Find logs that are either Authentication type OR contain 'failed' in the message
@@ -61,7 +61,7 @@ This filter will find authentication log entries by 1 of 2 people within the las
 
 ### EXAMPLE 6
 ```
-Find-VcLog -Type 'Authentication' -Order 'activityDate'
+Find-VcLog -EventType 'Authentication' -Order 'activityDate'
 ```
 
 Filter log results and order them.
@@ -69,27 +69,27 @@ By default, order will be ascending.
 
 ### EXAMPLE 7
 ```
-Find-VcLog -Type 'Authentication' -Order @{'activityDate'='desc'}
+Find-VcLog -EventType 'Authentication' -Order @{'activityDate'='desc'}
 ```
 
 Filter log results and order them descending
 
 ### EXAMPLE 8
 ```
-Find-VcLog -Type 'Authentication' -Order @{'activityDate'='desc'}, 'criticality'
+Find-VcLog -EventType 'Authentication' -Order @{'activityDate'='desc'}, 'criticality'
 ```
 
 Filter log results and order them by multiple fields
 
 ## PARAMETERS
 
-### -Type
+### -EventType
 One or more activity type, tab completion supported
 
 ```yaml
 Type: String[]
 Parameter Sets: SimpleFilter
-Aliases:
+Aliases: Type
 
 Required: False
 Position: Named
@@ -98,13 +98,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Name
+### -EventName
 One or more activity name, tab completion supported
 
 ```yaml
 Type: String[]
 Parameter Sets: SimpleFilter
-Aliases:
+Aliases: Name
 
 Required: False
 Position: Named

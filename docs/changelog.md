@@ -1,3 +1,7 @@
+## 6.12.5
+- Add `New-VcWebhook -Type` to send your event data to either Slack, Teams, or a 'generic' target eg. SIEM, ServiceNow, etc.
+- Add tab completion to `New-VcWebhook` properties `EventType` and `EventName` to easily retrieve those values without trolling the event logs
+
 ## 6.12.4
 - Add `Invoke-VcCertificateAction -Provision -CloudKeystore` to provision a certificate to a cloud keystore
 
@@ -823,6 +827,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
