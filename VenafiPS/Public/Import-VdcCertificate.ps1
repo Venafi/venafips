@@ -235,28 +235,22 @@ function Import-VdcCertificate {
     end {
         Invoke-VenafiParallel -InputObject $allCerts -ScriptBlock {
 
-            $certData = $PSItem.Data
-            if ( $PSItem.Path ) {
-                if ((([System.IO.Path]::GetExtension($PSItem.Path)) -in '.pfx', '.p12') -and $PSItem.InvokeParams.Body.Password ) {
+            $thisItem = $PSItem
 
-                    # tpp won't accept a p12 and password so use this workaround to decrypt first
-                    $cert = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new($PSItem.Path, $PSItem.InvokeParams.Body.Password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
-                    $certData = [System.Convert]::ToBase64String( $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pkcs12))
-
+            $certData = if ( $thisItem.Path ) {
+                $cert = if ($PSVersionTable.PSVersion.Major -lt 6) {
+                    Get-Content $thisItem.Path -Encoding Byte
                 }
                 else {
-
-                    if ($PSVersionTable.PSVersion.Major -lt 6) {
-                        $cert = Get-Content $PSItem.Path -Encoding Byte
-                    }
-                    else {
-                        $cert = Get-Content $PSItem.Path -AsByteStream
-                    }
-                    $certData = [System.Convert]::ToBase64String($cert)
+                    Get-Content $thisItem.Path -AsByteStream
                 }
+                [System.Convert]::ToBase64String($cert)
+            }
+            else {
+                $thisItem.Data
             }
 
-            $params = $PSItem.InvokeParams
+            $params = $thisItem.InvokeParams
             $params.Body.CertificateData = $certData
 
             try {
