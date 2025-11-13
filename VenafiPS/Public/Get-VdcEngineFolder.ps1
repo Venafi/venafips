@@ -77,7 +77,7 @@ function Get-VdcEngineFolder {
     process {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
-            Invoke-VenafiRestMethod -UriLeaf 'ProcessingEngines/' | Select-Object -ExpandProperty Engines | Get-VdcEngineFolder
+            Invoke-VenafiRestMethod -UriLeaf 'ProcessingEngines/' | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue | Get-VdcEngineFolder
         } else {
 
             if ( [guid]::TryParse($ID, $([ref][guid]::Empty)) ) {
@@ -92,7 +92,7 @@ function Get-VdcEngineFolder {
 
                 # engine
 
-                $response = Invoke-VenafiRestMethod -UriLeaf "ProcessingEngines/Engine/$thisObjectGuid" | Select-Object -ExpandProperty Folders
+                $response = Invoke-VenafiRestMethod -UriLeaf "ProcessingEngines/Engine/$thisObjectGuid" | Select-Object -ExpandProperty Folders -ErrorAction SilentlyContinue
 
                 $response | Where-Object { $_.FolderGuid -ne $thisObjectGuid } | Select-Object FolderName,
                 @{ 'n' = 'FolderPath'; 'e' = { $_.FolderDN } },
@@ -105,7 +105,7 @@ function Get-VdcEngineFolder {
 
                 # policy folder
 
-                $response = Invoke-VenafiRestMethod -UriLeaf "ProcessingEngines/Folder/$thisObjectGuid" | Select-Object -ExpandProperty Engines
+                $response = Invoke-VenafiRestMethod -UriLeaf "ProcessingEngines/Folder/$thisObjectGuid" | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue
 
                 $response | Select-Object EngineName,
                 @{ 'n' = 'EnginePath'; 'e' = { $_.EngineDN } },

@@ -1,2 +1,2 @@
-- Add `New-VcWebhook -Type` to send your event data to either Slack, Teams, or a 'generic' target eg. SIEM, ServiceNow, etc.
-- Add tab completion to `New-VcWebhook` properties `EventType` and `EventName` to easily retrieve those values without trolling the event logs
+- Fix `Get-VdcEngineFolder` error when no engines defined
+- Fix `Import-VdcCertificate` when importing p12 as the workaround to decrypt is no longer needed
