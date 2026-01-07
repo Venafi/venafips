@@ -29,6 +29,9 @@ function Export-VcCertificate {
     This is the preferred approach if directly importing into VDC or another VC tenant.
     Requires PowerShell v7.1+.
 
+    .PARAMETER UseLegacy
+    Use legacy encryption algorithm when exporting in PKCS12 format
+
     .PARAMETER ThrottleLimit
     Limit the number of threads when running in parallel; the default is 100.
     Setting the value to 1 will disable multithreading.
@@ -133,6 +136,9 @@ function Export-VcCertificate {
         )]
         [switch] $PKCS12,
 
+        [Parameter(ParameterSetName = 'PKCS12')]
+        [switch] $UseLegacy,
+
         [Parameter()]
         [int32] $ThrottleLimit = 100,
 
@@ -170,6 +176,7 @@ function Export-VcCertificate {
                         'exportFormat'                = $using:pset
                         'encryptedKeystorePassphrase' = ''
                         'certificateLabel'            = ''
+                        'useLegacyFormat'             = $using:UseLegacy.IsPresent
                     }
                     FullResponse = $true
                 }
@@ -226,7 +233,7 @@ function Export-VcCertificate {
                     }
                     return $out
                 }
-                
+
                 # pem format returns a byte array of a zip file so lots more processing to do
 
                 $zipFile = '{0}.zip' -f (New-TemporaryFile)
@@ -275,7 +282,7 @@ function Export-VcCertificate {
                             { $_.Name.EndsWith('root-last.pem') } {
 
                                 $pem = Split-CertificateData -InputObject (Get-Content -Path $_.FullName -Raw)
-                                
+
                                 $out | Add-Member @{'CertPem' = $pem.CertPem }
                                 if ( $using:IncludeChain ) {
                                     $out | Add-Member @{'ChainPem' = $pem.ChainPem }

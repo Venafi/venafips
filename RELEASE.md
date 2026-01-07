@@ -1,2 +1,1 @@
-- Fix `Get-VdcEngineFolder` error when no engines defined
-- Fix `Import-VdcCertificate` when importing p12 as the workaround to decrypt is no longer needed
+- Add `Export-VcCertificate -Legacy` to export with the legacy encryption algorithm
