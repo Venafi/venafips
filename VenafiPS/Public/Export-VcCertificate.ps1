@@ -30,7 +30,8 @@ function Export-VcCertificate {
     Requires PowerShell v7.1+.
 
     .PARAMETER UseLegacy
-    Use legacy encryption algorithm when exporting in PKCS12 format
+    Use legacy encryption algorithm when exporting in PKCS12 format.
+    Required for older systems that do not support modern algorithms.
 
     .PARAMETER ThrottleLimit
     Limit the number of threads when running in parallel; the default is 100.
