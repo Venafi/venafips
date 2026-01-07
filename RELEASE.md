@@ -1,1 +1,1 @@
-- Add `Export-VcCertificate -Legacy` to export with the legacy encryption algorithm
+- Add `Export-VcCertificate -PKCS12 -UseLegacy` to export with the legacy encryption algorithm
