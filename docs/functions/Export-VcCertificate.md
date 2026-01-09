@@ -14,7 +14,7 @@ Export-VcCertificate -ID <String> [-PrivateKeyPassword <PSObject>] [-IncludeChai
 
 ### PKCS12
 ```
-Export-VcCertificate -ID <String> -PrivateKeyPassword <PSObject> [-OutPath <String>] [-PKCS12]
+Export-VcCertificate -ID <String> -PrivateKeyPassword <PSObject> [-OutPath <String>] [-PKCS12] [-UseLegacy]
  [-ThrottleLimit <Int32>] [-Force] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
 ```
@@ -154,6 +154,22 @@ Parameter Sets: PKCS12
 Aliases:
 
 Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UseLegacy
+Use legacy encryption algorithm when exporting in PKCS12 format.
+Required for older systems that do not support modern algorithms.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: PKCS12
+Aliases:
+
+Required: False
 Position: Named
 Default value: False
 Accept pipeline input: False

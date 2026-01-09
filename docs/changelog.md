@@ -1,3 +1,6 @@
+## 6.12.7
+- Add `Export-VcCertificate -PKCS12 -UseLegacy` to export with the legacy encryption algorithm
+
 ## 6.12.6
 - Fix `Get-VdcEngineFolder` error when no engines defined
 - Fix `Import-VdcCertificate` when importing p12 as the workaround to decrypt is no longer needed
@@ -831,6 +834,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
