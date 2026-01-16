@@ -44,7 +44,8 @@ function Find-VcCertificate {
     Search for certificates with SAN DNS matching part or all of the value
 
     .PARAMETER Application
-    Application ID or name that this certificate is associated with
+    Application ID or name that this certificate is associated with.
+    Use Tab Completion to see available applications.
 
     .PARAMETER Tag
     One or more tags associated with the certificate.

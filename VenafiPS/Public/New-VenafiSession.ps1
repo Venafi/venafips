@@ -370,16 +370,6 @@ function New-VenafiSession {
 
     Write-Verbose ('Parameter set: {0}' -f $PSCmdlet.ParameterSetName)
 
-    if ( $ClientId -and $ClientId -inotmatch 'venafips' ) {
-        Write-Warning 'When creating your API Integration in Venafi, please ensure the id begins with “VenafiPS-” like the example below. Be sure to adjust the scope for your specific use case.
-        {
-          "id": "VenafiPS-<USE CASE>",
-          "name": "VenafiPS for <USE CASE>",
-          "description": "This application uses the VenafiPS module to automate <USE CASE>",
-          "scope": "certificate:manage;configuration:manage"
-        }'
-    }
-
     if ( $PSBoundParameters.Keys -like 'Vault*') {
         # ensure the appropriate setup has been performed
         if ( -not (Get-Module -Name Microsoft.PowerShell.SecretManagement -ListAvailable)) {

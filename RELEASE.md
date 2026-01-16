@@ -1,1 +1,1 @@
-- Add `Export-VcCertificate -PKCS12 -UseLegacy` to export with the legacy encryption algorithm
+- Fix ProgressAction error with `Invoke-VcGraphQL` on PowerShell v5

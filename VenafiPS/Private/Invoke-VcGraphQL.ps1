@@ -37,7 +37,6 @@ function Invoke-VcGraphQL {
         UseBasicParsing = $true
         TimeoutSec      = $TimeoutSec
         ErrorAction     = 'Stop'
-        ProgressAction  = 'SilentlyContinue'
     }
 
     $VenafiSession = Get-VenafiSession
@@ -95,26 +94,34 @@ function Invoke-VcGraphQL {
         }
     }
 
-    $verboseOutput = $($response = Invoke-WebRequest @params) 4>&1
-    $verboseOutput.Message | Write-VerboseWithSecret
+    $oldProgressPreference = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'
 
-    if ( $FullResponse ) {
-        $response
-    }
-    else {
-        if ( $response.Content ) {
-            try {
-                $content = $response.Content | ConvertFrom-Json
-            }
-            catch {
-                throw ('Invalid JSON response {0}' -f $response.Content)
-            }
+    try {
+        $verboseOutput = $($response = Invoke-WebRequest @params) 4>&1
+        $verboseOutput.Message | Write-VerboseWithSecret
 
-            if ( $content.errors ) {
-                throw $content.errors.message
-            }
-
-            $content.data
+        if ( $FullResponse ) {
+            $response
         }
+        else {
+            if ( $response.Content ) {
+                try {
+                    $content = $response.Content | ConvertFrom-Json
+                }
+                catch {
+                    throw ('Invalid JSON response {0}' -f $response.Content)
+                }
+
+                if ( $content.errors ) {
+                    throw $content.errors.message
+                }
+
+                $content.data
+            }
+        }
+    }
+    finally {
+        $ProgressPreference = $oldProgressPreference
     }
 }
