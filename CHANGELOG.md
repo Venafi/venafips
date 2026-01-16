@@ -1,3 +1,6 @@
+## 6.12.8
+- Fix ProgressAction error with `Invoke-VcGraphQL` on PowerShell v5
+
 ## 6.12.7
 - Add `Export-VcCertificate -PKCS12 -UseLegacy` to export with the legacy encryption algorithm
 
@@ -834,6 +837,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

@@ -272,7 +272,8 @@ Accept wildcard characters: False
 ```
 
 ### -Application
-Application ID or name that this certificate is associated with
+Application ID or name that this certificate is associated with.
+Use Tab Completion to see available applications.
 
 ```yaml
 Type: String[]
