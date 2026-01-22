@@ -68,6 +68,8 @@ function New-VdcCertificate {
     Control the wait time, in seconds, for a CA to issue/renew a certificate.
     Can be set globally in the product, https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-Certificates-API-settings.php.
     Use this as an override to the global setting.
+    The product default of 0 will cause this function to return immediately, before the certificate has been created.
+    This property is useful if you are wanting to immediately access the certificate when New-VdcCertificate is finished, eg. to pipe to Export-VdcCertificate.
 
     .PARAMETER PassThru
     Return an object representing the newly created certificate.
@@ -111,6 +113,11 @@ function New-VdcCertificate {
     .EXAMPLE
     New-VdcCertificate -Path '\ved\policy\folder' -Name 'mycert.com' -Device @{'PolicyDN'=$DevicePath; 'ObjectName'='MyDevice'; 'Host'='1.2.3.4'} -Application @{'DeviceName'='MyDevice'; 'ObjectName'='BasicApp'; 'DriverName'='appbasic'}
     Create a new certificate with associated device and app objects
+
+    .EXAMPLE
+    New-VdcCertificate -Path '\ved\policy\certs' -Name 'www.barron.com' -CertificateAuthorityPath '\ved\policy\CA Templates\my template' -TimeoutSec 30 -PassThru | Export-VdcCertificate -PKCS12 -PrivateKeyPassword 'mySecretPassword!'
+
+    Wait up to 30 seconds for the CA to create the certificate and then export it
 
     .LINK
     https://venafi.github.io/VenafiPS/functions/New-VdcCertificate/
