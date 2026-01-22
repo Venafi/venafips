@@ -4,10 +4,7 @@ function New-VdcCertificate {
     Enrolls or provisions a new certificate
 
     .DESCRIPTION
-    Enrolls or provisions a new certificate.
-    Prior to TLSPDC 22.1, this function is asynchronous and will always return success.
-    Beginning with 22.1, you can control this behavior.
-    See https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-Certificates-API-settings.php.
+    Enrolls or provisions a new certificate
 
     .PARAMETER Path
     The folder DN path for the new certificate.
@@ -68,8 +65,9 @@ function New-VdcCertificate {
     See the example.
 
     .PARAMETER TimeoutSec
-    Introduced in 22.1, this controls the wait time, in seconds, for a CA to issue/renew a certificate.
-    The default is 60 seconds.
+    Control the wait time, in seconds, for a CA to issue/renew a certificate.
+    Can be set globally in the product, https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-Certificates-API-settings.php.
+    Use this as an override to the global setting.
 
     .PARAMETER PassThru
     Return an object representing the newly created certificate.
@@ -83,7 +81,7 @@ function New-VdcCertificate {
     None
 
     .OUTPUTS
-    TppObject, if PassThru is provided
+    PSCustomObject, if PassThru is provided
     If devices and/or applications were created, a 'Device' property will be available as well.
 
     .EXAMPLE
@@ -197,7 +195,8 @@ function New-VdcCertificate {
 
         [Parameter()]
         [Alias('WorkToDoTimeout')]
-        [int32] $TimeoutSec = 60,
+        [ValidateRange(0, 120)]
+        [int32] $TimeoutSec,
 
         [Parameter()]
         [switch] $PassThru,
@@ -311,7 +310,9 @@ function New-VdcCertificate {
             $params.Body.Add('ManagementType', [enum]::GetName([TppManagementType], $ManagementType))
         }
 
-        $params.Body.Add('WorkToDoTimeout', $TimeoutSec)
+        if ( $PSBoundParameters.ContainsKey('TimeoutSec') ) {
+            $params.Body.Add('WorkToDoTimeout', $TimeoutSec)
+        }
 
         if ( $PSBoundParameters.ContainsKey('SubjectAltName') ) {
             $newSan = @($SubjectAltName | ForEach-Object {
@@ -378,9 +379,9 @@ function New-VdcCertificate {
 
                 if ( $PassThru ) {
                     $newCert = Get-VdcObject -Path $response.CertificateDN
-                    if ( $Device ) {
+                    if ( $response.Devices.DN ) {
                         $newCert | Add-Member @{ 'Device' = @{'Path' = $response.Devices.DN } }
-                        if ( $Application ) {
+                        if ( $response.Devices.Applications.DN ) {
                             $newCert.Device.Application = $response.Devices.Applications.DN
                         }
                     }

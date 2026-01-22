@@ -174,7 +174,9 @@ $vdcPathArgCompleterSb = {
 
     }
 }
-Register-ArgumentCompleter -CommandName $vdcCommands -ParameterName 'Path' -ScriptBlock $vdcPathArgCompleterSb
+'Path', 'CertificateAuthorityPath', 'CredentialPath', 'CertificatePath', 'ApplicationPath', 'EnginePath', 'CertificateLinkPath', 'NewPath' | ForEach-Object {
+    Register-ArgumentCompleter -CommandName $vdcCommands -ParameterName $_ -ScriptBlock $vdcPathArgCompleterSb
+}
 
 $vcLogArgCompleterSb = {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
