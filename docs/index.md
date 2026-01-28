@@ -3,7 +3,7 @@
   <img src="images/CyberArk_Logo_Horizontal_White_Tag-No-R.svg#only-dark" alt="CyberArk"/>
 </p>
 
-# VenafiPS - Automate your CyberArk Certificate Manager (Venafi TLS Protect) Self-Hosted and SaaS platforms!
+# VenafiPS - Automate your CyberArk Certificate Manager Self-Hosted and SaaS platforms!
 
 [![CI](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml/badge.svg)](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml)
 [![Deployment](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml)
@@ -22,6 +22,8 @@ VenafiPS works on PowerShell v5.1 as well as cross-platform PowerShell on Window
 
 ## Install Module
 
+### Online
+
 VenafiPS is published to the PowerShell Gallery.  The most recent version is listed in the badge 'powershell gallery' above and can be viewed by clicking on it.  To install the module, you need to have PowerShell installed first.  On Windows, Windows PowerShell will already be installed, but is recommended to [install the latest version](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows) of cross-platform PowerShell.  For [Linux](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7) or [macOS](https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-macos?view=powershell-7), you will need to install PowerShell; follow those links for guidance.  Once PowerShell is installed, start a PowerShell prompt and execute `Install-Module -Name VenafiPS` which will install from the gallery.
 
 > :warning: If using an older operating system, eg. Windows Server 2016, and you receive errors downloading/installing nuget when attempting to install VenafiPS, your SSL/TLS version is most likely at the default and will not work.  Execute the following before installing the module,
@@ -29,10 +31,16 @@ VenafiPS is published to the PowerShell Gallery.  The most recent version is lis
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
 ```
 
+### Offline
+
+If you are on a server without internet access or unable to reach/install from the PowerShell Gallery, a downloadable copy of the module is available as a fallback; this can be found at [Releases](https://github.com/Venafi/venafips/releases).  Download VenafiPS.zip from the latest release, extract, and execute the following from a PowerShell prompt, `Import-Module <unzipped-path>/VenafiPS.psd1 -Force`.
+
 ### Additional Modules
 
 - If running on Windows with PowerShell v5, multithreading is supported with [Microsoft.PowerShell.ThreadJob](https://github.com/PowerShell/ThreadJob), a Microsoft PowerShell module.  Install this via `Install-Module -Name Microsoft.PowerShell.ThreadJob` for increased performance on the functions that support it.  Version 2.1.0 has been tested.
 - There are a few SaaS functions which require Sodium encryption.  These functions require the `PSSodium` module be installed from the PowerShell Gallery via `Install-Module -Name PSSodium`; version 0.4.2 has been tested.  Optionally, you can provide `-Force` to the VenafiPS function for the module to be automatically installed.  Also for those functions, on Windows, the latest C++ runtime must be installed.
+
+As some users are on Self-Hosted and others on SaaS, it was decided to not include these modules by default.
 
 ## Usage
 
@@ -127,13 +135,16 @@ Most of the same functionality from the above examples exist for SaaS as well.  
 
 ## Token/Key Secret Storage
 
-To securely store and retrieve secrets, VenafiPS has added support for the [PowerShell SecretManagement module](https://github.com/PowerShell/SecretManagement).  This can be used to store your access tokens, refresh tokens, or vaas key.  To use this feature, a vault will need to be created.  You can use [SecretStore](https://github.com/PowerShell/SecretStore) provided by the PowerShell team or any other vault type.  All of this functionality has been added to `New-VenafiSession`.  To prepare your environment, execute the following:
+To securely store and retrieve secrets, VenafiPS has added support for the [PowerShell SecretManagement module](https://github.com/PowerShell/SecretManagement).  This can be used to store your access tokens, refresh tokens, or vaas key.  To use this feature, a vault will need to be created.  You can use [SecretStore](https://github.com/PowerShell/SecretStore) provided by the PowerShell team or any other vault type.  All of this functionality has been added to `New-VenafiSession`.
+
+To prepare your environment, execute the following:
+
 - `Install-Module Microsoft.PowerShell.SecretManagement`
 - `Install-Module Microsoft.PowerShell.SecretStore` or whichever vault you would like to use
 - `Register-SecretVault -Name VenafiPS -ModuleName Microsoft.PowerShell.SecretStore`.  If you are using a different vault type, replace the value for `-ModuleName`.
 - If using the vault Microsoft.PowerShell.SecretStore, execute `Set-SecretStoreConfiguration -Authentication None -Confirm:$false`.  Note, although the vault authentication is set to none, this just turns off the password required to access the vault, it does not mean your secrets are not encrypted.  This is required for automation purposes.  If using a different vault type, ensure you turn off any features which inhibit automation.
 - Check out the help for `New-VenafiSession` for the many ways you can store and retrieve secrets from the vault, but the easiest way to get started is:
-  - `New-VenafiSession -Server my.venafi.com -Credential $myCred -ClientId MyApp -Scope $scope -VaultRefreshTokenName mytoken`.  This will create a new token based session and store the refresh token in the vault.  The server and clientid will be stored with the refresh token as metadata.  Scope does not need to be stored as it is inherent in the token.
+  - `New-VenafiSession -Server cmsh.company.com -Credential $myCred -ClientId MyApp -Scope $scope -VaultRefreshTokenName mytoken`.  This will create a new token based session and store the refresh token in the vault.  The server and clientid will be stored with the refresh token as metadata.  Scope does not need to be stored as it is inherent in the token.
   - To create a new session going forward, `New-VenafiSession -VaultRefreshTokenName mytoken`.  This will retrieve the refresh token and associated metadata from the vault, retrieve a new access token based on that refresh token and create a new session.
 
 Note, extension vaults are registered to the current logged in user context, and will be available only to that user (unless also registered to other users).
