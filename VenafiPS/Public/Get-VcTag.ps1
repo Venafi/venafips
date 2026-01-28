@@ -62,17 +62,17 @@ function Get-VcTag {
     process {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
-            $values = Invoke-VenafiRestMethod -UriLeaf 'tags/values' | Select-Object -ExpandProperty values
-            $response = Invoke-VenafiRestMethod -UriLeaf 'tags' | Select-Object -ExpandProperty tags
+            $allTags = Invoke-VenafiRestMethod -UriLeaf 'tags' | Select-Object -ExpandProperty tags
+            $allValues = Invoke-VenafiRestMethod -UriLeaf 'tags/values' | Select-Object -ExpandProperty values
 
-            $response | Select-Object @{'n' = 'tagId'; 'e' = { $_.key } },
+            $allTags | Select-Object @{'n' = 'tagId'; 'e' = { $_.key } },
             @{
                 'n' = 'value'
                 'e' = {
                     $thisId = $_.id
-                    $thisValues = $values | Where-Object tagId -eq $thisId
-                    if ( $thisValues.value ) {
-                        @($thisValues.value)
+                    $thisTagValues = $allValues | Where-Object tagId -eq $thisId
+                    if ( $thisTagValues ) {
+                        @($thisTagValues.value)
                     }
                     else {
                         $null
