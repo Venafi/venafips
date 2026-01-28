@@ -1,14 +1,15 @@
 function Get-VcTag {
     <#
     .SYNOPSIS
-    Get tags from TLSPC
+    Get tag names and values
 
     .DESCRIPTION
     Get 1 or all tags.
     Tag values will be provided.
 
     .PARAMETER Tag
-    Tag name
+    Tag name or name:value pair to get.
+    If a value is provided, the tag must have that value to be returned.
 
     .PARAMETER All
     Get all tags
@@ -25,6 +26,11 @@ function Get-VcTag {
     Get-VcTag -Tag 'MyTag'
 
     Get a single tag
+
+    .EXAMPLE
+    Get-VcTag -Tag 'MyTag:MyValue'
+
+    Get a single tag only if it has the specified value
 
     .EXAMPLE
     Get-VcTag -All
@@ -56,21 +62,52 @@ function Get-VcTag {
     process {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
-            $values = Invoke-VenafiRestMethod -UriLeaf 'tags/values' | Select-Object -ExpandProperty values
-            $response = Invoke-VenafiRestMethod -UriLeaf 'tags' | Select-Object -ExpandProperty tags
-        }
-        else {
-            $response = Invoke-VenafiRestMethod -UriLeaf "tags/$Tag"
-            $values = Invoke-VenafiRestMethod -UriLeaf "tags/$Tag/values" | Select-Object -ExpandProperty values
-        }
+            $allTags = Invoke-VenafiRestMethod -UriLeaf 'tags' | Select-Object -ExpandProperty tags
+            $allValues = Invoke-VenafiRestMethod -UriLeaf 'tags/values' | Select-Object -ExpandProperty values
 
-        if ( $response ) {
-            $response | Select-Object @{'n' = 'tagId'; 'e' = { $_.key } },
+            $allTags | Select-Object @{'n' = 'tagId'; 'e' = { $_.key } },
             @{
                 'n' = 'value'
                 'e' = {
                     $thisId = $_.id
-                    , @(($values | Where-Object { $_.tagId -eq $thisId }).value)
+                    $thisTagValues = $allValues | Where-Object tagId -eq $thisId
+                    if ( $thisTagValues ) {
+                        @($thisTagValues.value)
+                    }
+                    else {
+                        $null
+                    }
+                }
+            }
+        }
+        else {
+            if ($Tag.Contains(':')) {
+                $requestName, $requestValue = $Tag.Split(':', 2)
+            }
+            else {
+                $requestName = $Tag
+            }
+
+            $thisTag = Invoke-VenafiRestMethod -UriLeaf "tags/$requestName"
+            $thisTagValues = Invoke-VenafiRestMethod -UriLeaf "tags/$requestName/values" | Select-Object -ExpandProperty values
+
+            if ( $thisTag ) {
+
+                if ( $requestValue ) {
+                    if ( $thisTagValues ) {
+                        if ( -not ( $requestValue -in $thisTagValues.value ) ) {
+                            Write-Verbose "The tag '$requestName' exists but does not have a value of '$requestValue'"
+                            return
+                        }
+                    }
+                    else {
+                        Write-Verbose "The tag '$requestName' was found but does not have any values"
+                        return
+                    }
+                }
+
+                return @{
+                    $thisTag.key = $thisTagValues.value
                 }
             }
         }
