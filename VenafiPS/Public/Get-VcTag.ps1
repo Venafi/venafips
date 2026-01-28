@@ -70,7 +70,13 @@ function Get-VcTag {
                 'n' = 'value'
                 'e' = {
                     $thisId = $_.id
-                    , @(($values | Where-Object { $_.tagId -eq $thisId }).value)
+                    $thisValues = $values | Where-Object tagId -eq $thisId
+                    if ( $thisValues.value ) {
+                        @($thisValues.value)
+                    }
+                    else {
+                        $null
+                    }
                 }
             }
         }
