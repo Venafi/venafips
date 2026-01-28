@@ -249,10 +249,24 @@ function Get-VcData {
                 $allObject = $script:vcTag
 
                 if ( $InputObject ) {
-                    $thisObject = $allObject | Where-Object tagId -eq $InputObject
+                    # tags can be specified as name or name:value
+                    # ensure it exists either way
+                    if ( $InputObject.Contains(':') ) {
+                        $key, $value = $InputObject.Split(':', 2)
+                        $thisObject = $allObject | Where-Object { $_.tagId -eq $key -and $value -in $_.value }
+                    }
+                    else {
+                        $thisObject = $allObject | Where-Object tagId -eq $InputObject
+                    }
                     if ( -not $thisObject -and -not $latest ) {
                         $script:vcTag = Get-VcTag -All | Sort-Object -Property tagId
-                        $thisObject = $script:vcTag | Where-Object tagId -eq $InputObject
+                        if ( $InputObject.Contains(':') ) {
+                            $key, $value = $InputObject.Split(':', 2)
+                            $thisObject = $allObject | Where-Object { $_.tagId -eq $key -and $value -in $_.value }
+                        }
+                        else {
+                            $thisObject = $allObject | Where-Object tagId -eq $InputObject
+                        }
                     }
                 }
                 break
@@ -316,7 +330,10 @@ function Get-VcData {
 
             'Name' {
                 switch ($Type) {
-                    'Tag' { $InputObject }
+                    'Tag' {
+                        $InputObject
+                    }
+
                     { $_ -in 'Application', 'Team' } {
                         $returnObject.name
                     }
