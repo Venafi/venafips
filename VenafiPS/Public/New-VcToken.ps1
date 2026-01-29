@@ -72,8 +72,8 @@ function New-VcToken {
         [Parameter(ParameterSetName = 'Session', Mandatory)]
         [ValidateScript(
             {
-                if ( -not $_.Token.Endpoint ) {
-                    throw 'VenafiSession does not have a refresh token.  To get a new access token, create a new session with New-VenafiSession.'
+                if ( -not $_.Token.Endpoint -or -not $_.Token.JWT ) {
+                    throw 'VenafiSession requires Endpoint and JWT.  To get a new access token, create a new session with New-VenafiSession.'
                 }
                 $true
             }
@@ -122,7 +122,7 @@ function New-VcToken {
         Endpoint    = $params.Uri
         AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
         JWT         = New-Object System.Management.Automation.PSCredential('JWT', ($params.Body.client_assertion | ConvertTo-SecureString -AsPlainText -Force))
-        Expires     = (Get-Date).AddSeconds($response.expires_in)
+        Expires     = [DateTime]::UtcNow.AddSeconds($response.expires_in)
     }
 
     if ( $PSCmdlet.ParameterSetName -eq 'ScriptSession' ) {

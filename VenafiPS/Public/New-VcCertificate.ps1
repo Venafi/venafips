@@ -8,11 +8,13 @@ function New-VcCertificate {
 
     .PARAMETER Application
     Application name or id to associate this certificate with.
+    Tab completion is supported.
 
     .PARAMETER IssuingTemplate
     Issuing template id, name, or alias.
     The template must be associated with the provided Application.
     If the application has only one template, this parameter is optional.
+    Tab completion is supported.
 
     .PARAMETER CommonName
     Common name (CN).  Required if not providing a CSR.
@@ -85,6 +87,11 @@ function New-VcCertificate {
     New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com'
 
     Create certificate
+
+    .EXAMPLE
+    New-VcCertificate -Application 'ff23962b-661c-4a83-964b-d86855f1bb93' -IssuingTemplate '2e4a0355-70bf-4ffc-919f-fcfcd4d15e84' -CommonName 'app.mycert.com'
+
+    Create certificate bypassing application and template name resolution, needed for token based authentication which does not have access to these APIs.
 
     .EXAMPLE
     New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Tag 'tag1','tag2:value'
@@ -221,37 +228,40 @@ function New-VcCertificate {
 
         Test-VenafiSession $PSCmdlet.MyInvocation
 
-        # validation
-        $thisApp = Get-VcData -Type Application -InputObject $Application -Object -FailOnNotFound
+        # if Application or IssuingTemplate are names or aliases, resolve to IDs
+        # bypass for GUIDs to support token based auth which cannot access these APIs
+        if ( -not ((Test-IsGuid($Application)) -and (Test-IsGuid($IssuingTemplate)) ) ) {
+            $thisApp = Get-VcData -Type Application -InputObject $Application -Object -FailOnNotFound
 
-        if ( $thisApp.issuingTemplate.Count -eq 0 ) {
-            throw 'No templates associated with this application'
-        }
-
-        if ( -not $IssuingTemplate ) {
-            # issuing template not provided, see if the app has one
-            switch ($thisApp.issuingTemplate.Count) {
-                1 {
-                    # there is only one template, use it
-                    $thisTemplate = Get-VcData -Type IssuingTemplate -InputObject $thisApp.issuingTemplate[0].issuingTemplateId -Object
-                    break
-                }
-
-                Default {
-                    throw 'IssuingTemplate is required when the application has more than 1 template associated'
-                }
+            if ( $thisApp.issuingTemplate.Count -eq 0 ) {
+                throw 'No templates associated with this application'
             }
-        }
-        else {
-            # template provided, check if name or alias or id
-            if ( $IssuingTemplate -in $thisApp.issuingTemplate.name ) {
-                # name is an alias, get template
-                $templateId = $thisApp.issuingTemplate | Where-Object { $_.name -eq $IssuingTemplate } | Select-Object -ExpandProperty issuingTemplateId
-                $thisTemplate = Get-VcData -Type IssuingTemplate -InputObject $templateId -Object
+
+            if ( -not $IssuingTemplate ) {
+                # issuing template not provided, see if the app has one
+                switch ($thisApp.issuingTemplate.Count) {
+                    1 {
+                        # there is only one template, use it
+                        $thisTemplate = Get-VcData -Type IssuingTemplate -InputObject $thisApp.issuingTemplate[0].issuingTemplateId -Object
+                        break
+                    }
+
+                    Default {
+                        throw 'IssuingTemplate is required when the application has more than 1 template associated'
+                    }
+                }
             }
             else {
-                # lookup provided value, name or id
-                $thisTemplate = Get-VcData -Type IssuingTemplate -InputObject $IssuingTemplate -Object -FailOnNotFound
+                # template provided, check if name or alias or id
+                if ( $IssuingTemplate -in $thisApp.issuingTemplate.name ) {
+                    # name is an alias, get template
+                    $templateId = $thisApp.issuingTemplate | Where-Object { $_.name -eq $IssuingTemplate } | Select-Object -ExpandProperty issuingTemplateId
+                    $thisTemplate = Get-VcData -Type IssuingTemplate -InputObject $templateId -Object
+                }
+                else {
+                    # lookup provided value, name or id
+                    $thisTemplate = Get-VcData -Type IssuingTemplate -InputObject $IssuingTemplate -Object -FailOnNotFound
+                }
             }
         }
 
