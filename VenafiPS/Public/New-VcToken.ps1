@@ -72,8 +72,8 @@ function New-VcToken {
         [Parameter(ParameterSetName = 'Session', Mandatory)]
         [ValidateScript(
             {
-                if ( -not $_.Token.Endpoint ) {
-                    throw 'VenafiSession does not have a refresh token.  To get a new access token, create a new session with New-VenafiSession.'
+                if ( -not $_.Token.Endpoint -or -not $_.Token.JWT ) {
+                    throw 'VenafiSession requires Endpoint and JWT.  To get a new access token, create a new session with New-VenafiSession.'
                 }
                 $true
             }
