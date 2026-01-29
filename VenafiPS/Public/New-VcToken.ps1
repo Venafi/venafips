@@ -122,7 +122,7 @@ function New-VcToken {
         Endpoint    = $params.Uri
         AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
         JWT         = New-Object System.Management.Automation.PSCredential('JWT', ($params.Body.client_assertion | ConvertTo-SecureString -AsPlainText -Force))
-        Expires     = (Get-Date).AddSeconds($response.expires_in)
+        Expires     = [DateTime]::UtcNow.AddSeconds($response.expires_in)
     }
 
     if ( $PSCmdlet.ParameterSetName -eq 'ScriptSession' ) {

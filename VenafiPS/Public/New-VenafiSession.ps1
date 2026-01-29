@@ -39,8 +39,6 @@ function New-VenafiSession {
     You can either provide a String, SecureString, or PSCredential.
     If providing a credential, the username is not used.
 
-    .PARAMETER Endpoint
-
     .PARAMETER Jwt
     JSON web token.
     Available in TLSPDC v22.4 and later.
@@ -76,6 +74,11 @@ function New-VenafiSession {
 
     .PARAMETER VcKey
     Api key from your TLSPC instance.  The api key can be found under your user profile->preferences.
+    You can either provide a String, SecureString, or PSCredential.
+    If providing a credential, the username is not used.
+
+    .PARAMETER VcAccessToken
+    Provide an existing access token to create a TLSPC session.
     You can either provide a String, SecureString, or PSCredential.
     If providing a credential, the username is not used.
 
@@ -307,6 +310,7 @@ function New-VenafiSession {
         [psobject] $VcKey,
 
         [Parameter(ParameterSetName = 'Vc')]
+        [Parameter(ParameterSetName = 'VcAccessToken')]
         [ValidateScript(
             {
                 if ( $_ -notin ($script:VcRegions).Keys ) {
@@ -316,6 +320,10 @@ function New-VenafiSession {
             }
         )]
         [string] $VcRegion = 'us',
+
+        [Parameter(Mandatory, ParameterSetName = 'VcAccessToken')]
+        [ValidateNotNullOrEmpty()]
+        [psobject] $VcAccessToken,
 
         [Parameter(Mandatory, ParameterSetName = 'VcToken')]
         [string] $VcEndpoint,
@@ -555,6 +563,20 @@ function New-VenafiSession {
             }
         }
 
+        'VcAccessToken' {
+            $newSession.Platform = 'VC'
+            $newSession.Server = ($script:VcRegions).$VcRegion
+            $newSession | Add-Member @{'Token' = [PSCustomObject]@{
+                    AccessToken = $null
+                }
+            }
+
+            $newSession.Token.AccessToken = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
+            elseif ($VcAccessToken -is [pscredential]) { $VcAccessToken }
+            elseif ($VcAccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $VcAccessToken) }
+            else { throw 'Unsupported type for -VcAccessToken.  Provide either a String, SecureString, or PSCredential.' }
+        }
+
         'VaultVcKey' {
             $keySecret = Get-Secret -Name $VaultVcKeyName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
             if ( -not $keySecret ) {
@@ -590,10 +612,10 @@ function New-VenafiSession {
     else {
 
         # user might not have access to this api, eg. service account
-        $user = Invoke-VenafiRestMethod -UriLeaf 'useraccounts' -VenafiSession $newSession -ErrorAction SilentlyContinue
-        if ( $user ) {
+        $me = Invoke-VenafiRestMethod -UriLeaf 'useraccounts' -VenafiSession $newSession -ErrorAction SilentlyContinue
+        if ( $me.user ) {
             $newSession | Add-Member @{
-                User = $user | Select-Object -ExpandProperty user | Select-Object @{
+                User = $me.user | Select-Object @{
                     'n' = 'userId'
                     'e' = {
                         $_.Id
