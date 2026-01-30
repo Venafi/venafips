@@ -61,7 +61,7 @@ function Get-VcMachineIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -73,16 +73,17 @@ function Get-VcMachineIdentity {
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
 
             $params = @{
-                InputObject = Find-VcObject -Type MachineIdentity
-                ScriptBlock = {
+                InputObject   = Find-VcObject -Type MachineIdentity -VenafiSession $VenafiSession
+                ScriptBlock   = {
                     $PSItem | Get-VcMachineIdentity
                 }
+                VenafiSession = $VenafiSession
             }
             Invoke-VenafiParallel @params
         }
         else {
             try {
-                $response = Invoke-VenafiRestMethod -UriLeaf ('machineidentities/{0}' -f $ID)
+                $response = Invoke-VenafiRestMethod -UriLeaf ('machineidentities/{0}' -f $ID) -VenafiSession $VenafiSession
             }
             catch {
                 if ( $_.Exception.Response.StatusCode.value__ -eq 404 ) {
@@ -97,8 +98,8 @@ function Get-VcMachineIdentity {
             if ( $response ) {
                 $response | Select-Object @{ 'n' = 'machineIdentityId'; 'e' = { $_.Id } },
                 @{
-                    'n'='certificateValidityEnd'
-                    'e'={ Get-VcCertificate -CertificateID $_.certificateId | Select-Object -ExpandProperty validityEnd }
+                    'n' = 'certificateValidityEnd'
+                    'e' = { Get-VcCertificate -CertificateID $_.certificateId -VenafiSession $VenafiSession | Select-Object -ExpandProperty validityEnd }
                 }, * -ExcludeProperty Id
             }
         }

@@ -234,7 +234,7 @@ function Export-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -288,172 +288,181 @@ function Export-VdcCertificate {
     }
 
     end {
-        Invoke-VenafiParallel -InputObject $allCerts -ScriptBlock {
-            $thisBody = $PSItem
-            $outPath = $using:OutPath
-            # foreach ($thisBody in $allCerts) {
-            $isByPath = $null -eq $thisBody.VaultId
+        $parallelParams = @{
+            InputObject   = $allCerts
+            ThrottleLimit = $ThrottleLimit
+            VenafiSession = $VenafiSession
+            ProgressTitle = 'Exporting certificates'
+            ScriptBlock   = {
+                $thisBody = $PSItem
+                $outPath = $using:OutPath
+                # foreach ($thisBody in $allCerts) {
+                $isByPath = $null -eq $thisBody.VaultId
 
-            try {
-                if ( $isByPath ) {
-                    $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
-                }
-                else {
-                    $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
-                }
-            }
-            catch {
                 try {
-                    # key not available, get just the cert
-                    if ( $_.ToString() -like '*failed to lookup private key*') {
-
-                        # we can't have a p12 without a private key
-                        if ( $thisBody.Format -eq 'PKCS #12' ) {
-                            throw $_
-                        }
-
-                        # it could be we just don't have a private key so get just the cert
-                        $thisBody.IncludePrivateKey = $false
-                        $thisBody.Password = $null
-                        if ( $isByPath ) {
-                            $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
-                        }
-                        else {
-                            $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
-                        }
+                    if ( $isByPath ) {
+                        $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
                     }
                     else {
-                        throw $_
+                        $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
                     }
                 }
                 catch {
-                    if ( $isByPath ) {
-                        return [pscustomobject]@{
-                            'Path'            = $thisBody.CertificateDN
-                            'Error'           = $_
-                            'CertificateData' = $null
+                    try {
+                        # key not available, get just the cert
+                        if ( $_.ToString() -like '*failed to lookup private key*') {
+
+                            # we can't have a p12 without a private key
+                            if ( $thisBody.Format -eq 'PKCS #12' ) {
+                                throw $_
+                            }
+
+                            # it could be we just don't have a private key so get just the cert
+                            $thisBody.IncludePrivateKey = $false
+                            $thisBody.Password = $null
+                            if ( $isByPath ) {
+                                $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
+                            }
+                            else {
+                                $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
+                            }
+                        }
+                        else {
+                            throw $_
                         }
                     }
-                    else {
-                        return [pscustomobject]@{
-                            'VaultId'         = $thisBody.VaultId
-                            'Error'           = $_
-                            'CertificateData' = $null
+                    catch {
+                        if ( $isByPath ) {
+                            return [pscustomobject]@{
+                                'Path'            = $thisBody.CertificateDN
+                                'Error'           = $_
+                                'CertificateData' = $null
+                            }
                         }
-                    }
+                        else {
+                            return [pscustomobject]@{
+                                'VaultId'         = $thisBody.VaultId
+                                'Error'           = $_
+                                'CertificateData' = $null
+                            }
+                        }
 
-                }
-            }
-
-            # data applicable to both bypath and byvault
-            $out = $innerResponse | Select-Object @{
-                'n' = 'Format'
-                'e' = {
-                    # standardize the format for pkcs8 and pkcs12 across tlspdc and tlspc
-                    switch ($thisBody.Format) {
-                        'Base64' { 'X509' }
-                        'Base64 (PKCS#8)' { 'PKCS8' }
-                        'PKCS #12' { 'PKCS12' }
-                        Default { $_ }
                     }
                 }
-            },
-            CertificateData,
-            @{
-                n = 'Error'
-                e = { $_.Status }
-            }
 
-            # add path/vault specific data
-            if ( $isByPath ) {
-                $out | Add-Member @{
-                    Path            = $thisBody.CertificateDN
-                    PolicyPath      = $thisBody.CertificateDN.Substring(0, $thisBody.CertificateDN.LastIndexOf('\'))
-                }
-            }
-            else {
-                $out | Add-Member @{ 'VaultId' = $thisBody.VaultId }
-            }
-
-            if ( $innerResponse.CertificateData ) {
-
-                if ( $thisBody.Format -in 'Base64', 'Base64 (PKCS#8)' ) {
-                    $splitData = Split-CertificateData -InputObject $innerResponse.CertificateData
+                # data applicable to both bypath and byvault
+                $out = $innerResponse | Select-Object @{
+                    'n' = 'Format'
+                    'e' = {
+                        # standardize the format for pkcs8 and pkcs12 across tlspdc and tlspc
+                        switch ($thisBody.Format) {
+                            'Base64' { 'X509' }
+                            'Base64 (PKCS#8)' { 'PKCS8' }
+                            'PKCS #12' { 'PKCS12' }
+                            Default { $_ }
+                        }
+                    }
+                },
+                CertificateData,
+                @{
+                    n = 'Error'
+                    e = { $_.Status }
                 }
 
-                if ( $outPath ) {
+                # add path/vault specific data
+                if ( $isByPath ) {
+                    $out | Add-Member @{
+                        Path       = $thisBody.CertificateDN
+                        PolicyPath = $thisBody.CertificateDN.Substring(0, $thisBody.CertificateDN.LastIndexOf('\'))
+                    }
+                }
+                else {
+                    $out | Add-Member @{ 'VaultId' = $thisBody.VaultId }
+                }
 
-                    $out = $out | Select-Object -Property * -ExcludeProperty CertificateData
+                if ( $innerResponse.CertificateData ) {
 
-                    # write the file with the filename provided
-                    $outFile = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath ($innerResponse.FileName.Trim('"'))
-                    $bytes = [Convert]::FromBase64String($innerResponse.CertificateData)
-                    [IO.File]::WriteAllBytes($outFile, $bytes)
+                    if ( $thisBody.Format -in 'Base64', 'Base64 (PKCS#8)' ) {
+                        $splitData = Split-CertificateData -InputObject $innerResponse.CertificateData
+                    }
 
-                    Write-Verbose "Saved $outFile"
+                    if ( $outPath ) {
 
-                    $out | Add-Member @{'OutFile' = @($outFile) }
+                        $out = $out | Select-Object -Property * -ExcludeProperty CertificateData
 
-                    if ( $thisBody.Format -in 'Base64 (PKCS#8)' -and $thisBody.IncludePrivateKey) {
-                        # outFile will be .pem with cert and key
-                        # write out the individual files as well
-                        try {
-                            $crtFile = $outFile.Replace('.pem', '.crt')
+                        # write the file with the filename provided
+                        $outFile = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath ($innerResponse.FileName.Trim('"'))
+                        $bytes = [Convert]::FromBase64String($innerResponse.CertificateData)
+                        [IO.File]::WriteAllBytes($outFile, $bytes)
 
-                            $sw = [IO.StreamWriter]::new($crtFile, $false, [Text.Encoding]::ASCII)
-                            $sw.WriteLine($splitData.CertPem)
-                            Write-Verbose "Saved $crtFile"
+                        Write-Verbose "Saved $outFile"
 
-                            $out.OutFile += $crtFile
-                        }
-                        finally {
-                            if ($null -ne $sw) { $sw.Close() }
-                        }
+                        $out | Add-Member @{'OutFile' = @($outFile) }
 
-                        if ( $thisBody.IncludePrivateKey ) {
+                        if ( $thisBody.Format -in 'Base64 (PKCS#8)' -and $thisBody.IncludePrivateKey) {
+                            # outFile will be .pem with cert and key
+                            # write out the individual files as well
                             try {
-                                $keyFile = $outFile.Replace('.pem', '.key')
+                                $crtFile = $outFile.Replace('.pem', '.crt')
 
-                                $sw = [IO.StreamWriter]::new($keyFile, $false, [Text.Encoding]::ASCII)
-                                $sw.WriteLine($splitData.KeyPem)
-                                Write-Verbose "Saved $keyFile"
+                                $sw = [IO.StreamWriter]::new($crtFile, $false, [Text.Encoding]::ASCII)
+                                $sw.WriteLine($splitData.CertPem)
+                                Write-Verbose "Saved $crtFile"
 
-                                $out.OutFile += $keyFile
+                                $out.OutFile += $crtFile
                             }
                             finally {
                                 if ($null -ne $sw) { $sw.Close() }
                             }
+
+                            if ( $thisBody.IncludePrivateKey ) {
+                                try {
+                                    $keyFile = $outFile.Replace('.pem', '.key')
+
+                                    $sw = [IO.StreamWriter]::new($keyFile, $false, [Text.Encoding]::ASCII)
+                                    $sw.WriteLine($splitData.KeyPem)
+                                    Write-Verbose "Saved $keyFile"
+
+                                    $out.OutFile += $keyFile
+                                }
+                                finally {
+                                    if ($null -ne $sw) { $sw.Close() }
+                                }
+                            }
                         }
                     }
-                }
-                else {
-                    if ( $thisBody.Format -in 'Base64', 'Base64 (PKCS#8)' ) {
+                    else {
+                        if ( $thisBody.Format -in 'Base64', 'Base64 (PKCS#8)' ) {
 
-                        $out | Add-Member @{'CertPem' = $splitData.CertPem }
+                            $out | Add-Member @{'CertPem' = $splitData.CertPem }
 
-                        if ( $thisBody.IncludePrivateKey ) {
-                            $out | Add-Member @{
-                                'KeyPem' = $splitData.KeyPem
+                            if ( $thisBody.IncludePrivateKey ) {
+                                $out | Add-Member @{
+                                    'KeyPem' = $splitData.KeyPem
+                                }
+                            }
+
+                            if ( $thisBody.IncludeChain -and $splitData.ChainPem ) {
+                                $out | Add-Member @{'ChainPem' = $splitData.ChainPem }
                             }
                         }
 
-                        if ( $thisBody.IncludeChain -and $splitData.ChainPem ) {
-                            $out | Add-Member @{'ChainPem' = $splitData.ChainPem }
+                        if ( $thisBody.IncludePrivateKey ) {
+                            $out | Add-Member @{
+                                'PrivateKeyPassword' = (New-Object System.Management.Automation.PSCredential('unused', ($thisBody.Password | ConvertTo-SecureString -AsPlainText -Force)))
+                            }
                         }
-                    }
 
-                    if ( $thisBody.IncludePrivateKey ) {
-                        $out | Add-Member @{
-                            'PrivateKeyPassword' = (New-Object System.Management.Automation.PSCredential('unused', ($thisBody.Password | ConvertTo-SecureString -AsPlainText -Force)))
-                        }
                     }
-
                 }
+
+                $out
+
             }
+        }
 
-            $out
+        Invoke-VenafiParallel @parallelParams
 
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Exporting certificates'
     }
 }
 

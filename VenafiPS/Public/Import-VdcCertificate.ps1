@@ -165,7 +165,7 @@ function Import-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -206,10 +206,10 @@ function Import-VdcCertificate {
 
         # check if the policy path exists and if we should create it
         $fullPolicyPath = $PolicyPath | ConvertTo-VdcFullPath
-        if ( -not (Test-VdcObject -Path $fullPolicyPath -ExistOnly) ) {
+        if ( -not (Test-VdcObject -Path $fullPolicyPath -ExistOnly -VenafiSession $VenafiSession) ) {
             if ( $Force ) {
                 Write-Verbose "Creating policy path $fullPolicyPath"
-                New-VdcPolicy -Path $fullPolicyPath -Force
+                New-VdcPolicy -Path $fullPolicyPath -Force -VenafiSession $VenafiSession
             }
             else {
                 Write-Error "Cannot import to $fullPolicyPath as it does not exist.  To create the policy folder, add -Force."
@@ -233,40 +233,49 @@ function Import-VdcCertificate {
     }
 
     end {
-        Invoke-VenafiParallel -InputObject $allCerts -ScriptBlock {
+        $parallelParams = @{
+            InputObject   = $allCerts
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = 'Importing certificates'
+            VenafiSession = $VenafiSession
+            ScriptBlock   = {
 
-            $thisItem = $PSItem
+                $thisItem = $PSItem
 
-            $certData = if ( $thisItem.Path ) {
-                $cert = if ($PSVersionTable.PSVersion.Major -lt 6) {
-                    Get-Content $thisItem.Path -Encoding Byte
+                $certData = if ( $thisItem.Path ) {
+                    $cert = if ($PSVersionTable.PSVersion.Major -lt 6) {
+                        Get-Content $thisItem.Path -Encoding Byte
+                    }
+                    else {
+                        Get-Content $thisItem.Path -AsByteStream
+                    }
+                    [System.Convert]::ToBase64String($cert)
                 }
                 else {
-                    Get-Content $thisItem.Path -AsByteStream
+                    $thisItem.Data
                 }
-                [System.Convert]::ToBase64String($cert)
-            }
-            else {
-                $thisItem.Data
-            }
 
-            $params = $thisItem.InvokeParams
-            $params.Body.CertificateData = $certData
+                $params = $thisItem.InvokeParams
+                $params.Body.CertificateData = $certData
 
-            try {
-                $response = Invoke-VenafiRestMethod @params
+                try {
+                    $response = Invoke-VenafiRestMethod @params
 
-                Write-Verbose ('Imported certificate, path: {0}, guid: {1}' -f $response.CertificateDN, $response.Guid)
+                    Write-Verbose ('Imported certificate, path: {0}, guid: {1}' -f $response.CertificateDN, $response.Guid)
 
-                if ( $using:PassThru ) {
-                    Get-VdcObject -Guid $response.Guid.trim('{}')
+                    if ( $using:PassThru ) {
+                        Get-VdcObject -Guid $response.Guid.trim('{}')
+                    }
+                }
+                catch {
+                    # write error but continue with next item
+                    Write-Error $_
                 }
             }
-            catch {
-                # write error but continue with next item
-                Write-Error $_
-            }
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Importing certificates'
+        }
+
+        Invoke-VenafiParallel @parallelParams
+
     }
 }
 

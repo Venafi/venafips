@@ -89,25 +89,34 @@ function Remove-VdcObject {
     }
 
     end {
-        Invoke-VenafiParallel -InputObject $allItems -ScriptBlock {
+        $parallelParams = @{
+            InputObject   = $allItems
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = 'Removing objects'
+            VenafiSession = $VenafiSession
+            ScriptBlock   = {
 
-            $params = @{
+                $params = @{
 
-                Method  = 'Post'
-                UriLeaf = 'config/Delete'
-                Body    = @{
-                    ObjectDN  = $PSItem
-                    Recursive = [int] (($using:Recursive).IsPresent)
+                    Method  = 'Post'
+                    UriLeaf = 'config/Delete'
+                    Body    = @{
+                        ObjectDN  = $PSItem
+                        Recursive = [int] (($using:Recursive).IsPresent)
+                    }
+                }
+
+                $response = Invoke-VenafiRestMethod @params
+
+                if ( $response.Result -ne 1 ) {
+                    Write-Error $response.Error
+                    return
                 }
             }
+        }
 
-            $response = Invoke-VenafiRestMethod @params
+        Invoke-VenafiParallel @parallelParams
 
-            if ( $response.Result -ne 1 ) {
-                Write-Error $response.Error
-                return
-            }
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Removing objects'
     }
 }
 

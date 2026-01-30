@@ -149,7 +149,7 @@ function Invoke-VdcCertificateAction {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -175,30 +175,83 @@ function Invoke-VdcCertificateAction {
         if ( $allCerts.Count -eq 0 ) { return }
         $action = $PsCmdlet.ParameterSetName
 
-        Invoke-VenafiParallel -InputObject $allCerts -ScriptBlock {
+        $parallelParams = @{
+            InputObject   = $allCerts
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = "$action certificates"
+            VenafiSession = $VenafiSession
+            ScriptBlock   = {
 
-            $action = $using:action
-            $thisCert = $PSItem
+                $action = $using:action
+                $thisCert = $PSItem
 
-            $params = @{
-                Method = 'Post'
-            }
+                $params = @{
+                    Method = 'Post'
+                }
 
-            $returnObject = [PSCustomObject]@{
-                Path    = $PSItem
-                Success = $true
-                Error   = $null
-            }
+                $returnObject = [PSCustomObject]@{
+                    Path    = $PSItem
+                    Success = $true
+                    Error   = $null
+                }
 
-            # at times, we don't want to call an api in the process block
-            $performInvoke = $true
+                # at times, we don't want to call an api in the process block
+                $performInvoke = $true
 
-            switch ($action) {
-                'Disable' {
-                    $performInvoke = $false
+                switch ($action) {
+                    'Disable' {
+                        $performInvoke = $false
 
+                        try {
+                            Set-VdcAttribute -Path $thisCert -Attribute @{ 'Disabled' = '1' }
+                        }
+                        catch {
+                            $returnObject.Success = $false
+                            $returnObject.Error = $_
+                        }
+                    }
+
+                    'Reset' {
+                        $params.UriLeaf = 'Certificates/Reset'
+                        $params.Body = @{CertificateDN = $thisCert }
+                    }
+
+                    'Renew' {
+                        $params.UriLeaf = 'Certificates/Renew'
+                        $params.Body = @{CertificateDN = $thisCert }
+                    }
+
+                    'Push' {
+                        $params.UriLeaf = 'Certificates/Push'
+                        $params.Body = @{
+                            CertificateDN = $thisCert
+                            'PushToAll'   = $true
+                        }
+                    }
+
+                    'Validate' {
+                        $params.UriLeaf = 'Certificates/Validate'
+                        $params.Body = @{CertificateDNs = @($thisCert) }
+                    }
+
+                    'Revoke' {
+                        $params.UriLeaf = 'Certificates/Revoke'
+                        $params.Body = @{CertificateDN = $thisCert }
+                    }
+
+                    'Delete' {
+                        $performInvoke = $false
+                        Remove-VdcCertificate -Path $thisCert -Confirm:$false
+                    }
+                }
+
+                if ( $AdditionalParameter ) {
+                    $params.Body += $AdditionalParameter
+                }
+
+                if ( $performInvoke ) {
                     try {
-                        Set-VdcAttribute -Path $thisCert -Attribute @{ 'Disabled' = '1' }
+                        $null = Invoke-VenafiRestMethod @params -FullResponse
                     }
                     catch {
                         $returnObject.Success = $false
@@ -206,61 +259,13 @@ function Invoke-VdcCertificateAction {
                     }
                 }
 
-                'Reset' {
-                    $params.UriLeaf = 'Certificates/Reset'
-                    $params.Body = @{CertificateDN = $thisCert }
-                }
+                # return path so another function can be called
+                $returnObject
 
-                'Renew' {
-                    $params.UriLeaf = 'Certificates/Renew'
-                    $params.Body = @{CertificateDN = $thisCert }
-                }
-
-                'Push' {
-                    $params.UriLeaf = 'Certificates/Push'
-                    $params.Body = @{
-                        CertificateDN = $thisCert
-                        'PushToAll'   = $true
-                    }
-                }
-
-                'Validate' {
-                    $params.UriLeaf = 'Certificates/Validate'
-                    $params.Body = @{CertificateDNs = @($thisCert) }
-                }
-
-                'Revoke' {
-                    $params.UriLeaf = 'Certificates/Revoke'
-                    $params.Body = @{CertificateDN = $thisCert }
-                }
-
-                'Delete' {
-                    $performInvoke = $false
-                    Remove-VdcCertificate -Path $thisCert -Confirm:$false
-                }
             }
+        }
 
-            if ( $AdditionalParameter ) {
-                $params.Body += $AdditionalParameter
-            }
-
-            if ( $performInvoke ) {
-                try {
-                    $null = Invoke-VenafiRestMethod @params -FullResponse
-                }
-                catch {
-                    $returnObject.Success = $false
-                    $returnObject.Error = $_
-                }
-            }
-
-            # return path so another function can be called
-            $returnObject
-
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle ('{0} certificates' -f $PsCmdlet.ParameterSetName)
-
-
-
+        Invoke-VenafiParallel @parallelParams
 
     }
 }

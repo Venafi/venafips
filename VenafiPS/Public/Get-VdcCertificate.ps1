@@ -94,7 +94,7 @@ function Get-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -108,7 +108,7 @@ function Get-VdcCertificate {
     process {
 
         if ( $All ) {
-            return (Find-VdcCertificate -Path '\ved' -Recursive | Get-VdcCertificate -IncludePreviousVersions:$IncludePreviousVersions -ExcludeExpired:$ExcludeExpired -ExcludeRevoked:$ExcludeRevoked)
+            return (Find-VdcCertificate -Path '\ved' -Recursive -VenafiSession $VenafiSession | Get-VdcCertificate -IncludePreviousVersions:$IncludePreviousVersions -ExcludeExpired:$ExcludeExpired -ExcludeRevoked:$ExcludeRevoked -VenafiSession $VenafiSession)
         }
 
         if ( Test-IsGuid($ID) ) {
@@ -121,87 +121,96 @@ function Get-VdcCertificate {
 
     end {
 
-        Invoke-VenafiParallel -InputObject $certs -ScriptBlock {
+        $parallelParams = @{
+            InputObject   = $certs
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = 'Getting certificates'
+            VenafiSession = $VenafiSession
+            ScriptBlock   = {
 
-            if ( $PSItem -like '\ved*' ) {
-                # a path was provided, get the guid
-                $thisGuid = (ConvertTo-VdcObject -Path $PSItem).Guid
-            }
-            else {
-                $thisGuid = ([guid] $PSItem).ToString()
-            }
-
-            $params = @{
-                UriLeaf = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}")
-            }
-
-            $response = Invoke-VenafiRestMethod @params
-
-            if ( $using:IncludePreviousVersions ) {
-                $params.UriLeaf = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}/PreviousVersions")
-                $params.Body = @{}
-
-                if ( $ExcludeExpired.IsPresent ) {
-                    $params.Body.ExcludeExpired = $ExcludeExpired
+                if ( $PSItem -like '\ved*' ) {
+                    # a path was provided, get the guid
+                    $thisGuid = (ConvertTo-VdcObject -Path $PSItem).Guid
                 }
-                if ( $ExcludeRevoked.IsPresent ) {
-                    $params.Body.ExcludeRevoked = $ExcludeRevoked
+                else {
+                    $thisGuid = ([guid] $PSItem).ToString()
                 }
 
-                $previous = Invoke-VenafiRestMethod @params
+                $params = @{
+                    UriLeaf = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}")
+                }
 
-                if ( $previous.PreviousVersions ) {
-                    $previous.PreviousVersions.CertificateDetails | ForEach-Object {
-                        $_.StoreAdded = [datetime]$_.StoreAdded
-                        $_.ValidFrom = [datetime]$_.ValidFrom
-                        $_.ValidTo = [datetime]$_.ValidTo
+                $response = Invoke-VenafiRestMethod @params
+
+                if ( $using:IncludePreviousVersions ) {
+                    $params.UriLeaf = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}/PreviousVersions")
+                    $params.Body = @{}
+
+                    if ( $ExcludeExpired.IsPresent ) {
+                        $params.Body.ExcludeExpired = $ExcludeExpired
                     }
+                    if ( $ExcludeRevoked.IsPresent ) {
+                        $params.Body.ExcludeRevoked = $ExcludeRevoked
+                    }
+
+                    $previous = Invoke-VenafiRestMethod @params
+
+                    if ( $previous.PreviousVersions ) {
+                        $previous.PreviousVersions.CertificateDetails | ForEach-Object {
+                            $_.StoreAdded = [datetime]$_.StoreAdded
+                            $_.ValidFrom = [datetime]$_.ValidFrom
+                            $_.ValidTo = [datetime]$_.ValidTo
+                        }
+                    }
+
+                    $response | Add-Member @{'PreviousVersions' = $previous.PreviousVersions }
                 }
 
-                $response | Add-Member @{'PreviousVersions' = $previous.PreviousVersions }
+                # object transformations
+                # put in try/catch in case datetime conversion fails
+                try {
+                    $response.CertificateDetails.StoreAdded = [datetime]$response.CertificateDetails.StoreAdded
+                    $response.CertificateDetails.ValidFrom = [datetime]$response.CertificateDetails.ValidFrom
+                    $response.CertificateDetails.ValidTo = [datetime]$response.CertificateDetails.ValidTo
+                }
+                catch {
+
+                }
+
+                $selectProps = @{
+                    Property        =
+                    @{
+                        n = 'Name'
+                        e = { $_.Name }
+                    },
+                    @{
+                        n = 'TypeName'
+                        e = { $_.SchemaClass }
+                    },
+                    @{
+                        n = 'Path'
+                        e = { $_.DN }
+                    }, @{
+                        n = 'Guid'
+                        e = { [guid]$_.guid }
+                    }, @{
+                        n = 'ParentPath'
+                        e = { $_.ParentDN }
+                    }, @{
+                        n = 'CreatedOn'
+                        e = { [datetime]$_.CreatedOn }
+                    },
+                    '*'
+                    ExcludeProperty = 'DN', 'GUID', 'ParentDn', 'SchemaClass', 'Name', 'CreatedOn'
+                }
+
+                $response | Select-Object @selectProps
+
             }
+        }
 
-            # object transformations
-            # put in try/catch in case datetime conversion fails
-            try {
-                $response.CertificateDetails.StoreAdded = [datetime]$response.CertificateDetails.StoreAdded
-                $response.CertificateDetails.ValidFrom = [datetime]$response.CertificateDetails.ValidFrom
-                $response.CertificateDetails.ValidTo = [datetime]$response.CertificateDetails.ValidTo
-            }
-            catch {
+        Invoke-VenafiParallel @parallelParams
 
-            }
-
-            $selectProps = @{
-                Property        =
-                @{
-                    n = 'Name'
-                    e = { $_.Name }
-                },
-                @{
-                    n = 'TypeName'
-                    e = { $_.SchemaClass }
-                },
-                @{
-                    n = 'Path'
-                    e = { $_.DN }
-                }, @{
-                    n = 'Guid'
-                    e = { [guid]$_.guid }
-                }, @{
-                    n = 'ParentPath'
-                    e = { $_.ParentDN }
-                }, @{
-                    n = 'CreatedOn'
-                    e = { [datetime]$_.CreatedOn }
-                },
-                '*'
-                ExcludeProperty = 'DN', 'GUID', 'ParentDn', 'SchemaClass', 'Name', 'CreatedOn'
-            }
-
-            $response | Select-Object @selectProps
-
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting certificates'
     }
 }
 
