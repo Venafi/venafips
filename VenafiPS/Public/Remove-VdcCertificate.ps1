@@ -79,7 +79,7 @@ function Remove-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -98,23 +98,31 @@ function Remove-VdcCertificate {
 
     end {
 
-        Invoke-VenafiParallel -InputObject $allCerts -ScriptBlock {
+        $parallelParams = @{
+            InputObject   = $allCerts
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = 'Deleting certificates'
+            VenafiSession = $VenafiSession
+            ScriptBlock   = {
 
-            $guid = $PSItem | ConvertTo-VdcObject -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Guid
-            if ( -not $guid ) {
-                Write-Error "'$PSItem' is not a valid path"
-                return
-            }
-
-            if ($using:KeepAssociatedApps) {
-                $associatedApps = ($PSItem | Get-VdcAttribute -Attribute "Consumers").Consumers
-                if ( $associatedApps ) {
-                    Remove-VdcCertificateAssociation -Path $PSItem -ApplicationPath $associatedApps -Confirm:$false
+                $guid = $PSItem | ConvertTo-VdcObject -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Guid
+                if ( -not $guid ) {
+                    Write-Error "'$PSItem' is not a valid path"
+                    return
                 }
-            }
 
-            $null = Invoke-VenafiRestMethod -Method Delete -UriLeaf "Certificates/$guid"
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Deleting certificates'
+                if ($using:KeepAssociatedApps) {
+                    $associatedApps = ($PSItem | Get-VdcAttribute -Attribute "Consumers").Consumers
+                    if ( $associatedApps ) {
+                        Remove-VdcCertificateAssociation -Path $PSItem -ApplicationPath $associatedApps -Confirm:$false
+                    }
+                }
+
+                $null = Invoke-VenafiRestMethod -Method Delete -UriLeaf "Certificates/$guid"
+            }
+        }
+
+        Invoke-VenafiParallel @parallelParams
     }
 }
 

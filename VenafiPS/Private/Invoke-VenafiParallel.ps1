@@ -64,7 +64,7 @@ function Invoke-VenafiParallel {
         [Parameter()]
         [string] $ProgressTitle = 'Performing action',
 
-        [Parameter()]
+        [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [psobject] $VenafiSession
 
@@ -125,7 +125,7 @@ function Invoke-VenafiParallel {
 
     # parallel processing from here down
 
-    $VenafiSession = Get-VenafiSession
+    # $VenafiSession = Get-VenafiSession
 
     $starterSb = {
 

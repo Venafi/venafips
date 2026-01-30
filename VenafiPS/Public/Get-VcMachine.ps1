@@ -113,7 +113,7 @@ function Get-VcMachine {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -124,12 +124,13 @@ function Get-VcMachine {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
 
-            $allMachines = Find-VcObject -Type Machine
+            $allMachines = Find-VcObject -Type Machine -VenafiSession $VenafiSession
 
             if ( $IncludeConnectionDetail ) {
                 $params = @{
                     InputObject = $allMachines
                     ScriptBlock = { $PSItem | Get-VcMachine }
+                    VenafiSession = $VenafiSession
                 }
                 return Invoke-VenafiParallel @params
             }
@@ -140,7 +141,7 @@ function Get-VcMachine {
         else {
             if ( Test-IsGuid($Machine) ) {
                 try {
-                    $response = Invoke-VenafiRestMethod -UriLeaf ('machines/{0}' -f $Machine)
+                    $response = Invoke-VenafiRestMethod -UriLeaf ('machines/{0}' -f $Machine) -VenafiSession $VenafiSession
                     $response | Select-Object @{ 'n' = 'machineId'; 'e' = { $_.Id } }, * -ExcludeProperty Id
                 }
                 catch {
@@ -155,7 +156,7 @@ function Get-VcMachine {
             }
             else {
                 # no lookup by name directly.  search for it and then get details
-                Find-VcObject -Type 'Machine' -Name $Machine | Get-VcMachine
+                Find-VcObject -Type 'Machine' -Name $Machine -VenafiSession $VenafiSession | Get-VcMachine -VenafiSession $VenafiSession
             }
         }
     }

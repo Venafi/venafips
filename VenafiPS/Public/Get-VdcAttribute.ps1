@@ -287,106 +287,114 @@ function Get-VdcAttribute {
 
         # each item in $allItems with have 1 path and 1 attribute
         # $attribValues = $allItems | foreach {
-        $attribValues = Invoke-VenafiParallel -InputObject $allItems -ThrottleLimit $ThrottleLimit -ProgressTitle 'Getting attributes' -ScriptBlock {
-            $Class = $using:Class
-            $NoLookup = $using:NoLookup
+        $parallelParams = @{
+            InputObject   = $allItems
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = 'Getting attributes'
+            VenafiSession = $VenafiSession
+            ScriptBlock   = {
+                $Class = $using:Class
+                $NoLookup = $using:NoLookup
 
-            $attribute = $PSItem.Attribute
+                $attribute = $PSItem.Attribute
 
-            $params = @{
-                Method        = 'Post'
-                Body          = @{
-                    ObjectDN      = $PSItem.Path
-                    AttributeName = $attribute
+                $params = @{
+                    Method        = 'Post'
+                    Body          = @{
+                        ObjectDN      = $PSItem.Path
+                        AttributeName = $attribute
+                    }
+                    UriLeaf       = 'config/ReadEffectivePolicy'
+                    VenafiSession = $script:VenafiSession
                 }
-                UriLeaf       = 'config/ReadEffectivePolicy'
-                VenafiSession = $script:VenafiSession
-            }
-            if ( $Class ) {
-                $params.Body.Class = $Class
-                $params.UriLeaf = 'config/FindPolicy'
-            }
-
-            $customField = $null
-
-            if ( -not $NoLookup ) {
-
-                # parallel lookup
-                $customField = $script:VenafiSession.CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
-
-                if ( $customField ) {
-                    $params.Body.AttributeName = $customField.Guid
+                if ( $Class ) {
+                    $params.Body.Class = $Class
+                    $params.UriLeaf = 'config/FindPolicy'
                 }
-            }
 
-            # disabled is a special kind of attribute which cannot be read with readeffectivepolicy
-            if ( $params.Body.AttributeName -eq 'Disabled' ) {
-                $oldUri = $params.UriLeaf
-                $params.UriLeaf = 'Config/Read'
-                $response = Invoke-VenafiRestMethod @params
-                $params.UriLeaf = $oldUri
-            }
-            else {
-                $response = Invoke-VenafiRestMethod @params
-            }
+                $customField = $null
 
-            if ( $response.Error ) {
-                if ( $response.Result -in 601, 112) {
-                    Write-Error "'$attribute' is not a valid attribute for $($PSItem.Path).  Are you looking for a policy attribute?  If so, add -Class."
-                    continue
+                if ( -not $NoLookup ) {
+
+                    # parallel lookup
+                    $customField = $script:VenafiSession.CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
+
+                    if ( $customField ) {
+                        $params.Body.AttributeName = $customField.Guid
+                    }
                 }
-                elseif ( $response.Result -eq 102) {
-                    # attribute is valid, but value not set
-                    # we're ok with this one
+
+                # disabled is a special kind of attribute which cannot be read with readeffectivepolicy
+                if ( $params.Body.AttributeName -eq 'Disabled' ) {
+                    $oldUri = $params.UriLeaf
+                    $params.UriLeaf = 'Config/Read'
+                    $response = Invoke-VenafiRestMethod @params
+                    $params.UriLeaf = $oldUri
                 }
                 else {
-                    Write-Error $response.Error
-                    continue
+                    $response = Invoke-VenafiRestMethod @params
                 }
-            }
 
-            $valueOut = if ( $response.Values ) {
-                switch ($response.Values.GetType().Name) {
-                    'Object[]' {
-                        switch ($response.Values.Count) {
-                            1 {
-                                $response.Values[0]
-                            }
+                if ( $response.Error ) {
+                    if ( $response.Result -in 601, 112) {
+                        Write-Error "'$attribute' is not a valid attribute for $($PSItem.Path).  Are you looking for a policy attribute?  If so, add -Class."
+                        continue
+                    }
+                    elseif ( $response.Result -eq 102) {
+                        # attribute is valid, but value not set
+                        # we're ok with this one
+                    }
+                    else {
+                        Write-Error $response.Error
+                        continue
+                    }
+                }
 
-                            Default {
-                                $response.Values
+                $valueOut = if ( $response.Values ) {
+                    switch ($response.Values.GetType().Name) {
+                        'Object[]' {
+                            switch ($response.Values.Count) {
+                                1 {
+                                    $response.Values[0]
+                                }
+
+                                Default {
+                                    $response.Values
+                                }
                             }
                         }
-                    }
-                    Default {
-                        $response.Values
+                        Default {
+                            $response.Values
+                        }
                     }
                 }
-            }
-            else {
-                $null
-            }
+                else {
+                    $null
+                }
 
-            $return = @{
-                Path       = $PSItem.Path
-                Name       = $attribute
-                Value      = $valueOut
-                PolicyPath = $response.PolicyDN
-                Locked     = $response.Locked
-            }
+                $return = @{
+                    Path       = $PSItem.Path
+                    Name       = $attribute
+                    Value      = $valueOut
+                    PolicyPath = $response.PolicyDN
+                    Locked     = $response.Locked
+                }
 
-            if ( $CustomField ) {
-                $return.Name = $customField.Label
-                $return.CustomFieldGuid = $customField.Guid
-            }
+                if ( $CustomField ) {
+                    $return.Name = $customField.Label
+                    $return.CustomFieldGuid = $customField.Guid
+                }
 
-            # overridden not available at policy level
-            if ( -not $Class ) {
-                $return.Overridden = $response.Overridden
-            }
+                # overridden not available at policy level
+                if ( -not $Class ) {
+                    $return.Overridden = $response.Overridden
+                }
 
-            [PSCustomObject]$return
+                [PSCustomObject]$return
+            }
         }
+
+        $attribValues = Invoke-VenafiParallel @parallelParams
 
         # caller just wants this one value
         if ( $AsValue -and $attribValues.count -eq 1 ) {
