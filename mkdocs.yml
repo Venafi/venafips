@@ -1,16 +1,7 @@
 site_name: VenafiPS PowerShell Module
-
-copyright: Copyright &copy; 2026 CyberArk Software Ltd. All rights reserved.
-
 theme:
   name: material
-  # custom_dir: docs/overrides  #https://squidfunk.github.io/mkdocs-material/customization/#extending-the-theme
-  logo: assets/images/logos/cyberark-logo-tagline.svg
-  favicon: assets/images/logos/cyberark.png
-  icon:
-    repo: fontawesome/brands/github   # https://squidfunk.github.io/mkdocs-material/setup/setting-up-repository/#repository-icon
-    annotation: material/plus-circle
-
+  logo: images/logo.png
   features:
     # - navigation.expand
     - navigation.sections   # https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/#navigation-sections
@@ -24,9 +15,9 @@ theme:
     - content.code.copy     # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#code-copy-button
     - content.code.annotate # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/?h=code+anno#code-annotations
     - content.tabs.link     # https://squidfunk.github.io/mkdocs-material/reference/content-tabs/#linked-content-tabs
-  # font:                     # Can use any google font.
-  #   text: 'Public Sans'
-  #   code: 'Roboto Mono'
+  font:                     # Can use any google font.
+    text: 'Public Sans'
+    code: 'Roboto Mono'
   palette:                  # https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/?h=dark#color-palette-toggle
                             # Dark mode colors are set in assets/css/dark-mode.css
   # Palette toggle for light mode
@@ -42,32 +33,10 @@ theme:
       icon: material/toggle-switch
       name: Switch to light mode
 
-    # primary: indigo
+  # palette:
+    primary: indigo
 repo_url: https://github.com/Venafi/venafips
 repo_name: VenafiPS
-
-extra_css:                  # Additional stylesheets to use on every page
-  - assets/css/branding.css
-  - assets/css/custom.css
-  - assets/css/mini-card.css
-
-extra:
-  social:                   # https://squidfunk.github.io/mkdocs-material/setup/setting-up-the-footer/#social-links
-    - icon: fontawesome/brands/github
-      link: https://github.com/venafi
-    - icon: fontawesome/brands/x-twitter
-      link: https://x.com/CyberArk
-    - icon: fontawesome/brands/linkedin-in
-      link: https://www.linkedin.com/company/CyberArk/
-    - icon: fontawesome/brands/youtube
-      link: https://www.youtube.com/user/VenafiCo
-    - icon: fontawesome/brands/facebook-f
-      link: https://www.facebook.com/CyberArk
-    - icon: fontawesome/brands/instagram
-      link: https://www.instagram.com/cyberark_corp/
-    - icon: fontawesome/solid/rss
-      link: https://www.cyberark.com/resources/all-blog-posts
-
 # edit_uri: ""
 markdown_extensions:
   admonition: {}              # https://python-markdown.github.io/extensions/admonition/

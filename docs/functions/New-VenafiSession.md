@@ -86,6 +86,12 @@ New-VenafiSession -VcKey <PSObject> [-VcRegion <String>] [-VaultVcKeyName <Strin
  [-PassThru] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
+### VcAccessToken
+```
+New-VenafiSession [-VcRegion <String>] -VcAccessToken <PSObject> [-TimeoutSec <Int32>] [-PassThru]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
+```
+
 ### VaultVcKey
 ```
 New-VenafiSession -VaultVcKeyName <String> [-TimeoutSec <Int32>] [-PassThru]
@@ -475,12 +481,29 @@ Defaults to 'us'.
 
 ```yaml
 Type: String
-Parameter Sets: Vc
+Parameter Sets: Vc, VcAccessToken
 Aliases:
 
 Required: False
 Position: Named
 Default value: Us
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -VcAccessToken
+Provide an existing access token to create a TLSPC session.
+You can either provide a String, SecureString, or PSCredential.
+If providing a credential, the username is not used.
+
+```yaml
+Type: PSObject
+Parameter Sets: VcAccessToken
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

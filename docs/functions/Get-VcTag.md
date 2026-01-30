@@ -1,7 +1,7 @@
 # Get-VcTag
 
 ## SYNOPSIS
-Get tags from TLSPC
+Get tag names and values
 
 ## SYNTAX
 
@@ -30,6 +30,13 @@ Get a single tag
 
 ### EXAMPLE 2
 ```
+Get-VcTag -Tag 'MyTag:MyValue'
+```
+
+Get a single tag only if it has the specified value
+
+### EXAMPLE 3
+```
 Get-VcTag -All
 ```
 
@@ -38,7 +45,8 @@ Get all tags
 ## PARAMETERS
 
 ### -Tag
-Tag name
+Tag name or name:value pair to get.
+If a value is provided, the tag must have that value to be returned.
 
 ```yaml
 Type: String

@@ -36,12 +36,19 @@ Create certificate
 
 ### EXAMPLE 2
 ```
+New-VcCertificate -Application 'ff23962b-661c-4a83-964b-d86855f1bb93' -IssuingTemplate '2e4a0355-70bf-4ffc-919f-fcfcd4d15e84' -CommonName 'app.mycert.com'
+```
+
+Create certificate bypassing application and template name resolution, needed for token based authentication which does not have access to these APIs.
+
+### EXAMPLE 3
+```
 New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Tag 'tag1','tag2:value'
 ```
 
 Create certificate and associate 1 or more tags
 
-### EXAMPLE 3
+### EXAMPLE 4
 ```
 New-VcCertificate -Application 'MyApp' -CommonName 'app.mycert.com'
 ```
@@ -49,28 +56,28 @@ New-VcCertificate -Application 'MyApp' -CommonName 'app.mycert.com'
 Create certificate with the template associated with the application.
 This only works when only 1 template is associated with an application.
 
-### EXAMPLE 4
+### EXAMPLE 5
 ```
 New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanIP '1.2.3.4'
 ```
 
 Create certificate with optional SAN data
 
-### EXAMPLE 5
+### EXAMPLE 6
 ```
 New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -ValidUntil (Get-Date).AddMonths(6)
 ```
 
 Create certificate with specific validity
 
-### EXAMPLE 6
+### EXAMPLE 7
 ```
 New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru
 ```
 
 Create certificate and return the created object
 
-### EXAMPLE 7
+### EXAMPLE 8
 ```
 New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -Csr "-----BEGIN CERTIFICATE REQUEST-----\nMIICYzCCAUsCAQAwHj....BoiNIqtVQxFsfT+\n-----END CERTIFICATE REQUEST-----\n"
 ```
@@ -81,6 +88,7 @@ Create certificate by providing a CSR
 
 ### -Application
 Application name or id to associate this certificate with.
+Tab completion is supported.
 
 ```yaml
 Type: String
@@ -98,6 +106,7 @@ Accept wildcard characters: False
 Issuing template id, name, or alias.
 The template must be associated with the provided Application.
 If the application has only one template, this parameter is optional.
+Tab completion is supported.
 
 ```yaml
 Type: String
