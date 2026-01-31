@@ -7,7 +7,6 @@
 - Add support to `Get-VcTag -Tag` for getting by name and value
 - Fix for parallel processing across CMSH environments, eg. `Export-VdcCertificate -VenafiSession $sess1 | Import-VdcCertificate -VenafiSession $sess2`
 
-
 ## 6.12.8
 - Fix ProgressAction error with `Invoke-VcGraphQL` on PowerShell v5
 
@@ -407,7 +406,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Fix `Find-VenafiCertificate -Issuer` not working due to missing quotes, [#146](https://github.com/Venafi/VenafiPS/issues/146)
 - Fix `Invoke-VenafiRestMethod -FullResponse` consuming certain errors instead of throwing them, [#152](https://github.com/Venafi/VenafiPS/issues/152)
 - Fix `Get-VaasIssuingTemplate -All` not executing under certain circumstances
- 
+
 
 
 ## 5.1.1
@@ -847,6 +846,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
