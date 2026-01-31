@@ -27,10 +27,10 @@ Author = 'Greg Brownstein'
 CompanyName = 'Venafi'
 
 # Copyright statement for this module
-Copyright = '(c) Venafi. All rights reserved.'
+Copyright = '(c) Venafi, Inc. and CyberArk Software Ltd. ("CyberArk")'
 
 # Description of the functionality provided by this module
-Description = 'Automate your CyberArk Certificate Manager (Venafi TLS Protect) Self-Hosted and SaaS platforms!'
+Description = 'Automate your CyberArk Certificate Manager Self-Hosted and SaaS platforms!'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
