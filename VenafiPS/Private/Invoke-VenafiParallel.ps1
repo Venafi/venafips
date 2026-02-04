@@ -88,8 +88,6 @@ function Invoke-VenafiParallel {
 
     # throttle to 1 = no parallel
     if ( -not $goParallel ) {
-        # remove $using: from vars, not threaded and not supported
-        # $scriptBlockWithoutUsing = [ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$'))
 
         # Add progress bar for non-parallel execution if progress is enabled
         if ( $ProgressPreference -eq 'Continue' -and $InputObject.Count -gt 10 ) {
@@ -112,6 +110,7 @@ function Invoke-VenafiParallel {
                 }
             }
 
+            # remove $using: from vars, not threaded and not supported
             $sb = ([ScriptBlock]::Create($progressSb.ToString() + ($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
             $InputObject | ForEach-Object -Process $sb
 
@@ -119,6 +118,7 @@ function Invoke-VenafiParallel {
         }
         else {
             # No progress bar needed
+            # remove $using: from vars, not threaded and not supported
             $InputObject | ForEach-Object -Process ([ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
         }
         return

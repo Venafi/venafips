@@ -87,7 +87,6 @@ function Get-VdcCertificateStatus {
         }
 
         # Check Disabled attribute
-        # $disabled = $certAttributes.'Disabled'
         if ($certAttributes.'Disabled') {
             if ($statusText) {
                 $statusText += ' (Processing disabled)'
