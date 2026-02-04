@@ -89,10 +89,10 @@ function Invoke-VenafiParallel {
     # throttle to 1 = no parallel
     if ( -not $goParallel ) {
         # remove $using: from vars, not threaded and not supported
-        $scriptBlockWithoutUsing = [ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$'))
+        # $scriptBlockWithoutUsing = [ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$'))
 
         # Add progress bar for non-parallel execution if progress is enabled
-        if ( $ProgressPreference -eq 'Continue' -and $InputObject.Count -gt 25 ) {
+        if ( $ProgressPreference -eq 'Continue' -and $InputObject.Count -gt 10 ) {
             $totalCount = $InputObject.Count
             $currentCount = 0
 
@@ -102,7 +102,7 @@ function Invoke-VenafiParallel {
             $progressInterval = [Math]::Max(1, [Math]::Floor($totalCount / 100))  # Update every 1% or minimum every item
             if ($totalCount -lt 20) { $progressInterval = 1 }  # Always show progress for small sets
 
-            $InputObject | ForEach-Object -Process {
+            $progressSb = {
                 $currentCount++
 
                 # Only update progress at intervals or for the last item
@@ -110,15 +110,16 @@ function Invoke-VenafiParallel {
                     $percent = [int](($currentCount / $totalCount) * 100)
                     Write-Progress -Activity $ProgressTitle -Status ("{0}% complete ({1}/{2})" -f $percent, $currentCount, $totalCount) -PercentComplete $percent
                 }
-
-                & $scriptBlockWithoutUsing
             }
+
+            $sb = ([ScriptBlock]::Create($progressSb.ToString() + ($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
+            $InputObject | ForEach-Object -Process $sb
 
             Write-Progress -Completed -Activity $ProgressTitle
         }
         else {
             # No progress bar needed
-            $InputObject | ForEach-Object -Process $scriptBlockWithoutUsing
+            $InputObject | ForEach-Object -Process ([ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
         }
         return
     }
@@ -202,4 +203,3 @@ function Invoke-VenafiParallel {
     }
 
 }
-

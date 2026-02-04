@@ -305,7 +305,7 @@ function Get-VdcAttribute {
                         AttributeName = $attribute
                     }
                     UriLeaf       = 'config/ReadEffectivePolicy'
-                    VenafiSession = $script:VenafiSession
+                    VenafiSession = $using:VenafiSession
                 }
                 if ( $Class ) {
                     $params.Body.Class = $Class
@@ -317,7 +317,7 @@ function Get-VdcAttribute {
                 if ( -not $NoLookup ) {
 
                     # parallel lookup
-                    $customField = $script:VenafiSession.CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
+                    $customField = ($using:VenafiSession).CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
 
                     if ( $customField ) {
                         $params.Body.AttributeName = $customField.Guid
@@ -422,4 +422,3 @@ function Get-VdcAttribute {
         }
     }
 }
-
