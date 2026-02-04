@@ -10,8 +10,10 @@ function Get-VdcCertificateStatus {
     It checks InError, Status attribute, workflow tickets, revocation status, disabled state,
     consumer errors, and certificate expiration.
 
+    The current use for this is from Get-VdcCertificate -IncludeStatus
+
     .PARAMETER Certificate
-    A certificate object from Get-VdcCertificate
+    Output from certificates/{guid} api call
 
     .PARAMETER VenafiSession
     Authentication for the function.
