@@ -119,15 +119,13 @@ function Invoke-VenafiParallel {
         }
         else {
             # No progress bar needed
-            # remove $using: from vars, not threaded and not supported
+            # remove $using: from vars which is only available in the parallel context
             $InputObject | ForEach-Object -Process ([ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
         }
         return
     }
 
     # parallel processing from here down
-
-    # $VenafiSession = Get-VenafiSession
 
     $starterSb = {
 

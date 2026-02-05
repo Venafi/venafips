@@ -163,13 +163,8 @@ function Find-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
-
-    begin {
-        # needed for access to the custom fields
-        $sess = Get-VenafiSession
-    }
 
     process {
 
@@ -184,7 +179,7 @@ function Find-VdcObject {
 
             'FindByAttribute' {
 
-                $customField = $sess.CustomField | Where-Object { $_.Label -eq $Attribute[0] -or $_.Guid -eq $Attribute[0] }
+                $customField = $VenafiSession.CustomField | Where-Object { $_.Label -eq $Attribute[0] -or $_.Guid -eq $Attribute[0] }
 
                 # if attribute isn't a custom field or user doesn't want to perform a cf lookup for a conflicting attrib/cf name, perform standard find object
                 if ( $NoLookup -or (-not $customField) ) {

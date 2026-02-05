@@ -305,7 +305,7 @@ function Get-VdcAttribute {
                         AttributeName = $attribute
                     }
                     UriLeaf       = 'config/ReadEffectivePolicy'
-                    # VenafiSession = $using:VenafiSession
+                    VenafiSession = $using:VenafiSession
                 }
                 if ( $Class ) {
                     $params.Body.Class = $Class

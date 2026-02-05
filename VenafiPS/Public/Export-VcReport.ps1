@@ -30,6 +30,8 @@ function Export-VcReport {
     Export-VcReport -Report 'Custom expiration report' -OutPath '~/reports'
 
     Save report data to a csv file.  The directory must already exist.
+    In this example, the file would be saved to '~/reports/Custom expiration report.csv'.
+
     #>
 
     [CmdletBinding()]

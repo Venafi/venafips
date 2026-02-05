@@ -142,14 +142,13 @@ function Set-VdcAttribute {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
-        $sess = Get-VenafiSession
-
         $params = @{
-            Method = 'Post'
+            Method        = 'Post'
+            VenafiSession = $VenafiSession
         }
 
         $baseFields = @()
@@ -175,7 +174,7 @@ function Set-VdcAttribute {
             }
             $customFieldError = $null
 
-            $customField = $sess.CustomField | Where-Object { $_.Label -eq $thisKey -or $_.Guid -eq $thisKey }
+            $customField = $VenafiSession.CustomField | Where-Object { $_.Label -eq $thisKey -or $_.Guid -eq $thisKey }
             if ( $customField ) {
                 Write-Verbose ('found custom field {0} - {1}' -f $customField.DN, $customField | ConvertTo-Json)
                 if ( -not $BypassValidation ) {
