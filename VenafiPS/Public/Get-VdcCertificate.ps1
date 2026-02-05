@@ -144,13 +144,12 @@ function Get-VdcCertificate {
 
                 $params = @{
                     UriLeaf       = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}")
-                    VenafiSession = $using:VenafiSession
                 }
 
                 $response = Invoke-VenafiRestMethod @params
 
                 if ( $using:IncludeStatus ) {
-                    $status = $response | Get-VdcCertificateStatus -VenafiSession $using:VenafiSession
+                    $status = $response | Get-VdcCertificateStatus
                     $response | Add-Member @{
                         'Status'     = $status.Status
                         'StatusText' = $status.StatusText
