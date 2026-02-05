@@ -1,3 +1,8 @@
+## 6.13.1
+- Add `Get-VdcCertificate -IncludeStatus` to include `Status` and `StatusText` properties in the response.  These correspond to the Certificate Status as seen in the WebAdmin Certificate -> Summary tab.
+- Add `Export-VcReport` to export a Certificate Manager SaaS custom report either to a file or pipeline as a pscustomobject.
+- Final round of VenafiSession improvements.  All advanced use cases, eg. pipe from one environment to another, are now working across ps5/ps7 and parallel processing or not.
+
 ## 6.13.0
 - Honor the default certificate creation timeout builtin to CMSH.  Remove the default of 60 seconds from `New-VdcCertificate -TimeoutSec`.  There is a chance if you've been relying on the 60 seconds default and haven't set it in product, this could break your script.  If this is the case, add `-TimeoutSec 60` to your script.  To set the default timeout, see https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-Certificates-API-settings.php.  Closes [#371](https://github.com/Venafi/VenafiPS/issues/371).
 - Add tab completion to all CMSH functions with parameters 'CertificateAuthorityPath', 'CredentialPath', 'CertificatePath', 'ApplicationPath', 'EnginePath', 'CertificateLinkPath', and 'NewPath'.
@@ -846,6 +851,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

@@ -173,6 +173,7 @@ nav:
       - Add-VcTeamMember: functions/Add-VcTeamMember.md
       - Add-VcTeamOwner: functions/Add-VcTeamOwner.md
       - Export-VcCertificate: functions/Export-VcCertificate.md
+      - Export-VcReport: functions/Export-VcReport.md
       - Find-VcCertificate: functions/Find-VcCertificate.md
       - Find-VcCertificateInstance: functions/Find-VcCertificateInstance.md
       - Find-VcCertificateRequest: functions/Find-VcCertificateRequest.md

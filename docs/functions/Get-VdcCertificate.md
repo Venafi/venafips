@@ -7,25 +7,26 @@ Get certificate information
 
 ### Id (Default)
 ```
-Get-VdcCertificate [-ID] <String> [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>]
+Get-VdcCertificate [-ID] <String> [-IncludeStatus] [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### IdWithPrevious
 ```
 Get-VdcCertificate [-ID] <String> [-IncludePreviousVersions] [-ExcludeExpired] [-ExcludeRevoked]
- [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-IncludeStatus] [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### AllWithPrevious
 ```
-Get-VdcCertificate [-All] [-IncludePreviousVersions] [-ExcludeExpired] [-ExcludeRevoked]
+Get-VdcCertificate [-All] [-IncludePreviousVersions] [-ExcludeExpired] [-ExcludeRevoked] [-IncludeStatus]
  [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### All
 ```
-Get-VdcCertificate [-All] [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>]
+Get-VdcCertificate [-All] [-IncludeStatus] [-ThrottleLimit <Int32>] [-VenafiSession <PSObject>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -134,6 +135,21 @@ Can only be used with the IncludePreviousVersions parameter.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: IdWithPrevious, AllWithPrevious
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IncludeStatus
+Include values for Status and StatusText in the response which match the certificate status as seen on the certificate Summary tab.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
 Aliases:
 
 Required: False
