@@ -1,0 +1,200 @@
+﻿# PowerShell implementation of X509StatusHelper.GetStatus() logic
+
+function Get-VdcCertificateStatus {
+    <#
+    .SYNOPSIS
+    Calculate the Status field for a certificate, similar to what's shown on the Certificate Summary tab.
+
+    .DESCRIPTION
+    This function replicates the logic from X509StatusHelper.GetStatus() to determine the certificate status.
+    It checks InError, Status attribute, workflow tickets, revocation status, disabled state,
+    consumer errors, and certificate expiration.
+
+    The current use for this is from Get-VdcCertificate -IncludeStatus
+
+    .PARAMETER Certificate
+    Output from certificates/{guid} api call
+
+    .PARAMETER VenafiSession
+    Authentication for the function.
+    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+
+    #>
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline)]
+        [object]$Certificate,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [psobject] $VenafiSession = (Get-VenafiSession)
+
+    )
+
+    process {
+        # Initialize status
+        $statusSummary = 'Ok'  # Ok, Warning, Error
+        $statusText = ''
+
+        $attribs = Get-VdcAttribute -Path $Certificate.DN -Attribute 'Disabled', 'Ticket DN' -VenafiSession $VenafiSession
+        $certAttributes = @{
+            'In Error'  = $Certificate.ProcessingDetails.InError
+            'Status'    = $Certificate.ProcessingDetails.Status
+            'Disabled'  = $attribs.Disabled -eq 1
+            'Ticket DN' = $attribs.'Ticket DN'
+        }
+
+        # Check InError attribute
+        $inError = $certAttributes.'In Error'
+        if ($inError) {
+            $statusSummary = 'Error'
+        }
+
+        # Check Status attribute
+        $statusAttr = $certAttributes.'Status'
+        if ($statusAttr) {
+            $statusText = $statusAttr
+            if (-not $inError) {
+                $statusSummary = 'Warning'
+            }
+        }
+        else {
+            if (-not $inError) {
+                $statusText = 'OK'
+                $statusSummary = 'Ok'
+            }
+        }
+
+        # Check for pending workflow (Ticket DN)
+        $ticketDN = $certAttributes.'Ticket DN'
+        if ($ticketDN) {
+            $statusSummary = 'Warning'
+            $statusText = 'Pending workflow resolution'
+        }
+
+        $stage = $certAttributes.'Stage'
+        # Check revocation status from CertificateDetails.RevocationStatus
+        # Known values: Requested, Confirmed, Complete, DiscoveredRevoked, Failed, Pending
+        if (-not $ticketDN -and -not $stage -and $Certificate.CertificateDetails.RevocationStatus) {
+
+            $statusSummary = 'Warning'
+            if ($Certificate.CertificateDetails.RevocationDate) {
+                $revocationDate = ([DateTime]$Certificate.CertificateDetails.RevocationDate).ToLocalTime().ToString()
+            }
+
+            switch ($Certificate.CertificateDetails.RevocationStatus) {
+                'Complete' {
+                    $statusText = if ($statusText) { '{0}; External Revocation Reported By CA' -f $statusText } else { 'External Revocation Reported By CA' }
+                    if ($Certificate.CertificateDetails.RevocationDate) {
+                        $statusText += " On: $revocationDate"
+                    }
+                }
+                'Confirmed' {
+                    if ($Certificate.CertificateDetails.RevocationDate) {
+                        $statusText = 'Revocation Submitted On {0} But Not Confirmed By CA' -f $revocationDate
+                    }
+                    else {
+                        $statusText = 'Revocation Submitted But Not Confirmed By CA'
+                    }
+                }
+                'DiscoveredRevoked' {
+                    $statusText = if ($statusText) { '{0}; External Revocation Reported By CA' -f $statusText } else { 'External Revocation Reported By CA' }
+                    if ($Certificate.CertificateDetails.RevocationDate) {
+                        $statusText += " On: $revocationDate"
+                    }
+                }
+                'Pending' {
+                    $statusText = if ($statusText) { '{0}; Revocation Pending' -f $statusText } else { 'Revocation Pending' }
+                }
+                'Failed' {
+                    $statusSummary = 'Error'
+                    # to get the underlying error involves a bit more digging in SecretStore.  TODO possibly.
+                    $statusText = if ($statusText) { '{0}; Revocation Failed' -f $statusText } else { 'Revocation Failed' }
+                }
+            }
+
+            # check for user who initiated the revocation
+            if ( $Certificate.CertificateDetails.RevocationInitiatedBy ) {
+                $identity = Get-VdcIdentity -ID $Certificate.CertificateDetails.RevocationInitiatedBy
+                $initBy = if ( $identity.FullName ) {
+                    $identity.FullName
+                }
+                elseif ($identity.Name ) {
+                    $identity.Name
+                }
+                else {
+                    $Certificate.CertificateDetails.RevocationInitiatedBy
+                }
+
+                $statusText += '; Initiated By {0}' -f $initBy
+            }
+        }
+
+        # Check Disabled attribute
+        if ($certAttributes.'Disabled') {
+            if ($statusText) {
+                $statusText += ' (Processing disabled)'
+            }
+            else {
+                $statusText = 'Processing disabled'
+            }
+            $statusSummary = 'Warning'
+        }
+
+        # Check consumer (application) errors
+        if ($statusSummary -eq 'Ok' -and $Certificate.Consumers) {
+            $consumerErrors = 0
+            $consumerWarnings = 0
+            $consumerDisabled = 0
+            $consumerOk = 0
+
+            $allAttribs = $Certificate.Consumers | Get-VdcAttribute -Attribute @('In Error', 'Status', 'Disabled') -VenafiSession $VenafiSession
+            foreach ($consumerAttrs in $allAttribs) {
+                try {
+
+                    if ($consumerAttrs.'Disabled' -eq 1) {
+                        $consumerDisabled++
+                        $statusSummary = 'Warning'
+                        continue
+                    }
+
+                    if ($consumerAttrs.'In Error' -eq 1) {
+                        $consumerErrors++
+                        $statusSummary = 'Error'
+                    }
+                    elseif ($consumerAttrs.'Status') {
+                        $consumerWarnings++
+                        $statusSummary = 'Warning'
+                    }
+                    else {
+                        $consumerOk++
+                    }
+                }
+                catch {
+                    # Consumer may not be accessible
+                    Write-Verbose "Could not read consumer: $consumerPath"
+                }
+            }
+
+            if ($statusSummary -ne 'Ok') {
+                $statusText = "Certificate Ok; Application errors: $consumerErrors, caution: $consumerWarnings, disabled: $consumerDisabled, Ok: $consumerOk"
+            }
+        }
+
+        # Check certificate expiration
+        if ($statusSummary -eq 'Ok' -and $Certificate.CertificateDetails.ValidTo) {
+            $validTo = [DateTime]$Certificate.CertificateDetails.ValidTo
+            if ($validTo -lt (Get-Date)) {
+                $statusSummary = 'Error'
+                $statusText = 'Certificate expired'
+            }
+        }
+
+        # Return results
+        @{
+            Status     = $statusSummary
+            StatusText = $statusText
+        }
+    }
+}

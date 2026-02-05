@@ -45,6 +45,7 @@ function Invoke-VenafiParallel {
     In your ScriptBlock:
     - Use either $PSItem or $_ to reference the current input object
     - Remember, hashtables are reference types so be sure to clone if 'using' from parent
+    - all function calls which call the api require '-VenafiSession $using:VenafiSession' to be provided
 
     #>
 
@@ -88,11 +89,9 @@ function Invoke-VenafiParallel {
 
     # throttle to 1 = no parallel
     if ( -not $goParallel ) {
-        # remove $using: from vars, not threaded and not supported
-        $scriptBlockWithoutUsing = [ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$'))
 
         # Add progress bar for non-parallel execution if progress is enabled
-        if ( $ProgressPreference -eq 'Continue' -and $InputObject.Count -gt 25 ) {
+        if ( $ProgressPreference -eq 'Continue' -and $InputObject.Count -gt 10 ) {
             $totalCount = $InputObject.Count
             $currentCount = 0
 
@@ -102,7 +101,7 @@ function Invoke-VenafiParallel {
             $progressInterval = [Math]::Max(1, [Math]::Floor($totalCount / 100))  # Update every 1% or minimum every item
             if ($totalCount -lt 20) { $progressInterval = 1 }  # Always show progress for small sets
 
-            $InputObject | ForEach-Object -Process {
+            $progressSb = {
                 $currentCount++
 
                 # Only update progress at intervals or for the last item
@@ -110,22 +109,23 @@ function Invoke-VenafiParallel {
                     $percent = [int](($currentCount / $totalCount) * 100)
                     Write-Progress -Activity $ProgressTitle -Status ("{0}% complete ({1}/{2})" -f $percent, $currentCount, $totalCount) -PercentComplete $percent
                 }
-
-                & $scriptBlockWithoutUsing
             }
+
+            # remove $using: from vars, not threaded and not supported
+            $sb = ([ScriptBlock]::Create($progressSb.ToString() + ($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
+            $InputObject | ForEach-Object -Process $sb
 
             Write-Progress -Completed -Activity $ProgressTitle
         }
         else {
             # No progress bar needed
-            $InputObject | ForEach-Object -Process $scriptBlockWithoutUsing
+            # remove $using: from vars which is only available in the parallel context
+            $InputObject | ForEach-Object -Process ([ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
         }
         return
     }
 
     # parallel processing from here down
-
-    # $VenafiSession = Get-VenafiSession
 
     $starterSb = {
 
@@ -202,4 +202,3 @@ function Invoke-VenafiParallel {
     }
 
 }
-

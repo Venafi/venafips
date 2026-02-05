@@ -28,7 +28,7 @@ function Invoke-VcGraphQL {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     $params = @{
@@ -38,8 +38,6 @@ function Invoke-VcGraphQL {
         TimeoutSec      = $TimeoutSec
         ErrorAction     = 'Stop'
     }
-
-    $VenafiSession = Get-VenafiSession
 
     $Server = $VenafiSession.Server
     $auth = $VenafiSession.Key.GetNetworkCredential().password

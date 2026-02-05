@@ -1,7 +1,3 @@
-- Honor the default certificate creation timeout builtin to CMSH.  Remove the default of 60 seconds from `New-VdcCertificate -TimeoutSec`.  There is a chance if you've been relying on the 60 seconds default and haven't set it in product, this could break your script.  If this is the case, add `-TimeoutSec 60` to your script.  To set the default timeout, see https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-Certificates-API-settings.php.  Closes [#371](https://github.com/Venafi/VenafiPS/issues/371).
-- Add tab completion to all CMSH functions with parameters 'CertificateAuthorityPath', 'CredentialPath', 'CertificatePath', 'ApplicationPath', 'EnginePath', 'CertificateLinkPath', and 'NewPath'.
-- Fix incorrect token expiration timezone when using `New-VcToken`
-- Add `New-VenafiSession -VcAccessToken` if the access token is obtained outside VenafiPS
-- Fix `Set-VcCertificate -Tag` when the tag includes both a name and value
-- Add support to `Get-VcTag -Tag` for getting by name and value
-- Fix for parallel processing across CMSH environments, eg. `Export-VdcCertificate -VenafiSession $sess1 | Import-VdcCertificate -VenafiSession $sess2`
+- Add `Get-VdcCertificate -IncludeStatus` to include `Status` and `StatusText` properties in the response.  These correspond to the Certificate Status as seen in the WebAdmin Certificate -> Summary tab.
+- Add `Export-VcReport` to export a Certificate Manager SaaS custom report either to a file or pipeline as a pscustomobject.
+- Final round of VenafiSession improvements.  All advanced use cases, eg. pipe from one environment to another, are now working across ps5/ps7 and parallel processing or not.

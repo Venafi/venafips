@@ -22,6 +22,9 @@ function Get-VdcCertificate {
     Omits revoked versions of the previous (historical) versions of a certificate.
     Can only be used with the IncludePreviousVersions parameter.
 
+    .PARAMETER IncludeStatus
+    Include values for Status and StatusText in the response which match the certificate status as seen on the certificate Summary tab.
+
     .PARAMETER All
     Retrieve all certificates
 
@@ -90,6 +93,9 @@ function Get-VdcCertificate {
         [switch] $ExcludeRevoked,
 
         [Parameter()]
+        [switch] $IncludeStatus,
+
+        [Parameter()]
         [int32] $ThrottleLimit = 100,
 
         [Parameter()]
@@ -137,10 +143,18 @@ function Get-VdcCertificate {
                 }
 
                 $params = @{
-                    UriLeaf = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}")
+                    UriLeaf       = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}")
                 }
 
                 $response = Invoke-VenafiRestMethod @params
+
+                if ( $using:IncludeStatus ) {
+                    $status = $response | Get-VdcCertificateStatus
+                    $response | Add-Member @{
+                        'Status'     = $status.Status
+                        'StatusText' = $status.StatusText
+                    }
+                }
 
                 if ( $using:IncludePreviousVersions ) {
                     $params.UriLeaf = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}/PreviousVersions")
