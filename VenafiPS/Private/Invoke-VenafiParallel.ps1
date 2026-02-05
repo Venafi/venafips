@@ -45,6 +45,7 @@ function Invoke-VenafiParallel {
     In your ScriptBlock:
     - Use either $PSItem or $_ to reference the current input object
     - Remember, hashtables are reference types so be sure to clone if 'using' from parent
+    - all function calls which call the api require '-VenafiSession $using:VenafiSession' to be provided
 
     #>
 

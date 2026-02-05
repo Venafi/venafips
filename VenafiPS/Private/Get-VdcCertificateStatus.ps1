@@ -73,17 +73,62 @@ function Get-VdcCertificateStatus {
             $statusText = 'Pending workflow resolution'
         }
 
-        # Check revocation status (simplified - full implementation would query SecretStore)
-        # This is a simplified check based on available certificate data
         $stage = $certAttributes.'Stage'
-        if (-not $stage -and -not $ticketDN) {
-            # Could add revocation checking here if RevocationState data is available
-            # In the C# code, this queries CertificateSecretStore for:
-            # - RevocationStatus.Confirmed
-            # - RevocationStatus.Complete
-            # - RevocationStatus.DiscoveredRevoked
-            # - RevocationStatus.Failed
-            # - RevocationStatus.Pending
+        # Check revocation status from CertificateDetails.RevocationStatus
+        # Known values: Requested, Confirmed, Complete, DiscoveredRevoked, Failed, Pending
+        if (-not $ticketDN -and -not $stage -and $Certificate.CertificateDetails.RevocationStatus) {
+
+            $statusSummary = 'Warning'
+            if ($Certificate.CertificateDetails.RevocationDate) {
+                $revocationDate = ([DateTime]$Certificate.CertificateDetails.RevocationDate).ToLocalTime().ToString()
+            }
+
+            switch ($Certificate.CertificateDetails.RevocationStatus) {
+                'Complete' {
+                    $statusText = if ($statusText) { '{0}; External Revocation Reported By CA' -f $statusText } else { 'External Revocation Reported By CA' }
+                    if ($Certificate.CertificateDetails.RevocationDate) {
+                        $statusText += " On: $revocationDate"
+                    }
+                }
+                'Confirmed' {
+                    if ($Certificate.CertificateDetails.RevocationDate) {
+                        $statusText = 'Revocation Submitted On {0} But Not Confirmed By CA' -f $revocationDate
+                    }
+                    else {
+                        $statusText = 'Revocation Submitted But Not Confirmed By CA'
+                    }
+                }
+                'DiscoveredRevoked' {
+                    $statusText = if ($statusText) { '{0}; External Revocation Reported By CA' -f $statusText } else { 'External Revocation Reported By CA' }
+                    if ($Certificate.CertificateDetails.RevocationDate) {
+                        $statusText += " On: $revocationDate"
+                    }
+                }
+                'Pending' {
+                    $statusText = if ($statusText) { '{0}; Revocation Pending' -f $statusText } else { 'Revocation Pending' }
+                }
+                'Failed' {
+                    $statusSummary = 'Error'
+                    # to get the underlying error involves a bit more digging in SecretStore.  TODO possibly.
+                    $statusText = if ($statusText) { '{0}; Revocation Failed' -f $statusText } else { 'Revocation Failed' }
+                }
+            }
+
+            # check for user who initiated the revocation
+            if ( $Certificate.CertificateDetails.RevocationInitiatedBy ) {
+                $identity = Get-VdcIdentity -ID $Certificate.CertificateDetails.RevocationInitiatedBy
+                $initBy = if ( $identity.FullName ) {
+                    $identity.FullName
+                }
+                elseif ($identity.Name ) {
+                    $identity.Name
+                }
+                else {
+                    $Certificate.CertificateDetails.RevocationInitiatedBy
+                }
+
+                $statusText += '; Initiated By {0}' -f $initBy
+            }
         }
 
         # Check Disabled attribute
