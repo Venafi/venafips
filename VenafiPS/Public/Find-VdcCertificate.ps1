@@ -1,7 +1,7 @@
 function Find-VdcCertificate {
     <#
     .SYNOPSIS
-    Find certificates in TLSPDC based on various attributes
+    Find certificates in Certificate Manager, Self-Hosted based on various attributes
 
     .DESCRIPTION
     Find certificates based on various attributes.

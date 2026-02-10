@@ -32,7 +32,7 @@ function Get-VdcAttribute {
     Provide the class name to retrieve the value(s) for.
     The Attribute property of the return object will contain the path where the policy was applied.
 
-    If unsure of the class name, add the value through the TLSPDC UI and go to Support->Policy Attributes to find it.
+    If unsure of the class name, add the value through the Certificate Manager, Self-Hosted UI and go to Support->Policy Attributes to find it.
 
     .PARAMETER AsValue
     Return only the value of the attribute requested.
@@ -53,8 +53,8 @@ function Get-VdcAttribute {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPDC token can be provided directly.
-    If providing a TLSPDC token, an environment variable named VDC_SERVER must also be set.
+    A Certificate Manager, Self-Hosted token can be provided directly.
+    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
 
     .INPUTS
     Path

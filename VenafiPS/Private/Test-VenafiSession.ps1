@@ -4,7 +4,7 @@ function Test-VenafiSession {
     Validate authentication session/key/token
 
     .DESCRIPTION
-    Validate authentication session from New-VenafiSession, a TLSPC key, or TLSPDC token.
+    Validate authentication session from New-VenafiSession, a Certificate Manager, SaaS key, or Certificate Manager, Self-Hosted token.
 
     .PARAMETER InvocationInfo
     InvocationInfo from calling function
@@ -56,7 +56,7 @@ function Test-VenafiSession {
                 $VenafiSession = $script:VenafiSession
             }
             else {
-                throw 'Please run New-VenafiSession or provide a TLSPC key or TLSPDC token.'
+                throw 'Please run New-VenafiSession or provide a Certificate Manager, SaaS key or Certificate Manager, Self-Hosted token.'
             }
         }
 
@@ -64,7 +64,7 @@ function Test-VenafiSession {
             'PSCustomObject' {
 
                 if ( -not $VenafiSession.Key -and -not $VenafiSession.Token ) {
-                    throw "You must first connect to either TLSPC or a TLSPDC server with New-VenafiSession"
+                    throw "You must first connect to either Certificate Manager, SaaS or a Certificate Manager, Self-Hosted server with New-VenafiSession"
                 }
 
                 # make sure the auth type and url we have match
@@ -75,7 +75,7 @@ function Test-VenafiSession {
 
                 if ( $Platform -eq 'VDC' ) {
                     if ( $VenafiSession.Token.Expires -and $VenafiSession.Token.Expires -lt (Get-Date).ToUniversalTime() ) {
-                        throw 'TLSPDC token has expired.  Execute New-VenafiSession and rerun your command.'
+                        throw 'Certificate Manager, Self-Hosted token has expired.  Execute New-VenafiSession and rerun your command.'
                     }
                 }
 
@@ -93,7 +93,7 @@ function Test-VenafiSession {
             }
 
             Default {
-                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a TLSPC key or TLSPDC access token."
+                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a Certificate Manager, SaaS key or Certificate Manager, Self-Hosted access token."
             }
         }
 

@@ -133,7 +133,7 @@ function Invoke-VenafiParallel {
         # import via path instead of just module name to support non-standard paths, eg. development work
 
         # ParallelImportPath is set during module import
-        Import-Module $using:script:ParallelImportPath -Force
+        Import-Module $using:script:ParallelImportPath -Force -ArgumentList $true
 
         # bring in the venafi session from the calling ps session
         $script:VenafiSession = $using:VenafiSession

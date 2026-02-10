@@ -1,7 +1,7 @@
 function Export-VdcCertificate {
     <#
     .SYNOPSIS
-    Export certificate data from TLSPDC
+    Export certificate data from Certificate Manager, Self-Hosted
 
     .DESCRIPTION
     Export certificate data including certificate, key, and chain.
@@ -354,7 +354,7 @@ function Export-VdcCertificate {
                 $out = $innerResponse | Select-Object @{
                     'n' = 'Format'
                     'e' = {
-                        # standardize the format for pkcs8 and pkcs12 across tlspdc and tlspc
+                        # standardize the format for pkcs8 and pkcs12 across Certificate Manager, Self-Hosted and Certificate Manager, SaaS
                         switch ($thisBody.Format) {
                             'Base64' { 'X509' }
                             'Base64 (PKCS#8)' { 'PKCS8' }

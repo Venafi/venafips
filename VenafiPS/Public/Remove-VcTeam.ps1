@@ -4,7 +4,7 @@ function Remove-VcTeam {
     Remove a team
 
     .DESCRIPTION
-    Remove a team from TLSPC
+    Remove a team from Certificate Manager, SaaS
 
     .PARAMETER ID
     Team ID, this is the guid/uuid
@@ -17,7 +17,7 @@ function Remove-VcTeam {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID

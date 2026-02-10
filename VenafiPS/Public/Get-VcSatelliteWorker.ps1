@@ -18,7 +18,7 @@ function Get-VcSatelliteWorker {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID, VSatelliteID
@@ -86,7 +86,7 @@ function Get-VcSatelliteWorker {
 
             'VSatellite' {
                 # limit workers retrieved by the vsat they are associated with
-                
+
                 # if the value is a guid, we can look up the vsat directly otherwise get all and search by name
                 $vsatelliteId = if ( Test-IsGuid($VSatellite) ) {
                     $guid = [guid] $VSatellite

@@ -25,7 +25,7 @@ function Get-VdcTeam {
     .EXAMPLE
     Get-VdcTeam -ID 'local:{803f332e-7576-4696-a5a2-8ac6be6b14e6}'
 
-    Get info for a TLSPDC team
+    Get info for a Certificate Manager, Self-Hosted team
 
     .EXAMPLE
     Find-VdcIdentity -Name MyTeamName | Get-VdcTeam

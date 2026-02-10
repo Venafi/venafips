@@ -1,10 +1,10 @@
 function Remove-VdcPermission {
     <#
     .SYNOPSIS
-    Remove permissions from TLSPDC objects
+    Remove permissions from Certificate Manager, Self-Hosted objects
 
     .DESCRIPTION
-    Remove permissions from TLSPDC objects
+    Remove permissions from Certificate Manager, Self-Hosted objects
     You can opt to remove permissions for a specific user or all assigned
 
     .PARAMETER Path

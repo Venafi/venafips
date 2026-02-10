@@ -4,7 +4,7 @@ function Add-VdcAdaptableHash {
     Adds or updates the hash value for an adaptable script
 
     .DESCRIPTION
-    TLSPDC stores a base64 encoded hash of the file contents of an adaptable script in the Secret Store. This is referenced by
+    Certificate Manager, Self-Hosted stores a base64 encoded hash of the file contents of an adaptable script in the Secret Store. This is referenced by
     the Attribute 'PowerShell Script Hash Vault Id' on the DN of the adaptable script. This script retrieves the hash (if
     present) from the Secret Store and compares it to the hash of the file in one of the scripts directories. It then adds
     a new or updated hash if required. When updating an existing hash, it removes the old one from the Secret Store.
@@ -18,7 +18,7 @@ function Add-VdcAdaptableHash {
 
     .PARAMETER FilePath
     Required. The full path to the adaptable script file. This should typically be in a
-    '<drive>:\Program Files\Venafi\Scripts\<subdir>' directory for TLSPDC to recognize the script.
+    '<drive>:\Program Files\Venafi\Scripts\<subdir>' directory for Certificate Manager, Self-Hosted to recognize the script.
 
     .PARAMETER VenafiSession
     Authentication for the function.

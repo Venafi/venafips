@@ -13,12 +13,12 @@ function Set-VdcAttribute {
     .PARAMETER Attribute
     Hashtable with names and values to be set.
     If setting a custom field, you can use either the name or guid as the key.
-    If using a custom field name, you must have created a session with New-VenafiSession and not just a TLSPDC token.
+    If using a custom field name, you must have created a session with New-VenafiSession and not just a Certificate Manager, Self-Hosted token.
     To clear a value overwriting policy, set the value to $null.
 
     .PARAMETER Class
     Required when setting policy attributes.  Provide the class name to set the value for.
-    If unsure of the class name, add the value through the TLSPDC UI and go to Support->Policy Attributes to find it.
+    If unsure of the class name, add the value through the Certificate Manager, Self-Hosted UI and go to Support->Policy Attributes to find it.
 
     .PARAMETER Lock
     Lock the value on the policy.  Only applicable to setting policies.

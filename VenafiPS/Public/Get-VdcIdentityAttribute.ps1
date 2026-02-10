@@ -1,10 +1,10 @@
 function Get-VdcIdentityAttribute {
     <#
     .SYNOPSIS
-    Get attribute values for TLSPDC identity objects
+    Get attribute values for Certificate Manager, Self-Hosted identity objects
 
     .DESCRIPTION
-    Get attribute values for TLSPDC identity objects.
+    Get attribute values for Certificate Manager, Self-Hosted identity objects.
 
     .PARAMETER ID
     The id that represents the user or group.  Use Find-VdcIdentity to get the id.

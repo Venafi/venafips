@@ -4,7 +4,7 @@ function Add-VdcTeamMember {
     Add members to a team
 
     .DESCRIPTION
-    Add members to a TLSPDC team
+    Add members to a Certificate Manager, Self-Hosted team
 
     .PARAMETER ID
     Team ID from Find-VdcIdentity or Get-VdcTeam.
@@ -16,8 +16,8 @@ function Add-VdcTeamMember {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPDC token can be provided.
-    If providing a TLSPDC token, an environment variable named VDC_SERVER must also be set.
+    A Certificate Manager, Self-Hosted token can be provided.
+    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
 
     .INPUTS
     ID
@@ -25,7 +25,7 @@ function Add-VdcTeamMember {
     .EXAMPLE
     Add-VdcTeamMember -ID 'local:{803f332e-7576-4696-a5a2-8ac6be6b14e6}' -Member 'local:{803f332e-7576-4696-a5a2-8ac6be6b14e7}'
 
-    Add members to a TLSPDC team
+    Add members to a Certificate Manager, Self-Hosted team
 
     .LINK
     https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-PUT-Teams-AddTeamMembers.php

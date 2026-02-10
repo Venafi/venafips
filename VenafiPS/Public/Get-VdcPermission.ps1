@@ -1,7 +1,7 @@
 function Get-VdcPermission {
     <#
     .SYNOPSIS
-    Get permissions for TLSPDC objects
+    Get permissions for Certificate Manager, Self-Hosted objects
 
     .DESCRIPTION
     Get permissions for users and groups on any object.
@@ -9,7 +9,7 @@ function Get-VdcPermission {
     You can retrieve all permissions for an object or for a specific user/group.
 
     .PARAMETER InputObject
-    TppObject representing an object in TLSPDC, eg. from Find-VdcObject or Get-VdcObject
+    TppObject representing an object in Certificate Manager, Self-Hosted, eg. from Find-VdcObject or Get-VdcObject
 
     .PARAMETER Path
     Full path to an object

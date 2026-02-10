@@ -4,7 +4,7 @@ function New-VcTeam {
     Create a new team
 
     .DESCRIPTION
-    Create a new TLSPC team
+    Create a new Certificate Manager, SaaS team
 
     .PARAMETER Name
     Team name
@@ -32,7 +32,7 @@ function New-VcTeam {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .EXAMPLE
     New-VenafiTeam -Name 'My New Team' -Member 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4') -Role 'System Admin'

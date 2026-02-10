@@ -4,7 +4,7 @@ function Add-VdcTeamOwner {
     Add owners to a team
 
     .DESCRIPTION
-    Add owners to a TLSPDC team
+    Add owners to a Certificate Manager, Self-Hosted team
 
     .PARAMETER ID
     Team ID, this is the ID property from Find-VdcIdentity or Get-VdcTeam.

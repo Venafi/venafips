@@ -2,7 +2,7 @@ function Search-VdcHistory {
 
     <#
     .SYNOPSIS
-    Search TLSPDC history for items with specific attributes
+    Search Certificate Manager, Self-Hosted history for items with specific attributes
 
     .DESCRIPTION
     Items in the secret store matching the key/value provided will be found and their details returned with their associated 'current' item.

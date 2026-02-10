@@ -1,12 +1,12 @@
 function Remove-VdcEngineFolder {
     <#
     .SYNOPSIS
-    Remove TLSPDC processing engine assignment(s) from policy folder(s)
+    Remove Certificate Manager, Self-Hosted processing engine assignment(s) from policy folder(s)
 
     .DESCRIPTION
-    Remove TLSPDC processing engine assignment(s) from policy folder(s).
+    Remove Certificate Manager, Self-Hosted processing engine assignment(s) from policy folder(s).
 
-    If you do not supply a list of TLSPDC processing engines, then all processing engines will be removed from the supplied list of policy folders.
+    If you do not supply a list of Certificate Manager, Self-Hosted processing engines, then all processing engines will be removed from the supplied list of policy folders.
 
     If you do not supply a list of policy folders, then all policy folder assignments will be removed from the supplied list of processing engines.
 
@@ -17,13 +17,13 @@ function Remove-VdcEngineFolder {
     .PARAMETER FolderPath
     The full DN path to one or more policy folders (string array).
     .PARAMETER EnginePath
-    The full DN path to one or more TLSPDC processing engines (string array).
+    The full DN path to one or more Certificate Manager, Self-Hosted processing engines (string array).
     .PARAMETER Force
     Suppress the confirmation prompt before removing engine/folder assignments.
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPDC token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
     .INPUTS
     FolderPath[], EnginePath[]
     .OUTPUTS
@@ -97,12 +97,12 @@ function Remove-VdcEngineFolder {
                         $FolderList += $folder
                     }
                     else {
-                        Write-Warning ("TLSPDC object '$($path)' is not a policy ($($folder.TypeName))")
+                        Write-Warning ("Certificate Manager, Self-Hosted object '$($path)' is not a policy ($($folder.TypeName))")
                         Continue
                     }
                 }
                 catch {
-                    Write-Warning ("TLSPDC object '$($path)' does not exist")
+                    Write-Warning ("Certificate Manager, Self-Hosted object '$($path)' does not exist")
                     Continue
                 }
             }
@@ -121,12 +121,12 @@ function Remove-VdcEngineFolder {
                         $EngineList += $engine
                     }
                     else {
-                        Write-Warning ("TLSPDC object '$($path)' is not an engine ($($engine.TypeName))")
+                        Write-Warning ("Certificate Manager, Self-Hosted object '$($path)' is not an engine ($($engine.TypeName))")
                         Continue
                     }
                 }
                 catch {
-                    Write-Warning ("TLSPDC object '$($path)' does not exist")
+                    Write-Warning ("Certificate Manager, Self-Hosted object '$($path)' does not exist")
                     Continue
                 }
             }
