@@ -17,14 +17,11 @@ $script:VcRegions = @{
 $Script:VenafiSession = $null
 # Don't check at load time, check when needed via Get-ThreadJobAvailability
 $script:ThreadJobAvailable = $null
-$script:DevMode = $script:ModuleVersion -match 'NEW_VERSION'
 $script:ParallelImportPath = $PSCommandPath
-
-Export-ModuleMember -Alias * -Variable VenafiSession -Function *
 
 # ModuleVersion will get updated during the build and this will not run
 # this is only needed during development since all files will be merged into one psm1
-if ( $script:DevMode ) {
+if ( $script:ModuleVersion -like '*NEW_VERSION*' ) {
     $folders = @('Enum', 'Classes', 'Public', 'Private')
     $publicFunction = @()
 
@@ -48,10 +45,7 @@ if ( $script:DevMode ) {
     }
 }
 
-# $moduleCommands = Get-Command -Module VenafiPS | Select-Object -ExpandProperty Name
-# $vdcCommands = $moduleCommands | Where-Object { $_ -like '*-Vdc*' }
-# $vcCommands = $moduleCommands | Where-Object { $_ -like '*-Vc*' }
-
+Export-ModuleMember -Alias * -Variable VenafiSession -Function *
 
 # vaas fields to ensure the values are upper case
 $script:vaasValuesToUpper = 'certificateStatus', 'signatureAlgorithm', 'signatureHashAlgorithm', 'encryptionType', 'versionType', 'certificateSource', 'deploymentStatus'
@@ -375,7 +369,7 @@ $script:functionConfig = @{
     }
 }
 
-if ($args[0]) {
+if (-not $args[0]) {
     # define the argument completer details
     # d = description, required
     # l = lookup, required if lookup value is different than 'name'

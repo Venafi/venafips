@@ -12,6 +12,9 @@ function Get-VcIssuingTemplate {
     .PARAMETER All
     Get all issuing templates
 
+    .PARAMETER CertificateAuthority
+    Limit templates to those using a specific certificate authority.  Specify by name or ID.
+
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
@@ -68,7 +71,7 @@ function Get-VcIssuingTemplate {
 
     #>
 
-    [CmdletBinding(DefaultParameterSetName='ID')]
+    [CmdletBinding(DefaultParameterSetName = 'ID')]
     [Alias('Get-VaasIssuingTemplate')]
 
     param (
@@ -80,13 +83,20 @@ function Get-VcIssuingTemplate {
         [Parameter(Mandatory, ParameterSetName = 'All')]
         [switch] $All,
 
+        [Parameter(ParameterSetName = 'All')]
+        [Alias('CA')]
+        [string] $CertificateAuthority,
+
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
         Test-VenafiSession $PSCmdlet.MyInvocation
+        if ( $CertificateAuthority ) {
+            $caId = Get-VcData -InputObject $CertificateAuthority -Type 'CertificateAuthority' -FailOnNotFound
+        }
     }
 
     process {
@@ -126,7 +136,13 @@ function Get-VcIssuingTemplate {
         }
 
         if ( $templates ) {
-            $templates | Select-Object -Property @{'n' = 'issuingTemplateId'; 'e' = { $_.id } }, * -ExcludeProperty id
+
+            if ( $caId ) {
+                $templates | Where-Object certificateAuthorityAccountId -eq $caId | Select-Object -Property @{'n' = 'issuingTemplateId'; 'e' = { $_.id } }, * -ExcludeProperty id
+            }
+            else {
+                $templates | Select-Object -Property @{'n' = 'issuingTemplateId'; 'e' = { $_.id } }, * -ExcludeProperty id
+            }
         }
     }
 }

@@ -19,7 +19,7 @@ function Get-VcData {
         [string] $InputObject,
 
         [parameter(Mandatory)]
-        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider', 'CloudKeystore')]
+        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider', 'CloudKeystore', 'CertificateAuthority')]
         [string] $Type,
 
         [parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Name')]
@@ -163,6 +163,24 @@ function Get-VcData {
                     if ( -not $thisObject -and -not $latest ) {
                         $script:vcIssuingTemplate = Get-VcIssuingTemplate -All | Sort-Object -Property name
                         $thisObject = $script:vcIssuingTemplate | Where-Object { $InputObject -in $_.name, $_.issuingTemplateId }
+                    }
+                }
+                break
+            }
+
+            'CertificateAuthority' {
+                if ( -not $script:vcCertificateAuthority ) {
+                    $script:vcCertificateAuthority = Get-VcCertificateAuthority -All | Sort-Object -Property name
+                    $latest = $true
+                }
+
+                $allObject = $script:vcCertificateAuthority
+
+                if ( $InputObject ) {
+                    $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.certificateAuthorityId }
+                    if ( -not $thisObject -and -not $latest ) {
+                        $script:vcCertificateAuthority = Get-VcCertificateAuthority -All | Sort-Object -Property name
+                        $thisObject = $script:vcCertificateAuthority | Where-Object { $InputObject -in $_.name, $_.certificateAuthorityId }
                     }
                 }
                 break

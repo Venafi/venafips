@@ -77,9 +77,7 @@ function Invoke-VenafiParallel {
 
     # if ThreadJob module is not available, throttle to 1 so multithreading isn't used
     if ( $PSVersionTable.PSVersion.Major -eq 5 ) {
-        if ( -not $script:ThreadJobAvailable ) {
-            $goParallel = $false
-        }
+        $goParallel = Get-ThreadJobAvailability
     }
 
     # no need for parallel processing overhead if just processing a few
@@ -133,7 +131,8 @@ function Invoke-VenafiParallel {
         # import via path instead of just module name to support non-standard paths, eg. development work
 
         # ParallelImportPath is set during module import
-        Import-Module $using:script:ParallelImportPath -Force -ArgumentList $true
+        # bypass is skipping items in psm1 that aren't needed during parallel processing
+        Import-Module $using:script:ParallelImportPath -Force -ArgumentList 'bypass'
 
         # bring in the venafi session from the calling ps session
         $script:VenafiSession = $using:VenafiSession
