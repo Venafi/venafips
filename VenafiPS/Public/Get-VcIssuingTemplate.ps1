@@ -69,6 +69,11 @@ function Get-VcIssuingTemplate {
 
     Get all issuing templates
 
+    .EXAMPLE
+    Get-VcIssuingTemplate -All -CA 'MyCA'
+
+    Get all issuing templates with a specific certificate authority
+
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
