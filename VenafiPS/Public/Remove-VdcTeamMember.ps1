@@ -4,7 +4,7 @@ function Remove-VdcTeamMember {
     Remove team member
 
     .DESCRIPTION
-    Remove a team member from TLSPDC
+    Remove a team member from Certificate Manager, Self-Hosted
 
     .PARAMETER ID
     Team ID, the ID property from Find-VdcIdentity or Get-VdcTeam.
@@ -16,8 +16,8 @@ function Remove-VdcTeamMember {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPDC token can also provided.
-    If providing a TLSPDC token, an environment variable named VDC_SERVER must also be set.
+    A Certificate Manager, Self-Hosted token can also provided.
+    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
 
     .INPUTS
     ID

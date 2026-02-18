@@ -4,7 +4,7 @@ function Remove-VcApplication {
     Remove a application
 
     .DESCRIPTION
-    Remove a application from TLSPC
+    Remove a application from Certificate Manager, SaaS
 
     .PARAMETER ID
     Application ID, this is the guid/uuid
@@ -17,7 +17,7 @@ function Remove-VcApplication {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID

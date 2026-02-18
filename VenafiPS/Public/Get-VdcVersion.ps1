@@ -1,10 +1,10 @@
 function Get-VdcVersion {
     <#
     .SYNOPSIS
-    Get the TLSPDC version
+    Get the Certificate Manager, Self-Hosted version
 
     .DESCRIPTION
-    Returns the TLSPDC version
+    Returns the Certificate Manager, Self-Hosted version
 
     .PARAMETER VenafiSession
     Authentication for the function.

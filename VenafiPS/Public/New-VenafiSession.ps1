@@ -1,13 +1,13 @@
 function New-VenafiSession {
     <#
     .SYNOPSIS
-    Create a new Venafi TLSPDC or TLSPC session
+    Create a new Venafi Certificate Manager, Self-Hosted or Certificate Manager, SaaS session
 
     .DESCRIPTION
     Authenticate a user and create a new session with which future calls can be made.
     Key based username/password and windows integrated are supported as well as token-based integrated, oauth, and certificate.
     By default, a session variable will be created and automatically used with other functions unless -PassThru is used.
-    Tokens and TLSPC keys can be saved in a vault for future calls.
+    Tokens and Certificate Manager, SaaS keys can be saved in a vault for future calls.
 
     .PARAMETER Server
     Server or url to access vedsdk, venafi.company.com or https://venafi.company.com.
@@ -41,11 +41,11 @@ function New-VenafiSession {
 
     .PARAMETER Jwt
     JSON web token.
-    Available in TLSPDC v22.4 and later.
+    Available in Certificate Manager, Self-Hosted v22.4 and later.
     Ensure JWT mapping has been configured in VCC, Access Management->JWT Mappings.
 
     .PARAMETER Certificate
-    Certificate for TLSPDC token-based authentication
+    Certificate for Certificate Manager, Self-Hosted token-based authentication
 
     .PARAMETER RefreshToken
     Provide an existing refresh token to create a session.
@@ -73,23 +73,23 @@ function New-VenafiSession {
     Requires an existing module scoped $VenafiSession.
 
     .PARAMETER VcKey
-    Api key from your TLSPC instance.  The api key can be found under your user profile->preferences.
+    Api key from your Certificate Manager, SaaS instance.  The api key can be found under your user profile->preferences.
     You can either provide a String, SecureString, or PSCredential.
     If providing a credential, the username is not used.
 
     .PARAMETER VcAccessToken
-    Provide an existing access token to create a TLSPC session.
+    Provide an existing access token to create a Certificate Manager, SaaS session.
     You can either provide a String, SecureString, or PSCredential.
     If providing a credential, the username is not used.
 
     .PARAMETER VcRegion
-    TLSPC region to connect to, tab-ahead values provided.  Defaults to 'us'.
+    Certificate Manager, SaaS region to connect to.  Defaults to 'us', use tab completion for supported values.
 
     .PARAMETER VcEndpoint
     Token Endpoint URL as shown on the service account details page.
 
     .PARAMETER VaultVcKeyName
-    Name of the SecretManagement vault entry for the TLSPC key.
+    Name of the SecretManagement vault entry for the Certificate Manager, SaaS key.
     First time use requires it to be provided with -VcKey to populate the vault.
     With subsequent uses, it can be provided standalone and the key will be retrieved without the need for -VcKey.
     The server associated with the region will be saved and restored when this parameter is used on subsequent use.
@@ -151,17 +151,17 @@ function New-VenafiSession {
     .EXAMPLE
     New-VenafiSession -VcKey $cred
 
-    Create session against TLSPC
+    Create session against Certificate Manager, SaaS
 
     .EXAMPLE
     New-VenafiSession -VcKey $cred -VcRegion 'eu'
 
-    Create session against TLSPC in EU region
+    Create session against Certificate Manager, SaaS in EU region
 
     .EXAMPLE
     New-VenafiSession -VaultVcKeyName vaas-key
 
-    Create session against TLSPC with a key stored in a vault
+    Create session against Certificate Manager, SaaS with a key stored in a vault
 
     .LINK
     https://venafi.github.io/VenafiPS/functions/New-VenafiSession/
@@ -447,7 +447,7 @@ function New-VenafiSession {
         }
 
         'VcToken' {
-            # access token via service account for tlspc
+            # access token via service account for Certificate Manager, SaaS
             $newSession.Platform = 'VC'
             $systemUri = [System.Uri]::new($VcEndpoint)
             $newSession.Server = 'https://{0}' -f $systemUri.Host

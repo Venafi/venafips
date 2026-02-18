@@ -1,10 +1,10 @@
 function Remove-VdcObject {
     <#
     .SYNOPSIS
-    Remove TLSPDC objects
+    Remove Certificate Manager, Self-Hosted objects
 
     .DESCRIPTION
-    Remove a TLSPDC object and optionally perform a recursive removal.
+    Remove a Certificate Manager, Self-Hosted object and optionally perform a recursive removal.
     This process can be very destructive as it will remove anything you send it!!!
     Run this in parallel with PowerShell v7+ when you have a large number to process.
 

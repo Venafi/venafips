@@ -80,7 +80,7 @@ function Import-VdcCertificate {
     $sess = New-VenafiSession -Server venafi.mycompany.com -Credential $cred -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'} -PassThru
     Find-VcCertificate -VersionType CURRENT | Export-VcCertificate -PrivateKeyPassword 'myPassword!' -PKCS12 | Import-VdcCertificate -PolicyPath 'certificates' -VenafiSession $sess
 
-    Export 1 or more certificates from TLSPC and import to TLSPDC.  Note the use of 2 sessions at once where the TLSPDC session is stored in a variable.
+    Export 1 or more certificates from Certificate Manager, SaaS and import to Certificate Manager, Self-Hosted.  Note the use of 2 sessions at once where the Certificate Manager, Self-Hosted session is stored in a variable.
 
     .INPUTS
     Path, Data

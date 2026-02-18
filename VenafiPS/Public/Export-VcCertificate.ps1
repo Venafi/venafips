@@ -1,7 +1,7 @@
 function Export-VcCertificate {
     <#
     .SYNOPSIS
-    Export certificate data from TLSPC
+    Export certificate data from Certificate Manager, SaaS
 
     .DESCRIPTION
     Export certificate data in PEM format.  You can retrieve the certificate, chain, and key.
@@ -9,7 +9,7 @@ function Export-VcCertificate {
 
     .PARAMETER ID
     Certificate ID, also known as uuid.  Use Find-VcCertificate or Get-VcCertificate to determine the ID.
-    You can pipe those functions as well.
+    You can pipe from those functions as well.
 
     .PARAMETER PrivateKeyPassword
     Password required to include the private key.
@@ -44,7 +44,7 @@ function Export-VcCertificate {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID

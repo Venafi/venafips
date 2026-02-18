@@ -1,7 +1,7 @@
 function Get-VdcSystemStatus {
     <#
     .SYNOPSIS
-    Get the TLSPDC system status
+    Get the Certificate Manager, Self-Hosted system status
 
     .DESCRIPTION
     Returns service module statuses for Trust Protection Platform, Log Server, and Trust Protection Platform services that run on Microsoft Internet Information Services (IIS)
@@ -39,7 +39,7 @@ function Get-VdcSystemStatus {
         [psobject] $VenafiSession
     )
 
-    Write-Warning "Possible bug with Venafi TLSPDC API causing this to fail"
+    Write-Warning "Possible bug with Venafi Certificate Manager, Self-Hosted API causing this to fail"
 
     Test-VenafiSession $PSCmdlet.MyInvocation
 

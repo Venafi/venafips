@@ -4,9 +4,10 @@ BeforeAll {
 }
 Describe 'New-VenafiSession' {
     BeforeAll {
+        # not a real api key.  made up for unit testing.
         $cred = New-Object System.Management.Automation.PSCredential('AccessToken', ('9655b66c-8e5e-4b2b-b43e-edfa33b70e5f' | ConvertTo-SecureString -AsPlainText -Force))
     }
-    Context 'TLSPC key' {
+    Context 'Certificate Manager, SaaS key' {
         # BeforeAll {
         #     Mock New-VenafiSession -MockWith {
         #         $newSession = [VenafiSession] @{
@@ -18,8 +19,8 @@ Describe 'New-VenafiSession' {
         #     }
         #     $sess = New-VenafiSession -VaasKey $cred -PassThru
         # }
-        # It 'should set platform to TLSPC' {
-        #     $sess.Platform | Should -Be 'TLSPC'
+        # It 'should set platform to Certificate Manager, SaaS' {
+        #     $sess.Platform | Should -Be 'Certificate Manager, SaaS'
         # }
         # It 'should set AuthType to Key' {
         #     $sess.AuthType | Should -Be 'Key'

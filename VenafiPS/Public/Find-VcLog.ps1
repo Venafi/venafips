@@ -1,7 +1,7 @@
 function Find-VcLog {
     <#
     .SYNOPSIS
-    Find log entries on TLSPC
+    Find log entries on Certificate Manager, SaaS
 
     .DESCRIPTION
     Find log entries
@@ -46,7 +46,7 @@ function Find-VcLog {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .OUTPUTS
     PSCustomObject

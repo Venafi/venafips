@@ -8,7 +8,7 @@ function Revoke-VdcGrant {
     Revoke all grants for a specific user.
     You must either be an administrator or oauth administrator to perform this action.
     Also, your token must have the admin:delete scope.
-    Available in TLSPDC v22.3 and later.
+    Available in Certificate Manager, Self-Hosted v22.3 and later.
 
     .PARAMETER ID
     Prefixed universal id for the user.  To search, use Find-VdcIdentity.
@@ -65,7 +65,7 @@ function Revoke-VdcGrant {
         $sess = Get-VenafiSession
 
         if ( $sess.Version -lt [Version]::new('22', '3', '0') ) {
-            throw 'Revoke-VdcGrant is available on TLSPDC v22.3 and greater'
+            throw 'Revoke-VdcGrant is available on Certificate Manager, Self-Hosted v22.3 and greater'
         }
 
         $params = @{

@@ -4,7 +4,7 @@ function Get-VcUser {
     Get user details
 
     .DESCRIPTION
-    Returns user information for TLSPC.
+    Returns user information for Certificate Manager, SaaS.
 
     .PARAMETER User
     Either be the user id (guid) or username which is the email address.
@@ -18,7 +18,7 @@ function Get-VcUser {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID

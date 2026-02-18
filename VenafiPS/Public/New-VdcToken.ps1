@@ -33,7 +33,7 @@ function New-VdcToken {
 
     .PARAMETER Jwt
     JSON web token.
-    Available in TLSPDC v22.4 and later.
+    Available in Certificate Manager, Self-Hosted v22.4 and later.
     Ensure jwt mapping has been configured in VCC, Access Management->JWT Mappings.
 
     .PARAMETER Certificate
@@ -84,7 +84,7 @@ function New-VdcToken {
         TokenType
         ClientId
         Expires
-        RefreshExpires (This property is null when TLSPDC version is less than 21.1)
+        RefreshExpires (This property is null when Certificate Manager, Self-Hosted version is less than 21.1)
     #>
 
     [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'Integrated')]

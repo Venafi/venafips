@@ -66,7 +66,7 @@ function Invoke-VcCertificateAction {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID
@@ -307,7 +307,7 @@ function Invoke-VcCertificateAction {
                     return $out
                 }
 
-                # multiple CN certs are supported by tlspc, but the request/renew api does not support it
+                # multiple CN certs are supported by Certificate Manager, SaaS, but the request/renew api does not support it
                 if ( $thisCert.subjectCN.count -gt 1 ) {
                     if ( -not $Force ) {
                         $out.error = 'The certificate you are trying to renew has more than 1 common name.  You can either use -Force to automatically choose the first common name or utilize a different process to renew.'
@@ -490,7 +490,7 @@ function Invoke-VcCertificateAction {
                     $params.Body += $AdditionalParameters
                 }
 
-                if ( $PSCmdlet.ShouldProcess('TLSPC', ('Retire {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
+                if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Retire {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
                     $allCerts | Select-VenBatch -Activity 'Retiring certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
                         $params.Body = @{"certificateIds" = $_ }
 
@@ -515,7 +515,7 @@ function Invoke-VcCertificateAction {
                     $params.Body += $AdditionalParameters
                 }
 
-                if ( $PSCmdlet.ShouldProcess('TLSPC', ('Recover {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
+                if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Recover {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
                     $allCerts | Select-VenBatch -Activity 'Recovering certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
                         $params.Body = @{"certificateIds" = $_ }
 
@@ -536,7 +536,7 @@ function Invoke-VcCertificateAction {
             'Validate' {
                 $params.UriLeaf = "certificates/validation"
 
-                if ( $PSCmdlet.ShouldProcess('TLSPC', ('Validate {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
+                if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Validate {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
                     $allCerts | Select-VenBatch -Activity 'Validating certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
                         $params.Body = @{"certificateIds" = $_ }
 
@@ -549,7 +549,7 @@ function Invoke-VcCertificateAction {
 
                 $params.UriLeaf = "certificates/deletion"
 
-                if ( $PSCmdlet.ShouldProcess('TLSPC', ('Delete {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
+                if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Delete {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
 
                     # only retired certs can be deleted, product requirement
                     $null = $allCerts | Invoke-VcCertificateAction -Retire -BatchSize $BatchSize -Confirm:$false

@@ -41,7 +41,7 @@ function Revoke-VdcToken {
 
     .EXAMPLE
     Revoke-VdcToken -AuthServer venafi.company.com -AccessToken $cred
-    Revoke a token obtained from TLSPDC, not necessarily via VenafiPS
+    Revoke a token obtained from Certificate Manager, Self-Hosted, not necessarily via VenafiPS
 
     .LINK
     https://venafi.github.io/VenafiPS/functions/Revoke-VdcToken/

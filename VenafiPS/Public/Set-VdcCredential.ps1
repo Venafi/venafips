@@ -4,7 +4,7 @@ function Set-VdcCredential {
     Update credential values
 
     .DESCRIPTION
-    Update values for credential objects in TLSPDC.
+    Update values for credential objects in Certificate Manager, Self-Hosted.
 
 
     .PARAMETER Path
@@ -28,7 +28,7 @@ function Set-VdcCredential {
     A private key password is also required for -Password.
 
     .PARAMETER CertificateLinkPath
-    Provide a path to an existing TLSPDC certificate object to be used as the certificate for a certificate credential.
+    Provide a path to an existing Certificate Manager, Self-Hosted certificate object to be used as the certificate for a certificate credential.
 
     .PARAMETER Expiration
     Expiration date in UTC for the credential.  Provide a DateTime object.
@@ -73,7 +73,7 @@ function Set-VdcCredential {
     .EXAMPLE
     Set-VdcCredential -Path '\VED\Policy\Certificate Credential' -CertificateLinkPath '\VED\Policy\Certificates\newcert.domain.com'
 
-    Set an existing TLSPDC certificate object as the certificate for a certificate credential
+    Set an existing Certificate Manager, Self-Hosted certificate object as the certificate for a certificate credential
 
     .LINK
     https://venafi.github.io/VenafiPS/functions/Set-VdcCredential/

@@ -4,7 +4,7 @@ function Remove-VcMachineIdentity {
     Remove a machine identity
 
     .DESCRIPTION
-    Remove a machine identity from TLSPC
+    Remove a machine identity from Certificate Manager, SaaS
 
     .PARAMETER ID
     Machine Identity ID, this is the guid/uuid
@@ -17,7 +17,7 @@ function Remove-VcMachineIdentity {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID

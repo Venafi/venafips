@@ -4,7 +4,7 @@ function Remove-VcIssuingTemplate {
     Remove a issuing template
 
     .DESCRIPTION
-    Remove a issuing template from TLSPC
+    Remove a issuing template from Certificate Manager, SaaS
 
     .PARAMETER ID
     Issuing template ID, this is the guid/uuid
@@ -17,7 +17,7 @@ function Remove-VcIssuingTemplate {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID

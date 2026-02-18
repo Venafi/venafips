@@ -72,7 +72,7 @@ function New-VcCloudProvider {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .OUTPUTS
     PSCustomObject, if PassThru provided
@@ -93,17 +93,17 @@ function New-VcCloudProvider {
     Create a new Azure provider
 
     .EXAMPLE
-    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'TlspcIntegrationRole'
+    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'Certificate Manager, SaaSIntegrationRole'
 
     Create a new AWS provider
 
     .EXAMPLE
-    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'TlspcIntegrationRole' -Validate
+    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'Certificate Manager, SaaSIntegrationRole' -Validate
 
     Create a new provider and validate once created
 
     .EXAMPLE
-    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'TlspcIntegrationRole' -PassThru
+    New-VcCloudProvider -Name 'MyAWS' -OwnerTeam 'SpecialTeam' -AWS -AccountID 123456789012 -IamRoleName 'Certificate Manager, SaaSIntegrationRole' -PassThru
 
     Create a new provider and provide the details of the new object
 

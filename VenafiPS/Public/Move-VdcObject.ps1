@@ -8,7 +8,7 @@ function Move-VdcObject {
     A rename can be done at the same time as the move by providing a full target path including the new object name.
 
     .PARAMETER SourcePath
-    Full path to an existing object in TLSPDC
+    Full path to an existing object in Certificate Manager, Self-Hosted
 
     .PARAMETER TargetPath
     New path.  This can either be an existing policy and the existing object name will be kept or a full path including a new object name.

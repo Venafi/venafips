@@ -42,7 +42,7 @@ function Import-VcCertificate {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .EXAMPLE
     Import-VcCertificate -CertificatePath c:\www.VenafiPS.com.pfx
@@ -52,19 +52,19 @@ function Import-VcCertificate {
     .EXAMPLE
     Export-VdcCertificate -Path '\ved\policy\my.cert.com' -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -VenafiSession $vaas_key
 
-    Export from TLSPDC and import into TLSPC.
-    As $VenafiSession can only point to one platform at a time, in this case TLSPDC, the session needs to be overridden for the import.
+    Export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
+    As $VenafiSession can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
 
     .EXAMPLE
     Find-VdcCertificate -Path '\ved\policy\certs' -Recursive | Export-VdcCertificate -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -VenafiSession $vaas_key
 
-    Bulk export from TLSPDC and import into TLSPC.
-    As $VenafiSession can only point to one platform at a time, in this case TLSPDC, the session needs to be overridden for the import.
+    Bulk export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
+    As $VenafiSession can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
 
     .EXAMPLE
     Find-VcCertificate | Export-VcCertificate -PrivateKeyPassword 'secretPassword#' -PKCS12 | Import-VcCertificate -VenafiSession $tenant2_key
 
-    Export from 1 TLSPC tenant and import to another.
+    Export from 1 Certificate Manager, SaaS tenant and import to another.
     This assumes New-VenafiSession has been run for the source tenant.
 
     .INPUTS
@@ -238,8 +238,8 @@ function Import-VcCertificate {
                         $allCerts.Add($addMe)
                     }
 
-                    # X509 and PKCS8 both use Base64, but 'Base64' is how tlspdc refers to x509
-                    # this allows us to pipe from tlspdc to tlspc
+                    # X509 and PKCS8 both use Base64, but 'Base64' is how Certificate Manager, Self-Hosted refers to x509
+                    # this allows us to pipe from Certificate Manager, Self-Hosted to Certificate Manager, SaaS
                     { $_ -in 'PKCS8', 'X509', 'Base64' } {
                         $splitData = Split-CertificateData -InputObject $Data
 

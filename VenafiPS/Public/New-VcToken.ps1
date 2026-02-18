@@ -9,7 +9,7 @@ function New-VcToken {
     This only works if the jwt has not expired.
 
     .PARAMETER Endpoint
-    Token Endpoint URL as shown on the service account details page in TLSPC
+    Token Endpoint URL as shown on the service account details page in Certificate Manager, SaaS
 
     .PARAMETER Jwt
     JSON web token with access to the configured service account

@@ -1,15 +1,15 @@
 function Get-VdcEngineFolder {
     <#
     .SYNOPSIS
-    Get TLSPDC folder/engine assignments
+    Get Certificate Manager, Self-Hosted folder/engine assignments
 
     .DESCRIPTION
-    When the input is a policy folder, retrieves an array of assigned TLSPDC processing engines.
-    When the input is a TLSPDC engine, retrieves an array of assigned policy folders.
+    When the input is a policy folder, retrieves an array of assigned Certificate Manager, Self-Hosted processing engines.
+    When the input is a Certificate Manager, Self-Hosted engine, retrieves an array of assigned policy folders.
     If there are no matching assignments, nothing will be returned.
 
     .PARAMETER ID
-    The full DN path or Guid to a TLSPDC processing engine or policy folder.
+    The full DN path or Guid to a Certificate Manager, Self-Hosted processing engine or policy folder.
 
     .PARAMETER All
     Get all engine/folder assignments
@@ -17,7 +17,7 @@ function Get-VdcEngineFolder {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPDC token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
 
     .INPUTS
     ID
@@ -28,18 +28,18 @@ function Get-VdcEngineFolder {
     .EXAMPLE
     Get-VdcEngineFolder -Path '\VED\Engines\MYVENSERVER'
 
-    Get an array of policy folders assigned to the TLSPDC processing engine 'MYVENSERVER'.
+    Get an array of policy folders assigned to the Certificate Manager, Self-Hosted processing engine 'MYVENSERVER'.
 
     .EXAMPLE
     Get-VdcEngineFolder -Path '\VED\Policy\Certificates\Web Team'
 
-    Get an array of TLSPDC processing engines assigned to the policy folder '\VED\Policy\Certificates\Web Team'.
+    Get an array of Certificate Manager, Self-Hosted processing engines assigned to the policy folder '\VED\Policy\Certificates\Web Team'.
 
     .EXAMPLE
     [guid]'866e1d59-d5d2-482a-b9e6-7bb657e0f416' | Get-VdcEngineFolder
 
-    When the GUID is assigned to a TLSPDC processing engine, returns an array of assigned policy folders.
-    When the GUID is assigned to a policy folder, returns an array of assigned TLSPDC processing engines.
+    When the GUID is assigned to a Certificate Manager, Self-Hosted processing engine, returns an array of assigned policy folders.
+    When the GUID is assigned to a policy folder, returns an array of assigned Certificate Manager, Self-Hosted processing engines.
     Otherwise nothing will be returned.
 
     .LINK

@@ -1,11 +1,11 @@
 function Add-VdcEngineFolder {
     <#
     .SYNOPSIS
-    Add policy folder assignments to a TLSPDC processing engine
+    Add policy folder assignments to a Certificate Manager, Self-Hosted processing engine
     .DESCRIPTION
-    Add one or more policy folder assignments to a TLSPDC processing engine.
+    Add one or more policy folder assignments to a Certificate Manager, Self-Hosted processing engine.
     .PARAMETER EnginePath
-    The full DN path to a TLSPDC processing engine.
+    The full DN path to a Certificate Manager, Self-Hosted processing engine.
     .PARAMETER EngineObject
     TPPObject belonging to the 'Venafi Platform' class.
     .PARAMETER FolderPath
@@ -13,7 +13,7 @@ function Add-VdcEngineFolder {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPDC token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
     .INPUTS
     EnginePath or EngineObject, FolderPath[]
     .OUTPUTS
@@ -88,11 +88,11 @@ function Add-VdcEngineFolder {
                 $folder = Get-VdcObject -Path $path
             }
             catch {
-                Write-Warning ("TLSPDC object '$($path)' does not exist")
+                Write-Warning ("Certificate Manager, Self-Hosted object '$($path)' does not exist")
                 Continue
             }
             if ($folder.TypeName -ne 'Policy') {
-                Write-Warning ("TLSPDC object '$($folder.Path)' is not a policy folder")
+                Write-Warning ("Certificate Manager, Self-Hosted object '$($folder.Path)' is not a policy folder")
                 Continue
             }
             $lastFolder = $folder.Path

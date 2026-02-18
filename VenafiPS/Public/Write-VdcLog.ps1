@@ -1,7 +1,7 @@
 function Write-VdcLog {
     <#
     .SYNOPSIS
-    Write entries to the TLSPDC log
+    Write entries to the Certificate Manager, Self-Hosted log
 
     .DESCRIPTION
     Write entries to the log for custom event groups.
@@ -183,7 +183,7 @@ function Write-VdcLog {
         $response = Invoke-VenafiRestMethod @params
 
         if ( $response.LogResult -eq 1 ) {
-            throw "Writing to the TLSPDC log failed.  Ensure you have View permission and Read permission to the default SQL channel object."
+            throw "Writing to the Certificate Manager, Self-Hosted log failed.  Ensure you have View permission and Read permission to the default SQL channel object."
         }
     }
 }

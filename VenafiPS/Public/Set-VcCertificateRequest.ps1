@@ -28,7 +28,7 @@ function Set-VcCertificateRequest {
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A TLSPC key can also provided.
+    A Certificate Manager, SaaS key can also provided.
 
     .INPUTS
     ID
@@ -98,7 +98,7 @@ function Set-VcCertificateRequest {
     begin {
         Test-VenafiSession $PSCmdlet.MyInvocation
     }
-    
+
     process {
 
         if ( $PSBoundParameters.ContainsKey('Approve') ) {
@@ -112,11 +112,11 @@ function Set-VcCertificateRequest {
             if ( -not $Approval ) {
                 $params.Body = @{'reason' = $RejectReason }
             }
-            
+
             if ( $PSCmdlet.ShouldProcess($ID, "$decision certificate request") ) {
                 $response = Invoke-VenafiRestMethod @params
             }
-    
+
             if ( $Approve -and $Wait ) {
                 Write-Verbose 'Request approved, waiting for a status of either issued or failed'
                 do {

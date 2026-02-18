@@ -24,7 +24,7 @@ function Invoke-VenafiRestMethod {
     Optional body to pass to the endpoint
 
     .PARAMETER VcRegion
-    TLSPC region to target.  Only supported if VenafiSession is an api key otherwise the comes from VenafiSession directly.
+    Certificate Manager, SaaS region to target.  Only supported if VenafiSession is an api key otherwise the comes from VenafiSession directly.
 
     .PARAMETER Platform
     Venafi Platform to target, either VC or VDC.
@@ -37,7 +37,7 @@ function Invoke-VenafiRestMethod {
     Use Windows Integrated authentication
 
     .PARAMETER Certificate
-    Certificate for TLSPDC token-based authentication
+    Certificate for Certificate Manager, Self-Hosted token-based authentication
 
     .PARAMETER UriRoot
     Path between the server and endpoint.
@@ -196,7 +196,7 @@ function Invoke-VenafiRestMethod {
             }
 
             Default {
-                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a TLSPC key or TLSPDC token."
+                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a Certificate Manager, SaaS key or Certificate Manager, Self-Hosted token."
             }
         }
 

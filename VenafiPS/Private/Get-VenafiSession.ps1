@@ -26,14 +26,14 @@ function Get-VenafiSession {
         }
         # elseif ( $env:VDC_TOKEN ) {
         #     $env:VDC_TOKEN
-        #     Write-Debug 'Using TLSPDC token environment variable'
+        #     Write-Debug 'Using Certificate Manager, Self-Hosted token environment variable'
         # }
         # elseif ( $env:VC_KEY ) {
         #     $env:VC_KEY
-        #     Write-Debug 'Using TLSPC key environment variable'
+        #     Write-Debug 'Using Certificate Manager, SaaS key environment variable'
         # }
         else {
-            throw [System.ArgumentException]::new('Please run New-VenafiSession or provide a TLSPC key or TLSPDC token to -VenafiSession.')
+            throw [System.ArgumentException]::new('Please run New-VenafiSession or provide a Certificate Manager, SaaS key or Certificate Manager, Self-Hosted token to -VenafiSession.')
         }
 
         # find out the platform from the calling function
