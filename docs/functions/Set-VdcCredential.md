@@ -42,7 +42,7 @@ Set-VdcCredential -Path <String> -Value <Hashtable> [-VenafiSession <PSObject>]
 ```
 
 ## DESCRIPTION
-Update values for credential objects in TLSPDC.
+Update values for credential objects in Certificate Manager, Self-Hosted.
 
 ## EXAMPLES
 
@@ -79,7 +79,7 @@ Set a new password for a password credential and set the expiration date to 30 d
 Set-VdcCredential -Path '\VED\Policy\Certificate Credential' -CertificateLinkPath '\VED\Policy\Certificates\newcert.domain.com'
 ```
 
-Set an existing TLSPDC certificate object as the certificate for a certificate credential
+Set an existing Certificate Manager, Self-Hosted certificate object as the certificate for a certificate credential
 
 ## PARAMETERS
 
@@ -165,7 +165,7 @@ Accept wildcard characters: False
 ```
 
 ### -CertificateLinkPath
-Provide a path to an existing TLSPDC certificate object to be used as the certificate for a certificate credential.
+Provide a path to an existing Certificate Manager, Self-Hosted certificate object to be used as the certificate for a certificate credential.
 
 ```yaml
 Type: String

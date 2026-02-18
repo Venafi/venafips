@@ -44,7 +44,7 @@ Revoke token bypassing confirmation prompt
 ### EXAMPLE 3
 ```
 Revoke-VdcToken -AuthServer venafi.company.com -AccessToken $cred
-Revoke a token obtained from TLSPDC, not necessarily via VenafiPS
+Revoke a token obtained from Certificate Manager, Self-Hosted, not necessarily via VenafiPS
 ```
 
 ## PARAMETERS

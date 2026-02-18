@@ -1,3 +1,10 @@
+## 6.13.2
+- Add `Set-VcIssuingTemplate` to update template settings. This is super helpful if you want to change the CA associated with your templates in bulk.  Currently, CA product options are supported with additional product details to be supported in the future.
+- Add `Get-VcIssuingTemplate -CertificateAuthority` to retrieve templates for a specific CA
+- Add `Get-VcCertificateAuthority` and associated `Get-VcData -Type 'CertificateAuthority'`
+- Rename TLSPDC/TLSPC to Certificate Manager Self-Hosted/SaaS in documentation/help
+- Add `Get-ThreadJobAvailability` to look for and load module on demand and only PSv5 when using `Invoke-VenafiParallel`.  This should slightly enhance module load speed and parallel processing on PSv7.
+
 ## 6.13.1
 - Add `Get-VdcCertificate -IncludeStatus` to include `Status` and `StatusText` properties in the response.  These correspond to the Certificate Status as seen in the WebAdmin Certificate -> Summary tab.
 - Add `Export-VcReport` to export a Certificate Manager SaaS custom report either to a file or pipeline as a pscustomobject.
@@ -851,6 +858,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

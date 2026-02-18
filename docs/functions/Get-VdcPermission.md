@@ -1,7 +1,7 @@
 # Get-VdcPermission
 
 ## SYNOPSIS
-Get permissions for TLSPDC objects
+Get permissions for Certificate Manager, Self-Hosted objects
 
 ## SYNTAX
 
@@ -80,7 +80,7 @@ Find assigned permissions for a specific user across all objects
 ## PARAMETERS
 
 ### -InputObject
-TppObject representing an object in TLSPDC, eg.
+TppObject representing an object in Certificate Manager, Self-Hosted, eg.
 from Find-VdcObject or Get-VdcObject
 
 ```yaml

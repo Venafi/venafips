@@ -1,56 +1,77 @@
-# Add-VcTeamOwner
+# Get-VcCertificateAuthority
 
 ## SYNOPSIS
-Add owners to a team
+Get certificate authority info
 
 ## SYNTAX
 
+### ID (Default)
 ```
-Add-VcTeamOwner [-Team] <String> [-Owner] <String[]> [[-VenafiSession] <PSObject>]
+Get-VcCertificateAuthority [-CertificateAuthority] <String> [-VenafiSession <PSObject>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
+### All
+```
+Get-VcCertificateAuthority [-All] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
+```
+
 ## DESCRIPTION
-Add owners to a Certificate Manager, SaaS team
+Get info on certificate authorities.
+Retrieve info on 1 or all.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Add-VcTeamOwner -Team 'DevOps' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+Get-VcCertificateAuthority -CertificateAuthority 'MyCA'
 ```
 
-Add owners
+Get info for a certificate authority by name
+
+### EXAMPLE 2
+```
+Get-VcCertificateAuthority -CertificateAuthority 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+```
+
+Get info for a certificate authority by id
+
+### EXAMPLE 3
+```
+Get-VcCertificateAuthority -All
+```
+
+Get info for all certificate authorities
 
 ## PARAMETERS
 
-### -Team
-Team ID or name
+### -CertificateAuthority
+Certificate authority name or guid.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
-Aliases: ID
+Parameter Sets: ID
+Aliases: certificateAuthorityId, ID, ca
 
 Required: True
 Position: 1
 Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -Owner
-1 or more owners to add to the team
-This is the unique guid obtained from Get-VcIdentity.
+### -All
+Get all certificate authorities
 
 ```yaml
-Type: String[]
-Parameter Sets: (All)
+Type: SwitchParameter
+Parameter Sets: All
 Aliases:
 
 Required: True
-Position: 2
-Default value: None
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -63,10 +84,10 @@ A Certificate Manager, SaaS key can also provided.
 ```yaml
 Type: PSObject
 Parameter Sets: (All)
-Aliases:
+Aliases: Key, AccessToken
 
 Required: False
-Position: 3
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -92,12 +113,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### Team
+### CertificateAuthority
 ## OUTPUTS
 
+### PSCustomObject
 ## NOTES
 
 ## RELATED LINKS
-
-[https://api.venafi.cloud/webjars/swagger-ui/index.html#/Teams/addOwner](https://api.venafi.cloud/webjars/swagger-ui/index.html#/Teams/addOwner)
-

@@ -1,7 +1,7 @@
 # Remove-VdcPermission
 
 ## SYNOPSIS
-Remove permissions from TLSPDC objects
+Remove permissions from Certificate Manager, Self-Hosted objects
 
 ## SYNTAX
 
@@ -18,7 +18,7 @@ Remove-VdcPermission -Path <String[]> [-IdentityId <String[]>] [-VenafiSession <
 ```
 
 ## DESCRIPTION
-Remove permissions from TLSPDC objects
+Remove permissions from Certificate Manager, Self-Hosted objects
 You can opt to remove permissions for a specific user or all assigned
 
 ## EXAMPLES

@@ -1,7 +1,7 @@
 # Export-VcCertificate
 
 ## SYNOPSIS
-Export certificate data from TLSPC
+Export certificate data from Certificate Manager, SaaS
 
 ## SYNTAX
 
@@ -66,7 +66,7 @@ Get certificate data with the certificate chain included.
 ### -ID
 Certificate ID, also known as uuid. 
 Use Find-VcCertificate or Get-VcCertificate to determine the ID.
-You can pipe those functions as well.
+You can pipe from those functions as well.
 
 ```yaml
 Type: String
@@ -212,7 +212,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPC key can also provided.
+A Certificate Manager, SaaS key can also provided.
 
 ```yaml
 Type: PSObject

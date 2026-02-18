@@ -167,7 +167,7 @@ Accept wildcard characters: False
 
 ### -Jwt
 JSON web token.
-Available in TLSPDC v22.4 and later.
+Available in Certificate Manager, Self-Hosted v22.4 and later.
 Ensure jwt mapping has been configured in VCC, Access Management-\>JWT Mappings.
 
 ```yaml
@@ -309,7 +309,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ###     TokenType
 ###     ClientId
 ###     Expires
-###     RefreshExpires (This property is null when TLSPDC version is less than 21.1)
+###     RefreshExpires (This property is null when Certificate Manager, Self-Hosted version is less than 21.1)
 ## NOTES
 
 ## RELATED LINKS

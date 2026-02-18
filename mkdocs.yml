@@ -182,6 +182,7 @@ nav:
       - Find-VcMachineIdentity: functions/Find-VcMachineIdentity.md
       - Get-VcApplication: functions/Get-VcApplication.md
       - Get-VcCertificate: functions/Get-VcCertificate.md
+      - Get-VcCertificateAuthority: functions/Get-VcCertificateAuthority.md
       - Get-VcCertificateRequest: functions/Get-VcCertificateRequest.md
       - Get-VcCloudKeystore: functions/Get-VcCloudKeystore.md
       - Get-VcCloudProvider: functions/Get-VcCloudProvider.md
@@ -227,5 +228,6 @@ nav:
       - Set-VcCertificate: functions/Set-VcCertificate.md
       - Set-VcCertificateRequest: functions/Set-VcCertificateRequest.md
       - Set-VcConnector: functions/Set-VcConnector.md
+      - Set-VcIssuingTemplate: functions/Set-VcIssuingTemplate.md
       - Set-VcTeam: functions/Set-VcTeam.md
       - Set-VcUser: functions/Set-VcUser.md

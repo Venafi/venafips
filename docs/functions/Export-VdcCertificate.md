@@ -1,7 +1,7 @@
 # Export-VdcCertificate
 
 ## SYNOPSIS
-Export certificate data from TLSPDC
+Export certificate data from Certificate Manager, Self-Hosted
 
 ## SYNTAX
 

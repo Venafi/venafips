@@ -53,7 +53,7 @@ Only possible if the JWT has not expired.
 ## PARAMETERS
 
 ### -Endpoint
-Token Endpoint URL as shown on the service account details page in TLSPC
+Token Endpoint URL as shown on the service account details page in Certificate Manager, SaaS
 
 ```yaml
 Type: String

@@ -1,7 +1,7 @@
 # Get-VdcVersion
 
 ## SYNOPSIS
-Get the TLSPDC version
+Get the Certificate Manager, Self-Hosted version
 
 ## SYNTAX
 
@@ -10,7 +10,7 @@ Get-VdcVersion [[-VenafiSession] <PSObject>] [-ProgressAction <ActionPreference>
 ```
 
 ## DESCRIPTION
-Returns the TLSPDC version
+Returns the Certificate Manager, Self-Hosted version
 
 ## EXAMPLES
 

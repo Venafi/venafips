@@ -13,8 +13,8 @@ Get-VcIssuingTemplate [-IssuingTemplate] <String> [-VenafiSession <PSObject>]
 
 ### All
 ```
-Get-VcIssuingTemplate [-All] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+Get-VcIssuingTemplate [-All] [-CertificateAuthority <String>] [-VenafiSession <PSObject>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -75,6 +75,13 @@ Get-VcIssuingTemplate -All
 
 Get all issuing templates
 
+### EXAMPLE 4
+```
+Get-VcIssuingTemplate -All -CA 'MyCA'
+```
+
+Get all issuing templates with a specific certificate authority
+
 ## PARAMETERS
 
 ### -IssuingTemplate
@@ -107,10 +114,26 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -CertificateAuthority
+Limit templates to those using a specific certificate authority. 
+Specify by name or ID.
+
+```yaml
+Type: String
+Parameter Sets: All
+Aliases: CA
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPC key can also provided.
+A Certificate Manager, SaaS key can also provided.
 
 ```yaml
 Type: PSObject
@@ -119,7 +142,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: (Get-VenafiSession)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

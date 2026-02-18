@@ -1,7 +1,7 @@
 # Search-VdcHistory
 
 ## SYNOPSIS
-Search TLSPDC history for items with specific attributes
+Search Certificate Manager, Self-Hosted history for items with specific attributes
 
 ## SYNTAX
 

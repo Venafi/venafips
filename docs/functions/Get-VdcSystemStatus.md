@@ -1,7 +1,7 @@
 # Get-VdcSystemStatus
 
 ## SYNOPSIS
-Get the TLSPDC system status
+Get the Certificate Manager, Self-Hosted system status
 
 ## SYNTAX
 

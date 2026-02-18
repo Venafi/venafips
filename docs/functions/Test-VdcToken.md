@@ -1,7 +1,7 @@
 # Test-VdcToken
 
 ## SYNOPSIS
-Test if a TLSPDC token is valid
+Test if a Certificate Manager, Self-Hosted token is valid
 
 ## SYNTAX
 
@@ -30,7 +30,7 @@ Test-VdcToken -VenafiPsToken <PSObject> [-GrantDetail] [-ProgressAction <ActionP
 ```
 
 ## DESCRIPTION
-Use the TLSPDC API call 'Authorize/Verify' to test if the current token is valid.
+Use the Certificate Manager, Self-Hosted API call 'Authorize/Verify' to test if the current token is valid.
 
 ## EXAMPLES
 
@@ -149,8 +149,8 @@ Accept wildcard characters: False
 ```
 
 ### -GrantDetail
-Provides detailed info about the token object from the TLSPDC server response as an output. 
-Supported on TLSPDC 20.4 and later.
+Provides detailed info about the token object from the Certificate Manager, Self-Hosted server response as an output. 
+Supported on Certificate Manager, Self-Hosted 20.4 and later.
 
 ```yaml
 Type: SwitchParameter

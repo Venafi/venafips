@@ -1,7 +1,7 @@
 # Remove-VdcEngineFolder
 
 ## SYNOPSIS
-Remove TLSPDC processing engine assignment(s) from policy folder(s)
+Remove Certificate Manager, Self-Hosted processing engine assignment(s) from policy folder(s)
 
 ## SYNTAX
 
@@ -24,9 +24,9 @@ Remove-VdcEngineFolder -EnginePath <String[]> [-VenafiSession <PSObject>] [-Prog
 ```
 
 ## DESCRIPTION
-Remove TLSPDC processing engine assignment(s) from policy folder(s).
+Remove Certificate Manager, Self-Hosted processing engine assignment(s) from policy folder(s).
 
-If you do not supply a list of TLSPDC processing engines, then all processing engines will be removed from the supplied list of policy folders.
+If you do not supply a list of Certificate Manager, Self-Hosted processing engines, then all processing engines will be removed from the supplied list of policy folders.
 
 If you do not supply a list of policy folders, then all policy folder assignments will be removed from the supplied list of processing engines.
 
@@ -72,7 +72,7 @@ Accept wildcard characters: False
 ```
 
 ### -EnginePath
-The full DN path to one or more TLSPDC processing engines (string array).
+The full DN path to one or more Certificate Manager, Self-Hosted processing engines (string array).
 
 ```yaml
 Type: String[]
@@ -89,7 +89,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPDC token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
 
 ```yaml
 Type: PSObject

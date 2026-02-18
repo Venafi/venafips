@@ -23,7 +23,7 @@ Get-VdcIdentity [-All] [-IncludeAssociated] [-IncludeMembers] [-VenafiSession <P
 ```
 
 ## DESCRIPTION
-Returns user/group information for TLSPDC
+Returns user/group information for Certificate Manager, Self-Hosted
 This returns individual identity, group identity, or distribution groups from a local or non-local provider such as Active Directory.
 
 ## EXAMPLES

@@ -168,7 +168,7 @@ Accept wildcard characters: False
 
 ### -Class
 Use with -Attribute to set policy attributes at policy creation time.
-If unsure of the class name, add the value through the TLSPDC UI and go to Support-\>Policy Attributes to find it.
+If unsure of the class name, add the value through the Certificate Manager, Self-Hosted UI and go to Support-\>Policy Attributes to find it.
 
 ```yaml
 Type: String

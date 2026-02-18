@@ -1,71 +1,78 @@
-# Set-VcApplication
+# Set-VcIssuingTemplate
 
 ## SYNOPSIS
-Update an existing application
+Update an existing issuing template
 
 ## SYNTAX
 
+### Base (Default)
 ```
-Set-VcApplication [-Application] <String> [[-Name] <String>] [[-TeamOwner] <String[]>]
- [[-IssuingTemplate] <String[]>] [-NoOverwrite] [-PassThru] [[-VenafiSession] <PSObject>]
+Set-VcIssuingTemplate -IssuingTemplate <String> [-Name <String>] [-Description <String>] [-PassThru]
+ [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### CA
+```
+Set-VcIssuingTemplate -IssuingTemplate <String> [-Name <String>] [-Description <String>]
+ -CertificateAuthority <String> -ProductOption <String> [-PassThru] [-VenafiSession <PSObject>]
  [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Update details of existing applications.
+Update details of existing issuing templates.
 Additional properties will be available in the future.
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Set-VcApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Name 'ThisAppNameIsBetter'
+Set-VcIssuingTemplate -IssuingTemplate 'DigiCert' -Name 'ThisNameIsBetter'
 ```
 
-Rename an existing application
+Rename an existing issuing template
 
 ### EXAMPLE 2
 ```
-Set-VcApplication -ID 'MyApp' -TeamOwner 'GreatTeam'
+Set-VcIssuingTemplate -IssuingTemplate 'MyTemplate' -CertificateAuthority 'GreatCA' -ProductOption 'BestOption'
 ```
 
-Change the owner to this team
+Change the certificate authority and product option associated with this template. 
+This will update all certificate requests using this template to use the new CA and product option as well.
 
 ### EXAMPLE 3
 ```
-Set-VcApplication -ID 'MyApp' -TeamOwner 'GreatTeam' -NoOverwrite
+Set-VcIssuingTemplate -IssuingTemplate 'MyTemplate' -Description 'Updated description'
 ```
 
-Append this team to the list of owners
+Update the description for this template
 
 ### EXAMPLE 4
 ```
-Set-VcApplication -ID 'MyApp' -IssuingTemplate 'Template1', 'Template2'
+Get-VcIssuingTemplate -All -CA 'OldCA' | Set-VcIssuingTemplate -CertificateAuthority 'newCA' -ProductOption 'NewOption'
 ```
 
-Update the templates associated with application. 
-This will overwrite any existing templates configured.
+Update all templates using a specific CA to use a new CA and product option
 
 ## PARAMETERS
 
-### -Application
-The application to update. 
+### -IssuingTemplate
+The issuing template to update. 
 Specify either ID or name.
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: applicationId, ID
+Aliases: issuingTemplateId, ID
 
 Required: True
-Position: 1
+Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
 ### -Name
-Provide a new name for the application if you wish to change it.
+Provide a new name for the issuing template if you wish to change it.
 
 ```yaml
 Type: String
@@ -73,53 +80,55 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 2
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -TeamOwner
-Associate a team as an owner of this application
+### -Description
+Provide a new description for the issuing template if you wish to change it.
 
 ```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 3
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -IssuingTemplate
-Associate one or more issuing templates by ID or name
-
-```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: 4
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -NoOverwrite
-Append to existing details as opposed to overwriting
-
-```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: Named
-Default value: False
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CertificateAuthority
+Update the certificate authority associated with this template. 
+Specify by name or ID.
+
+```yaml
+Type: String
+Parameter Sets: CA
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProductOption
+When updating the certificate authority, specify the product option to use as well. 
+Specify by name or ID.
+
+```yaml
+Type: String
+Parameter Sets: CA
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -147,11 +156,11 @@ A Certificate Manager, SaaS key can also provided.
 ```yaml
 Type: PSObject
 Parameter Sets: (All)
-Aliases: Key
+Aliases:
 
 Required: False
-Position: 5
-Default value: None
+Position: Named
+Default value: (Get-VenafiSession)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

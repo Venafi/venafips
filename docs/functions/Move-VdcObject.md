@@ -31,7 +31,7 @@ Move all objects found in 1 folder to another
 ## PARAMETERS
 
 ### -SourcePath
-Full path to an existing object in TLSPDC
+Full path to an existing object in Certificate Manager, Self-Hosted
 
 ```yaml
 Type: String

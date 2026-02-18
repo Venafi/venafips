@@ -11,7 +11,7 @@ Add-VcTeamMember [-Team] <String> [-Member] <String[]> [[-VenafiSession] <PSObje
 ```
 
 ## DESCRIPTION
-Add members to a TLSPC team
+Add members to a Certificate Manager, SaaS team
 
 ## EXAMPLES
 
@@ -20,7 +20,7 @@ Add members to a TLSPC team
 Add-VcTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 ```
 
-Add members to a TLSPC team
+Add members to a Certificate Manager, SaaS team
 
 ## PARAMETERS
 
@@ -57,7 +57,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPC key can also provided.
+A Certificate Manager, SaaS key can also provided.
 
 ```yaml
 Type: PSObject

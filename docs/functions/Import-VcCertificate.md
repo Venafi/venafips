@@ -47,23 +47,23 @@ Import a certificate/key
 Export-VdcCertificate -Path '\ved\policy\my.cert.com' -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -VenafiSession $vaas_key
 ```
 
-Export from TLSPDC and import into TLSPC.
-As $VenafiSession can only point to one platform at a time, in this case TLSPDC, the session needs to be overridden for the import.
+Export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
+As $VenafiSession can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
 
 ### EXAMPLE 3
 ```
 Find-VdcCertificate -Path '\ved\policy\certs' -Recursive | Export-VdcCertificate -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -VenafiSession $vaas_key
 ```
 
-Bulk export from TLSPDC and import into TLSPC.
-As $VenafiSession can only point to one platform at a time, in this case TLSPDC, the session needs to be overridden for the import.
+Bulk export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
+As $VenafiSession can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
 
 ### EXAMPLE 4
 ```
 Find-VcCertificate | Export-VcCertificate -PrivateKeyPassword 'secretPassword#' -PKCS12 | Import-VcCertificate -VenafiSession $tenant2_key
 ```
 
-Export from 1 TLSPC tenant and import to another.
+Export from 1 Certificate Manager, SaaS tenant and import to another.
 This assumes New-VenafiSession has been run for the source tenant.
 
 ## PARAMETERS
@@ -228,7 +228,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPC key can also provided.
+A Certificate Manager, SaaS key can also provided.
 
 ```yaml
 Type: PSObject

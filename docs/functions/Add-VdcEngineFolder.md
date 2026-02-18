@@ -1,7 +1,7 @@
 # Add-VdcEngineFolder
 
 ## SYNOPSIS
-Add policy folder assignments to a TLSPDC processing engine
+Add policy folder assignments to a Certificate Manager, Self-Hosted processing engine
 
 ## SYNTAX
 
@@ -11,7 +11,7 @@ Add-VdcEngineFolder [-EnginePath] <String> [-FolderPath] <String[]> [[-VenafiSes
 ```
 
 ## DESCRIPTION
-Add one or more policy folder assignments to a TLSPDC processing engine.
+Add one or more policy folder assignments to a Certificate Manager, Self-Hosted processing engine.
 
 ## EXAMPLES
 
@@ -36,7 +36,7 @@ Add one or more processing engines via the pipeline to multiple policy folders. 
 ## PARAMETERS
 
 ### -EnginePath
-The full DN path to a TLSPDC processing engine.
+The full DN path to a Certificate Manager, Self-Hosted processing engine.
 
 ```yaml
 Type: String
@@ -68,7 +68,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPDC token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
 
 ```yaml
 Type: PSObject

@@ -1,7 +1,7 @@
 # Set-VdcPermission
 
 ## SYNOPSIS
-Set explicit permissions for TLSPDC objects
+Set explicit permissions for Certificate Manager, Self-Hosted objects
 
 ## SYNTAX
 
@@ -35,7 +35,7 @@ Set-VdcPermission -Guid <Guid> -IdentityId <String> [-IsAssociateAllowed] [-IsCr
 ```
 
 ## DESCRIPTION
-Adds, modifies, or removes explicit permissions on TLSPDC objects.
+Adds, modifies, or removes explicit permissions on Certificate Manager, Self-Hosted objects.
 You can provide a complete permission object or modify individual permissions.
 
 ## EXAMPLES

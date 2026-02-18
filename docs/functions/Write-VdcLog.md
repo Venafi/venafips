@@ -1,7 +1,7 @@
 # Write-VdcLog
 
 ## SYNOPSIS
-Write entries to the TLSPDC log
+Write entries to the Certificate Manager, Self-Hosted log
 
 ## SYNTAX
 

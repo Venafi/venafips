@@ -1,7 +1,7 @@
 # Get-VdcIdentityAttribute
 
 ## SYNOPSIS
-Get attribute values for TLSPDC identity objects
+Get attribute values for Certificate Manager, Self-Hosted identity objects
 
 ## SYNTAX
 
@@ -11,7 +11,7 @@ Get-VdcIdentityAttribute [-ID] <String[]> [[-Attribute] <String[]>] [[-VenafiSes
 ```
 
 ## DESCRIPTION
-Get attribute values for TLSPDC identity objects.
+Get attribute values for Certificate Manager, Self-Hosted identity objects.
 
 ## EXAMPLES
 

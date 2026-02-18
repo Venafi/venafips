@@ -11,7 +11,7 @@ Add-VdcAdaptableHash [-Path] <String> [[-Keyname] <String>] [-FilePath] <String>
 ```
 
 ## DESCRIPTION
-TLSPDC stores a base64 encoded hash of the file contents of an adaptable script in the Secret Store.
+Certificate Manager, Self-Hosted stores a base64 encoded hash of the file contents of an adaptable script in the Secret Store.
 This is referenced by
 the Attribute 'PowerShell Script Hash Vault Id' on the DN of the adaptable script.
 This script retrieves the hash (if
@@ -75,7 +75,7 @@ Accept wildcard characters: False
 Required.
 The full path to the adaptable script file.
 This should typically be in a
-'\<drive\>:\Program Files\Venafi\Scripts\\\<subdir\>' directory for TLSPDC to recognize the script.
+'\<drive\>:\Program Files\Venafi\Scripts\\\<subdir\>' directory for Certificate Manager, Self-Hosted to recognize the script.
 
 ```yaml
 Type: String

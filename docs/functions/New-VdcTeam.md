@@ -12,7 +12,7 @@ New-VdcTeam [-Name] <String> [-Owner] <String[]> [-Member] <String[]> [[-Policy]
 ```
 
 ## DESCRIPTION
-Create a new TLSPDC team
+Create a new Certificate Manager, Self-Hosted team
 
 ## EXAMPLES
 
@@ -166,8 +166,8 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPDC token key can also provided.
-If providing a TLSPDC token, an environment variable named VDC_SERVER must also be set.
+A Certificate Manager, Self-Hosted token key can also provided.
+If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
 
 ```yaml
 Type: PSObject

@@ -1,7 +1,7 @@
 # Find-VdcEngine
 
 ## SYNOPSIS
-Find TLSPDC engines using an optional pattern
+Find Certificate Manager, Self-Hosted engines using an optional pattern
 
 ## SYNTAX
 
@@ -11,7 +11,7 @@ Find-VdcEngine [-Pattern] <String> [[-VenafiSession] <PSObject>] [-ProgressActio
 ```
 
 ## DESCRIPTION
-Find TLSPDC engines using an optional pattern.
+Find Certificate Manager, Self-Hosted engines using an optional pattern.
 This function is an engine wrapper for Find-VdcObject.
 
 ## EXAMPLES
@@ -43,7 +43,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPDC token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
 
 ```yaml
 Type: PSObject

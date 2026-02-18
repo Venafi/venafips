@@ -14,7 +14,7 @@ Revoke-VdcGrant [[-ID] <String[]>] [-ProgressAction <ActionPreference>] [-WhatIf
 Revoke all grants for a specific user.
 You must either be an administrator or oauth administrator to perform this action.
 Also, your token must have the admin:delete scope.
-Available in TLSPDC v22.3 and later.
+Available in Certificate Manager, Self-Hosted v22.3 and later.
 
 ## EXAMPLES
 

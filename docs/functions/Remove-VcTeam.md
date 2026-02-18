@@ -11,7 +11,7 @@ Remove-VcTeam [-ID] <String> [[-ThrottleLimit] <Int32>] [[-VenafiSession] <PSObj
 ```
 
 ## DESCRIPTION
-Remove a team from TLSPC
+Remove a team from Certificate Manager, SaaS
 
 ## EXAMPLES
 
@@ -65,7 +65,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPC key can also provided.
+A Certificate Manager, SaaS key can also provided.
 
 ```yaml
 Type: PSObject

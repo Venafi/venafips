@@ -11,7 +11,7 @@ Remove-VcSatelliteWorker [-ID] <Guid> [[-VenafiSession] <PSObject>] [-ProgressAc
 ```
 
 ## DESCRIPTION
-Remove a vsatellite worker from TLSPC
+Remove a vsatellite worker from Certificate Manager, SaaS
 
 ## EXAMPLES
 
@@ -56,7 +56,7 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPC key can also provided.
+A Certificate Manager, SaaS key can also provided.
 
 ```yaml
 Type: PSObject

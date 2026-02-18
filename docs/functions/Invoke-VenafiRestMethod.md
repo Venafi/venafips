@@ -87,7 +87,7 @@ Accept wildcard characters: False
 ```
 
 ### -Certificate
-Certificate for TLSPDC token-based authentication
+Certificate for Certificate Manager, Self-Hosted token-based authentication
 
 ```yaml
 Type: X509Certificate
@@ -148,7 +148,7 @@ Accept wildcard characters: False
 ```
 
 ### -VcRegion
-TLSPC region to target. 
+Certificate Manager, SaaS region to target. 
 Only supported if VenafiSession is an api key otherwise the comes from VenafiSession directly.
 
 ```yaml

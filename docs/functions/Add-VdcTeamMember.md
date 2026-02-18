@@ -11,7 +11,7 @@ Add-VdcTeamMember [-ID] <String> [-Member] <String[]> [[-VenafiSession] <PSObjec
 ```
 
 ## DESCRIPTION
-Add members to a TLSPDC team
+Add members to a Certificate Manager, Self-Hosted team
 
 ## EXAMPLES
 
@@ -20,7 +20,7 @@ Add members to a TLSPDC team
 Add-VdcTeamMember -ID 'local:{803f332e-7576-4696-a5a2-8ac6be6b14e6}' -Member 'local:{803f332e-7576-4696-a5a2-8ac6be6b14e7}'
 ```
 
-Add members to a TLSPDC team
+Add members to a Certificate Manager, Self-Hosted team
 
 ## PARAMETERS
 
@@ -58,8 +58,8 @@ Accept wildcard characters: False
 ### -VenafiSession
 Authentication for the function.
 The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-A TLSPDC token can be provided.
-If providing a TLSPDC token, an environment variable named VDC_SERVER must also be set.
+A Certificate Manager, Self-Hosted token can be provided.
+If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
 
 ```yaml
 Type: PSObject

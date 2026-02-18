@@ -11,7 +11,7 @@ Add-VdcTeamOwner [-ID] <String> [-Owner] <String[]> [[-VenafiSession] <PSObject>
 ```
 
 ## DESCRIPTION
-Add owners to a TLSPDC team
+Add owners to a Certificate Manager, Self-Hosted team
 
 ## EXAMPLES
 
