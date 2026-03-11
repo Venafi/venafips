@@ -68,9 +68,14 @@ function New-VcCertificate {
     .PARAMETER Tag
     One or more tags to assign to the certificate at creation.
 
+    .PARAMETER Wait
+    Wait for the certificate to be issued, or we hit a failure, before returning.
+    If not specified, the cmdlet will return as soon as the certificate request is created, and the certificate can be retrieved later using Get-VcCertificate with the returned certificateRequestId.
+
     .PARAMETER PassThru
     Return the certificate request.
-    If the certificate was successfully issued, it will be returned as the property 'certificate' along with 'certificateId'.
+    If the certificate was successfully issued, the end entity certificate will be returned as the property 'certificate'.
+    'certificateId' will also be included in the output when the certificate is issued and contain the IDs of all certificates in the chain.
 
     .PARAMETER VenafiSession
     Authentication for the function.
@@ -118,6 +123,12 @@ function New-VcCertificate {
     New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru
 
     Create certificate and return the created object
+
+    .EXAMPLE
+    New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -PassThru
+
+    Create certificate and wait for it to reach a terminal state before returning the result.
+    The cmdlet will poll the certificate request status until it has been issued or failed.
 
     .EXAMPLE
     New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -Csr "-----BEGIN CERTIFICATE REQUEST-----\nMIICYzCCAUsCAQAwHj....BoiNIqtVQxFsfT+\n-----END CERTIFICATE REQUEST-----\n"
@@ -215,6 +226,9 @@ function New-VcCertificate {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [String[]] $Tag,
+
+        [Parameter()]
+        [switch] $Wait,
 
         [Parameter()]
         [switch] $PassThru,
@@ -424,16 +438,36 @@ function New-VcCertificate {
 
             try {
                 $response = Invoke-VenafiRestMethod @params
+                $certRequest = $response | Select-Object -ExpandProperty certificateRequests
+                $certRequestId = $certRequest.id
+
+                if ( $Wait ) {
+                    $terminalStatuses = @('ISSUED', 'REJECTED_APPROVAL', 'REJECTED', 'CANCELLED', 'REVOKED', 'FAILED', 'DELETED')
+                    $status = $certRequest.status
+                    Write-Verbose "Current certificate request status: $status"
+
+                    while ( $status -notin $terminalStatuses ) {
+                        Start-Sleep -Seconds 2
+                        $certRequest = Get-VcCertificateRequest -CertificateRequest $certRequestId
+                        $status = $certRequest.status
+                        Write-Verbose "Current certificate request status: $status"
+                    }
+                }
 
                 if ( $PassThru ) {
-                    $certRequest = $response | Select-Object -ExpandProperty certificateRequests
+
+                    # we need to remove certificateRequestId and add it back since the new cert request has 'id' but Get-VcCertificateRequest returns 'certificateRequestId' when -Wait is used
+                    $out = $certRequest | Select-Object @{'n' = 'certificateRequestId'; 'e' = { $certRequestId } }, * -ExcludeProperty id, certificateRequestId, certificateIds
 
                     if ( $certRequest.certificateIds ) {
                         $actualCert = Get-VcCertificate -CertificateId $certRequest.certificateIds[0]
-                        $certRequest | Add-Member @{ 'certificate' = $actualCert }
+                        $out | Add-Member @{
+                            certificate   = $actualCert
+                            certificateId = $certRequest.certificateIds
+                        }
                     }
 
-                    $certRequest | Select-Object @{'n' = 'certificateRequestId'; 'e' = { $_.id } }, *, @{'n' = 'certificateId'; 'e' = { $_.certificateIds } } -ExcludeProperty id, certificateIds
+                    $out
                 }
             }
             catch {
