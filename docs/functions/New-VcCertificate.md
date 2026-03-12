@@ -10,7 +10,7 @@ Create certificate request
 New-VcCertificate -Application <String> [-IssuingTemplate <String>] -CommonName <String>
  [-Organization <String>] [-OrganizationalUnit <String[]>] [-City <String>] [-State <String>]
  [-Country <String>] [-KeySize <Int32>] [-KeyCurve <String>] [-SanDns <String[]>] [-SanIP <String[]>]
- [-SanUri <String[]>] [-SanEmail <String[]>] [-ValidUntil <DateTime>] [-Tag <String[]>] [-PassThru]
+ [-SanUri <String[]>] [-SanEmail <String[]>] [-ValidUntil <DateTime>] [-Tag <String[]>] [-Wait] [-PassThru]
  [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -18,7 +18,7 @@ New-VcCertificate -Application <String> [-IssuingTemplate <String>] -CommonName 
 ```
 New-VcCertificate -Application <String> [-IssuingTemplate <String>] -Csr <String> [-SanDns <String[]>]
  [-SanIP <String[]>] [-SanUri <String[]>] [-SanEmail <String[]>] [-ValidUntil <DateTime>] [-Tag <String[]>]
- [-PassThru] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [-Wait] [-PassThru] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
 
@@ -78,6 +78,14 @@ New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonN
 Create certificate and return the created object
 
 ### EXAMPLE 8
+```
+New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -PassThru
+```
+
+Create certificate and wait for it to reach a terminal state before returning the result.
+The cmdlet will poll the certificate request status until it has been issued or failed.
+
+### EXAMPLE 9
 ```
 New-VcCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -Csr "-----BEGIN CERTIFICATE REQUEST-----\nMIICYzCCAUsCAQAwHj....BoiNIqtVQxFsfT+\n-----END CERTIFICATE REQUEST-----\n"
 ```
@@ -353,9 +361,26 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Wait
+Wait for the certificate to be issued, or we hit a failure, before returning.
+If not specified, the cmdlet will return as soon as the certificate request is created, and the certificate can be retrieved later using Get-VcCertificate with the returned certificateRequestId.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -PassThru
 Return the certificate request.
-If the certificate was successfully issued, it will be returned as the property 'certificate' along with 'certificateId'.
+If the certificate was successfully issued, the end entity certificate will be returned as the property 'certificate'.
+'certificateId' will also be included in the output when the certificate is issued and contain the IDs of all certificates in the chain.
 
 ```yaml
 Type: SwitchParameter

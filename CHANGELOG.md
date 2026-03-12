@@ -1,3 +1,7 @@
+## 6.13.3
+- Add `New-VcCertificate -Wait` to wait for the certificate request to reach ternminal status, either success or failure.  This is helpful when used with `-PassThru` to ensure a certificate is returned.  [#383](https://github.com/Venafi/VenafiPS/issues/383).
+
+
 ## 6.13.2
 - Add `Set-VcIssuingTemplate` to update template settings. This is super helpful if you want to change the CA associated with your templates in bulk.  Currently, CA product options are supported with additional product details to be supported in the future.
 - Add `Get-VcIssuingTemplate -CertificateAuthority` to retrieve templates for a specific CA
@@ -858,6 +862,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
