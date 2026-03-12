@@ -1,5 +1,1 @@
-- Add `Set-VcIssuingTemplate` to update template settings. This is super helpful if you want to change the CA associated with your templates in bulk.  Currently, CA product options are supported with additional product details to be supported in the future.
-- Add `Get-VcIssuingTemplate -CertificateAuthority` to retrieve templates for a specific CA
-- Add `Get-VcCertificateAuthority` and associated `Get-VcData -Type 'CertificateAuthority'`
-- Rename TLSPDC/TLSPC to Certificate Manager Self-Hosted/SaaS in documentation/help
-- Add `Get-ThreadJobAvailability` to look for and load module on demand and only PSv5 when using `Invoke-VenafiParallel`.  This should slightly enhance module load speed and parallel processing on PSv7.
+- Add `New-VcCertificate -Wait` to wait for the certificate request to reach ternminal status, either success or failure.  This is helpful when used with `-PassThru` to ensure a certificate is returned.  [#383](https://github.com/Venafi/VenafiPS/issues/383).
