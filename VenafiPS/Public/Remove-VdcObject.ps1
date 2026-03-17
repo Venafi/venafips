@@ -73,7 +73,7 @@ function Remove-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession= (Get-VenafiSession)
     )
 
     begin {
