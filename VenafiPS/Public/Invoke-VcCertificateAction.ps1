@@ -18,8 +18,7 @@ function Invoke-VcCertificateAction {
 
     .PARAMETER Renew
     Requests immediate renewal for an existing certificate.
-    If more than 1 application is associated with the certificate, provide -AdditionalParameters @{'Application'='application id'} to specify the id.
-    Use -AdditionalParameters to provide additional parameters to the renewal request, see https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create.
+    Use `-AdditionalParameters` to provide additional parameters to the renewal request, see https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create.
 
     .PARAMETER Revoke
     Revoke a certificate.
@@ -42,6 +41,7 @@ function Invoke-VcCertificateAction {
     .PARAMETER Provision
     By default, provision a certificate to all associated machine identities.
     When used with CloudKeystore, provision there instead.
+    When used with -Renew, it will wait for the renewal to complete and then provision the renewed certificate.
 
     .PARAMETER CloudKeystore
     Name or ID of a cloud keystore to provision to
@@ -51,17 +51,35 @@ function Invoke-VcCertificateAction {
     Defaults to 1000.
     Not applicable to Renew or Provision.
 
+    .PARAMETER Application
+    Optional name or ID of an application.
+    Only needed in circumstances where the application can't be determined automatically.
+
+    If not provided, get the application from the original certificate request.
+    If not available, check for associated applications with the certificate.  If more than 1, throw an error as only 1 can be renewed at a time, otherwise use that one application.
+
+    Renew only.
+
+    .PARAMETER IssuingTemplate
+    Optional name or ID of an issuing template.
+    Only needed in circumstances where the issuing template can't be determined automatically.
+
+    If not provided, get the issuing template from the original certificate request.  It might be this is available, but no longer valid for the application.  In this case, check how many templates the application has.  If only 1, use it, otherwise throw an error.
+    If not available from the original certificate request, perform the same template check against the application to find a suitable template.
+
+    Renew only.
+
     .PARAMETER AdditionalParameters
     Additional items specific to the action being taken, if needed.
     See the api documentation for appropriate items, many are in the links in this help.
 
     .PARAMETER Force
     Force the operation under certain circumstances.
-    - During a renewal, force choosing the first CN in the case of multiple CNs as only 1 is supported.
+    - During a renewal, force choosing the first CN in the case of multiple CNs as only 1 is supported via the API.
 
     .PARAMETER Wait
     Wait for a long running operation to complete before returning
-    - During a renewal, wait for the certificate to pass the Requested state
+    - During a renewal, wait for enrollment to either succeed or fail
 
     .PARAMETER VenafiSession
     Authentication for the function.
@@ -77,27 +95,27 @@ function Invoke-VcCertificateAction {
         success - A value of true indicates that the action was successful
         error - error message if we failed
 
+    Renewals will also have oldCertificateId and renew properties
+
     .EXAMPLE
     Invoke-VcCertificateAction -ID '3699b03e-ff62-4772-960d-82e53c34bf60' -Retire
 
     Perform an action against 1 certificate
 
     .EXAMPLE
-    Invoke-VcCertificateAction -ID '3699b03e-ff62-4772-960d-82e53c34bf60' -Renew -AdditionalParameters @{'Application'='10f71a12-daf3-4737-b589-6a9dd1cc5a97'}
+    Invoke-VcCertificateAction -ID '3699b03e-ff62-4772-960d-82e53c34bf60' -Renew -Application '10f71a12-daf3-4737-b589-6a9dd1cc5a97'
 
-    Perform an action against 1 certificate with additional parameters.
-    In this case we are renewing a certificate, but the certificate has multiple applications associated with it.
-    Only one certificate and application combination can be renewed at a time so provide the specific application to be renewed.
+    Perform an action against 1 certificate overriding the application used for renewal.
 
     .EXAMPLE
-    Find-VcCertificate -Version CURRENT -Issuer i1 | Invoke-VcCertificateAction -Renew -AdditionalParameters @{'certificateIssuingTemplateId'='10f71a12-daf3-4737-b589-6a9dd1cc5a97'}
+    Find-VcCertificate -Version CURRENT -Issuer i1 | Invoke-VcCertificateAction -Renew -IssuingTemplate 10f71a12-daf3-4737-b589-6a9dd1cc5a97
 
-    Find all current certificates issued by i1 and renew them with a different issuer.
+    Find all current certificates issued by i1 and renew them with a different template.
 
     .EXAMPLE
     Find-VcCertificate -Version CURRENT -Name 'mycert' | Invoke-VcCertificateAction -Renew -Wait
 
-    Renew a certificate and wait for it to pass the Requested state (and hopefully Issued).
+    Renew a certificate and wait for it to finish, either success or failure, before returning.
     This can be helpful if an Issuer takes a bit to enroll the certificate.
 
     .EXAMPLE
@@ -176,6 +194,14 @@ function Invoke-VcCertificateAction {
         [Parameter(ParameterSetName = 'Provision')]
         [string] $CloudKeystore,
 
+        [Parameter(ParameterSetName = 'Renew')]
+        [ValidateNotNullOrEmpty()]
+        [String] $Application,
+
+        [Parameter(ParameterSetName = 'Renew')]
+        [ValidateNotNullOrEmpty()]
+        [String] $IssuingTemplate,
+
         [Parameter(ParameterSetName = 'Retire')]
         [Parameter(ParameterSetName = 'Recover')]
         [Parameter(ParameterSetName = 'Validate')]
@@ -194,7 +220,7 @@ function Invoke-VcCertificateAction {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -315,41 +341,103 @@ function Invoke-VcCertificateAction {
                     }
                 }
 
-                switch (([array]$thisCert.application).count) {
-                    1 {
-                        $thisAppId = $thisCert.application.applicationId
-                    }
+                if ( $thisCert.certificateRequestId ) {
+                    $thisCertRequest = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificaterequests/$($thisCert.certificateRequestId)"
+                }
 
-                    0 {
-                        throw 'To renew a certificate at least one application must be assigned'
-                    }
-
-                    Default {
-                        # more than 1 application assigned
-                        if ( $AdditionalParameters.Application ) {
-                            $thisAppId = $AdditionalParameters.Application
+                # to get the appropriate application:
+                # 1. use the provided application parameter
+                # 2. if not provided, check the certificate request for an applicationId
+                # 3. if not there, check the certificate for associated applications.  if more than 1, throw an error, otherwise use that one application
+                if ( $Application ) {
+                    $thisApp = Get-VcData -Type Application -InputObject $Application -Object -FailOnNotFound
+                    $thisAppId = $thisApp.applicationId
+                    Write-Verbose "Using provided application $Application with id $thisAppId for renewal"
+                }
+                elseif ($thisCertRequest) {
+                    $thisAppId = $thisCertRequest.applicationId
+                    $thisApp = Get-VcData -Type Application -InputObject $thisAppId -Object -FailOnNotFound
+                    Write-Verbose "Using application ID $thisAppId from prior certificate request for renewal"
+                }
+                else {
+                    switch (([array]$thisCert.application).count) {
+                        1 {
+                            $thisAppId = $thisCert.application.applicationId
+                            $thisApp = Get-VcData -Type Application -InputObject $thisAppId -Object -FailOnNotFound
+                            Write-Verbose "Using application ID $thisAppId, the only application associated with the certificate, for renewal"
                         }
-                        else {
+
+                        0 {
+                            throw 'To renew a certificate at least one application must be assigned'
+                        }
+
+                        Default {
                             $out.error = 'Multiple applications associated, {0}.  Only 1 application can be renewed at a time.  Rerun Invoke-VcCertificateAction and add ''-AdditionalParameter @{{''Application''=''application id''}}'' and provide the actual id you would like to renew.' -f (($thisCert.application | ForEach-Object { '{0} ({1})' -f $_.name, $_.applicationId }) -join ',')
                             return $out
                         }
                     }
                 }
 
-                if ( -not $thisCert.certificateRequestId ) {
-                    $out.error = 'An initial certificate request could not be found.  This is required to renew a certificate.'
-                    return $out
+                # get current template id from app if only one
+                # this might be different from the template used to enroll the current cert
+                $templateIdFromCurrentApp = $null
+                if ( $thisApp.issuingTemplate.Count -eq 1 ) {
+                    $templateIdFromCurrentApp = $thisApp.issuingTemplate.issuingTemplateId
                 }
 
-                $thisCertRequest = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificaterequests/$($thisCert.certificateRequestId)"
+                # to get the appropriate issuing template:
+                # 1. use the provided issuing template parameter
+                # 2. if not provided, check the certificate request for an issuingTemplateId
+                # 3. if not there, check the issuing templates for the application.  if just 1, use it, otherwise, throw an error
+                if ( $IssuingTemplate ) {
+                    $thisTemplateId = Get-VcData -Type IssuingTemplate -InputObject $IssuingTemplate -FailOnNotFound
+                    Write-Verbose "Using provided issuing template $IssuingTemplate with id $thisTemplateId for renewal"
+                }
+                elseif ($thisCertRequest) {
+                    $thisTemplateId = $thisCertRequest.certificateIssuingTemplateId
+                    Write-Verbose "Using issuing template ID $thisTemplateId from prior certificate request for renewal"
+                }
+                else {
+
+                    switch ($thisApp.issuingTemplate.count) {
+                        1 {
+                            $thisTemplateId = $thisApp.issuingTemplate.issuingTemplateId
+                            Write-Verbose "Using issuing template ID $thisTemplateId, the only issuing template associated with the application, for renewal"
+                        }
+
+                        0 {
+                            $out.error = 'To renew a certificate, at least one issuing template must be associated with application {0}' -f $appForTemplates.name
+                            return $out
+                        }
+
+                        Default {
+                            $out.error = 'Multiple issuing templates associated, {0}.  Only 1 issuing template can be renewed at a time.  Rerun Invoke-VcCertificateAction and add ''-AdditionalParameter @{{''IssuingTemplate''=''issuing template id''}}'' and provide the actual id you would like to renew.' -f (($appForTemplates.issuingTemplate | ForEach-Object { '{0} ({1})' -f $_.name, $_.issuingTemplateId }) -join ',')
+                            return $out
+                        }
+                    }
+
+                    throw 'An issuing template must be provided to renew a certificate.  Rerun Invoke-VcCertificateAction and add ''-IssuingTemplate TemplateNameOrId'''
+                }
+
+                # if the issuing template isn't valid for the app, and we have only 1 template currently available in the app, use it
+                # otherwise we can't continue
+                if ( $thisTemplateId -notin $thisApp.issuingTemplate.issuingTemplateId ) {
+                    Write-Verbose "Template $thisTemplateId is not associated with the application"
+                    if ( $templateIdFromCurrentApp ) {
+                        $thisTemplateId = $templateIdFromCurrentApp
+                        Write-Verbose "Using issuing template ID $thisTemplateId, the only issuing template associated with the application"
+                    }
+                    else {
+                        $out.error = 'The issuing template provided or found was not associated with the application provided or found.  Please provide -Application and -IssuingTemplate that are associated with each other.'
+                        return $out
+                    }
+                }
 
                 $renewParams = @{
                     existingCertificateId        = $ID
-                    certificateIssuingTemplateId = $thisCertRequest.certificateIssuingTemplateId
+                    certificateIssuingTemplateId = $thisTemplateId
                     applicationId                = $thisAppId
                     isVaaSGenerated              = $true
-                    validityPeriod               = $thisCertRequest.validityPeriod
-                    certificateOwnerUserId       = $thisCertRequest.certificateOwnerUserId
                     csrAttributes                = @{}
                 }
 
@@ -386,13 +474,14 @@ function Invoke-VcCertificateAction {
                         }, * -ExcludeProperty id
                     }
 
-                    if ( $Wait -and $out.renew.status -eq 'REQUESTED' ) {
+                    if ( $Wait -or $Provision ) {
 
+                        $terminalStatuses = @('ISSUED', 'REJECTED_APPROVAL', 'REJECTED', 'CANCELLED', 'REVOKED', 'FAILED', 'DELETED')
                         $status = $out.renew.status
-                        Write-Verbose "Current renewal status: $status.  Waiting to pass the 'Requested' state"
+                        Write-Verbose "Current renewal status: $status"
 
-                        while ( $status -eq 'REQUESTED' ) {
-                            Start-Sleep 1
+                        while ( $status -notin $terminalStatuses ) {
+                            Start-Sleep -Seconds 2
                             $request = Get-VcCertificateRequest -CertificateRequest $out.renew[0].certificateRequestId
                             $status = $request.status
                             Write-Verbose "Current renewal status: $status"
