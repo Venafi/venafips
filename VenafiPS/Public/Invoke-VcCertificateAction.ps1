@@ -56,7 +56,7 @@ function Invoke-VcCertificateAction {
     Only needed in circumstances where the application can't be determined automatically.
 
     If not provided, get the application from the original certificate request.
-    If not available, check for associated applications with the certificate.  If more than 1, throw an error as only 1 can be renewed at a time, otherwise use that one application.
+    If not available, check for associated applications with the certificate.  If more than 1, throw an error as we don't know which to use, otherwise use that one application.
 
     Renew only.
 
@@ -64,8 +64,8 @@ function Invoke-VcCertificateAction {
     Optional name or ID of an issuing template.
     Only needed in circumstances where the issuing template can't be determined automatically.
 
-    If not provided, get the issuing template from the original certificate request.  It might be this is available, but no longer valid for the application.  In this case, check how many templates the application has.  If only 1, use it, otherwise throw an error.
-    If not available from the original certificate request, perform the same template check against the application to find a suitable template.
+    If not provided, get the issuing template from the original certificate request.  It might be this is available, but no longer valid for the application.  In this case, check how many templates the application has.  If only 1, use it, otherwise we can't continue.
+    If not available from the original certificate request, perform the same 1 template check against the application to find a suitable template.
 
     Renew only.
 
