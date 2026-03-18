@@ -40,8 +40,8 @@ function Invoke-VcCertificateAction {
 
     .PARAMETER Provision
     By default, provision a certificate to all associated machine identities.
-    When used with CloudKeystore, provision there instead.
-    When used with -Renew, it will wait for the renewal to complete and then provision the renewed certificate.
+    When used with -CloudKeystore, provision there instead.
+    When used with -Renew, it will wait for the renewal to complete and then provision the renewed certificate, assuming the renewal was successful.
 
     .PARAMETER CloudKeystore
     Name or ID of a cloud keystore to provision to
@@ -144,10 +144,19 @@ function Invoke-VcCertificateAction {
     Provision the certificate to a cloud keystore
 
     .LINK
-    https://api.venafi.cloud/webjars/swagger-ui/index.html?configUrl=%2Fv3%2Fapi-docs%2Fswagger-config&urls.primaryName=outagedetection-service
+    https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_recovercertificates
 
     .LINK
-    https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=outagedetection-service#/Certificates/certificateretirement_deleteCertificates
+    https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_retirecertificates
+
+    .LINK
+    https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_deletecertificates
+
+    .LINK
+    https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create
+
+    .LINK
+    https://developer.venafi.com/tlsprotectcloud/reference/certificates_validation
 
     .NOTES
     If performing a renewal and subjectCN has more than 1 value, only the first will be submitted with the renewal.
