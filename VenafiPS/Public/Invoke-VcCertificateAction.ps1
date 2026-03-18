@@ -36,7 +36,7 @@ function Invoke-VcCertificateAction {
 
     .PARAMETER Delete
     Delete a certificate.
-    As only retired certificates can be deleted, this will be performed first.
+    As only retired certificates can be deleted, this will be performed first, if needed.
 
     .PARAMETER Provision
     By default, provision a certificate to all associated machine identities.
