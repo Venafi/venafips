@@ -90,7 +90,7 @@ function Invoke-VcWorkflow {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -104,123 +104,132 @@ function Invoke-VcWorkflow {
 
     end {
 
-        Invoke-VenafiParallel -InputObject $allIDs -ScriptBlock {
-            $workflow = $using:Workflow
-            # $allIDs | ForEach-Object {
-            $thisID = $PSItem
-            $thisWebSocketID = (New-Guid).Guid
+        $params = @{
+            InputObject   = $allIDs
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = 'Invoking workflow'
+            VenafiSession = $VenafiSession
+            ScriptBlock   = {
+                $workflow = $using:Workflow
+                # $allIDs | ForEach-Object {
+                $thisID = $PSItem
+                $thisWebSocketID = (New-Guid).Guid
 
-            try {
+                try {
 
-                $WS = New-Object System.Net.WebSockets.ClientWebSocket
-                $CT = New-Object System.Threading.CancellationToken
+                    $WS = New-Object System.Net.WebSockets.ClientWebSocket
+                    $CT = New-Object System.Threading.CancellationToken
 
-                if ( $script:VenafiSession -is [PSCustomObject] ) {
-                    $server = $script:VenafiSession.Server.Replace('https://', '')
-                    $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession.Key.GetNetworkCredential().password)
-                }
-                else {
-                    # TODO: defaults to US, add other region support
-                    # for other regions, create a session first
-                    $server = ($script:VcRegions).'us'
-                    $server = $server.Replace('https://', '')
-                    $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession)
-                }
-                $URL = 'wss://{0}/ws/notificationclients/{1}' -f $server, $thisWebSocketID
+                    if ( $script:VenafiSession -is [PSCustomObject] ) {
+                        $server = $script:VenafiSession.Server.Replace('https://', '')
+                        $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession.Key.GetNetworkCredential().password)
+                    }
+                    else {
+                        # TODO: defaults to US, add other region support
+                        # for other regions, create a session first
+                        $server = ($script:VcRegions).'us'
+                        $server = $server.Replace('https://', '')
+                        $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession)
+                    }
+                    $URL = 'wss://{0}/ws/notificationclients/{1}' -f $server, $thisWebSocketID
 
-                #Get connected
-                $Conn = $WS.ConnectAsync($URL, $CT)
+                    #Get connected
+                    $Conn = $WS.ConnectAsync($URL, $CT)
 
-                While ( !$Conn.IsCompleted ) {
-                    Start-Sleep -Milliseconds 100
-                }
+                    While ( !$Conn.IsCompleted ) {
+                        Start-Sleep -Milliseconds 100
+                    }
 
-                Write-Verbose "Connecting to $($URL)..."
-                $Size = 8192
-                $Array = [byte[]] @(, 0) * $Size
+                    Write-Verbose "Connecting to $($URL)..."
+                    $Size = 8192
+                    $Array = [byte[]] @(, 0) * $Size
 
-                #Send Starting Request
-                $Command = [System.Text.Encoding]::UTF8.GetBytes("ACTION=Command")
-                $Send = New-Object System.ArraySegment[byte] -ArgumentList @(, $Command)
-                $Conn = $WS.SendAsync($Send, [System.Net.WebSockets.WebSocketMessageType]::Text, $true, $CT)
+                    #Send Starting Request
+                    $Command = [System.Text.Encoding]::UTF8.GetBytes("ACTION=Command")
+                    $Send = New-Object System.ArraySegment[byte] -ArgumentList @(, $Command)
+                    $Conn = $WS.SendAsync($Send, [System.Net.WebSockets.WebSocketMessageType]::Text, $true, $CT)
 
-                While (!$Conn.IsCompleted) {
-                    Start-Sleep -Milliseconds 100
-                }
+                    While (!$Conn.IsCompleted) {
+                        Start-Sleep -Milliseconds 100
+                    }
 
-                #Start reading the received items
-                $Recv = New-Object System.ArraySegment[byte] -ArgumentList @(, $Array)
-                $Conn = $WS.ReceiveAsync($Recv, $CT)
+                    #Start reading the received items
+                    $Recv = New-Object System.ArraySegment[byte] -ArgumentList @(, $Array)
+                    $Conn = $WS.ReceiveAsync($Recv, $CT)
 
-                Write-Verbose 'Triggering workflow'
+                    Write-Verbose 'Triggering workflow'
 
-                $triggerParams = @{
-                    UriLeaf = "machines/$thisID/workflows"
-                    Method  = 'Post'
-                    Body    = @{
-                        'workflowInput' = @{
-                            'wsClientId' = $thisWebSocketID
+                    $triggerParams = @{
+                        UriLeaf = "machines/$thisID/workflows"
+                        Method  = 'Post'
+                        Body    = @{
+                            'workflowInput' = @{
+                                'wsClientId' = $thisWebSocketID
+                            }
+                            'workflowName'  = 'testConnection'
                         }
-                        'workflowName'  = 'testConnection'
+
                     }
+
+                    switch ($Workflow) {
+                        'GetConfig' {
+                            $triggerParams.Body.workflowName = 'getTargetConfiguration'
+                        }
+
+                        'Provision' {
+                            $triggerParams.Body.workflowName = 'provisionCertificate'
+                            $triggerParams.UriLeaf = "machineidentities/$thisID/workflows"
+                        }
+
+                        'Discover' {
+                            $triggerParams.Body.workflowName = 'discoverCertificates'
+                            $triggerParams.UriLeaf = "machines/$thisID/workflows"
+                        }
+                    }
+
+                    $null = Invoke-VenafiRestMethod @triggerParams
+
+                    While (!$Conn.IsCompleted) {
+                        Start-Sleep -Milliseconds 100
+                    }
+
+                    $response = ''
+                    $Recv.Array[0..($Conn.Result.Count - 1)] | ForEach-Object { $response += [char]$_ }
+
+                    Write-Verbose $response
+
+                    $responseObj = $response | ConvertFrom-Json
+
+                    $out = [pscustomobject]@{
+                        ID           = $thisID
+                        Success      = $true
+                        WorkflowName = $Workflow
+                        WorkflowID   = $thisWebSocketID
+                    }
+
+                    if ( $responseObj.data.result -ne $true ) {
+                        $out.Success = $false
+                        try {
+                            $out | Add-Member @{'Error' = $responseObj.data.result.message | ConvertFrom-Json }
+                        }
+                        catch {
+                            $out | Add-Member @{'Error' = $responseObj.data.result.message }
+                        }
+                    }
+
+                    $out
 
                 }
-
-                switch ($Workflow) {
-                    'GetConfig' {
-                        $triggerParams.Body.workflowName = 'getTargetConfiguration'
-                    }
-
-                    'Provision' {
-                        $triggerParams.Body.workflowName = 'provisionCertificate'
-                        $triggerParams.UriLeaf = "machineidentities/$thisID/workflows"
-                    }
-
-                    'Discover' {
-                        $triggerParams.Body.workflowName = 'discoverCertificates'
-                        $triggerParams.UriLeaf = "machines/$thisID/workflows"
+                finally {
+                    if ( $WS ) {
+                        $WS.Dispose()
                     }
                 }
-
-                $null = Invoke-VenafiRestMethod @triggerParams
-
-                While (!$Conn.IsCompleted) {
-                    Start-Sleep -Milliseconds 100
-                }
-
-                $response = ''
-                $Recv.Array[0..($Conn.Result.Count - 1)] | ForEach-Object { $response += [char]$_ }
-
-                Write-Verbose $response
-
-                $responseObj = $response | ConvertFrom-Json
-
-                $out = [pscustomobject]@{
-                    ID           = $thisID
-                    Success      = $true
-                    WorkflowName = $Workflow
-                    WorkflowID   = $thisWebSocketID
-                }
-
-                if ( $responseObj.data.result -ne $true ) {
-                    $out.Success = $false
-                    try {
-                        $out | Add-Member @{'Error' = $responseObj.data.result.message | ConvertFrom-Json }
-                    }
-                    catch {
-                        $out | Add-Member @{'Error' = $responseObj.data.result.message }
-                    }
-                }
-
-                $out
-
             }
-            finally {
-                if ( $WS ) {
-                    $WS.Dispose()
-                }
-            }
-        } -ThrottleLimit $ThrottleLimit -ProgressTitle 'Invoking workflow'
+
+        }
+
+        Invoke-VenafiParallel @params
     }
 }
 

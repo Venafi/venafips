@@ -44,7 +44,7 @@ function Remove-VcTeam {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -61,7 +61,7 @@ function Remove-VcTeam {
     end {
         Invoke-VenafiParallel -InputObject $allObjects -ScriptBlock {
             $null = Invoke-VenafiRestMethod -Method 'Delete' -UriLeaf "teams/$PSItem"
-        } -ThrottleLimit $ThrottleLimit
+        } -ThrottleLimit $ThrottleLimit -VenafiSession $VenafiSession
     }
 }
 

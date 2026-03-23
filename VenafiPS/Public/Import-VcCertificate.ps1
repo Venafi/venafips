@@ -131,7 +131,7 @@ function Import-VcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -318,47 +318,47 @@ function Import-VcCertificate {
                 $importList.Add($params)
             }
 
-            $sb = {
-                $params = $PSItem
-
-                $requestResponse = Invoke-VenafiRestMethod @params
-
-                do {
-                    try {
-                        $jobResponse = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificates/imports/$($requestResponse.id)"
-                        Write-Verbose ('import id: {0}, status: {1}' -f $requestResponse.id, $jobResponse.status)
-                    }
-                    catch {
-                        if ( $_.Exception.StatusCode -eq 500 -and $_.ErrorDetails.Message -match 'Unexpected error encountered' ) {
-                            # issue in api where it returns a 500 even though it hasn't actually failed
-                            # perhaps it takes longer for the import process to get started and provide a 'processing' state
-                            Write-Verbose ('import id: {0}, status: no status yet' -f $requestResponse.id)
-                        }
-                        else {
-                            throw $_
-                        }
-                    }
-
-                    Start-Sleep 2
-                } until (
-                    $jobResponse.status -in 'COMPLETED', 'FAILED'
-                )
-
-                if ( $jobResponse.status -eq 'COMPLETED' ) {
-                    $jobResponse.results
-                }
-                else {
-                    # importing only 1 keycert that fails does not give us any results to return to the user :(
-                    throw 'Import failed'
-                }
-            }
-
             $invokeParams = @{
                 InputObject   = $importList
-                ScriptBlock   = $sb
                 ThrottleLimit = $ThrottleLimit
                 ProgressTitle = 'Importing certificates with private keys'
+                VenafiSession = $VenafiSession
+                ScriptBlock   = {
+                    $params = $PSItem
+
+                    $requestResponse = Invoke-VenafiRestMethod @params
+
+                    do {
+                        try {
+                            $jobResponse = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificates/imports/$($requestResponse.id)"
+                            Write-Verbose ('import id: {0}, status: {1}' -f $requestResponse.id, $jobResponse.status)
+                        }
+                        catch {
+                            if ( $_.Exception.StatusCode -eq 500 -and $_.ErrorDetails.Message -match 'Unexpected error encountered' ) {
+                                # issue in api where it returns a 500 even though it hasn't actually failed
+                                # perhaps it takes longer for the import process to get started and provide a 'processing' state
+                                Write-Verbose ('import id: {0}, status: no status yet' -f $requestResponse.id)
+                            }
+                            else {
+                                throw $_
+                            }
+                        }
+
+                        Start-Sleep 2
+                    } until (
+                        $jobResponse.status -in 'COMPLETED', 'FAILED'
+                    )
+
+                    if ( $jobResponse.status -eq 'COMPLETED' ) {
+                        $jobResponse.results
+                    }
+                    else {
+                        # importing only 1 keycert that fails does not give us any results to return to the user :(
+                        throw 'Import failed'
+                    }
+                }
             }
+
             $invokeResponse = Invoke-VenafiParallel @invokeParams
 
             $keyOut = $invokeResponse | Select-Object -Property fingerprint, status, reason
@@ -395,16 +395,15 @@ function Import-VcCertificate {
                 $importList.Add($params)
             }
 
-            $sb = {
-                $params = $PSItem
-                Invoke-VenafiRestMethod @params
-            }
-
             $invokeParams = @{
                 InputObject   = $importList
-                ScriptBlock   = $sb
                 ThrottleLimit = $ThrottleLimit
                 ProgressTitle = 'Importing certificates without private keys'
+                VenafiSession = $VenafiSession
+                ScriptBlock   = {
+                    $params = $PSItem
+                    Invoke-VenafiRestMethod @params
+                }
             }
             $invokeNoKeyResponse = Invoke-VenafiParallel @invokeParams
 
