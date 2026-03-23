@@ -141,6 +141,7 @@ nav:
       - Move-VdcObject: functions/Move-VdcObject.md
       - New-VdcCapiApplication: functions/New-VdcCapiApplication.md
       - New-VdcCertificate: functions/New-VdcCertificate.md
+      - New-VdcCredential: functions/New-VdcCredential.md
       - New-VdcCustomField: functions/New-VdcCustomField.md
       - New-VdcDevice: functions/New-VdcDevice.md
       - New-VdcObject: functions/New-VdcObject.md

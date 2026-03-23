@@ -1,3 +1,10 @@
+## 6.13.4
+- Add `New-VdcCredential` to create a Password, Username Password, or Certificate Credential
+- Add `Invoke-VcCertificateAction -Application` and `-IssuingTemplate` for use during renewal operations to override existing values from certificate request.  The template is optional if only 1 is associated to the application.
+- Enhance `Invoke-VcCertificateAction -Renew` to be smarter about determining the application and issuing template to use.  For example, if the only template on an application was replaced, use the new one for renewal.
+- Fix `Invoke-VcCertificateAction -Renew -Wait` which was not waiting depending on certain statuses.  Add automatic wait for renewal when provisioning afterwards.
+
+
 ## 6.13.3
 - Add `New-VcCertificate -Wait` to wait for the certificate request to reach ternminal status, either success or failure.  This is helpful when used with `-PassThru` to ensure a certificate is returned.  [#383](https://github.com/Venafi/VenafiPS/issues/383).
 
@@ -862,6 +869,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

@@ -19,9 +19,9 @@ Invoke-VcCertificateAction -ID <Guid> [-Recover] [-BatchSize <Int32>] [-Addition
 
 ### Renew
 ```
-Invoke-VcCertificateAction -ID <Guid> [-Renew] [-Provision] [-Wait] [-Force]
- [-AdditionalParameters <Hashtable>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Invoke-VcCertificateAction -ID <Guid> [-Renew] [-Provision] [-Application <String>] [-IssuingTemplate <String>]
+ [-Wait] [-Force] [-AdditionalParameters <Hashtable>] [-VenafiSession <PSObject>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Validate
@@ -65,26 +65,24 @@ Perform an action against 1 certificate
 
 ### EXAMPLE 2
 ```
-Invoke-VcCertificateAction -ID '3699b03e-ff62-4772-960d-82e53c34bf60' -Renew -AdditionalParameters @{'Application'='10f71a12-daf3-4737-b589-6a9dd1cc5a97'}
+Invoke-VcCertificateAction -ID '3699b03e-ff62-4772-960d-82e53c34bf60' -Renew -Application '10f71a12-daf3-4737-b589-6a9dd1cc5a97'
 ```
 
-Perform an action against 1 certificate with additional parameters.
-In this case we are renewing a certificate, but the certificate has multiple applications associated with it.
-Only one certificate and application combination can be renewed at a time so provide the specific application to be renewed.
+Perform an action against 1 certificate overriding the application used for renewal.
 
 ### EXAMPLE 3
 ```
-Find-VcCertificate -Version CURRENT -Issuer i1 | Invoke-VcCertificateAction -Renew -AdditionalParameters @{'certificateIssuingTemplateId'='10f71a12-daf3-4737-b589-6a9dd1cc5a97'}
+Find-VcCertificate -Version CURRENT -Issuer i1 | Invoke-VcCertificateAction -Renew -IssuingTemplate 10f71a12-daf3-4737-b589-6a9dd1cc5a97
 ```
 
-Find all current certificates issued by i1 and renew them with a different issuer.
+Find all current certificates issued by i1 and renew them with a different template.
 
 ### EXAMPLE 4
 ```
 Find-VcCertificate -Version CURRENT -Name 'mycert' | Invoke-VcCertificateAction -Renew -Wait
 ```
 
-Renew a certificate and wait for it to pass the Requested state (and hopefully Issued).
+Renew a certificate and wait for it to finish, either success or failure, before returning.
 This can be helpful if an Issuer takes a bit to enroll the certificate.
 
 ### EXAMPLE 5
@@ -174,8 +172,7 @@ Accept wildcard characters: False
 
 ### -Renew
 Requests immediate renewal for an existing certificate.
-If more than 1 application is associated with the certificate, provide -AdditionalParameters @{'Application'='application id'} to specify the id.
-Use -AdditionalParameters to provide additional parameters to the renewal request, see https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create.
+Use \`-AdditionalParameters\` to provide additional parameters to the renewal request, see https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create.
 
 ```yaml
 Type: SwitchParameter
@@ -253,7 +250,7 @@ Accept wildcard characters: False
 
 ### -Delete
 Delete a certificate.
-As only retired certificates can be deleted, this will be performed first.
+As only retired certificates can be deleted, this will be performed first, if needed.
 
 ```yaml
 Type: SwitchParameter
@@ -269,7 +266,8 @@ Accept wildcard characters: False
 
 ### -Provision
 By default, provision a certificate to all associated machine identities.
-When used with CloudKeystore, provision there instead.
+When used with -CloudKeystore, provision there instead.
+When used with -Renew, it will wait for the renewal to complete and then provision the renewed certificate, assuming the renewal was successful.
 
 ```yaml
 Type: SwitchParameter
@@ -310,6 +308,52 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Application
+Optional name or ID of an application.
+Only needed in circumstances where the application can't be determined automatically.
+
+If not provided, get the application from the original certificate request.
+If not available, check for associated applications with the certificate. 
+If more than 1, throw an error as we don't know which to use, otherwise use that one application.
+
+Renew only.
+
+```yaml
+Type: String
+Parameter Sets: Renew
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -IssuingTemplate
+Optional name or ID of an issuing template.
+Only needed in circumstances where the issuing template can't be determined automatically.
+
+If not provided, get the issuing template from the original certificate request. 
+It might be this is available, but no longer valid for the application. 
+In this case, check how many templates the application has. 
+If only 1, use it, otherwise we can't continue.
+If not available from the original certificate request, perform the same 1 template check against the application to find a suitable template.
+
+Renew only.
+
+```yaml
+Type: String
+Parameter Sets: Renew
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -BatchSize
 How many certificates to retire per retirement API call.
 Useful to prevent API call timeouts.
@@ -330,7 +374,7 @@ Accept wildcard characters: False
 
 ### -Wait
 Wait for a long running operation to complete before returning
-- During a renewal, wait for the certificate to pass the Requested state
+- During a renewal, wait for enrollment to either succeed or fail
 
 ```yaml
 Type: SwitchParameter
@@ -346,7 +390,7 @@ Accept wildcard characters: False
 
 ### -Force
 Force the operation under certain circumstances.
-- During a renewal, force choosing the first CN in the case of multiple CNs as only 1 is supported.
+- During a renewal, force choosing the first CN in the case of multiple CNs as only 1 is supported via the API.
 
 ```yaml
 Type: SwitchParameter
@@ -388,7 +432,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: (Get-VenafiSession)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -451,12 +495,19 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ###     certificateID - Certificate uuid
 ###     success - A value of true indicates that the action was successful
 ###     error - error message if we failed
+### Renewals will also have oldCertificateId and renew properties
 ## NOTES
 If performing a renewal and subjectCN has more than 1 value, only the first will be submitted with the renewal.
 
 ## RELATED LINKS
 
-[https://api.venafi.cloud/webjars/swagger-ui/index.html?configUrl=%2Fv3%2Fapi-docs%2Fswagger-config&urls.primaryName=outagedetection-service](https://api.venafi.cloud/webjars/swagger-ui/index.html?configUrl=%2Fv3%2Fapi-docs%2Fswagger-config&urls.primaryName=outagedetection-service)
+[https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_recovercertificates](https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_recovercertificates)
 
-[https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=outagedetection-service#/Certificates/certificateretirement_deleteCertificates](https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=outagedetection-service#/Certificates/certificateretirement_deleteCertificates)
+[https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_retirecertificates](https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_retirecertificates)
+
+[https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_deletecertificates](https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_deletecertificates)
+
+[https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create](https://developer.venafi.com/tlsprotectcloud/reference/certificaterequests_create)
+
+[https://developer.venafi.com/tlsprotectcloud/reference/certificates_validation](https://developer.venafi.com/tlsprotectcloud/reference/certificates_validation)
 
