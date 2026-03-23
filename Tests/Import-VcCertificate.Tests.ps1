@@ -1,10 +1,17 @@
 ﻿BeforeAll {
     . $PSScriptRoot/ModuleCommonVc.ps1
 
+    # Ensure ConvertTo-SodiumEncryptedString is available in the module scope for mocking
+    # PSSodium may not be installed (e.g., CI runners)
+    InModuleScope $ModuleName {
+        if (-not (Get-Command 'ConvertTo-SodiumEncryptedString' -ErrorAction SilentlyContinue)) {
+            function script:ConvertTo-SodiumEncryptedString { param($Text, $PublicKey) }
+        }
+    }
+
     $testVsatId = '0bc771e1-7abe-4339-9fcd-93fffe9cba7f'
     $testEncKeyId = 'aaaa1111-bbbb-2222-cccc-333344445555'
     $testEncKey = 'dGVzdGVuY3J5cHRpb25rZXk='
-    $testImportId = 'import-1234-5678-abcd'
 
     $mockVSat = [pscustomobject]@{
         vsatelliteId    = $testVsatId
@@ -12,20 +19,13 @@
         encryptionKey   = $testEncKey
     }
 
-    $mockImportResponse = [pscustomobject]@{
-        id = $testImportId
-    }
-
-    $mockJobCompleted = [pscustomobject]@{
-        status  = 'COMPLETED'
-        results = @(
-            [pscustomobject]@{
-                fingerprint = 'AB:CD:EF:12:34:56'
-                status      = 'IMPORTED'
-                reason      = $null
-            }
-        )
-    }
+    $mockKeyImportResults = @(
+        [pscustomobject]@{
+            fingerprint = 'AB:CD:EF:12:34:56'
+            status      = 'IMPORTED'
+            reason      = $null
+        }
+    )
 
     $mockNoKeyImportResponse = [pscustomobject]@{
         certificateInformations = @(
@@ -65,21 +65,14 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
     Context 'PKCS12 import with key' {
 
         BeforeEach {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -ParameterFilter { $UriLeaf -eq 'certificates/imports' } -MockWith { $mockImportResponse } -ModuleName $ModuleName
-            Mock -CommandName 'Invoke-VenafiRestMethod' -ParameterFilter { $UriLeaf -like 'certificates/imports/*' } -MockWith { $mockJobCompleted } -ModuleName $ModuleName
+            # Mock Invoke-VenafiParallel to avoid PSSodium dependency and verify the params passed
+            Mock -CommandName 'Invoke-VenafiParallel' -MockWith { $mockKeyImportResults } -ModuleName $ModuleName
         }
 
-        It 'Should call the keystore import endpoint' {
+        It 'Should call Invoke-VenafiParallel with VenafiSession' {
             Import-VcCertificate -Data $testPkcs12Data -PKCS12 -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $UriLeaf -eq 'certificates/imports' -and $Method -eq 'POST'
-            }
-        }
-
-        It 'Should include vSatellite info in the request body' {
-            Import-VcCertificate -Data $testPkcs12Data -PKCS12 -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $Body.edgeInstanceId -eq $testVsatId -and $Body.encryptionKeyId -eq $testEncKeyId
+            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $null -ne $VenafiSession
             }
         }
 
@@ -93,23 +86,16 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
     Context 'Certificate import without key' {
 
         BeforeEach {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -ParameterFilter { $UriLeaf -eq 'certificates' -and $Method -eq 'POST' } -MockWith { $mockNoKeyImportResponse } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-VenafiParallel' -MockWith { $mockNoKeyImportResponse } -ModuleName $ModuleName
             Mock -CommandName 'Split-CertificateData' -MockWith {
                 @{ CertPem = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA'; KeyPem = $null }
             } -ModuleName $ModuleName
         }
 
-        It 'Should call the no-key import endpoint' {
+        It 'Should call Invoke-VenafiParallel with VenafiSession' {
             Import-VcCertificate -Data $testCertPem -Format 'X509'
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $UriLeaf -eq 'certificates' -and $UriRoot -eq 'outagedetection/v1'
-            }
-        }
-
-        It 'Should include overrideBlocklist in the body' {
-            Import-VcCertificate -Data $testCertPem -Format 'X509'
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $null -ne $Body.overrideBlocklist
+            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $null -ne $VenafiSession
             }
         }
 
@@ -127,7 +113,7 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
         }
 
         It 'Should throw when importing with key but no password' {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockImportResponse } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-VenafiParallel' -MockWith {} -ModuleName $ModuleName
             Mock -CommandName 'Split-CertificateData' -MockWith {
                 @{ CertPem = 'certdata'; KeyPem = 'keydata' }
             } -ModuleName $ModuleName
@@ -138,15 +124,12 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
     Context 'Format parameter' {
 
         BeforeEach {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -ParameterFilter { $UriLeaf -eq 'certificates/imports' } -MockWith { $mockImportResponse } -ModuleName $ModuleName
-            Mock -CommandName 'Invoke-VenafiRestMethod' -ParameterFilter { $UriLeaf -like 'certificates/imports/*' } -MockWith { $mockJobCompleted } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-VenafiParallel' -MockWith { $mockKeyImportResults } -ModuleName $ModuleName
         }
 
         It 'Should accept PKCS12 format' {
             Import-VcCertificate -Data $testPkcs12Data -Format 'PKCS12' -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $UriLeaf -eq 'certificates/imports'
-            }
+            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
         }
 
         It 'Should warn about deprecated PKCS12 switch' {

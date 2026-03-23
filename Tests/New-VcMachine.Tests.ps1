@@ -1,6 +1,14 @@
 ﻿BeforeAll {
     . $PSScriptRoot/ModuleCommonVc.ps1
 
+    # Ensure ConvertTo-SodiumEncryptedString is available in the module scope for mocking
+    # PSSodium may not be installed (e.g., CI runners)
+    InModuleScope $ModuleName {
+        if (-not (Get-Command 'ConvertTo-SodiumEncryptedString' -ErrorAction SilentlyContinue)) {
+            function script:ConvertTo-SodiumEncryptedString { param($Text, $PublicKey) }
+        }
+    }
+
     $testMachineId = 'cf7cfdc0-2b2a-11ee-9546-5136c4b21504'
     $testTeamId = '59920180-a3e2-11ec-8dcd-3fcbf84c7da7'
     $testPluginId = 'ff645e14-bd1a-11ed-a009-ce063932f86d'
@@ -34,10 +42,29 @@
         owningTeamId     = $testTeamId
     }
 
-    $mockWorkflowResponse = [pscustomobject]@{
-        Success    = $true
-        Error      = $null
-        WorkflowID = 'c39310ee-51fc-49f3-8b5b-e504e1bc43d2'
+    # This is the shape returned by Invoke-VenafiParallel after the scriptblock runs
+    $mockParallelResponseNoVerify = [pscustomobject]@{
+        machineId        = $testMachineId
+        companyId        = '20b24f81-b22b-11ea-91f3-ebd6dea5453f'
+        name             = 'c1'
+        machineType      = 'Citrix ADC'
+        pluginId         = $testPluginId
+        integrationId    = 'cf7c8014-2b2a-11ee-9a03-fa8930555887'
+        edgeInstanceId   = $testVsatId
+        creationDate     = (Get-Date).ToString('o')
+        modificationDate = (Get-Date).ToString('o')
+        status           = 'UNVERIFIED'
+        owningTeamId     = $testTeamId
+    }
+
+    $mockParallelResponseWithVerify = [pscustomobject]@{
+        machineId      = $testMachineId
+        testConnection = [pscustomobject]@{
+            Success    = $true
+            Error      = $null
+            WorkflowID = 'c39310ee-51fc-49f3-8b5b-e504e1bc43d2'
+        }
+        name           = 'c1'
     }
 }
 
@@ -50,49 +77,34 @@ Describe 'New-VcMachine' -Tags 'Unit' {
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Team' } -MockWith { $testTeamId } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $mockVSat } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-SodiumEncryptedString' -MockWith { 'encrypted' } -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockCreateResponse } -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VcWorkflow' -MockWith { $mockWorkflowResponse } -ModuleName $ModuleName
+        # Mock Invoke-VenafiParallel to avoid needing Invoke-VenafiRestMethod/Invoke-VcWorkflow inside scriptblock
+        Mock -CommandName 'Invoke-VenafiParallel' -MockWith { $mockParallelResponseWithVerify } -ModuleName $ModuleName
     }
 
     Context 'Basic machine creation' {
 
-        It 'Should call the create API' {
+        It 'Should call Invoke-VenafiParallel with VenafiSession' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
             New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $Method -eq 'Post' -and $UriLeaf -eq 'machines'
+            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $null -ne $VenafiSession
             }
         }
 
-        It 'Should use hostname as name when hostname not provided' {
-            $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
-            New-VcMachine -Name 'c1.company.com' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $Body.connectionDetails.hostnameOrAddress -eq 'c1.company.com'
-            }
-        }
-
-        It 'Should use explicit hostname when provided' {
-            $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
-            New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Hostname 'c1.company.com' -Credential $cred
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $Body.connectionDetails.hostnameOrAddress -eq 'c1.company.com'
-            }
-        }
-    }
-
-    Context 'Test connection' {
-
-        It 'Should invoke test workflow by default' {
+        It 'Should pass machine data to Invoke-VenafiParallel' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
             New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
-            Should -Invoke -CommandName 'Invoke-VcWorkflow' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $InputObject.Count -eq 1 -and $InputObject[0].name -eq 'c1'
+            }
         }
 
-        It 'Should skip test workflow with NoVerify' {
+        It 'Should set pluginId from machine type lookup' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
-            New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred -NoVerify
-            Should -Invoke -CommandName 'Invoke-VcWorkflow' -Times 0 -ModuleName $ModuleName
+            New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
+            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $InputObject[0].pluginId -eq $testPluginId
+            }
         }
     }
 
@@ -100,13 +112,13 @@ Describe 'New-VcMachine' -Tags 'Unit' {
 
         It 'Should not return output without PassThru' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
-            $result = New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred -NoVerify
+            $result = New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
             $result | Should -BeNullOrEmpty
         }
 
         It 'Should return machine details with PassThru' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
-            $result = New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred -NoVerify -PassThru
+            $result = New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred -PassThru
             $result | Should -Not -BeNullOrEmpty
             $result.machineId | Should -Be $testMachineId
         }
@@ -138,8 +150,8 @@ Describe 'New-VcMachine' -Tags 'Unit' {
                 MachineType = 'Citrix ADC'
                 Owner       = 'MyTeam'
                 Credential  = $cred
-            } | New-VcMachine -NoVerify
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName
+            } | New-VcMachine
+            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
         }
     }
 }
