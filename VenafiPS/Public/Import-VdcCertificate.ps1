@@ -11,7 +11,7 @@ function Import-VdcCertificate {
     Path to a certificate file.  Provide either this or -Data.
 
     .PARAMETER Data
-    Contents of a certificate to import.  Provide either this or -Path.
+    Contents of a certificate or certificate/key to import in Base64.  Provide either this or -Path.
 
     .PARAMETER PolicyPath
     Policy path to import the certificate to.
@@ -31,7 +31,7 @@ function Import-VdcCertificate {
     .PARAMETER PrivateKey
     Private key data; requires a value for PrivateKeyPassword.
     For a PEM certificate, the private key is in either the RSA or PKCS#8 format.
-    Do not provide for a PKCS#12 certificate as the private key is already included.
+    Do not provide when the value for -Data is PKCS12 or PKCS8 as the private key is already included.
 
     .PARAMETER PrivateKeyPassword
     Password required if providing a private key.
@@ -83,7 +83,7 @@ function Import-VdcCertificate {
     Export 1 or more certificates from Certificate Manager, SaaS and import to Certificate Manager, Self-Hosted.  Note the use of 2 sessions at once where the Certificate Manager, Self-Hosted session is stored in a variable.
 
     .INPUTS
-    Path, Data
+    Path, Data, PolicyPath, PrivateKeyPassword
 
     .OUTPUTS
     PSCustomObject, if PassThru provided
@@ -256,7 +256,25 @@ function Import-VdcCertificate {
                 }
 
                 $params = $thisItem.InvokeParams
-                $params.Body.CertificateData = $certData
+
+                # check if the data is PEM/PKCS8 (base64-encoded or raw) vs PKCS12
+                # PEM data starts with '-----BEGIN' or 'LS0' (base64 of '---')
+                # PKCS12 can be passed directly as CertificateData
+                # but PEM/PKCS8 needs to be split into cert and key parts due to api limitation
+                if ( $certData -match '^LS0' -or $certData -match '-----BEGIN' ) {
+                    $pemParts = Split-CertificateData -InputObject $certData
+
+                    if ( $pemParts.CertPem ) {
+                        $params.Body.CertificateData = $pemParts.CertPem
+                    }
+
+                    if ( $pemParts.KeyPem ) {
+                        $params.Body.PrivateKeyData = $pemParts.KeyPem
+                    }
+                }
+                else {
+                    $params.Body.CertificateData = $certData
+                }
 
                 try {
                     $response = Invoke-VenafiRestMethod @params
