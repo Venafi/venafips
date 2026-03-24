@@ -89,7 +89,7 @@ Accept wildcard characters: False
 ```
 
 ### -Data
-Contents of a certificate to import. 
+Contents of a certificate or certificate/key to import in Base64. 
 Provide either this or -Path.
 
 ```yaml
@@ -159,7 +159,7 @@ Accept wildcard characters: False
 ### -PrivateKey
 Private key data; requires a value for PrivateKeyPassword.
 For a PEM certificate, the private key is in either the RSA or PKCS#8 format.
-Do not provide for a PKCS#12 certificate as the private key is already included.
+Do not provide when the value for -Data is PKCS12 or PKCS8 as the private key is already included.
 
 ```yaml
 Type: String
@@ -330,7 +330,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### Path, Data
+### Path, Data, PolicyPath, PrivateKeyPassword
 ## OUTPUTS
 
 ### PSCustomObject, if PassThru provided

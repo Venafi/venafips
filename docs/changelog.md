@@ -1,3 +1,12 @@
+## 6.13.5
+- `Import-VcCertificate` updates:
+    - Fix prompting for VenafiSession even when provided
+    - Remove `-PKCS8` and `-PKCS12`, and soon `-Format`, in favor of autodetection
+    - Add `-Recurse` to bring in certificates in subfolders when importing by path
+    - Add ShouldProcess so `-WhatIf` can be used prior to importing
+    - ThrottleLimit changed to 1 by default as 100 certs are submitted at a time
+- Add PKCS8 support to `Import-VdcCertificate`
+
 ## 6.13.4
 - Add `New-VdcCredential` to create a Password, Username Password, or Certificate Credential
 - Add `Invoke-VcCertificateAction -Application` and `-IssuingTemplate` for use during renewal operations to override existing values from certificate request.  The template is optional if only 1 is associated to the application.
@@ -869,6 +878,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

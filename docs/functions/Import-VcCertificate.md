@@ -7,31 +7,23 @@ Import one or more certificates
 
 ### ByFile (Default)
 ```
-Import-VcCertificate -Path <String> [-PrivateKeyPassword <PSObject>] [-ThrottleLimit <Int32>] [-Force]
- [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Import-VcCertificate -Path <String> [-PrivateKeyPassword <PSObject>] [-ThrottleLimit <Int32>] [-Recurse]
+ [-Force] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
-### Format
+### ByData
 ```
-Import-VcCertificate -Data <String> -Format <String> [-PrivateKeyPassword <PSObject>] [-ThrottleLimit <Int32>]
- [-Force] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
-```
-
-### PKCS8
-```
-Import-VcCertificate -Data <String> [-PKCS8] -PrivateKeyPassword <PSObject> [-ThrottleLimit <Int32>] [-Force]
- [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
-```
-
-### PKCS12
-```
-Import-VcCertificate -Data <String> [-PKCS12] -PrivateKeyPassword <PSObject> [-ThrottleLimit <Int32>] [-Force]
- [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Import-VcCertificate -Data <String> [-Format <String>] [-PrivateKeyPassword <PSObject>]
+ [-ThrottleLimit <Int32>] [-Force] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 Import one or more certificates and their private keys.
 PKCS8 (.pem), PKCS12 (.pfx or .p12), and X509 (.pem, .cer, or .crt) certificates are supported.
+Certificates/keys can be imported from a file or from data provided directly to the function, eg.
+exporting from Certificate Manager, Self-Hosted and importing into Certificate Manager, SaaS.
 
 ## EXAMPLES
 
@@ -92,7 +84,7 @@ Provide either this or -Path.
 
 ```yaml
 Type: String
-Parameter Sets: Format, PKCS8, PKCS12
+Parameter Sets: ByData
 Aliases: certificateData
 
 Required: True
@@ -102,54 +94,21 @@ Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
-### -PKCS8
-Provided -Data is in PKCS #8 format.
-This parameter will be deprecated in a future release. 
-Use -Format PKCS8.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: PKCS8
-Aliases:
-
-Required: True
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -PKCS12
-Provided -Data is in PKCS #12 format
-This parameter will be deprecated in a future release. 
-Use -Format PKCS12.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: PKCS12
-Aliases:
-
-Required: True
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -Format
 Specify the format provided in -Data.
 PKCS12, PKCS8, and X509 are supported.
-This will replace -PKCS8 and -PKCS12 in a future release.
+
+The format is now automatically detected, so this parameter is not required or used.
 
 ```yaml
 Type: String
-Parameter Sets: Format
+Parameter Sets: ByData
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: None
-Accept pipeline input: True (ByPropertyName)
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -158,43 +117,18 @@ Password the private key was encrypted with
 
 ```yaml
 Type: PSObject
-Parameter Sets: ByFile
+Parameter Sets: (All)
 Aliases:
 
 Required: False
 Position: Named
 Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-```yaml
-Type: PSObject
-Parameter Sets: Format
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-```yaml
-Type: PSObject
-Parameter Sets: PKCS8, PKCS12
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 
 ### -ThrottleLimit
-Limit the number of threads when running in parallel; the default is 10. 
-Applicable to PS v7+ only.
+Limit the number of threads when running in parallel; the default is 1.
 100 keystores will be imported at a time so it's less important to have a very high throttle limit.
 
 ```yaml
@@ -204,7 +138,22 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: 10
+Default value: 1
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Recurse
+When providing a folder path, include subfolders in the search for certificates to import.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: ByFile
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -234,6 +183,37 @@ A Certificate Manager, SaaS key can also provided.
 Type: PSObject
 Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-VenafiSession)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
 
 Required: False
 Position: Named
