@@ -6,6 +6,7 @@ function Import-VcCertificate {
     .DESCRIPTION
     Import one or more certificates and their private keys.
     PKCS8 (.pem), PKCS12 (.pfx or .p12), and X509 (.pem, .cer, or .crt) certificates are supported.
+    Certificates/keys can be imported from a file or from data provided directly to the function, eg. exporting from Certificate Manager, Self-Hosted and importing into Certificate Manager, SaaS.
 
     .PARAMETER Path
     Path to a certificate file or folder with multiple certificates.
@@ -29,7 +30,7 @@ function Import-VcCertificate {
     When providing a folder path, include subfolders in the search for certificates to import.
 
     .PARAMETER ThrottleLimit
-    Limit the number of threads when running in parallel; the default is 10.
+    Limit the number of threads when running in parallel; the default is 1.
     100 keystores will be imported at a time so it's less important to have a very high throttle limit.
 
     .PARAMETER Force
@@ -109,7 +110,7 @@ function Import-VcCertificate {
         [psobject] $PrivateKeyPassword,
 
         [Parameter()]
-        [int32] $ThrottleLimit = 10,
+        [int32] $ThrottleLimit = 1,
 
         [Parameter(ParameterSetName = 'ByFile')]
         [switch] $Recurse,
@@ -271,6 +272,7 @@ function Import-VcCertificate {
 
                 $keystores = foreach ($thisCert in $allCerts[$i..($i + 99)]) {
                     if ( $thisCert.KeyData ) {
+                        #PKCS8
                         @{
                             'certificate'                 = $thisCert.CertData
                             'passwordEncryptedPrivateKey' = $thisCert.KeyData
@@ -278,6 +280,7 @@ function Import-VcCertificate {
                         }
                     }
                     else {
+                        #PKCS12
                         @{
                             'pkcs12Keystore'       = $thisCert.CertData
                             'dekEncryptedPassword' = $dekEncryptedPassword
