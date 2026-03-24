@@ -173,7 +173,7 @@ function New-VcMachine {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -278,27 +278,35 @@ function New-VcMachine {
 
     end {
 
-        $response = Invoke-VenafiParallel -InputObject $allMachines -ScriptBlock {
-            $response = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'machines' -Body $PSItem
+        $params = @{
+            InputObject   = $allMachines
+            ThrottleLimit = $ThrottleLimit
+            VenafiSession = $VenafiSession
+            ProgressTitle = 'Creating machines'
+            ScriptBlock   = {
+                $response = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'machines' -Body $PSItem
 
-            if ( $using:NoVerify ) {
-                $response | Select-Object @{
-                    'n' = 'machineId'
-                    'e' = { $_.id }
-                }, * -ExcludeProperty id
+                if ( $using:NoVerify ) {
+                    $response | Select-Object @{
+                        'n' = 'machineId'
+                        'e' = { $_.id }
+                    }, * -ExcludeProperty id
+                }
+                else {
+                    $workflowResponse = Invoke-VcWorkflow -ID $response.id -Workflow 'Test'
+                    $response | Select-Object @{
+                        'n' = 'machineId'
+                        'e' = { $_.id }
+                    },
+                    @{
+                        'n' = 'testConnection'
+                        'e' = { $workflowResponse | Select-Object Success, Error, WorkflowID }
+                    }, * -ExcludeProperty id
+                }
             }
-            else {
-                $workflowResponse = Invoke-VcWorkflow -ID $response.id -Workflow 'Test'
-                $response | Select-Object @{
-                    'n' = 'machineId'
-                    'e' = { $_.id }
-                },
-                @{
-                    'n' = 'testConnection'
-                    'e' = { $workflowResponse | Select-Object Success, Error, WorkflowID }
-                }, * -ExcludeProperty id
-            }
-        } -ThrottleLimit $ThrottleLimit
+        }
+
+        $response = Invoke-VenafiParallel @params
 
         if ( $PassThru ) {
             $response

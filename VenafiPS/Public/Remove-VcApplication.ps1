@@ -44,7 +44,7 @@ function Remove-VcApplication {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -61,7 +61,7 @@ function Remove-VcApplication {
     end {
         Invoke-VenafiParallel -InputObject $allObjects -ScriptBlock {
             $null = Invoke-VenafiRestMethod -Method 'Delete' -UriRoot 'outagedetection/v1' -UriLeaf "applications/$PSItem"
-        } -ThrottleLimit $ThrottleLimit
+        } -ThrottleLimit $ThrottleLimit -VenafiSession $VenafiSession
     }
 }
 

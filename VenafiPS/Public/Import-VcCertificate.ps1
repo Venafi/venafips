@@ -6,6 +6,7 @@ function Import-VcCertificate {
     .DESCRIPTION
     Import one or more certificates and their private keys.
     PKCS8 (.pem), PKCS12 (.pfx or .p12), and X509 (.pem, .cer, or .crt) certificates are supported.
+    Certificates/keys can be imported from a file or from data provided directly to the function, eg. exporting from Certificate Manager, Self-Hosted and importing into Certificate Manager, SaaS.
 
     .PARAMETER Path
     Path to a certificate file or folder with multiple certificates.
@@ -16,24 +17,20 @@ function Import-VcCertificate {
     Contents of a certificate/key to import.
     Provide either this or -Path.
 
-    .PARAMETER PKCS8
-    Provided -Data is in PKCS #8 format.
-    This parameter will be deprecated in a future release.  Use -Format PKCS8.
-
-    .PARAMETER PKCS12
-    Provided -Data is in PKCS #12 format
-    This parameter will be deprecated in a future release.  Use -Format PKCS12.
-
     .PARAMETER Format
     Specify the format provided in -Data.
     PKCS12, PKCS8, and X509 are supported.
-    This will replace -PKCS8 and -PKCS12 in a future release.
+
+    The format is now automatically detected, so this parameter is not required or used.
 
     .PARAMETER PrivateKeyPassword
     Password the private key was encrypted with
 
+    .PARAMETER Recurse
+    When providing a folder path, include subfolders in the search for certificates to import.
+
     .PARAMETER ThrottleLimit
-    Limit the number of threads when running in parallel; the default is 10.  Applicable to PS v7+ only.
+    Limit the number of threads when running in parallel; the default is 1.
     100 keystores will be imported at a time so it's less important to have a very high throttle limit.
 
     .PARAMETER Force
@@ -82,7 +79,7 @@ function Import-VcCertificate {
     To honor the blocklist, set the environment variable VC_ENABLE_BLOCKLIST to 'true'.
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'ByFile')]
+    [CmdletBinding(DefaultParameterSetName = 'ByFile', SupportsShouldProcess)]
     [Alias('Import-VaasCertificate')]
 
     param (
@@ -92,25 +89,14 @@ function Import-VcCertificate {
         [Alias('FullName', 'CertificatePath', 'FilePath')]
         [String] $Path,
 
-        [Parameter(Mandatory, ParameterSetName = 'PKCS12', ValueFromPipelineByPropertyName)]
-        [Parameter(Mandatory, ParameterSetName = 'PKCS8', ValueFromPipelineByPropertyName)]
-        [Parameter(Mandatory, ParameterSetName = 'Format', ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ParameterSetName = 'ByData', ValueFromPipelineByPropertyName)]
         [Alias('certificateData')]
         [String] $Data,
 
-        [Parameter(Mandatory, ParameterSetName = 'PKCS8')]
-        [switch] $PKCS8,
-
-        [Parameter(Mandatory, ParameterSetName = 'PKCS12')]
-        [switch] $PKCS12,
-
-        [Parameter(Mandatory, ParameterSetName = 'Format', ValueFromPipelineByPropertyName)]
+        [Parameter(ParameterSetName = 'ByData')]
         [String] $Format,
 
-        [Parameter(Mandatory, ParameterSetName = 'PKCS8')]
-        [Parameter(Mandatory, ParameterSetName = 'PKCS12')]
-        [Parameter(ParameterSetName = 'ByFile')]
-        [Parameter(ParameterSetName = 'Format', ValueFromPipelineByPropertyName)]
+        [Parameter(ValueFromPipelineByPropertyName)]
         [ValidateScript(
             {
                 if ( $_ -is [string] -or $_ -is [securestring] -or $_ -is [pscredential] ) {
@@ -124,21 +110,20 @@ function Import-VcCertificate {
         [psobject] $PrivateKeyPassword,
 
         [Parameter()]
-        [int32] $ThrottleLimit = 10,
+        [int32] $ThrottleLimit = 1,
+
+        [Parameter(ParameterSetName = 'ByFile')]
+        [switch] $Recurse,
 
         [Parameter()]
         [switch] $Force,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
-
-        if ( $PSBoundParameters.ContainsKey('PKCS12') -or $PSBoundParameters.ContainsKey('PKCS8') ) {
-            Write-Warning '-PKCS8 and -PKCS12 will soon be deprecated.  Utilize -Format instead.'
-        }
 
         Test-VenafiSession $PSCmdlet.MyInvocation
 
@@ -160,9 +145,11 @@ function Import-VcCertificate {
     process {
 
         if ( $PSCmdlet.ParameterSetName -eq 'ByFile' ) {
+
             $resolvedPath = Resolve-Path -Path $Path -ErrorAction Stop
+
             $files = if (Test-Path -Path $resolvedPath -PathType Container) {
-                Get-ChildItem -Path $resolvedPath -File | Select-Object -ExpandProperty FullName
+                Get-ChildItem -Path $resolvedPath -Recurse:$Recurse -File | Select-Object -ExpandProperty FullName
             }
             else {
                 @($resolvedPath)
@@ -183,7 +170,6 @@ function Import-VcCertificate {
 
                         $allCerts.Add(@{
                                 'CertData' = [System.Convert]::ToBase64String($cert)
-                                'Format'   = 'PKCS12'
                             }
                         )
                     }
@@ -193,15 +179,14 @@ function Import-VcCertificate {
 
                         if ( $split.KeyPem ) {
                             $allCerts.Add(@{
-                                    'CertPem' = $split.CertPem
-                                    'KeyPem'  = $split.KeyPem
-                                    'Format'  = 'PKCS8'
+                                    'CertData' = $split.CertPem
+                                    'KeyData'  = $split.KeyPem
                                 }
                             )
                         }
                         else {
                             $allNoKeyCerts.Add(@{
-                                    'CertPem' = $split.CertPem -replace "`r|`n|-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----"
+                                    'CertData' = $split.CertPem -replace "`r|`n|-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----"
                                 }
                             )
                         }
@@ -217,48 +202,36 @@ function Import-VcCertificate {
             # check if Data exists since we allow null/empty in case piping from another function and data is not there
             if ( $Data ) {
 
-                $addMe = @{
-                    'Format' = ''
+                if ( $PrivateKeyPassword ) {
+                    $pkPassString = ConvertTo-PlaintextString -InputObject $PrivateKeyPassword
                 }
 
-                if ( $Format ) {
-                    $addMe.Format = $Format
-                    # privatekeypassword might have been provided via pipeline so this must be in process block
-                    if ( $PrivateKeyPassword ) {
-                        $pkPassString = ConvertTo-PlaintextString -InputObject $PrivateKeyPassword
+                if ( $Data -match '^LS0' -or $Data -match '-----BEGIN' ) {
+                    # PEM or Base64-encoded PKCS8
+                    $splitData = Split-CertificateData -InputObject $Data
+
+                    if ( $splitData.KeyPem ) {
+                        $allCerts.Add(
+                            @{
+                                'CertData' = $splitData.CertPem
+                                'KeyData'  = $splitData.KeyPem
+                            }
+                        )
+                    }
+                    else {
+                        $allNoKeyCerts.Add(@{
+                                'CertData' = $splitData.CertPem -replace "`r|`n|-----(BEGIN|END)[\w\s]+-----"
+                            }
+                        )
                     }
                 }
                 else {
-                    $addMe.Format = $PSCmdlet.ParameterSetName
-                }
-
-                switch ($addMe.Format) {
-                    'PKCS12' {
-                        $addMe.'CertData' = $Data -replace "`r|`n|-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----"
-                        $allCerts.Add($addMe)
-                    }
-
-                    # X509 and PKCS8 both use Base64, but 'Base64' is how Certificate Manager, Self-Hosted refers to x509
-                    # this allows us to pipe from Certificate Manager, Self-Hosted to Certificate Manager, SaaS
-                    { $_ -in 'PKCS8', 'X509', 'Base64' } {
-                        $splitData = Split-CertificateData -InputObject $Data
-
-                        if ( $splitData.KeyPem ) {
-                            $addMe.CertPem = $splitData.CertPem
-                            $addMe.KeyPem = $splitData.KeyPem
-                            $allCerts.Add($addMe)
+                    #PKCS12
+                    $allCerts.Add(
+                        @{
+                            'CertData' = $Data -replace "`r|`n|-----(BEGIN|END)[\w\s]+-----"
                         }
-                        else {
-                            $allNoKeyCerts.Add(@{
-                                    'CertPem' = $splitData.CertPem -replace "`r|`n|-----BEGIN CERTIFICATE-----|-----END CERTIFICATE-----"
-                                }
-                            )
-                        }
-                    }
-
-                    default {
-                        Write-Error "Unknown format '$_'"
-                    }
+                    )
                 }
             }
         }
@@ -267,7 +240,9 @@ function Import-VcCertificate {
     end {
         if ( $allCerts.Count -eq 0 -and $allNoKeyCerts.Count -eq 0 ) { return }
 
-        Write-Verbose ('Importing {0} certificates' -f ($allCerts.Count + $allNoKeyCerts.Count))
+        if ( -not ($PSCmdlet.ShouldProcess(('{0} certificates, {1} with private keys' -f ($allCerts.Count + $allNoKeyCerts.Count), $allCerts.Count)) ) ) {
+            return
+        }
 
         if ( $allCerts.Count -gt 0 ) {
             # process all certs with keys
@@ -296,20 +271,19 @@ function Import-VcCertificate {
                 }
 
                 $keystores = foreach ($thisCert in $allCerts[$i..($i + 99)]) {
-                    switch ($thisCert.Format) {
-                        'PKCS12' {
-                            @{
-                                'pkcs12Keystore'       = $thisCert.CertData
-                                'dekEncryptedPassword' = $dekEncryptedPassword
-                            }
+                    if ( $thisCert.KeyData ) {
+                        #PKCS8
+                        @{
+                            'certificate'                 = $thisCert.CertData
+                            'passwordEncryptedPrivateKey' = $thisCert.KeyData
+                            'dekEncryptedPassword'        = $dekEncryptedPassword
                         }
-
-                        'PKCS8' {
-                            @{
-                                'certificate'                 = $thisCert.CertPem
-                                'passwordEncryptedPrivateKey' = $thisCert.KeyPem
-                                'dekEncryptedPassword'        = $dekEncryptedPassword
-                            }
+                    }
+                    else {
+                        #PKCS12
+                        @{
+                            'pkcs12Keystore'       = $thisCert.CertData
+                            'dekEncryptedPassword' = $dekEncryptedPassword
                         }
                     }
                 }
@@ -318,47 +292,47 @@ function Import-VcCertificate {
                 $importList.Add($params)
             }
 
-            $sb = {
-                $params = $PSItem
-
-                $requestResponse = Invoke-VenafiRestMethod @params
-
-                do {
-                    try {
-                        $jobResponse = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificates/imports/$($requestResponse.id)"
-                        Write-Verbose ('import id: {0}, status: {1}' -f $requestResponse.id, $jobResponse.status)
-                    }
-                    catch {
-                        if ( $_.Exception.StatusCode -eq 500 -and $_.ErrorDetails.Message -match 'Unexpected error encountered' ) {
-                            # issue in api where it returns a 500 even though it hasn't actually failed
-                            # perhaps it takes longer for the import process to get started and provide a 'processing' state
-                            Write-Verbose ('import id: {0}, status: no status yet' -f $requestResponse.id)
-                        }
-                        else {
-                            throw $_
-                        }
-                    }
-
-                    Start-Sleep 2
-                } until (
-                    $jobResponse.status -in 'COMPLETED', 'FAILED'
-                )
-
-                if ( $jobResponse.status -eq 'COMPLETED' ) {
-                    $jobResponse.results
-                }
-                else {
-                    # importing only 1 keycert that fails does not give us any results to return to the user :(
-                    throw 'Import failed'
-                }
-            }
-
             $invokeParams = @{
                 InputObject   = $importList
-                ScriptBlock   = $sb
                 ThrottleLimit = $ThrottleLimit
                 ProgressTitle = 'Importing certificates with private keys'
+                VenafiSession = $VenafiSession
+                ScriptBlock   = {
+                    $params = $PSItem
+
+                    $requestResponse = Invoke-VenafiRestMethod @params
+
+                    do {
+                        try {
+                            $jobResponse = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificates/imports/$($requestResponse.id)"
+                            Write-Verbose ('import id: {0}, status: {1}' -f $requestResponse.id, $jobResponse.status)
+                        }
+                        catch {
+                            if ( $_.Exception.StatusCode -eq 500 -and $_.ErrorDetails.Message -match 'Unexpected error encountered' ) {
+                                # issue in api where it returns a 500 even though it hasn't actually failed
+                                # perhaps it takes longer for the import process to get started and provide a 'processing' state
+                                Write-Verbose ('import id: {0}, status: no status yet' -f $requestResponse.id)
+                            }
+                            else {
+                                throw $_
+                            }
+                        }
+
+                        Start-Sleep 2
+                    } until (
+                        $jobResponse.status -in 'COMPLETED', 'FAILED'
+                    )
+
+                    if ( $jobResponse.status -eq 'COMPLETED' ) {
+                        $jobResponse.results
+                    }
+                    else {
+                        # importing only 1 keycert that fails does not give us any results to return to the user :(
+                        throw 'Import failed'
+                    }
+                }
             }
+
             $invokeResponse = Invoke-VenafiParallel @invokeParams
 
             $keyOut = $invokeResponse | Select-Object -Property fingerprint, status, reason
@@ -387,7 +361,7 @@ function Import-VcCertificate {
 
                 $importCertPayload = foreach ($thisCert in $allNoKeyCerts[$i..($i + 99)]) {
                     @{
-                        'certificate' = $thisCert.CertPem
+                        'certificate' = $thisCert.CertData
                     }
                 }
 
@@ -395,16 +369,15 @@ function Import-VcCertificate {
                 $importList.Add($params)
             }
 
-            $sb = {
-                $params = $PSItem
-                Invoke-VenafiRestMethod @params
-            }
-
             $invokeParams = @{
                 InputObject   = $importList
-                ScriptBlock   = $sb
                 ThrottleLimit = $ThrottleLimit
                 ProgressTitle = 'Importing certificates without private keys'
+                VenafiSession = $VenafiSession
+                ScriptBlock   = {
+                    $params = $PSItem
+                    Invoke-VenafiRestMethod @params
+                }
             }
             $invokeNoKeyResponse = Invoke-VenafiParallel @invokeParams
 

@@ -44,7 +44,7 @@ function Remove-VcMachineIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [psobject] $VenafiSession = (Get-VenafiSession)
     )
 
     begin {
@@ -61,7 +61,7 @@ function Remove-VcMachineIdentity {
     end {
         Invoke-VenafiParallel -InputObject $allObjects -ScriptBlock {
             $null = Invoke-VenafiRestMethod -Method 'Delete' -UriLeaf "machineidentities/$PSItem"
-        } -ThrottleLimit $ThrottleLimit
+        } -ThrottleLimit $ThrottleLimit -VenafiSession $VenafiSession
     }
 }
 

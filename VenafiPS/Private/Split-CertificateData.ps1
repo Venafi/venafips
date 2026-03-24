@@ -4,13 +4,16 @@ function Split-CertificateData {
     .SYNOPSIS
         Convert PEM data into its cert, key, and chain parts
     #>
-    
+
     [CmdletBinding()]
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [Alias('CertificateData')]
-        [String] $InputObject
+        [String] $InputObject,
+
+        [Parameter()]
+        [switch] $NoHeaders
     )
 
     begin {
@@ -31,11 +34,14 @@ function Split-CertificateData {
 
         for ($i = 0; $i -lt $pemLines.Count; $i++) {
             if ($pemLines[$i].Contains('-----BEGIN')) {
-                $iStart = $i
+                $iStart = if ( $NoHeaders ) { $i + 1 } else { $i }
                 continue
             }
             if ($pemLines[$i].Contains('-----END')) {
-                $thisPemLines = $pemLines[$iStart..$i]
+
+                $iEnd = if ( $NoHeaders ) { $i - 1 } else { $i }
+                $thisPemLines = $pemLines[$iStart..$iEnd]
+
                 if ( $pemLines[$i].Contains('KEY-----')) {
                     $keyPem = ($thisPemLines -join "`n") -replace "`r"
                 }
