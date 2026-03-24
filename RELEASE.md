@@ -1,4 +1,7 @@
-- Add `New-VdcCredential` to create a Password, Username Password, or Certificate Credential
-- Add `Invoke-VcCertificateAction -Application` and `-IssuingTemplate` for use during renewal operations to override existing values from certificate request.  The template is optional if only 1 is associated to the application.
-- Enhance `Invoke-VcCertificateAction -Renew` to be smarter about determining the application and issuing template to use.  For example, if the only template on an application was replaced, use the new one for renewal.
-- Fix `Invoke-VcCertificateAction -Renew -Wait` which was not waiting depending on certain statuses.  Add automatic wait for renewal when provisioning afterwards.
+- `Import-VcCertificate` updates:
+    - Fix prompting for VenafiSession even when provided
+    - Remove `-PKCS8` and `-PKCS12`, and soon `-Format`, in favor of autodetection
+    - Add `-Recurse` to bring in certificates in subfolders when importing by path
+    - Add ShouldProcess so `-WhatIf` can be used prior to importing
+    - ThrottleLimit changed to 1 by default as 100 certs are submitted at a time
+- Add PKCS8 support to `Import-VdcCertificate`
