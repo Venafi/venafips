@@ -1,0 +1,200 @@
+function Set-VcMachine {
+    <#
+    .SYNOPSIS
+    Update an existing machine settings
+
+    .DESCRIPTION
+    Update an existing machine settings, including name, connection details, owning team, and satellite.
+
+    .PARAMETER Machine
+    Machine ID or name
+
+    .PARAMETER Name
+    New machine name to update to
+
+    .PARAMETER ConnectionDetail
+    Connection details to update.  This should be a hashtable with the same structure as the connectionDetails object returned by Get-VcMachine.  You can provide a partial hashtable with just
+    the values you want to update.  See the example below for details.
+
+    .PARAMETER Team
+    New Owning team name or ID
+
+    .PARAMETER Satellite
+    New Satellite name or ID
+
+    .PARAMETER PassThru
+    Return the updated machine object
+
+    .PARAMETER VenafiSession
+    Authentication for the function.
+    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    A Certificate Manager, SaaS key can also provided.
+
+    .INPUTS
+    Machine
+
+    .EXAMPLE
+    Set-VcMachine -Machine GregIIS -Name GregIIS2
+
+    Update the name of a machine
+
+    .EXAMPLE
+    Set-VcMachine -Machine GregIIS -Team 'My New Team'
+
+    Update the owning team of a machine
+
+    .EXAMPLE
+    Set-VcMachine -Machine GregIIS -Satellite 'My New Satellite'
+
+    Update the satellite of a machine
+
+    .EXAMPLE
+    Get-VcMachine -Machine GregIIS | Select-Object -ExpandProperty connectionDetails
+
+    The current connection details of a machine will be shown.  For example, let's say it shows the following:
+        authenticationType : kerberos
+        credentialType     : local
+        hostnameOrAddress  : greg.paloaltonetworks.com
+        https              : False
+        kerberos           : @{domain=mydomain.paloaltonetworks.com; keyDistributionCenter=ad.mydomain.paloaltonetworks.com; servicePrincipalName=WSMAN/greg.paloaltonetworks.com}
+
+    If you want to update the key distribution center, you can run the following command:
+
+    Set-VcMachine -Machine GregIIS -ConnectionDetail @{ 'kerberos' = @{ 'keyDistributionCenter' = 'new value' } }
+
+    This will update just the key distribution center value while leaving the rest of the connection details the same.
+
+    .EXAMPLE
+    Set-VcMachine -Machine GregIIS -ConnectionDetail @{ 'kerberos' = @{ 'keyDistributionCenter' = 'new value' } } -PassThru
+
+    Update a machine and return the updated machine object with the new connection details
+    #>
+
+    [CmdletBinding(SupportsShouldProcess)]
+
+    param (
+
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [Alias('machineId')]
+        [string] $Machine,
+
+        [Parameter()]
+        [string] $Name,
+
+        [Parameter()]
+        [hashtable] $ConnectionDetail,
+
+        [Parameter()]
+        [string] $Team,
+
+        [Parameter()]
+        [string] $Satellite,
+
+        [Parameter()]
+        [switch] $PassThru,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [psobject] $VenafiSession
+    )
+
+    begin {
+        Test-VenafiSession $PSCmdlet.MyInvocation
+
+        if ( $Team ) {
+            $teamId = Get-VcData -Type Team -InputObject $Team
+            if ( -not $teamId ) {
+                Write-Error "Team '$Team' not found."
+            }
+        }
+
+        if ( $Satellite ) {
+            $satelliteId = Get-VcData -Type Satellite -InputObject $Satellite
+            if ( -not $satelliteId ) {
+                Write-Error "Satellite '$Satellite' not found."
+            }
+        }
+    }
+
+    process {
+
+        # use Get-VcMachine as opposed to Get-VcData as the latter doesn't return all machine details, eg. connection details
+        $thisMachine = Get-VcMachine -Machine $Machine
+
+        if ( -not $thisMachine ) {
+            Write-Error "Machine '$Machine' not found."
+            return
+        }
+
+        $params = @{
+            Method  = 'Patch'
+            UriLeaf = "machines/$($thisMachine.machineId)"
+        }
+
+        $body = @{}
+
+        switch ($PSBoundParameters.Keys) {
+            'Name' {
+                $body.name = $Name
+            }
+
+            'ConnectionDetail' {
+                # get existing connection details and update with provided values as opposed to requiring the whole object be provided
+                if ( $thisMachine.connectionDetails ) {
+                    $currentDetail = @{}
+                    $thisMachine.connectionDetails.PSObject.Properties | ForEach-Object {
+                        if ( $_.Value -is [System.Management.Automation.PSCustomObject] ) {
+                            $nested = @{}
+                            $_.Value.PSObject.Properties | ForEach-Object {
+                                $nested[$_.Name] = $_.Value
+                            }
+                            $currentDetail[$_.Name] = $nested
+                        }
+                        else {
+                            $currentDetail[$_.Name] = $_.Value
+                        }
+                    }
+                }
+                else {
+                    $currentDetail = @{}
+                }
+
+                foreach ( $key in $ConnectionDetail.Keys ) {
+                    if ( $ConnectionDetail[$key] -is [hashtable] -and $currentDetail.ContainsKey($key) -and $currentDetail[$key] -is [hashtable] ) {
+                        foreach ( $nestedKey in $ConnectionDetail[$key].Keys ) {
+                            $currentDetail[$key][$nestedKey] = $ConnectionDetail[$key][$nestedKey]
+                        }
+                    }
+                    else {
+                        $currentDetail[$key] = $ConnectionDetail[$key]
+                    }
+                }
+
+                $body.connectionDetails = $currentDetail
+            }
+
+            'Team' {
+                $body.owningTeamId = $teamId
+            }
+
+            'Satellite' {
+                $body.edgeInstanceId = $satelliteId
+            }
+        }
+
+        if ( $body.Count -eq 0 ) {
+            Write-Error "No updates provided. Please specify at least one property to update."
+            return
+        }
+
+        $params.Body = $body
+
+        if ( $PSCmdlet.ShouldProcess($thisMachine.name, 'Update machine') ) {
+            $response = Invoke-VenafiRestMethod @params
+
+            if ( $PassThru -and $response ) {
+                $response | Get-VcMachine
+            }
+        }
+    }
+}

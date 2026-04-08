@@ -254,7 +254,13 @@ function Get-VcData {
             }
 
             'Machine' {
-                $thisObject = Find-VcMachine -Name $InputObject
+                if ( $InputObject ) {
+                    $allObject = Find-VcMachine -Name $InputObject
+                    $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.machineId }
+                }
+                else {
+                    $allObject = Find-VcMachine
+                }
                 break
             }
 

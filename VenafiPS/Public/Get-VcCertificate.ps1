@@ -41,7 +41,7 @@ function Get-VcCertificate {
 
     param (
 
-        [Parameter(ParameterSetName = 'Id', Mandatory, ValueFromPipelineByPropertyName, Position = 0)]
+        [Parameter(ParameterSetName = 'Id', Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
         [Alias('certificateId', 'certificateIds', 'ID')]
         [string] $Certificate,
 
@@ -89,7 +89,29 @@ function Get-VcCertificate {
 
         $params.UriLeaf += "?ownershipTree=true"
 
-        $response = Invoke-VenafiRestMethod @params
+        try {
+            $response = Invoke-VenafiRestMethod @params
+        }
+        catch {
+            $originalError = $_
+
+            try {
+                Write-Verbose "Initial request failed with error: $($_.ErrorDetails.Message). Attempting to determine if certificate is a trusted CA certificate."
+
+                $message = $_.ErrorDetails.Message | ConvertFrom-Json
+                if ( $message.errors.code -and $message.errors.code -eq 10051 ) {
+                    # check if the certificate is a trusted ca certificate, as those are accessed via a different endpoint
+                    $trustedCaCerts = Invoke-VenafiRestMethod -UriLeaf 'trustedcacertificates' | Select-Object -ExpandProperty certificates
+                    $response = $trustedCaCerts | Where-Object { $Certificate -in $_.id, $_.subjectCN[0] }
+                }
+                else {
+                    throw $originalError
+                }
+            }
+            catch {
+                throw $originalError
+            }
+        }
 
         if ( $response.PSObject.Properties.Name -contains 'certificates' ) {
             $certs = $response | Select-Object -ExpandProperty certificates

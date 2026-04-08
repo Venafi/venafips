@@ -97,7 +97,7 @@ function Find-VcMachine {
         if ( $newFilter.Count -gt 1 ) { $params.Filter = $newFilter }
     }
 
-    Find-VcObject @params
+    Find-VcObject @params | Select-Object -Property *, @{ 'n' = 'name'; 'e' = { $_.machineName } } -ExcludeProperty machineName
 
 }
 

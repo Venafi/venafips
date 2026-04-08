@@ -460,6 +460,7 @@ function New-VcCertificate {
                     $out = $certRequest | Select-Object @{'n' = 'certificateRequestId'; 'e' = { $certRequestId } }, * -ExcludeProperty id, certificateRequestId, certificateIds
 
                     if ( $certRequest.certificateIds ) {
+                        # first cert is the end entity cert, the rest are the chain
                         $actualCert = Get-VcCertificate -CertificateId $certRequest.certificateIds[0]
                         $out | Add-Member @{
                             certificate   = $actualCert
