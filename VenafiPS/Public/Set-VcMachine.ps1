@@ -68,6 +68,11 @@ function Set-VcMachine {
     Set-VcMachine -Machine GregIIS -ConnectionDetail @{ 'kerberos' = @{ 'keyDistributionCenter' = 'new value' } } -PassThru
 
     Update a machine and return the updated machine object with the new connection details
+
+    .EXAMPLE
+    Set-VcMachine -Machine GregIIS -ConnectionDetail @{ 'kerberos' = @{ 'keyDistributionCenter' = 'new value' } } | Invoke-VcWorkflow -Workflow 'Test'
+
+    Update a machine connection detail and then test the connection with the Test workflow.  Note that the workflow will use the updated connection details.
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
