@@ -314,7 +314,7 @@ function New-VenafiSession {
         [ValidateScript(
             {
                 if ( $_ -notin ($script:VcRegions).Keys ) {
-                    throw ('{0} is not a valid region.  Valid regions include {1}.' -f $_, (($script:VcRegions).Keys -join ','))
+                    Write-Warning ('{0} is not a built-in known region which includes {1}.  Continuing with user-provided region.' -f $_, (($script:VcRegions).Keys -join ','))
                 }
                 $true
             }
@@ -547,7 +547,12 @@ function New-VenafiSession {
 
         'Vc' {
             $newSession.Platform = 'VC'
-            $newSession.Server = ($script:VcRegions).$VcRegion
+            $newSession.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+                ($script:VcRegions).$VcRegion
+            }
+            else {
+                $VcRegion
+            }
             $key = if ( $VcKey -is [string] ) { New-Object System.Management.Automation.PSCredential('VcKey', ($VcKey | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($VcKey -is [pscredential]) { $VcKey }
             elseif ($VcKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('VcKey', $VcKey) }
@@ -565,7 +570,12 @@ function New-VenafiSession {
 
         'VcAccessToken' {
             $newSession.Platform = 'VC'
-            $newSession.Server = ($script:VcRegions).$VcRegion
+            $newSession.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+                ($script:VcRegions).$VcRegion
+            }
+            else {
+                $VcRegion
+            }
             $newSession | Add-Member @{'Token' = [PSCustomObject]@{
                     AccessToken = $null
                 }

@@ -105,7 +105,7 @@ function Invoke-VenafiRestMethod {
         [ValidateScript(
             {
                 if ( $_ -notin ($script:VcRegions).Keys ) {
-                    throw ('{0} is not a valid region.  Valid regions include {1}.' -f $_, (($script:VcRegions).Keys -join ','))
+                    Write-Warning ('{0} is not a built-in known region which includes {1}.  Continuing with user-provided region.' -f $_, (($script:VcRegions).Keys -join ','))
                 }
                 $true
             }
@@ -174,7 +174,12 @@ function Invoke-VenafiRestMethod {
                 if ( Test-IsGuid($VenafiSession) ) {
                     # if we were provided a key directly and not a full session, determine which region to contact
 
-                    $Server = ($script:VcRegions).$VcRegion
+                    $Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+                        ($script:VcRegions).$VcRegion
+                    }
+                    else {
+                        $VcRegion
+                    }
                     $thisPlatform = 'VC'
                     $authType = 'apikey'
                 }
