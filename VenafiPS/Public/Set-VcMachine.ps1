@@ -96,7 +96,7 @@ function Set-VcMachine {
         Test-VenafiSession $PSCmdlet.MyInvocation
 
         if ( $Satellite ) {
-            $satelliteId = Get-VcData -Type Satellite -InputObject $Satellite -FailOnNotFound
+            $satelliteId = Get-VcData -Type VSatellite -InputObject $Satellite -FailOnNotFound
         }
     }
 

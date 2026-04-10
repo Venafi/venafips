@@ -19,7 +19,7 @@ function Get-VcData {
         [string] $InputObject,
 
         [parameter(Mandatory)]
-        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider', 'CloudKeystore', 'CertificateAuthority')]
+        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider', 'CloudKeystore', 'CertificateAuthority', 'MachineIdentity')]
         [string] $Type,
 
         [parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Name')]
@@ -270,6 +270,16 @@ function Get-VcData {
                 break
             }
 
+            'MachineIdentity' {
+                if ( $InputObject ) {
+                    $thisObject = Get-VcMachineIdentity -MachineIdentity $InputObject
+                }
+                else {
+                    $allObject = Find-VcMachineIdentity
+                }
+                break
+            }
+
             'Tag' {
                 if ( -not $script:vcTag ) {
                     $script:vcTag = Get-VcTag -All | Sort-Object -Property tagId
@@ -333,7 +343,7 @@ function Get-VcData {
         }
 
         if ( $FailOnMultiple -and @($returnObject).Count -gt 1 ) {
-            throw [System.InvalidOperationException]::new("Multiple $Type found")
+            throw [System.InvalidOperationException]::new('Multiple {0}s found' -f $Type)
         }
 
         if ( $FailOnNotFound -and -not $returnObject ) {

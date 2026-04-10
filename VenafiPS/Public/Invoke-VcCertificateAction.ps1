@@ -40,8 +40,13 @@ function Invoke-VcCertificateAction {
 
     .PARAMETER Provision
     By default, provision a certificate to all associated machine identities.
+    When used with -MachineIdentity, provision to that machine identity instead of all associated machine identities.
     When used with -CloudKeystore, provision there instead.
     When used with -Renew, it will wait for the renewal to complete and then provision the renewed certificate, assuming the renewal was successful.
+
+    .PARAMETER MachineIdentity
+    Name or ID of a machine identity to provision to.
+    When used with -Provision, provision to this machine identity instead of all associated machine identities.
 
     .PARAMETER CloudKeystore
     Name or ID of a cloud keystore to provision to
@@ -143,6 +148,11 @@ function Invoke-VcCertificateAction {
 
     Provision the certificate to a cloud keystore
 
+    .EXAMPLE
+    Invoke-VcCertificateAction -Provision -MachineIdentity '3f4d8db9-6f83-4c9b-9a53-6f8e2a9d6d2b'
+
+    Provision the certificate associated with a specific machine identity
+
     .LINK
     https://developer.venafi.com/tlsprotectcloud/reference/certificateretirement_recovercertificates
 
@@ -162,14 +172,14 @@ function Invoke-VcCertificateAction {
     If performing a renewal and subjectCN has more than 1 value, only the first will be submitted with the renewal.
     #>
 
-    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High', DefaultParameterSetName = 'Provision')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Params being used in paramset check, not by variable')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
-        [Alias('certificateID')]
-        [guid] $ID,
+        [Alias('certificateId')]
+        [string] $ID,
 
         [Parameter(Mandatory, ParameterSetName = 'Retire')]
         [switch] $Retire,
@@ -200,7 +210,12 @@ function Invoke-VcCertificateAction {
         [Parameter(ParameterSetName = 'Renew')]
         [switch] $Provision,
 
+        [Parameter(ParameterSetName = 'Provision', ValueFromPipelineByPropertyName)]
+        [Alias('machineIdentityId')]
+        [string] $MachineIdentity,
+
         [Parameter(ParameterSetName = 'Provision')]
+        [Alias('cloudKeystoreId')]
         [string] $CloudKeystore,
 
         [Parameter(ParameterSetName = 'Renew')]
@@ -313,9 +328,13 @@ function Invoke-VcCertificateAction {
 
                 }
                 else {
-                    # get all machine identities associated with certificate
-                    # since ID is a guid, ensure its converted to string otherwise Find will think it's another filter
-                    $mi = Find-VcMachineIdentity -Filter @('certificateId', 'eq', $ID.ToString()) | Select-Object -ExpandProperty machineIdentityId
+                    $mi = if ( $MachineIdentity ) {
+                        $MachineIdentity
+                    }
+                    else {
+                        # get all machine identities associated with certificate
+                        Find-VcMachineIdentity -Certificate $ID
+                    }
 
                     if ( -not $mi ) {
                         throw "No machine identities found for certificate ID $ID"

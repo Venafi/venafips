@@ -114,7 +114,7 @@ FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash
                'Remove-VcCloudKeystore', 'New-VcCloudProvider',
                'Remove-VcCloudProvider', 'Set-VcUser', 'Export-VcReport',
                'Get-VcCertificateAuthority', 'Set-VcIssuingTemplate',
-               'New-VdcCredential'
+               'New-VdcCredential', 'Set-VcMachine', 'Set-VcMachineIdentity'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -145,7 +145,7 @@ AliasesToExport = 'Set-VaasCertificateAssignment', 'Add-TppAdaptableHash',
                'Revoke-TppGrant', 'Revoke-TppToken', 'Search-TppHistory',
                'Set-VaasTeam', 'Set-TppAttribute', 'Set-TppCredential',
                'Set-TppPermission', 'Set-TppWorkflowTicketStatus',
-               'Test-TppIdentity', 'Test-TppObject', 'Test-TppToken', 'Write-TppLog', 'Set-VcMachine'
+               'Test-TppIdentity', 'Test-TppObject', 'Test-TppToken', 'Write-TppLog'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
