@@ -4,7 +4,7 @@ function Set-VcMachine {
     Update an existing machine settings
 
     .DESCRIPTION
-    Update an existing machine settings, including name, connection details, owning team, and satellite.
+    Update an existing machine settings, including name, connection details, and satellite.
 
     .PARAMETER Machine
     Machine ID or name
@@ -15,9 +15,6 @@ function Set-VcMachine {
     .PARAMETER ConnectionDetail
     Connection details to update.  This should be a hashtable with the same structure as the connectionDetails object returned by Get-VcMachine.  You can provide a partial hashtable with just
     the values you want to update.  See the example below for details.
-
-    .PARAMETER Team
-    New Owning team name or ID
 
     .PARAMETER Satellite
     New Satellite name or ID
@@ -37,11 +34,6 @@ function Set-VcMachine {
     Set-VcMachine -Machine GregIIS -Name GregIIS2
 
     Update the name of a machine
-
-    .EXAMPLE
-    Set-VcMachine -Machine GregIIS -Team 'My New Team'
-
-    Update the owning team of a machine
 
     .EXAMPLE
     Set-VcMachine -Machine GregIIS -Satellite 'My New Satellite'
@@ -90,9 +82,6 @@ function Set-VcMachine {
         [hashtable] $ConnectionDetail,
 
         [Parameter()]
-        [string] $Team,
-
-        [Parameter()]
         [string] $Satellite,
 
         [Parameter()]
@@ -106,18 +95,8 @@ function Set-VcMachine {
     begin {
         Test-VenafiSession $PSCmdlet.MyInvocation
 
-        if ( $Team ) {
-            $teamId = Get-VcData -Type Team -InputObject $Team
-            if ( -not $teamId ) {
-                Write-Error "Team '$Team' not found."
-            }
-        }
-
         if ( $Satellite ) {
-            $satelliteId = Get-VcData -Type Satellite -InputObject $Satellite
-            if ( -not $satelliteId ) {
-                Write-Error "Satellite '$Satellite' not found."
-            }
+            $satelliteId = Get-VcData -Type Satellite -InputObject $Satellite -FailOnNotFound
         }
     }
 
@@ -144,9 +123,10 @@ function Set-VcMachine {
             }
 
             'ConnectionDetail' {
+                $currentDetail = @{}
+
                 # get existing connection details and update with provided values as opposed to requiring the whole object be provided
                 if ( $thisMachine.connectionDetails ) {
-                    $currentDetail = @{}
                     $thisMachine.connectionDetails.PSObject.Properties | ForEach-Object {
                         if ( $_.Value -is [System.Management.Automation.PSCustomObject] ) {
                             $nested = @{}
@@ -159,9 +139,6 @@ function Set-VcMachine {
                             $currentDetail[$_.Name] = $_.Value
                         }
                     }
-                }
-                else {
-                    $currentDetail = @{}
                 }
 
                 foreach ( $key in $ConnectionDetail.Keys ) {
@@ -178,12 +155,10 @@ function Set-VcMachine {
                 $body.connectionDetails = $currentDetail
             }
 
-            'Team' {
-                $body.owningTeamId = $teamId
-            }
-
             'Satellite' {
-                $body.edgeInstanceId = $satelliteId
+                if ( $satelliteId ) {
+                    $body.edgeInstanceId = $satelliteId
+                }
             }
         }
 

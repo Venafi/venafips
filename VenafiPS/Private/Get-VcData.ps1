@@ -249,7 +249,13 @@ function Get-VcData {
             }
 
             'Certificate' {
-                $thisObject = Find-VcCertificate -Name $InputObject
+                if ( $InputObject ) {
+                    $allObject = Find-VcCertificate -Name $InputObject
+                    $thisObject = $allObject | Where-Object { $InputObject -in $_.certificateName, $_.certificateId }
+                }
+                else {
+                    $allObject = Find-VcCertificate
+                }
                 break
             }
 
@@ -327,17 +333,17 @@ function Get-VcData {
         }
 
         if ( $FailOnMultiple -and @($returnObject).Count -gt 1 ) {
-            throw "Multiple $Type found"
+            throw [System.InvalidOperationException]::new("Multiple $Type found")
         }
 
         if ( $FailOnNotFound -and -not $returnObject ) {
-            throw "$Type '$InputObject' not found"
+            throw [System.Management.Automation.ItemNotFoundException]::new("$Type '$InputObject' not found")
         }
 
         switch ($PSCmdlet.ParameterSetName) {
             'ID' {
                 if ( $returnObject ) {
-                    if ( $returnObject.id ) {
+                    if ( $returnObject.PSObject.Properties.Name -contains 'id' ) {
                         # for the new graphql queries
                         $returnObject.id
                     }

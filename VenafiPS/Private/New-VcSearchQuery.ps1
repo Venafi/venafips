@@ -127,6 +127,11 @@ function New-VcSearchQuery {
                 }
 
             }
+
+            if ( $Filter.Count -gt 1 -and $Filter[0] -notin 'AND', 'OR' ) {
+                $operator = 'AND'
+            }
+
             if ( $operator ) {
                 @{
                     'operator' = $operator

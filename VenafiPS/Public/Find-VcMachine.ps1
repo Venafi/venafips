@@ -86,7 +86,7 @@ function Find-VcMachine {
     }
     else {
         $newFilter = [System.Collections.Generic.List[object]]::new()
-        $newFilter.Add('AND')
+        # $newFilter.Add('AND')
 
         switch ($PSBoundParameters.Keys) {
             'Name' { $null = $newFilter.Add(@('machineName', 'FIND', $Name)) }
@@ -94,7 +94,9 @@ function Find-VcMachine {
             'Status' { $null = $newFilter.Add(@('status', 'EQ', $Status.ToUpper())) }
         }
 
-        if ( $newFilter.Count -gt 1 ) { $params.Filter = $newFilter }
+        if ( $newFilter.Count -gt 0 ) {
+            $params.Filter = $newFilter
+        }
     }
 
     Find-VcObject @params | Select-Object -Property *, @{ 'n' = 'name'; 'e' = { $_.machineName } } -ExcludeProperty machineName
