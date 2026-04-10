@@ -1411,3 +1411,95 @@ Describe "New-HttpQueryString" -Tags 'Unit' {
         }
     }
 }
+
+#region New-VcSearchQuery Tests
+Describe 'New-VcSearchQuery' -Tags 'Unit' {
+
+    BeforeAll {
+        # New-VcSearchQuery expects these lookup arrays to be in scope.
+        $script:vaasFields = @('status', 'name', 'machineId', 'certificateId')
+        $script:vaasValuesToUpper = @('status')
+    }
+
+    Context 'Single filter - no AND prefix' {
+
+        It 'Should not add operator wrapper for a single filter item' {
+            $filter = [System.Collections.Generic.List[object]]@(, @('status', 'EQ', 'ACTIVE'))
+            $result = New-VcSearchQuery -Filter $filter
+            # A single operand returns the operand directly, not wrapped in operator/operands
+            $result.expression | Should -Not -BeNullOrEmpty
+            $result.expression.ContainsKey('operands') | Should -BeFalse
+        }
+    }
+
+    Context 'Multiple filters without explicit operator - auto AND' {
+
+        It 'Should add operator AND when multiple filter items have no prefix' {
+            $filter = [System.Collections.Generic.List[object]]@(
+                @('status', 'EQ', 'ACTIVE'),
+                @('name', 'FIND', 'test')
+            )
+            $result = New-VcSearchQuery -Filter $filter
+            $result.expression.operator | Should -Be 'AND'
+        }
+
+        It 'Should include both operands when auto-AND is applied' {
+            $filter = [System.Collections.Generic.List[object]]@(
+                @('status', 'EQ', 'ACTIVE'),
+                @('name', 'FIND', 'test')
+            )
+            $result = New-VcSearchQuery -Filter $filter
+            $result.expression.operands.Count | Should -Be 2
+        }
+    }
+
+    Context 'Multiple filters with explicit AND prefix' {
+
+        It 'Should use AND operator when explicitly provided' {
+            $filter = [System.Collections.Generic.List[object]]@(
+                'AND',
+                @('status', 'EQ', 'ACTIVE'),
+                @('name', 'FIND', 'test')
+            )
+            $result = New-VcSearchQuery -Filter $filter
+            $result.expression.operator | Should -Be 'AND'
+        }
+    }
+
+    Context 'Multiple filters with explicit OR prefix' {
+
+        It 'Should use OR operator when explicitly provided and not override with AND' {
+            $filter = [System.Collections.Generic.List[object]]@(
+                'OR',
+                @('status', 'EQ', 'ACTIVE'),
+                @('status', 'EQ', 'INACTIVE')
+            )
+            $result = New-VcSearchQuery -Filter $filter
+            $result.expression.operator | Should -Be 'OR'
+        }
+    }
+
+    Context 'Paging defaults' {
+
+        It 'Should set pageNumber to 0 by default' {
+            $result = New-VcSearchQuery
+            $result.paging.pageNumber | Should -Be 0
+        }
+
+        It 'Should set pageSize to 1000 when First is not provided' {
+            $result = New-VcSearchQuery
+            $result.paging.pageSize | Should -Be 1000
+        }
+
+        It 'Should respect -First parameter for pageSize' {
+            $result = New-VcSearchQuery -First 25
+            $result.paging.pageSize | Should -Be 25
+        }
+
+        It 'Should cap pageSize at 1000 even when First exceeds it' {
+            $result = New-VcSearchQuery -First 9999
+            $result.paging.pageSize | Should -Be 1000
+        }
+    }
+}
+#endregion
