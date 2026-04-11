@@ -83,7 +83,8 @@ function New-VenafiSession {
     If providing a credential, the username is not used.
 
     .PARAMETER VcRegion
-    Certificate Manager, SaaS region to connect to.  Defaults to 'us', use tab completion for supported values.
+    Certificate Manager, SaaS region to connect to.  Values include 'us', 'eu', 'au', 'uk', 'sg', 'ca'.  Defaults to 'us'.
+    If your region is not included, you can provide the full server base URL and it will be used instead of the built-in regions.
 
     .PARAMETER VcEndpoint
     Token Endpoint URL as shown on the service account details page.

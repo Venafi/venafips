@@ -179,7 +179,7 @@ function Invoke-VcCertificateAction {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [Alias('certificateId')]
-        [string] $ID,
+        [guid] $ID,
 
         [Parameter(Mandatory, ParameterSetName = 'Retire')]
         [switch] $Retire,
