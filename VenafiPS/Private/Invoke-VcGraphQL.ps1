@@ -40,7 +40,7 @@ function Invoke-VcGraphQL {
     }
 
     $Server = $VenafiSession.Server
-    $auth = $VenafiSession.Key.GetNetworkCredential().password
+    $auth = $VenafiSession.Auth.ApiKey.GetNetworkCredential().password
     $SkipCertificateCheck = $VenafiSession.SkipCertificateCheck
     $params.TimeoutSec = $VenafiSession.TimeoutSec
 

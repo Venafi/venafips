@@ -88,7 +88,7 @@ function Search-VdcHistory {
     } else {
         $activeVaultId | ForEach-Object -ThrottleLimit 100 -Parallel {
             Import-Module VenafiPS
-            New-VenafiSession -Server ($using:VenafiSession).Server -AccessToken ($using:VenafiSession).Token.AccessToken
+            New-VenafiSession -Server ($using:VenafiSession).Server -AccessToken ($using:VenafiSession).Auth.AccessToken
             Invoke-VenafiRestMethod -UriLeaf "secretstore/ownerlookup" -Body @{'Namespace' = 'config'; 'VaultID' = $_ } -Method Post
         }
     }
@@ -122,7 +122,7 @@ function Search-VdcHistory {
     } else {
         $certs | ForEach-Object -ThrottleLimit 100 -Parallel {
             Import-Module VenafiPS
-            $VenafiSession = New-VenafiSession -Server ($using:VenafiSession).Server -AccessToken ($using:VenafiSession).Token.AccessToken -PassThru
+            $VenafiSession = New-VenafiSession -Server ($using:VenafiSession).Server -AccessToken ($using:VenafiSession).Auth.AccessToken -PassThru
             $activeVaultId = $using:activeVaultId
 
             Invoke-Expression $using:sbGenericString

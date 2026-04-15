@@ -27,7 +27,7 @@ function Invoke-VenafiRestMethod {
     Certificate Manager, SaaS region to target.  Only supported if VenafiSession is an api key otherwise the comes from VenafiSession directly.
 
     .PARAMETER Platform
-    Venafi Platform to target, either VC or VDC.
+    Venafi Platform to target, either VC, NGTS, or VDC.
     If not provided, the platform will be determined based on the VenafiSession or the calling function name.
 
     .PARAMETER Server
@@ -113,7 +113,7 @@ function Invoke-VenafiRestMethod {
         [string] $VcRegion = 'us',
 
         [Parameter()]
-        [ValidateSet('VC', 'VDC')]
+        [ValidateSet('VC', 'NGTS', 'VDC')]
         [string] $Platform,
 
         [Parameter()]
@@ -149,19 +149,38 @@ function Invoke-VenafiRestMethod {
 
         if ( -not $VenafiSession ) { $VenafiSession = Get-VenafiSession }
 
-        switch ($VenafiSession.GetType().Name) {
-            'PSCustomObject' {
-                $Server = $VenafiSession.Server
-                $thisPlatform = $VenafiSession.Platform
-                if ( $null -ne $VenafiSession.Key ) {
-                    $auth = $VenafiSession.Key.GetNetworkCredential().password
-                    $authType = 'apikey'
-                }
-                elseif ( $null -ne $VenafiSession.Token ) {
-                    $auth = $VenafiSession.Token.AccessToken.GetNetworkCredential().password
+        # Get-VenafiSession auto-refreshes script/nested sessions.
+        # For explicitly provided class sessions, ensure we also refresh when expiring soon.
+        if ($PSBoundParameters.ContainsKey('VenafiSession') -and $VenafiSession -is [VenafiSession]) {
+            if ($VenafiSession.Auth -and $VenafiSession.Auth.Expires -and $VenafiSession.Auth.Expires -gt [datetime]::MinValue) {
+                $secondsRemaining = [math]::Round((($VenafiSession.Auth.Expires.ToUniversalTime()) - [DateTime]::UtcNow).TotalSeconds, 0)
+                Write-Verbose ("Access token expires in {0} seconds" -f $secondsRemaining)
+            }
+
+            if ($VenafiSession.IsExpired()) {
+                if ($VenafiSession.CanRefresh()) {
+                    Write-Verbose 'Access token is expired or nearing expiration; refreshing provided session.'
+                    $VenafiSession.Refresh()
                 }
                 else {
-                    throw [System.ArgumentException]::new('Neither an api key or token could be found in VenafiSession')
+                    throw 'Access token has expired (or will expire within 60 seconds) and cannot be automatically refreshed. Please authenticate again with New-VenafiSession.'
+                }
+            }
+        }
+
+        switch ($VenafiSession.GetType().Name) {
+            'VenafiSession' {
+                $Server = $VenafiSession.Server
+                $thisPlatform = $VenafiSession.Platform
+                if ( $VenafiSession.Auth -and $null -ne $VenafiSession.Auth.ApiKey ) {
+                    $auth = $VenafiSession.Auth.ApiKey.GetNetworkCredential().password
+                    $authType = 'apikey'
+                }
+                elseif ( $VenafiSession.Auth -and $null -ne $VenafiSession.Auth.AccessToken ) {
+                    $auth = $VenafiSession.Auth.AccessToken.GetNetworkCredential().password
+                }
+                else {
+                    throw [System.ArgumentException]::new('No usable auth material could be found in VenafiSession.Auth')
                 }
                 $SkipCertificateCheck = $VenafiSession.SkipCertificateCheck
                 $params.TimeoutSec = $VenafiSession.TimeoutSec
@@ -179,24 +198,27 @@ function Invoke-VenafiRestMethod {
                     $authType = 'apikey'
                 }
                 else {
-                    # access token auth for both VC and VDC, determine which one
+                    # access token auth for VC, NGTS, and VDC, determine which one
                     $thisPlatform = if ( $PSBoundParameters.ContainsKey('Platform') ) {
                         $Platform
                     }
                     elseif ( $MyInvocation.InvocationName -match '-Vdc' ) {
                         'VDC'
                     }
+                    elseif ( $MyInvocation.InvocationName -match '-Ngts' ) {
+                        'NGTS'
+                    }
                     elseif ( $MyInvocation.InvocationName -match '-Vc' ) {
                         'VC'
                     }
                     else {
-                        throw 'Venafi Platform, VC or VDC, could not be determined'
+                        throw 'Venafi Platform, VC, NGTS, or VDC, could not be determined'
                     }
                 }
             }
 
             Default {
-                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a Certificate Manager, SaaS key or Certificate Manager, Self-Hosted token."
+                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a valid VenafiSession or raw auth value."
             }
         }
 
@@ -216,10 +238,15 @@ function Invoke-VenafiRestMethod {
         if ( $null -ne $Header ) { $params.Headers += $Header }
     }
 
-    if ( $thisPlatform -eq 'VC' ) {
-        # switch the default uri root for VC
-        if ( $UriRoot -eq 'vedsdk' ) {
+    if ( $thisPlatform -in 'VC', 'NGTS' ) {
+        # switch the default uri root for VC and NGTS
+
+        if ( -not $PSBoundParameters.ContainsKey('UriRoot') ) {
             $UriRoot = 'v1'
+        }
+
+        if ( $thisPlatform -eq 'NGTS' ) {
+            $UriRoot = 'ngts/{0}' -f $UriRoot.TrimStart('/')
         }
     }
     else {

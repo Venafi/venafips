@@ -120,9 +120,9 @@ function Invoke-VcWorkflow {
                     $WS = New-Object System.Net.WebSockets.ClientWebSocket
                     $CT = New-Object System.Threading.CancellationToken
 
-                    if ( $script:VenafiSession -is [PSCustomObject] ) {
+                    if ( $script:VenafiSession -is [VenafiSession] ) {
                         $server = $script:VenafiSession.Server.Replace('https://', '')
-                        $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession.Key.GetNetworkCredential().password)
+                        $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession.Auth.ApiKey.GetNetworkCredential().password)
                     }
                     else {
                         # TODO: defaults to US, add other region support
