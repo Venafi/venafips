@@ -51,7 +51,7 @@ function Get-VcMachineIdentity {
         [Alias('machineIdentityId')]
         [ValidateScript(
             {
-                if ( Test-IsGuid($_) ) { $true } else { throw '-ID must be a uuid/guid' }
+                if ( Test-IsGuid($_) ) { $true } else { throw [System.ArgumentException]'The ID parameter must be a valid GUID' }
             }
         )]
         [string] $ID,

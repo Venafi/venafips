@@ -574,7 +574,12 @@ function New-VenafiSession {
 
         'Vc' {
             $newSession.Platform = 'VC'
-            $newSession.Server = ($script:VcRegions).$VcRegion
+            $newSession.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+                ($script:VcRegions).$VcRegion
+            }
+            else {
+                $VcRegion
+            }
             $key = if ( $VcKey -is [string] ) { New-Object System.Management.Automation.PSCredential('VcKey', ($VcKey | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($VcKey -is [pscredential]) { $VcKey }
             elseif ($VcKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('VcKey', $VcKey) }
@@ -598,6 +603,10 @@ function New-VenafiSession {
             }
             else {
                 $VcRegion
+            }
+            $newSession | Add-Member @{'Token' = [PSCustomObject]@{
+                    AccessToken = $null
+                }
             }
             $newSession.Auth.Type = 'BearerToken'
 

@@ -7,8 +7,8 @@ Find machine identities
 
 ### All (Default)
 ```
-Find-VcMachineIdentity [-Status <String[]>] [-Order <PSObject[]>] [-First <Int32>] [-VenafiSession <PSObject>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Find-VcMachineIdentity [-Status <String[]>] [-Machine <String>] [-Certificate <String>] [-Order <PSObject[]>]
+ [-First <Int32>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Filter
@@ -37,6 +37,36 @@ Valid values are DISCOVERED, VALIDATED, and INSTALLED
 
 ```yaml
 Type: String[]
+Parameter Sets: All
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Machine
+Search by machine name or ID
+
+```yaml
+Type: String
+Parameter Sets: All
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Certificate
+Search by certificate name or ID
+
+```yaml
+Type: String
 Parameter Sets: All
 Aliases:
 

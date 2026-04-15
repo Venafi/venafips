@@ -308,7 +308,7 @@ function Import-VcCertificate {
                             Write-Verbose ('import id: {0}, status: {1}' -f $requestResponse.id, $jobResponse.status)
                         }
                         catch {
-                            if ( $_.Exception.StatusCode -eq 500 -and $_.ErrorDetails.Message -match 'Unexpected error encountered' ) {
+                            if ( $_.Exception.Response.StatusCode.value__ -eq 500 -and $_.ErrorDetails.Message -match 'Unexpected error encountered' ) {
                                 # issue in api where it returns a 500 even though it hasn't actually failed
                                 # perhaps it takes longer for the import process to get started and provide a 'processing' state
                                 Write-Verbose ('import id: {0}, status: no status yet' -f $requestResponse.id)

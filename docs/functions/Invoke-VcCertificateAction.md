@@ -5,6 +5,13 @@ Perform an action against one or more certificates
 
 ## SYNTAX
 
+### Provision (Default)
+```
+Invoke-VcCertificateAction -ID <Guid> [-Provision] [-MachineIdentity <String>] [-CloudKeystore <String>]
+ [-AdditionalParameters <Hashtable>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
+```
+
 ### Retire
 ```
 Invoke-VcCertificateAction -ID <Guid> [-Retire] [-BatchSize <Int32>] [-AdditionalParameters <Hashtable>]
@@ -41,13 +48,6 @@ Invoke-VcCertificateAction -ID <Guid> [-Revoke] [-Reason <String>] [-Comment <St
 ```
 Invoke-VcCertificateAction -ID <Guid> [-Delete] [-BatchSize <Int32>] [-AdditionalParameters <Hashtable>]
  [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
-```
-
-### Provision
-```
-Invoke-VcCertificateAction -ID <Guid> [-Provision] [-CloudKeystore <String>]
- [-AdditionalParameters <Hashtable>] [-VenafiSession <PSObject>] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -123,6 +123,13 @@ Find-VcCertificate -Version CURRENT -Name 'mycert' | Invoke-VcCertificateAction 
 
 Provision the certificate to a cloud keystore
 
+### EXAMPLE 10
+```
+Invoke-VcCertificateAction -Provision -MachineIdentity '3f4d8db9-6f83-4c9b-9a53-6f8e2a9d6d2b'
+```
+
+Provision the certificate associated with a specific machine identity
+
 ## PARAMETERS
 
 ### -ID
@@ -131,7 +138,7 @@ ID of the certificate
 ```yaml
 Type: Guid
 Parameter Sets: (All)
-Aliases: certificateID
+Aliases: certificateId
 
 Required: True
 Position: Named
@@ -266,20 +273,9 @@ Accept wildcard characters: False
 
 ### -Provision
 By default, provision a certificate to all associated machine identities.
+When used with -MachineIdentity, provision to that machine identity instead of all associated machine identities.
 When used with -CloudKeystore, provision there instead.
 When used with -Renew, it will wait for the renewal to complete and then provision the renewed certificate, assuming the renewal was successful.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: Renew
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ```yaml
 Type: SwitchParameter
@@ -293,13 +289,41 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+```yaml
+Type: SwitchParameter
+Parameter Sets: Renew
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MachineIdentity
+Name or ID of a machine identity to provision to.
+When used with -Provision, provision to this machine identity instead of all associated machine identities.
+
+```yaml
+Type: String
+Parameter Sets: Provision
+Aliases: machineIdentityId
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: True (ByPropertyName)
+Accept wildcard characters: False
+```
+
 ### -CloudKeystore
 Name or ID of a cloud keystore to provision to
 
 ```yaml
 Type: String
 Parameter Sets: Provision
-Aliases:
+Aliases: cloudKeystoreId
 
 Required: False
 Position: Named

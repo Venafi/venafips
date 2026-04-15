@@ -1,0 +1,226 @@
+function Set-VcMachineIdentity {
+    <#
+    .SYNOPSIS
+    Update an existing machine identity
+
+    .DESCRIPTION
+    Update an existing machine identity, including associated certificate, binding details, and keystore details.
+
+    .PARAMETER MachineIdentity
+    Machine identity ID
+
+    .PARAMETER Certificate
+    Set the certificate associated with the machine identity.
+    You can provide the certificate name or ID.
+    If multiple certificates are found with the same name, an error will be thrown unless you use -Force to specify you want to use the current version of the certificate.
+
+    .PARAMETER Binding
+    Binding details to update. Provide a hashtable with the same structure as the binding object returned by Get-VcMachineIdentity.
+    You can provide a partial hashtable with only the values to change.
+
+    .PARAMETER Keystore
+    Keystore details to update. Provide a hashtable with the same structure as the keystore object returned by Get-VcMachineIdentity.
+    You can provide a partial hashtable with only the values to change.
+
+    .PARAMETER Force
+    When used with -Certificate, resolve the certificate using only the current version.
+
+    .PARAMETER PassThru
+    Return the updated machine identity object
+
+    .PARAMETER VenafiSession
+    Authentication for the function.
+    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    A Certificate Manager, SaaS key can also provided.
+
+    .INPUTS
+    Machine
+
+    .EXAMPLE
+    Set-VcMachineIdentity -MachineIdentity 3f4d8db9-6f83-4c9b-9a53-6f8e2a9d6d2b -Certificate 'web01.example.com'
+
+    Update the certificate associated with a machine identity.
+
+    .EXAMPLE
+    Set-VcMachineIdentity -MachineIdentity 3f4d8db9-6f83-4c9b-9a53-6f8e2a9d6d2b -Certificate 'web01.example.com' -Force
+
+    Update the machine identity certificate and use only the current certificate version when multiple versions exist.
+
+    .EXAMPLE
+    Set-VcMachineIdentity -MachineIdentity 3f4d8db9-6f83-4c9b-9a53-6f8e2a9d6d2b -Binding @{ 'port' = 8443 } -PassThru
+
+    Update one binding value and return the updated machine identity object.
+
+    .EXAMPLE
+    Set-VcMachineIdentity -MachineIdentity 3f4d8db9-6f83-4c9b-9a53-6f8e2a9d6d2b -Keystore @{ 'alias' = 'new-alias' }
+
+    Update one keystore value while keeping other existing keystore values unchanged.
+
+    .EXAMPLE
+    Set-VcMachineIdentity -MachineIdentity 3f4d8db9-6f83-4c9b-9a53-6f8e2a9d6d2b -Binding @{ 'port' = 8443 } -PassThru | Invoke-VcCertificateAction -Provision
+
+    Update one binding value and provision the certificate with the new binding details in one pipeline.
+
+    #>
+
+    [CmdletBinding(SupportsShouldProcess)]
+
+    param (
+
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [Alias('machineIdentityId')]
+        [string] $MachineIdentity,
+
+        [Parameter()]
+        [string] $Certificate,
+
+        [Parameter()]
+        [hashtable] $Binding,
+
+        [Parameter()]
+        [hashtable] $Keystore,
+
+        [Parameter()]
+        [switch] $Force,
+
+        [Parameter()]
+        [switch] $PassThru,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [psobject] $VenafiSession
+    )
+
+    begin {
+        Test-VenafiSession $PSCmdlet.MyInvocation
+
+        if ( $Certificate ) {
+            $certLookup = if ( $Force ) {
+                Find-VcCertificate -Name $Certificate -VersionType CURRENT
+            }
+            else {
+                Find-VcCertificate -Name $Certificate
+            }
+
+            $certificateId = switch ($certLookup.Count) {
+                1 {
+                    $certLookup.certificateId
+                }
+                { $_ -gt 1 } {
+                    throw [System.InvalidOperationException]::new("Multiple certificates found with name '$Certificate'. Use -Force to specify you want to use the current version of the certificate.")
+                }
+                0 {
+                    throw [System.Management.Automation.ItemNotFoundException]::new("Certificate '$Certificate' not found.")
+                }
+            }
+        }
+    }
+
+    process {
+
+        $thisMI = Get-VcData -Type MachineIdentity -InputObject $MachineIdentity -Object
+
+        if ( -not $thisMI ) {
+            Write-Error "Machine identity '$MachineIdentity' not found."
+            continue
+        }
+
+        $params = @{
+            Method  = 'Patch'
+            UriLeaf = "machineidentities/$($thisMI.machineIdentityId)"
+        }
+
+        $body = @{}
+
+        switch ($PSBoundParameters.Keys) {
+            'Certificate' {
+                if ( $certificateId ) {
+                    $body.certificateId = $certificateId
+                }
+            }
+
+            'Binding' {
+                $currentBinding = @{}
+
+                # get existing binding details and update with provided values as opposed to requiring the whole object be provided
+                if ( $thisMI.binding ) {
+                    $thisMI.binding.PSObject.Properties | ForEach-Object {
+                        if ( $_.Value -is [System.Management.Automation.PSCustomObject] ) {
+                            $nested = @{}
+                            $_.Value.PSObject.Properties | ForEach-Object {
+                                $nested[$_.Name] = $_.Value
+                            }
+                            $currentBinding[$_.Name] = $nested
+                        }
+                        else {
+                            $currentBinding[$_.Name] = $_.Value
+                        }
+                    }
+                }
+
+                foreach ( $key in $Binding.Keys ) {
+                    if ( $Binding[$key] -is [hashtable] -and $currentBinding.ContainsKey($key) -and $currentBinding[$key] -is [hashtable] ) {
+                        foreach ( $nestedKey in $Binding[$key].Keys ) {
+                            $currentBinding[$key][$nestedKey] = $Binding[$key][$nestedKey]
+                        }
+                    }
+                    else {
+                        $currentBinding[$key] = $Binding[$key]
+                    }
+                }
+
+                $body.binding = $currentBinding
+            }
+
+            'Keystore' {
+
+                $currentKeystore = @{}
+
+                # get existing keystore details and update with provided values as opposed to requiring the whole object be provided
+                if ( $thisMI.keystore ) {
+                    $thisMI.keystore.PSObject.Properties | ForEach-Object {
+                        if ( $_.Value -is [System.Management.Automation.PSCustomObject] ) {
+                            $nested = @{}
+                            $_.Value.PSObject.Properties | ForEach-Object {
+                                $nested[$_.Name] = $_.Value
+                            }
+                            $currentKeystore[$_.Name] = $nested
+                        }
+                        else {
+                            $currentKeystore[$_.Name] = $_.Value
+                        }
+                    }
+                }
+
+                foreach ( $key in $Keystore.Keys ) {
+                    if ( $Keystore[$key] -is [hashtable] -and $currentKeystore.ContainsKey($key) -and $currentKeystore[$key] -is [hashtable] ) {
+                        foreach ( $nestedKey in $Keystore[$key].Keys ) {
+                            $currentKeystore[$key][$nestedKey] = $Keystore[$key][$nestedKey]
+                        }
+                    }
+                    else {
+                        $currentKeystore[$key] = $Keystore[$key]
+                    }
+                }
+
+                $body.keystore = $currentKeystore
+            }
+
+        }
+
+        if ( $body.Count -eq 0 ) {
+            Write-Error "No updates provided. Please specify at least one property to update."
+            return
+        }
+
+        $params.Body = $body
+
+        if ( $PSCmdlet.ShouldProcess($thisMI.machineIdentityId, 'Update machine identity') ) {
+            $response = Invoke-VenafiRestMethod @params
+
+            if ( $PassThru -and $response ) {
+                $response | Get-VcMachineIdentity
+            }
+        }
+    }
+}

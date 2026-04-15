@@ -69,7 +69,11 @@ function New-VcSearchQuery {
                 [System.Collections.Generic.List[object]] $Filter
             )
 
-            $loopFilter = $Filter
+            # Copy so we can safely remove a leading logical operator without mutating caller input.
+            $loopFilter = [System.Collections.Generic.List[object]]::new()
+            foreach ($item in $Filter) {
+                $null = $loopFilter.Add($item)
+            }
             $operator = $null
 
             # first item may be the operator or a filter
@@ -127,6 +131,11 @@ function New-VcSearchQuery {
                 }
 
             }
+
+            if ( $Filter.Count -gt 1 -and $Filter[0] -notin 'AND', 'OR' ) {
+                $operator = 'AND'
+            }
+
             if ( $operator ) {
                 @{
                     'operator' = $operator

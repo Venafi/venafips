@@ -1,3 +1,10 @@
+## 6.13.6
+- Add `Find-VcMachineIdentity -Machine` and `-Certificate` to easily filter by those attributes
+- Update `Get-VcCertificate` to automatically look for a trusted CA certificate when certificate is not found.  Also allow an array of certificate IDs to be piped in.  These 2 combined allow you to pipe certificateId from New-VcCertificate and get certificate objects for the entire chain.
+- Add `Invoke-VcCertificateAction -Provision -MachineIdentity` to provision to a specific machine identity in addition to all machine identities associated with a certificate
+- Add `Set-VcMachine` to update machine attributes including name, associated vsatellite, and connection details.  Use with `-PassThru` and pipe directly to `Invoke-VcWorkflow -Workflow 'Test'` to validate the new settings.
+- Add `Set-VcMachineIdentity` to update machine identity attributes including associated certificate and binding/keystore details.  Use with `-PassThru` and pipe directly to `Invoke-VcCertificationAction -Provision` to provision.
+
 ## 6.13.5
 - `Import-VcCertificate` updates:
     - Fix prompting for VenafiSession even when provided
@@ -878,6 +885,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
