@@ -604,10 +604,6 @@ function New-VenafiSession {
             else {
                 $VcRegion
             }
-            $newSession | Add-Member @{'Token' = [PSCustomObject]@{
-                    AccessToken = $null
-                }
-            }
             $newSession.Auth.Type = 'BearerToken'
 
             $newSession.Auth.AccessToken = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
