@@ -1,7 +1,7 @@
 function New-VenafiSession {
     <#
     .SYNOPSIS
-    Create a new Venafi Certificate Manager, Self-Hosted or Certificate Manager, SaaS session
+    Create a new Venafi Certificate Manager, Self-Hosted, Certificate Manager, SaaS or NGTS session
 
     .DESCRIPTION
     Authenticate a user and create a new session with which future calls can be made.
@@ -195,13 +195,11 @@ function New-VenafiSession {
     https://github.com/PowerShell/SecretStore
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'KeyIntegrated')]
+    [CmdletBinding(DefaultParameterSetName = 'TokenOAuth')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Not needed')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting secret to credential')]
 
     param(
-        [Parameter(Mandatory, ParameterSetName = 'KeyCredential')]
-        [Parameter(Mandatory, ParameterSetName = 'KeyIntegrated')]
         [Parameter(Mandatory, ParameterSetName = 'TokenOAuth')]
         [Parameter(Mandatory, ParameterSetName = 'TokenIntegrated')]
         [Parameter(Mandatory, ParameterSetName = 'TokenCertificate')]
@@ -231,7 +229,6 @@ function New-VenafiSession {
         )]
         [string] $Server,
 
-        [Parameter(Mandatory, ParameterSetName = 'KeyCredential')]
         [Parameter(Mandatory, ParameterSetName = 'TokenOAuth')]
         [Parameter(Mandatory, ParameterSetName = 'Ngts')]
         [System.Management.Automation.PSCredential] $Credential,
@@ -417,10 +414,6 @@ function New-VenafiSession {
 
             New-VenafiSession @refreshParams
             return
-        }
-
-        { $_ -in 'KeyCredential', 'KeyIntegrated' } {
-            Write-Warning 'Key-based authentication has been deprecated.  Get started with token authentication today, https://docs.venafi.com/Docs/current/TopNav/Content/SDK/AuthSDK/t-SDKa-Setup-OAuth.php.'
         }
 
         { $_ -in 'TokenOAuth', 'TokenIntegrated', 'TokenCertificate', 'TokenJwt' } {

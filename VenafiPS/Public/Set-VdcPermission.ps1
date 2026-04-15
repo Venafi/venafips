@@ -17,11 +17,11 @@ function Set-VdcPermission {
     The id that represents the user or group.  You can use Find-VdcIdentity or Get-VdcPermission to get the id.
 
     .PARAMETER Permission
-    TppPermission object to set.
+    VdcPermission object to set.
     You can create a new object and modify it or get an existing object with Get-VdcPermission.
 
     .PARAMETER Force
-    When setting a TppPermission object with -Permission and one already exists, use this to overwrite
+    When setting a VdcPermission object with -Permission and one already exists, use this to overwrite
 
     .PARAMETER IsAssociateAllowed
     Associate or disassociate an Application and Device object with a certificate.
@@ -134,7 +134,6 @@ function Set-VdcPermission {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium', DefaultParameterSetName = 'PermissionObjectGuid')]
-    [Alias('Set-TppPermission')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'PermissionObjectPath')]
@@ -172,7 +171,7 @@ function Set-VdcPermission {
         [Parameter(Mandatory, ParameterSetName = 'PermissionObjectPath', ValueFromPipelineByPropertyName)]
         [Parameter(Mandatory, ParameterSetName = 'PermissionObjectGuid', ValueFromPipelineByPropertyName)]
         [Alias('ExplicitPermissions')]
-        [TppPermission] $Permission,
+        [VdcPermission] $Permission,
 
         [Parameter(ParameterSetName = 'PermissionPath')]
         [Parameter(ParameterSetName = 'PermissionGuid')]
@@ -279,7 +278,7 @@ function Set-VdcPermission {
             }
             else {
                 Write-Verbose 'Existing identity not found.  Only the permissions switches set will be true, all others will be false.'
-                $thisPerm = [TppPermission]::new()
+                $thisPerm = [VdcPermission]::new()
             }
 
             foreach ($k in $PSBoundParameters.Keys) {

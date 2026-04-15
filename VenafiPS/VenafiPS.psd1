@@ -72,7 +72,7 @@ PowerShellVersion = '5.1'
 FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash',
                'Add-VdcCertificateAssociation', 'Add-VdcEngineFolder',
                'Add-VdcTeamMember', 'Add-VdcTeamOwner', 'Convert-VdcObject',
-               'ConvertTo-VdcGuid', 'ConvertTo-VdcPath', 'Export-VcCertificate',
+               'Export-VcCertificate',
                'Export-VdcCertificate', 'Export-VdcVaultObject',
                'Find-VcCertificate', 'Find-VcCertificateInstance',
                'Find-VcCertificateRequest', 'Find-VcLog', 'Find-VcMachine',
@@ -103,7 +103,7 @@ FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash
                'Remove-VdcClient', 'Remove-VdcEngineFolder', 'Remove-VdcObject',
                'Remove-VdcPermission', 'Remove-VdcTeam', 'Remove-VdcTeamMember',
                'Remove-VdcTeamOwner', 'Rename-VdcObject', 'Revoke-VdcGrant',
-               'Revoke-VdcToken', 'Search-VdcHistory', 'Set-VcApplication',
+               'Revoke-VdcToken', 'Set-VcApplication',
                'Set-VcConnector', 'Set-VcTeam', 'Set-VdcAttribute',
                'Set-VdcCredential', 'Set-VdcPermission',
                'Set-VdcWorkflowTicketStatus', 'Test-VdcIdentity', 'Test-VdcObject',
@@ -123,29 +123,7 @@ CmdletsToExport = @()
 VariablesToExport = 'VenafiSession'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = 'Set-VaasCertificateAssignment', 'Add-TppAdaptableHash',
-               'Add-TppCertificateAssociation', 'Add-TppEngineFolder',
-               'Convert-TppObject', 'ConvertTo-TppGuid', 'ConvertTo-TppPath',
-               'Find-TppClient', 'Find-TppEngine', 'Find-TppIdentity', 'fto',
-               'Find-TppObject', 'Find-TppVaultId', 'Get-VaasApplication',
-               'Get-VaasConnector', 'Get-TppIdentity', 'Get-VaasIssuingTemplate',
-               'Get-VaasMachine', 'Get-VaasSatellite', 'Get-TppAttribute',
-               'Get-TppClassAttribute', 'Get-TppCredential', 'Get-TppCustomField',
-               'Get-TppIdentityAttribute', 'Get-TppObject', 'gvdo',
-               'Get-TppPermission', 'Get-TppSystemStatus', 'Get-TppTeam',
-               'Get-TppVersion', 'Get-TppWorkflowTicket', 'Import-VaasCertificate',
-               'Import-TppCertificate', 'Invoke-VaasWorkflow',
-               'Invoke-TppRestMethod', 'Move-TppObject', 'New-VaasApplication',
-               'New-VaasCertificate', 'New-VaasConnector', 'New-VaasMachine',
-               'New-VaasMachineCommonKeystore', 'New-VaasMachineIis',
-               'New-TppCapiApplication', 'New-TppCertificate', 'New-TppCustomField',
-               'New-TppObject', 'New-TppPolicy', 'New-TppToken',
-               'Remove-TppCertificate', 'Remove-TppClient', 'Remove-TppEngineFolder',
-               'Remove-TppObject', 'Remove-TppPermission', 'Rename-TppObject',
-               'Revoke-TppGrant', 'Revoke-TppToken', 'Search-TppHistory',
-               'Set-VaasTeam', 'Set-TppAttribute', 'Set-TppCredential',
-               'Set-TppPermission', 'Set-TppWorkflowTicketStatus',
-               'Test-TppIdentity', 'Test-TppObject', 'Test-TppToken', 'Write-TppLog'
+AliasesToExport = @()
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()

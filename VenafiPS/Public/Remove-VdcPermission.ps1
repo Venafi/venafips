@@ -46,7 +46,6 @@ function Remove-VdcPermission {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High', DefaultParameterSetName = 'ByGuid')]
-    [Alias('Remove-TppPermission')]
 
     param (
 
