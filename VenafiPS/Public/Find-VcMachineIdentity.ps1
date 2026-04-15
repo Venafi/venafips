@@ -9,6 +9,12 @@ function Find-VcMachineIdentity {
     .PARAMETER Status
     Search by one or more statuses.  Valid values are DISCOVERED, VALIDATED, and INSTALLED
 
+    .PARAMETER Machine
+    Search by machine name or ID
+
+    .PARAMETER Certificate
+    Search by certificate name or ID
+
     .PARAMETER Filter
     Array or multidimensional array of fields and values to filter on.
     Each array should be of the format @('operator', @(field, comparison operator, value), @(field2, comparison operator2, value2)).
@@ -45,6 +51,12 @@ function Find-VcMachineIdentity {
         [ValidateSet('DISCOVERED', 'VALIDATED', 'INSTALLED')]
         [string[]] $Status,
 
+        [Parameter(ParameterSetName = 'All')]
+        [string] $Machine,
+
+        [Parameter(ParameterSetName = 'All')]
+        [string] $Certificate,
+
         [Parameter(Mandatory, ParameterSetName = 'Filter')]
         [System.Collections.Generic.List[object]] $Filter,
 
@@ -73,14 +85,26 @@ function Find-VcMachineIdentity {
     }
     else {
         $newFilter = [System.Collections.Generic.List[object]]::new()
-        $newFilter.Add('AND')
 
         switch ($PSBoundParameters.Keys) {
-            'Status' { $newFilter.Add(@('status', 'MATCH', $Status.ToUpper())) }
+            'Status' {
+                $newFilter.Add(@('status', 'MATCH', $Status.ToUpper()))
+            }
 
+            'Machine' {
+                $machineId = Get-VcData -Type Machine -InputObject $Machine -FailOnNotFound
+                $newFilter.Add(@('machineId', 'eq', $machineId))
+            }
+
+            'Certificate' {
+                $certId = Get-VcData -Type Certificate -InputObject $Certificate -FailOnNotFound
+                $newFilter.Add(@('certificateId', 'in', $certId))
+            }
         }
 
-        if ( $newFilter.Count -gt 1 ) { $params.Filter = $newFilter }
+        if ( $newFilter.Count -gt 0 ) {
+            $params.Filter = $newFilter
+        }
     }
 
     Find-VcObject @params

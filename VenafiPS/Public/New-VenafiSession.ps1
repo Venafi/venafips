@@ -83,7 +83,8 @@ function New-VenafiSession {
     If providing a credential, the username is not used.
 
     .PARAMETER VcRegion
-    Certificate Manager, SaaS region to connect to.  Defaults to 'us', use tab completion for supported values.
+    Certificate Manager, SaaS region to connect to.  Values include 'us', 'eu', 'au', 'uk', 'sg', 'ca'.  Defaults to 'us'.
+    If your region is not included, you can provide the full server base URL and it will be used instead of the built-in regions.
 
     .PARAMETER VcEndpoint
     Token Endpoint URL as shown on the service account details page.
@@ -314,7 +315,7 @@ function New-VenafiSession {
         [ValidateScript(
             {
                 if ( $_ -notin ($script:VcRegions).Keys ) {
-                    throw ('{0} is not a valid region.  Valid regions include {1}.' -f $_, (($script:VcRegions).Keys -join ','))
+                    Write-Warning ('{0} is not a built-in known region which includes {1}.  Continuing with user-provided region.' -f $_, (($script:VcRegions).Keys -join ','))
                 }
                 $true
             }
@@ -547,7 +548,12 @@ function New-VenafiSession {
 
         'Vc' {
             $newSession.Platform = 'VC'
-            $newSession.Server = ($script:VcRegions).$VcRegion
+            $newSession.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+                ($script:VcRegions).$VcRegion
+            }
+            else {
+                $VcRegion
+            }
             $key = if ( $VcKey -is [string] ) { New-Object System.Management.Automation.PSCredential('VcKey', ($VcKey | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($VcKey -is [pscredential]) { $VcKey }
             elseif ($VcKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('VcKey', $VcKey) }
@@ -565,7 +571,12 @@ function New-VenafiSession {
 
         'VcAccessToken' {
             $newSession.Platform = 'VC'
-            $newSession.Server = ($script:VcRegions).$VcRegion
+            $newSession.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+                ($script:VcRegions).$VcRegion
+            }
+            else {
+                $VcRegion
+            }
             $newSession | Add-Member @{'Token' = [PSCustomObject]@{
                     AccessToken = $null
                 }

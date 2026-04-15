@@ -260,13 +260,6 @@ function Find-VcCertificate {
 
         'SimpleFilter' {
             $newFilter = [System.Collections.Generic.List[object]]::new()
-            # Use OR or AND based on IncludeAny parameter
-            if ($IncludeAny) {
-                $newFilter.Add('OR')
-            }
-            else {
-                $newFilter.Add('AND')
-            }
 
             switch ($PSBoundParameters.Keys) {
                 'Name' { $null = $newFilter.Add(@('certificateName', 'FIND', $Name)) }
@@ -299,7 +292,13 @@ function Find-VcCertificate {
                 }
             }
 
-            if ( $newFilter.Count -gt 1 ) { $params.Filter = $newFilter }
+            if ( $newFilter.Count -gt 1 -and $IncludeAny) {
+                $newFilter.Insert(0, 'OR')
+            }
+
+            if ( $newFilter.Count -gt 0 ) {
+                $params.Filter = $newFilter
+            }
         }
 
         'SavedSearch' {

@@ -19,7 +19,7 @@ function Get-VcData {
         [string] $InputObject,
 
         [parameter(Mandatory)]
-        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider', 'CloudKeystore', 'CertificateAuthority')]
+        [ValidateSet('Application', 'VSatellite', 'Certificate', 'IssuingTemplate', 'Team', 'Machine', 'Tag', 'Plugin', 'Credential', 'Algorithm', 'User', 'CloudProvider', 'CloudKeystore', 'CertificateAuthority', 'MachineIdentity')]
         [string] $Type,
 
         [parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'Name')]
@@ -249,12 +249,34 @@ function Get-VcData {
             }
 
             'Certificate' {
-                $thisObject = Find-VcCertificate -Name $InputObject
+                if ( $InputObject ) {
+                    $allObject = Find-VcCertificate -Name $InputObject
+                    $thisObject = $allObject | Where-Object { $InputObject -in $_.certificateName, $_.certificateId }
+                }
+                else {
+                    $allObject = Find-VcCertificate
+                }
                 break
             }
 
             'Machine' {
-                $thisObject = Find-VcMachine -Name $InputObject
+                if ( $InputObject ) {
+                    $allObject = Find-VcMachine -Name $InputObject
+                    $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.machineId }
+                }
+                else {
+                    $allObject = Find-VcMachine
+                }
+                break
+            }
+
+            'MachineIdentity' {
+                if ( $InputObject ) {
+                    $thisObject = Get-VcMachineIdentity -MachineIdentity $InputObject
+                }
+                else {
+                    $allObject = Find-VcMachineIdentity
+                }
                 break
             }
 
@@ -321,17 +343,17 @@ function Get-VcData {
         }
 
         if ( $FailOnMultiple -and @($returnObject).Count -gt 1 ) {
-            throw "Multiple $Type found"
+            throw [System.InvalidOperationException]::new('Multiple {0}s found' -f $Type)
         }
 
         if ( $FailOnNotFound -and -not $returnObject ) {
-            throw "$Type '$InputObject' not found"
+            throw [System.Management.Automation.ItemNotFoundException]::new("$Type '$InputObject' not found")
         }
 
         switch ($PSCmdlet.ParameterSetName) {
             'ID' {
                 if ( $returnObject ) {
-                    if ( $returnObject.id ) {
+                    if ( $returnObject.PSObject.Properties.Name -contains 'id' ) {
                         # for the new graphql queries
                         $returnObject.id
                     }

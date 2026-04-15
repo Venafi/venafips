@@ -1,7 +1,5 @@
-- `Import-VcCertificate` updates:
-    - Fix prompting for VenafiSession even when provided
-    - Remove `-PKCS8` and `-PKCS12`, and soon `-Format`, in favor of autodetection
-    - Add `-Recurse` to bring in certificates in subfolders when importing by path
-    - Add ShouldProcess so `-WhatIf` can be used prior to importing
-    - ThrottleLimit changed to 1 by default as 100 certs are submitted at a time
-- Add PKCS8 support to `Import-VdcCertificate`
+- Add `Find-VcMachineIdentity -Machine` and `-Certificate` to easily filter by those attributes
+- Update `Get-VcCertificate` to automatically look for a trusted CA certificate when certificate is not found.  Also allow an array of certificate IDs to be piped in.  These 2 combined allow you to pipe certificateId from New-VcCertificate and get certificate objects for the entire chain.
+- Add `Invoke-VcCertificateAction -Provision -MachineIdentity` to provision to a specific machine identity in addition to all machine identities associated with a certificate
+- Add `Set-VcMachine` to update machine attributes including name, associated vsatellite, and connection details.  Use with `-PassThru` and pipe directly to `Invoke-VcWorkflow -Workflow 'Test'` to validate the new settings.
+- Add `Set-VcMachineIdentity` to update machine identity attributes including associated certificate and binding/keystore details.  Use with `-PassThru` and pipe directly to `Invoke-VcCertificationAction -Provision` to provision.
