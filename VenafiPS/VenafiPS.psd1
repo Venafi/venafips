@@ -12,7 +12,7 @@
 RootModule = 'VenafiPS.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.13.6'
+ModuleVersion = '7.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -85,7 +85,7 @@ FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash
                'Get-VdcClassAttribute', 'Get-VdcCredential', 'Get-VdcCustomField',
                'Get-VdcEngineFolder', 'Get-VdcIdentity', 'Get-VdcIdentityAttribute',
                'Get-VdcObject', 'Get-VdcPermission', 'Get-VdcSystemStatus',
-               'Get-VdcTeam', 'Get-VdcVersion', 'Get-VdcWorkflowTicket',
+               'Get-VdcTeam', 'Get-VdcWorkflowTicket',
                'Import-VcCertificate', 'Import-VdcCertificate',
                'Invoke-VcCertificateAction', 'Invoke-VcWorkflow',
                'Invoke-VdcCertificateAction', 'Invoke-VenafiRestMethod',
@@ -114,11 +114,7 @@ FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash
                'Remove-VcCloudKeystore', 'New-VcCloudProvider',
                'Remove-VcCloudProvider', 'Set-VcUser', 'Export-VcReport',
                'Get-VcCertificateAuthority', 'Set-VcIssuingTemplate',
-<<<<<<< HEAD
                'New-VdcCredential', 'Set-VcMachine', 'Set-VcMachineIdentity', 'New-NgtsToken'
-=======
-               'New-VdcCredential', 'Set-VcMachine', 'Set-VcMachineIdentity'
->>>>>>> origin/main
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -181,7 +177,7 @@ PrivateData = @{
         ReleaseNotes = 'https://github.com/Venafi/VenafiPS/blob/main/CHANGELOG.md'
 
         # Prerelease string of this module
-        # Prerelease = ''
+        Prerelease = 'beta1'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
