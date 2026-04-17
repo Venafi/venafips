@@ -65,7 +65,6 @@ Describe 'New-VenafiSession Auth Model' -Tags 'Unit' {
                     RefreshExpires = [DateTime]::UtcNow.AddHours(1)
                 }
             }
-            Mock -CommandName 'Get-VdcVersion' -ModuleName $ModuleName -MockWith { [version]'25.1.0' }
             Mock -CommandName 'Get-VdcCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
         }
 
@@ -200,7 +199,7 @@ Describe 'Invoke-VenafiRestMethod Auth Refresh Integration' -Tags 'Unit' {
     It 'Should use v1 as the default UriRoot for NGTS sessions' {
         $sess = New-VenafiSession -VcAccessToken 'dummy' -PassThru
         $sess.Platform = 'NGTS'
-        $sess.Server = 'https://api.strata.paloaltonetworks.com/ngts'
+        $sess.Server = 'https://api.strata.paloaltonetworks.com'
         $sess.Auth.Type = 'BearerToken'
         $sess.Auth.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'ngts-token'
         $sess.Auth.Expires = [DateTime]::UtcNow.AddMinutes(30)

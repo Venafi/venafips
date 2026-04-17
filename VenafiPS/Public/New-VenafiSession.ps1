@@ -95,6 +95,9 @@ function New-VenafiSession {
     With subsequent uses, it can be provided standalone and the key will be retrieved without the need for -VcKey.
     The server associated with the region will be saved and restored when this parameter is used on subsequent use.
 
+    .PARAMETER Tsg
+    Tenant Service Group ID for NGTS.  Only required if the TSG ID in the credential username is not the target.
+
     .PARAMETER SkipCertificateCheck
     Bypass certificate validation when connecting to the server.
     This can be helpful for pre-prod environments where ssl isn't setup on the website or you are connecting via IP.
@@ -195,7 +198,7 @@ function New-VenafiSession {
     https://github.com/PowerShell/SecretStore
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'TokenOAuth')]
+    [CmdletBinding(DefaultParameterSetName = 'TokenIntegrated')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Not needed')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting secret to credential')]
 

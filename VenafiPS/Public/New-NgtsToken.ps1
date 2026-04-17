@@ -8,83 +8,30 @@ function New-NgtsToken {
     You can also refresh an existing access token if you have the associated refresh token.
     Authentication can be provided as integrated, credential, or certificate.
 
-    .PARAMETER AuthServer
-    Auth server or url, eg. venafi.company.com
-
-    .PARAMETER ClientId
-    Application/integration ID configured in Venafi for token-based authentication.
-    Case sensitive.
-
-    .PARAMETER Scope
-    Hashtable with Scopes and privilege restrictions.
-    The key is the scope and the value is one or more privilege restrictions separated by commas.
-    A privilege restriction of none or read, use a value of $null.
-    Scopes include Agent, Certificate, Code Signing, Configuration, Restricted, Security, SSH, and statistics.
-    See https://docs.venafi.com/Docs/current/TopNav/Content/SDK/AuthSDK/r-SDKa-OAuthScopePrivilegeMapping.php
-    Using a scope of {'all'='core'} will set all scopes except for admin.
-    Using a scope of {'all'='admin'} will set all scopes including admin.
-    Usage of the 'all' scope is not suggested for production.
-
     .PARAMETER Credential
-    Username / password credential used to request API Token
+    Client ID and Secret to authenticate with.  The username must be in the format user@1234567890.iam.panserviceaccount.com where 1234567890 is the TSG ID.  The password is the client secret.
 
-    .PARAMETER State
-    A session state, redirect URL, or random string to prevent Cross-Site Request Forgery (CSRF) attacks
-
-    .PARAMETER Jwt
-    JSON web token.
-    Available in Certificate Manager, Self-Hosted v22.4 and later.
-    Ensure jwt mapping has been configured in VCC, Access Management->JWT Mappings.
-
-    .PARAMETER Certificate
-    Certificate used to request API token.  Certificate authentication must be configured for remote web sdk clients, https://docs.venafi.com/Docs/current/TopNav/Content/CA/t-CA-ConfiguringInTPPandIIS-tpp.php.
-
-    .PARAMETER RefreshToken
-    Provide -RefreshToken along with -ClientId to obtain a new access and refresh token.
-    You can either provide a String, SecureString, or PSCredential.
-    If providing a credential, the username is not used.
-
-    .PARAMETER SkipCertificateCheck
-    Bypass certificate validation when connecting to the server.
-    This can be helpful for pre-prod environments where ssl isn't setup on the website or you are connecting via IP.
-
-    .PARAMETER VenafiSession
-    VenafiSession object created from New-VenafiSession method.
+    .PARAMETER Tsg
+    Tenant Service Group ID for NGTS.  Only required if the TSG ID in the credential username is not the target.
 
     .EXAMPLE
-    New-VdcToken -AuthServer 'https://mytppserver.example.com' -Scope @{ Certificate = "manage,discover"; Configuration = "manage" } -ClientId 'MyAppId' -Credential $credential
-    Get a new token with OAuth
+    New-NgtsToken -Credential $credential
+
+    Get a new token with client credential authentication, using the client ID and secret from $credential.  The TSG ID will be parsed from the username in the credential.
 
     .EXAMPLE
-    New-VdcToken -AuthServer 'mytppserver.example.com' -Scope @{ Certificate = "manage,discover"; Configuration = "manage" } -ClientId 'MyAppId'
-    Get a new token with Integrated authentication
+    New-NgtsToken -Credential $credential -Tsg 1234567890
 
-    .EXAMPLE
-    New-VdcToken -AuthServer 'mytppserver.example.com' -Scope @{ Certificate = "manage,discover"; Configuration = "manage" } -ClientId 'MyAppId' -Certificate $cert
-    Get a new token with certificate authentication
-
-    .EXAMPLE
-    New-VdcToken -AuthServer 'mytppserver.example.com' -ClientId 'MyApp' -RefreshToken $refreshCred
-    Refresh an existing access token by providing the refresh token directly
-
-    .EXAMPLE
-    New-VdcToken -VenafiSession $mySession
-    Refresh an existing access token by providing a VenafiSession object
+    Get a new token with client credential authentication, using the client ID and secret from $credential.  The TSG ID will be set to 1234567890, overriding the value parsed from the credential username.
 
     .INPUTS
     None
 
     .OUTPUTS
     PSCustomObject with the following properties:
-        Server
         AccessToken
-        RefreshToken
         Scope
-        Identity
-        TokenType
-        ClientId
         Expires
-        RefreshExpires (This property is null when Certificate Manager, Self-Hosted version is less than 21.1)
     #>
 
     [CmdletBinding()]
