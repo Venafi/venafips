@@ -673,7 +673,7 @@ function New-VenafiSession {
             $newSession.Platform = 'NGTS'
             $newSession.Server = 'https://api.strata.paloaltonetworks.com'
             $newSession.Auth.Type = 'ClientCredential'
-            $newSession.Auth.Credential = $Credential
+            $newSession.Auth.Credential = $NgtsCredential
             $newSession.Auth.AccessToken = $token.AccessToken
             $newSession.Auth.Scope = $token.Scope
             $newSession.Auth.Expires = $token.Expires
