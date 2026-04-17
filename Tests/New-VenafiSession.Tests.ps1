@@ -148,7 +148,7 @@ Describe 'VenafiSession Refresh Logic' -Tags 'Unit' {
             $sess.Auth.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'old-refresh'
             $sess.Auth.RefreshExpires = [DateTime]::UtcNow.AddMinutes(5)
 
-            $sess.Refresh()
+            & (Get-Module $ModuleName) { Invoke-SessionRefresh -Session $args[0] } $sess
 
             $sess.Auth.AccessToken | Should -Not -BeNullOrEmpty
             $sess.Auth.ClientId | Should -Be 'VenafiPS-MyApp'

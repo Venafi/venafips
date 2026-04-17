@@ -160,7 +160,7 @@ function Invoke-VenafiRestMethod {
             if ($VenafiSession.IsExpired()) {
                 if ($VenafiSession.CanRefresh()) {
                     Write-Verbose 'Access token is expired or nearing expiration; refreshing provided session.'
-                    $VenafiSession.Refresh()
+                    Invoke-SessionRefresh -Session $VenafiSession
                 }
                 else {
                     throw 'Access token has expired (or will expire within 60 seconds) and cannot be automatically refreshed. Please authenticate again with New-VenafiSession.'

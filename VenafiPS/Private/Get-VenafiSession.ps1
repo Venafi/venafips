@@ -72,7 +72,7 @@ function Get-VenafiSession {
                     if ($sess.CanRefresh()) {
                         Write-Verbose 'Automatically refreshing access token'
                         try {
-                            $sess.Refresh()
+                            Invoke-SessionRefresh -Session $sess
                         }
                         catch {
                             throw "Failed to auto-refresh token: $($_.Exception.Message)"
@@ -82,9 +82,6 @@ function Get-VenafiSession {
                         throw 'Access token has expired and cannot be automatically refreshed. Please authenticate again with New-VenafiSession.'
                     }
                 }
-            }
-            elseif ($sess.Auth.Expires -and $sess.Auth.Expires -lt [DateTime]::UtcNow) {
-                throw 'Access token has expired.  Execute New-VenafiSession and rerun your command.'
             }
 
         $sess
