@@ -79,45 +79,8 @@ class VenafiSession {
         }
 
         try {
-            # Determine which platform token we're refreshing and call the appropriate function
-            $newToken = if ($this.Platform -eq 'VDC') {
-                $refreshParams = @{
-                    AuthServer           = $this.Auth.AuthServer
-                    RefreshToken         = $this.Auth.RefreshToken
-                    ClientId             = $this.Auth.ClientId
-                    SkipCertificateCheck = $this.SkipCertificateCheck
-                }
-                New-VdcToken @refreshParams -ErrorAction Stop
-            }
-            elseif ($this.Platform -eq 'NGTS') {
-                $ngtsParams = @{
-                    Credential = $this.Auth.Credential
-                }
-                if ($this.Auth.Tsg) {
-                    $ngtsParams.Tsg = $this.Auth.Tsg
-                }
-
-                New-NgtsToken @ngtsParams -ErrorAction Stop
-            }
-            elseif ($this.Platform -eq 'VC') {
-                # VC tokens may not support refresh, but try endpoint-based refresh if available
-                Write-Verbose 'VC platform tokens typically do not support refresh via client credentials'
-                throw 'Automatic token refresh is not available for VC platform'
-            }
-            else {
-                throw "Unknown platform $($this.Platform) for token refresh"
-            }
-
-            # Update auth from the refreshed token response
-            $this.Auth.AccessToken = $newToken.AccessToken
-            if ($newToken.PSObject.Properties.Name -contains 'RefreshToken') { $this.Auth.RefreshToken = $newToken.RefreshToken }
-            if ($newToken.PSObject.Properties.Name -contains 'Scope') { $this.Auth.Scope = $newToken.Scope }
-            if ($newToken.PSObject.Properties.Name -contains 'Expires') { $this.Auth.Expires = $newToken.Expires }
-            if ($newToken.PSObject.Properties.Name -contains 'RefreshExpires' -and $newToken.RefreshExpires) { $this.Auth.RefreshExpires = $newToken.RefreshExpires }
-            if ($newToken.PSObject.Properties.Name -contains 'ClientId' -and $newToken.ClientId) { $this.Auth.ClientId = $newToken.ClientId }
-            if ($newToken.PSObject.Properties.Name -contains 'Server' -and $newToken.Server) { $this.Auth.AuthServer = $newToken.Server }
-
-            Write-Verbose 'Access token successfully refreshed'
+            # Delegate to module-scoped function so Pester can mock the underlying token calls
+            Invoke-SessionRefresh -Session $this
         }
         catch {
             throw "Failed to refresh access token: $($_.Exception.Message)"

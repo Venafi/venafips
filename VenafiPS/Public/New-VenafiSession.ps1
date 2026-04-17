@@ -95,6 +95,11 @@ function New-VenafiSession {
     With subsequent uses, it can be provided standalone and the key will be retrieved without the need for -VcKey.
     The server associated with the region will be saved and restored when this parameter is used on subsequent use.
 
+    .PARAMETER NgtsCredential
+    PSCredential object for NGTS authentication.
+    The username must be in the format user@1234567890.iam.panserviceaccount.com where 1234567890 is the TSG ID.
+    The password is the client secret.
+
     .PARAMETER Tsg
     Tenant Service Group ID for NGTS.  Only required if the TSG ID in the credential username is not the target.
 
@@ -167,6 +172,16 @@ function New-VenafiSession {
 
     Create session against Certificate Manager, SaaS with a key stored in a vault
 
+    .EXAMPLE
+    New-VenafiSession -NgtsCredential $cred
+
+    Create session against NGTS with the provided credential
+
+    .EXAMPLE
+    New-VenafiSession -NgtsCredential $cred -Tsg 1234567890
+
+    Create session against NGTS with the provided credential and override the TSG specified in the credential username
+
     .LINK
     https://venafi.github.io/VenafiPS/functions/New-VenafiSession/
 
@@ -196,6 +211,9 @@ function New-VenafiSession {
 
     .LINK
     https://github.com/PowerShell/SecretStore
+
+    .LINK
+    https://pan.dev/scm/docs/access-tokens/
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'TokenIntegrated')]
@@ -233,7 +251,6 @@ function New-VenafiSession {
         [string] $Server,
 
         [Parameter(Mandatory, ParameterSetName = 'TokenOAuth')]
-        [Parameter(Mandatory, ParameterSetName = 'Ngts')]
         [System.Management.Automation.PSCredential] $Credential,
 
         [Parameter(Mandatory, ParameterSetName = 'TokenIntegrated')]
@@ -334,6 +351,19 @@ function New-VenafiSession {
         [Parameter(Mandatory, ParameterSetName = 'VaultVcKey')]
         [Alias('VaultVaasKeyName')]
         [string] $VaultVcKeyName,
+
+        [Parameter(ParameterSetName = 'Ngts', Mandatory)]
+        [ValidateScript(
+            {
+                $tsgMatch = [regex]::Match($_.UserName, '^[^@]+@(?<tsg>\d{10})\.iam\.panserviceaccount\.com$')
+                if ( -not $tsgMatch.Success ) {
+                    throw 'Credential.UserName must be in the format user@1234567890.iam.panserviceaccount.com'
+                }
+
+                $true
+            }
+        )]
+        [System.Management.Automation.PSCredential] $NgtsCredential,
 
         [Parameter(ParameterSetName = 'Ngts')]
         [ValidateRange(1000000000, 9999999999)]
@@ -631,7 +661,7 @@ function New-VenafiSession {
 
         'Ngts' {
             $params = @{
-                Credential = $Credential
+                Credential = $NgtsCredential
             }
 
             if ($Tsg) {
