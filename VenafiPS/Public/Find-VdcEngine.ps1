@@ -34,7 +34,6 @@ function Find-VdcEngine {
     #>
 
     [CmdletBinding()]
-    [Alias('Find-TppEngine')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline)]

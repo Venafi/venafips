@@ -103,7 +103,6 @@ function New-VdcCapiApplication {
     #>
 
     [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'NonIis')]
-    [Alias('New-TppCapiApplication')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', '')]
 
     param (

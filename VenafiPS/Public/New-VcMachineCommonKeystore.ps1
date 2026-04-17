@@ -117,7 +117,6 @@ function New-VcMachineCommonKeystore {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'SshPassword')]
-    [Alias('New-VaasMachineCommonKeystore')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]

@@ -88,7 +88,6 @@ function New-VdcToken {
     #>
 
     [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'Integrated')]
-    [Alias('New-TppToken')]
     [OutputType([PSCustomObject])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Generating cred from api call response data')]
     [OutputType([System.Boolean])]

@@ -107,7 +107,6 @@ function Set-VdcAttribute {
     #>
 
     [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'NotPolicy')]
-    [Alias('Set-TppAttribute')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = 'Being flagged incorrectly')]
 
     param (

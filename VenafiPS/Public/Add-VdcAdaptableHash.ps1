@@ -57,7 +57,6 @@ function Add-VdcAdaptableHash {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Add-TppAdaptableHash')]
 
     param (
         [Parameter(Mandatory)]

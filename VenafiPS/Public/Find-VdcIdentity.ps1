@@ -48,7 +48,6 @@ function Find-VdcIdentity {
     #>
 
     [CmdletBinding()]
-    [Alias('Find-TppIdentity')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline)]

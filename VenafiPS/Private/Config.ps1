@@ -80,14 +80,6 @@ $script:functionConfig = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'configuration=manage'
     }
-    'ConvertTo-VdcGuid'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
-    }
-    'ConvertTo-VdcPath'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
-    }
     'Export-VdcCertificate'            = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'certificate=manage'
@@ -111,10 +103,6 @@ $script:functionConfig = @{
     'Find-VdcVaultId'                  = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'restricted=$null'
-    }
-    'Find-VcObject'                    = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = ''
     }
     'Find-VdcCertificate'              = @{
         'TppVersion'    = ''
@@ -153,10 +141,6 @@ $script:functionConfig = @{
         'TppTokenScope' = 'security=$null'
     }
     'Get-VdcSystemStatus'              = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
-    }
-    'Get-VdcVersion'                   = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'any scope'
     }
@@ -232,14 +216,6 @@ $script:functionConfig = @{
         'TppVersion'    = ''
         'TppTokenScope' = ''
     }
-    'New-VenafiTeam'                   = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
-    }
-    'Read-VenafiLog'                   = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
-    }
     'Remove-VdcCertificate'            = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'certificate=delete.  If using KeepAssociatedApps, configuration=$null,certificate=manage as well.'
@@ -264,25 +240,9 @@ $script:functionConfig = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'security=delete'
     }
-    'Remove-VenafiTeam'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=delete'
-    }
-    'Remove-VenafiTeamMember'          = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
-    }
-    'Remove-VenafiTeamOwner'           = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
-    }
     'Rename-VdcObject'                 = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'configuration=manage'
-    }
-    'Revoke-VdcCertificate'            = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=revoke'
     }
     'Revoke-VdcGrant'                  = @{
         'TppVersion'    = '22.3'
@@ -291,10 +251,6 @@ $script:functionConfig = @{
     'Revoke-VdcToken'                  = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'any scope'
-    }
-    'Search-VdcHistory'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'restricted=$null, certificate=$null'
     }
     'Set-VdcAttribute'                 = @{
         'TppVersion'    = ''

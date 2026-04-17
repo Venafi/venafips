@@ -42,7 +42,6 @@ function Get-VdcIdentityAttribute {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppIdentityAttribute')]
 
     param (
 

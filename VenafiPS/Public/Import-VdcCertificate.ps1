@@ -93,7 +93,6 @@ function Import-VdcCertificate {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByData')]
-    [Alias('Import-TppCertificate')]
 
     param (
 

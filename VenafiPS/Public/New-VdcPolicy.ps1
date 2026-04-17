@@ -27,9 +27,6 @@ function New-VdcPolicy {
     .PARAMETER Lock
     Use with -PolicyAttribute and -Class to lock the policy attribute
 
-    .PARAMETER Description
-    Deprecated.  Use -Attribute @{''Description''=''my description''} instead.
-
     .PARAMETER Force
     Force the creation of missing parent policy folders
 
@@ -96,7 +93,6 @@ function New-VdcPolicy {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('New-TppPolicy')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'Path', ValueFromPipelineByPropertyName)]
@@ -109,10 +105,6 @@ function New-VdcPolicy {
         [Parameter(ParameterSetName = 'Name', Mandatory)]
         [Parameter(ParameterSetName = 'NameWithPolicyAttribute', Mandatory)]
         [string[]] $Name,
-
-        [Parameter(ParameterSetName = 'Path')]
-        [Parameter(ParameterSetName = 'Name')]
-        [String] $Description,
 
         [Parameter(ParameterSetName = 'Path')]
         [Parameter(ParameterSetName = 'Name')]
@@ -147,16 +139,8 @@ function New-VdcPolicy {
             Force         = $Force
         }
 
-        if ( ($PSBoundParameters.ContainsKey('Description') -or $PSBoundParameters.ContainsKey('Attribute')) -and $PSCmdlet.ParameterSetName -in 'Path', 'Name' ) {
-            $params.Attribute = @{}
-
-            if ( $PSBoundParameters.ContainsKey('Description') ) {
-                $params.Attribute += @{'Description' = $Description }
-            }
-
-            if ( $PSBoundParameters.ContainsKey('Attribute') ) {
-                $params.Attribute += $Attribute
-            }
+        if ( $PSBoundParameters.ContainsKey('Attribute') -and $PSCmdlet.ParameterSetName -in 'Path', 'Name' ) {
+            $params.Attribute = $Attribute
         }
     }
 

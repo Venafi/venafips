@@ -57,7 +57,6 @@ function New-VcApplication {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'NoTarget', SupportsShouldProcess)]
-    [Alias('New-VaasApplication')]
 
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]

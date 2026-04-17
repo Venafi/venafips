@@ -48,7 +48,6 @@ function Remove-VdcEngineFolder {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-TppEngineFolder')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'AllEngines', ValueFromPipelineByPropertyName)]

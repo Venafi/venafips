@@ -40,7 +40,6 @@ function Find-VdcClient {
     #>
 
     [CmdletBinding()]
-    [Alias('Find-TppClient')]
 
     param (
         [Parameter()]

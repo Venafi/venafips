@@ -51,7 +51,6 @@ function Test-VdcObject {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'DN')]
-    [Alias('Test-TppObject')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'DN', ValueFromPipeline, ValueFromPipelineByPropertyName)]

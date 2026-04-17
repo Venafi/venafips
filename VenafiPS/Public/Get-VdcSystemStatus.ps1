@@ -31,7 +31,6 @@ function Get-VdcSystemStatus {
 
     #>
     [CmdletBinding()]
-    [Alias('Get-TppSystemStatus')]
 
     param (
         [Parameter()]

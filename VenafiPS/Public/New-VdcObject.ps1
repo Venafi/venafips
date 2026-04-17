@@ -90,7 +90,6 @@ function New-VdcObject {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'NonDup', SupportsShouldProcess)]
-    [Alias('New-TppObject')]
 
     param (
         [Parameter(Mandatory)]

@@ -41,7 +41,6 @@ function Rename-VdcObject {
     #>
 
     [CmdletBinding()]
-    [Alias('Rename-TppObject')]
 
     param (
         [Parameter(Mandatory)]

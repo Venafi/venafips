@@ -131,7 +131,6 @@ function New-VdcCertificate {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByName', SupportsShouldProcess)]
-    [Alias('New-TppCertificate')]
 
     param (
 

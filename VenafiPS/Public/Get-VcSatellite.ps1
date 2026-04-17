@@ -66,7 +66,6 @@ function Get-VcSatellite {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-VaasSatellite')]
 
     param (
 

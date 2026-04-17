@@ -26,7 +26,6 @@ function Get-VdcClassAttribute {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppClassAttribute')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline)]

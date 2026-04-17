@@ -42,7 +42,6 @@ function Get-VdcObject {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppObject', 'gvdo')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'ByPath', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]

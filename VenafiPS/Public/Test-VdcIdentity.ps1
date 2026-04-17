@@ -44,7 +44,6 @@ function Test-VdcIdentity {
     #>
 
     [CmdletBinding()]
-    [Alias('Test-TppIdentity')]
 
     param (
 

@@ -36,7 +36,6 @@ function Add-VdcEngineFolder {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Add-TppEngineFolder')]
 
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]

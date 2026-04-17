@@ -68,7 +68,6 @@ function Write-VdcLog {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Write-TppLog')]
 
     param (
 

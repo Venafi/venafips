@@ -75,7 +75,6 @@ function Set-VcTeam {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'NoOverwrite')]
-    [Alias('Set-VaasTeam')]
 
     param (
 

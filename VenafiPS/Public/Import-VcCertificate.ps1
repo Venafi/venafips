@@ -80,7 +80,6 @@ function Import-VcCertificate {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByFile', SupportsShouldProcess)]
-    [Alias('Import-VaasCertificate')]
 
     param (
 

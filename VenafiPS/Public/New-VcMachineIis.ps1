@@ -108,7 +108,6 @@ function New-VcMachineIis {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'WinrmBasic')]
-    [Alias('New-VaasMachineIis')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'IIS is not plural')]
 
     param (

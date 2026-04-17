@@ -120,7 +120,6 @@ function New-VcMachine {
 
 
     [CmdletBinding()]
-    [Alias('New-VaasMachine')]
 
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]

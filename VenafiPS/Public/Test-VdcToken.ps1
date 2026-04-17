@@ -78,7 +78,6 @@ function Test-VdcToken {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'Session')]
-    [Alias('Test-TppToken')]
     [OutputType([System.Boolean])]
 
     param (

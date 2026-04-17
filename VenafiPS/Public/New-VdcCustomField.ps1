@@ -105,7 +105,6 @@ function New-VdcCustomField {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('New-TppCustomField')]
 
     param (
         [Parameter(Mandatory)]

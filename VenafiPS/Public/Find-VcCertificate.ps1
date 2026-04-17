@@ -229,7 +229,6 @@ function Find-VcCertificate {
         [switch] $ApplicationDetail,
 
         [Parameter()]
-        [Alias('IncludeVaasOwner')]
         [switch] $OwnerDetail,
 
         [Parameter()]

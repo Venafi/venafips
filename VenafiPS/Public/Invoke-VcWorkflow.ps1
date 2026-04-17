@@ -74,7 +74,6 @@ function Invoke-VcWorkflow {
 
 
     [CmdletBinding()]
-    [Alias('Invoke-VaasWorkflow')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]

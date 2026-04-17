@@ -54,7 +54,6 @@ function Set-VdcWorkflowTicketStatus {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Set-TppWorkflowTicketStatus')]
 
     param (
 

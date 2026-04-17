@@ -141,7 +141,6 @@ function New-VcCertificate {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ASK', SupportsShouldProcess)]
-    [Alias('New-VaasCertificate')]
 
     param (
 

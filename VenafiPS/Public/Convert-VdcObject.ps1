@@ -51,7 +51,6 @@ function Convert-VdcObject {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Convert-TppObject')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]

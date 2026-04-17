@@ -33,7 +33,6 @@ function Get-VcConnector {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-VaasConnector')]
 
     param (
 

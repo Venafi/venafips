@@ -55,7 +55,6 @@ function Add-VdcCertificateAssociation {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Add-TppCertificateAssociation')]
 
     param (
 

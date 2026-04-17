@@ -55,7 +55,6 @@ function Revoke-VdcToken {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High', DefaultParameterSetName = 'Session')]
-    [Alias('Revoke-TppToken')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'AccessToken')]

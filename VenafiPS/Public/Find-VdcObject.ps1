@@ -124,7 +124,6 @@ function Find-VdcObject {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'FindByPath')]
-    [Alias('fto', 'Find-TppObject')]
 
     param (
         [Parameter(ParameterSetName = 'FindByPath', ValueFromPipeline, ValueFromPipelineByPropertyName)]

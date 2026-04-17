@@ -46,7 +46,6 @@ function Move-VdcObject {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Move-TppObject')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]

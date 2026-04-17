@@ -58,7 +58,6 @@ function Remove-VdcObject {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-TppObject')]
 
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]

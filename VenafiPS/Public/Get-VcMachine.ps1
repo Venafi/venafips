@@ -97,7 +97,6 @@ function Get-VcMachine {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-VaasMachine')]
 
     param (
 

@@ -77,7 +77,6 @@ function Get-VcIssuingTemplate {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-VaasIssuingTemplate')]
 
     param (
 

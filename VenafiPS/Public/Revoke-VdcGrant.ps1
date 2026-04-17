@@ -45,7 +45,6 @@ function Revoke-VdcGrant {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Revoke-TppGrant')]
 
     param (
         [Parameter(ValueFromPipelineByPropertyName)]

@@ -54,7 +54,6 @@ function Remove-VdcCertificate {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-TppCertificate')]
 
     param (
 

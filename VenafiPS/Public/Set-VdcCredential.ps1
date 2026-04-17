@@ -34,12 +34,6 @@ function Set-VdcCredential {
     Expiration date in UTC for the credential.  Provide a DateTime object.
     This can be set for username or password credentials.
 
-    .PARAMETER Value
-    Hashtable containing the keys/values to be updated.
-    This parameter will be deprecated in a future release.  Use specific parameters for the credential type.
-    The values allowed to be updated are specific to the object type.
-    See https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Credentials-FriendlyName.php for details.
-
     .PARAMETER VenafiSession
     Authentication for the function.
     The value defaults to the script session object $VenafiSession created by New-VenafiSession.
@@ -90,7 +84,6 @@ function Set-VdcCredential {
     #>
 
     [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'Password')]
-    [Alias('Set-TppCredential')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingUsernameAndPasswordParams', '', Justification = 'Password is used for more than just username/password credentials so a credential object is not appropriate.')]
 
     param (
@@ -173,9 +166,6 @@ function Set-VdcCredential {
         [Parameter(ParameterSetName = 'CertificateLinkPath')]
         [datetime] $Expiration,
 
-        [Parameter(ParameterSetName = 'OldValue', Mandatory)]
-        [hashtable] $Value,
-
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [psobject] $VenafiSession
@@ -236,30 +226,6 @@ function Set-VdcCredential {
         if ( $Expiration ) {
             $params.Body.Expiration = '/Date({0})/' -f [int64]($Expiration.ToUniversalTime() - [datetime]'1970-01-01T00:00:00Z').TotalMilliseconds
         }
-
-        # used with -Value parameter, to be deprecated
-        $CredTypes = @{
-            'Password Credential'          = @{
-                'FriendlyName' = 'Password'
-                'ValueName'    = @{
-                    'Password' = 'string'
-                }
-            }
-            'Username Password Credential' = @{
-                'FriendlyName' = 'UsernamePassword'
-                'ValueName'    = @{
-                    'Username' = 'string'
-                    'Password' = 'string'
-                }
-            }
-            'Certificate Credential'       = @{
-                'FriendlyName' = 'Certificate'
-                'ValueName'    = @{
-                    'Certificate' = 'byte[]'
-                    'Password'    = 'string'
-                }
-            }
-        }
     }
 
     process {
@@ -268,55 +234,25 @@ function Set-VdcCredential {
         $tppObject = Get-VdcObject -Path $Path
         $thisType = $tppObject.TypeName
 
-
-        # ensure the values looking to be updated are appropriate for this object type
-        if ( $Value ) {
-            Write-Warning "-Value will be deprecated in a future release.  Use specific parameters for the credential type instead."
-
-            if ( -not $CredTypes[$thisType] ) {
-                throw "Credential type '$thisType' is not supported yet.  Submit an enhancement request."
+        switch ($tppObject.TypeName) {
+            'Password Credential' {
+                $params.Body.FriendlyName = 'Password'
             }
-
-            $friendlyName = $CredTypes[$thisType].FriendlyName
-            $params.Body.FriendlyName = $friendlyName
-
-            $newValues = $Value.GetEnumerator() | ForEach-Object {
-                $thisValue = $CredTypes[$thisType].ValueName[$_.Key]
-                if ( $thisValue ) {
-                    @{
-                        'Name'  = $_.Key
-                        'Type'  = $thisValue
-                        'Value' = $_.Value
-                    }
-                }
-                else {
-                    throw ('''{0}'' is not a valid item for type ''{1}''' -f $_.Key, $thisType)
-                }
+            'Username Password Credential' {
+                $params.Body.FriendlyName = 'UsernamePassword'
             }
-
-            $params.Body.Values = @($newValues)
-        }
-        else {
-            switch ($tppObject.TypeName) {
-                'Password Credential' {
-                    $params.Body.FriendlyName = 'Password'
-                }
-                'Username Password Credential' {
-                    $params.Body.FriendlyName = 'UsernamePassword'
-                }
-                'Certificate Credential' {
-                    $params.Body.FriendlyName = 'Certificate'
-                }
-                Default {
-                    Write-Error "$Path : credential type '$thisType' is not supported yet.  Submit an enhancement request."
-                    continue
-                }
+            'Certificate Credential' {
+                $params.Body.FriendlyName = 'Certificate'
             }
-
-            if ( $PSCmdlet.ParameterSetName -notlike ('{0}*' -f $params.Body.FriendlyName) ) {
-                Write-Error "$Path : the credential type for this object, $thisType, does not match the parameters provided"
+            Default {
+                Write-Error "$Path : credential type '$thisType' is not supported yet.  Submit an enhancement request."
                 continue
             }
+        }
+
+        if ( $PSCmdlet.ParameterSetName -notlike ('{0}*' -f $params.Body.FriendlyName) ) {
+            Write-Error "$Path : the credential type for this object, $thisType, does not match the parameters provided"
+            continue
         }
 
         # certificate link path workaround

@@ -49,7 +49,6 @@ function Get-VcCertificate {
         [Switch] $All,
 
         [Parameter()]
-        [Alias('IncludeVaasOwner')]
         [switch] $OwnerDetail,
 
         [Parameter()]

@@ -53,7 +53,6 @@ function Get-VdcWorkflowTicket {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppWorkflowTicket')]
 
     param (
 

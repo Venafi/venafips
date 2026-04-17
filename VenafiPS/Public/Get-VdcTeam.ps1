@@ -42,7 +42,6 @@ function Get-VdcTeam {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-TppTeam')]
 
     param (
 

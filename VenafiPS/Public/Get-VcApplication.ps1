@@ -59,7 +59,6 @@ function Get-VcApplication {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-VaasApplication')]
 
     param (
 

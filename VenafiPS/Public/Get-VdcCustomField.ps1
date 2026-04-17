@@ -51,7 +51,6 @@ function Get-VdcCustomField {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppCustomField')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline)]

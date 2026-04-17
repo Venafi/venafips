@@ -39,7 +39,6 @@ function Get-VdcCredential {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppCredential')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Generating cred from api call response data')]
 
     param (
