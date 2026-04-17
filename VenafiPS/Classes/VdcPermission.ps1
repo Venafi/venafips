@@ -1,4 +1,4 @@
-class TppPermission {
+class VdcPermission {
 
     [bool] $IsAssociateAllowed
     [bool] $IsCreateAllowed
@@ -13,7 +13,7 @@ class TppPermission {
     [bool] $IsViewAllowed
     [bool] $IsWriteAllowed
 
-    TppPermission () {
+    VdcPermission () {
         $this.IsAssociateAllowed = $false
         $this.IsCreateAllowed = $false
         $this.IsDeleteAllowed = $false
@@ -28,7 +28,7 @@ class TppPermission {
         $this.IsWriteAllowed = $false
     }
 
-    TppPermission ([pscustomobject] $InputObject) {
+    VdcPermission ([pscustomobject] $InputObject) {
         $this.IsAssociateAllowed = $InputObject.IsAssociateAllowed
         $this.IsCreateAllowed = $InputObject.IsCreateAllowed
         $this.IsDeleteAllowed = $InputObject.IsDeleteAllowed

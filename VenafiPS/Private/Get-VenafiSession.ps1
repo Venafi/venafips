@@ -33,19 +33,24 @@ function Get-VenafiSession {
         #     Write-Debug 'Using Certificate Manager, SaaS key environment variable'
         # }
         else {
-            throw [System.ArgumentException]::new('Please run New-VenafiSession or provide a Certificate Manager, SaaS key or Certificate Manager, Self-Hosted token to -VenafiSession.')
+            throw [System.ArgumentException]::new('Please run New-VenafiSession or provide a valid auth value to -VenafiSession.')
         }
 
         # find out the platform from the calling function
-        $Platform = if ( $stack[1].Command -match '-Vc' ) {
-            'VC'
-        }
-        elseif ( $stack[1].Command -match '-Vdc') {
-            'VDC'
-        }
-        else {
+        $platform = switch ($stack[1].Command) {
+            { $_ -match '-Ngts' } {
+                'NGTS'
+            }
+            { $_ -match '-Vc' } {
+                'VC'
+            }
+            { $_ -match '-Vdc' } {
+                'VDC'
+            }
+            Default {
             # we don't know the platform, eg. -Venafi functions.  this won't happen often
-            $null
+                $null
+            }
         }
 
         # make sure the auth type and url we have match
@@ -55,9 +60,29 @@ function Get-VenafiSession {
             throw "You are attemping to call a $Platform function with an invalid session"
         }
 
-        if ( $sess.Token.Expires -and $sess.Token.Expires -lt [DateTime]::UtcNow ) {
-            throw 'Access token has expired.  Execute New-VenafiSession and rerun your command.'
-        }
+            # Check token expiration and auto-refresh if possible
+            if ($sess -is [VenafiSession]) {
+                if ($sess.Auth -and $sess.Auth.Expires -and $sess.Auth.Expires -gt [datetime]::MinValue) {
+                    $secondsRemaining = [math]::Round((($sess.Auth.Expires.ToUniversalTime()) - [DateTime]::UtcNow).TotalSeconds, 0)
+                    Write-Verbose ("Access token expires in {0} seconds" -f $secondsRemaining)
+                }
+
+                if ($sess.IsExpired()) {
+                    Write-Verbose 'Access token is expired or nearing expiration'
+                    if ($sess.CanRefresh()) {
+                        Write-Verbose 'Automatically refreshing access token'
+                        try {
+                            Invoke-SessionRefresh -Session $sess
+                        }
+                        catch {
+                            throw "Failed to auto-refresh token: $($_.Exception.Message)"
+                        }
+                    }
+                    else {
+                        throw 'Access token has expired and cannot be automatically refreshed. Please authenticate again with New-VenafiSession.'
+                    }
+                }
+            }
 
         $sess
     }

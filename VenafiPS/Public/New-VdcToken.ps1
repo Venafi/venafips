@@ -164,17 +164,17 @@ function New-VdcToken {
 
         [Parameter(ParameterSetName = 'RefreshSession', Mandatory)]
         [ValidateScript( {
-                if ( -not $_.Token.RefreshToken ) {
+                if ( -not $_.Auth.RefreshToken ) {
                     throw 'VenafiSession does not have a refresh token.  To get a new access token, create a new session with New-VenafiSession.'
                 }
 
-                if ( $_.Token.RefreshExpires -and $_.Token.RefreshExpires -lt (Get-Date) ) {
+                if ( $_.Auth.RefreshExpires -and $_.Auth.RefreshExpires -lt (Get-Date) ) {
                     throw "The refresh token has expired.  Retrieve a new access token with New-VenafiSession."
                 }
 
                 $true
             })]
-        [pscustomobject] $VenafiSession
+        [object] $VenafiSession
 
     )
 
@@ -186,11 +186,11 @@ function New-VdcToken {
     }
 
     if ( $PsCmdlet.ParameterSetName -eq 'RefreshSession' ) {
-        $params.Server = $VenafiSession.Token.Server
+        $params.Server = $VenafiSession.Auth.AuthServer
         $params.UriLeaf = 'authorize/token'
         $params.Body = @{
-            client_id     = $VenafiSession.Token.ClientId
-            refresh_token = $VenafiSession.Token.RefreshToken.GetNetworkCredential().password
+            client_id     = $VenafiSession.Auth.ClientId
+            refresh_token = $VenafiSession.Auth.RefreshToken.GetNetworkCredential().password
         }
 
         # workaround for bug pre 21.3 where client id needs to be lowercase

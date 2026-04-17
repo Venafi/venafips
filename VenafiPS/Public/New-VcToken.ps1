@@ -72,13 +72,13 @@ function New-VcToken {
         [Parameter(ParameterSetName = 'Session', Mandatory)]
         [ValidateScript(
             {
-                if ( -not $_.Token.Endpoint -or -not $_.Token.JWT ) {
+                if ( -not $_.Auth.AuthServer -or -not $_.Auth.Credential ) {
                     throw 'VenafiSession requires Endpoint and JWT.  To get a new access token, create a new session with New-VenafiSession.'
                 }
                 $true
             }
         )]
-        [pscustomobject] $VenafiSession
+        [object] $VenafiSession
 
     )
 
@@ -102,9 +102,9 @@ function New-VcToken {
             $VenafiSession
         }
 
-        $params.Uri = $sess.Token.Endpoint
-        if ( $sess.Token.JWT ) {
-            $params.Body.client_assertion = $sess.Token.JWT.GetNetworkCredential().password
+        $params.Uri = $sess.Auth.AuthServer
+        if ( $sess.Auth.Credential ) {
+            $params.Body.client_assertion = $sess.Auth.Credential.GetNetworkCredential().password
         }
         if ( -not $params.Body.client_assertion ) {
             throw [System.ArgumentException]::new('-Jwt must be provided directly or via a VenafiSession.')
@@ -126,7 +126,10 @@ function New-VcToken {
     }
 
     if ( $PSCmdlet.ParameterSetName -eq 'ScriptSession' ) {
-        $script:VenafiSession.Token = $newToken
+        $script:VenafiSession.Auth.AccessToken = $newToken.AccessToken
+        $script:VenafiSession.Auth.Expires = $newToken.Expires
+        $script:VenafiSession.Auth.AuthServer = $newToken.Endpoint
+        $script:VenafiSession.Auth.Credential = $newToken.JWT
         Write-Verbose 'Refreshed access token in script scoped variable VenafiSession'
     }
     else {

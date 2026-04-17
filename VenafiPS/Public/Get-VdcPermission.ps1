@@ -54,7 +54,7 @@ function Get-VdcPermission {
     IdentityId           : AD+domain:410aaf10ea816c4d823e9e05b1ad055d
     IdentityPath         : CN=Greg Brownstein,OU=Users,OU=Enterprise Administration,DC=domain,DC=net
     IdentityName         : greg
-    EffectivePermissions : TppPermission
+    EffectivePermissions : VdcPermission
 
     Get all assigned effective permissions for users/groups on a specific policy folder
 
@@ -73,8 +73,8 @@ function Get-VdcPermission {
     IdentityId          : AD+domain:410aaf10ea816c4d823e9e05b1ad055d
     IdentityPath        : CN=Greg Brownstein,OU=Users,OU=Enterprise Administration,DC=domain,DC=net
     IdentityName        : greg
-    ExplicitPermissions : TppPermission
-    ImplicitPermissions : TppPermission
+    ExplicitPermissions : VdcPermission
+    ImplicitPermissions : VdcPermission
 
     Get explicit and implicit permissions for users/groups on a specific policy folder
 
@@ -108,7 +108,7 @@ function Get-VdcPermission {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByObject')]
-    [Alias('Get-TppPermission')]
+    [Alias('Get-VdcPermission')]
 
     param (
 
@@ -262,11 +262,11 @@ function Get-VdcPermission {
                     $response = Invoke-VenafiRestMethod @params
 
                     if ( $Explicit ) {
-                        $thisReturnObject.ExplicitPermissions = [TppPermission] $response.ExplicitPermissions
-                        $thisReturnObject.ImplicitPermissions = [TppPermission] $response.ImplicitPermissions
+                        $thisReturnObject.ExplicitPermissions = [VdcPermission] $response.ExplicitPermissions
+                        $thisReturnObject.ImplicitPermissions = [VdcPermission] $response.ImplicitPermissions
                     }
                     else {
-                        $thisReturnObject.EffectivePermissions = [TppPermission] $response.EffectivePermissions
+                        $thisReturnObject.EffectivePermissions = [VdcPermission] $response.EffectivePermissions
                     }
 
                     $attribParams = @{
@@ -299,7 +299,7 @@ function Get-VdcPermission {
                             $notFoundResponse = invoke-venafirestmethod @notFoundParams
 
                             if ( $notFoundResponse.Permissions ) {
-                                $thisReturnObject.ExplicitPermissions = [TppPermission]$notFoundResponse.Permissions
+                                $thisReturnObject.ExplicitPermissions = [VdcPermission]$notFoundResponse.Permissions
                             }
                         }
                     }
