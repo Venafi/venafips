@@ -8,7 +8,7 @@ function Add-VdcCertificateAssociation {
     Optionally, you can push the certificate once the association is complete.
 
     .PARAMETER InputObject
-    TppObject which represents a certificate
+    VdcObject which represents a certificate
 
     .PARAMETER CertificatePath
     Path to the certificate.  Required if InputObject not provided.
@@ -61,7 +61,7 @@ function Add-VdcCertificateAssociation {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 } else {
                     throw "'$_' is not a valid DN path"
@@ -72,7 +72,7 @@ function Add-VdcCertificateAssociation {
 
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 } else {
                     throw "'$_' is not a valid DN path"

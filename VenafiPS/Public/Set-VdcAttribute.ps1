@@ -113,7 +113,7 @@ function Set-VdcAttribute {
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -332,7 +332,7 @@ function Set-VdcAttribute {
 
             $response = Invoke-TrustRestMethod @params
 
-            if ( $response.Result -ne [TppMetadataResult]::Success ) {
+            if ( $response.Result -ne [VdcMetadataResult]::Success ) {
                 Write-Error $response.Error
             }
         }

@@ -77,18 +77,18 @@ function Find-VdcIdentity {
         $identityType = 0
         # determine settings to use
         if ( $PSBoundParameters.ContainsKey('IncludeUsers') ) {
-            $identityType += [TppIdentityType]::User
+            $identityType += [VdcIdentityType]::User
         }
         if ( $PSBoundParameters.ContainsKey('IncludeSecurityGroups') ) {
-            $identityType += [TppIdentityType]::SecurityGroups
+            $identityType += [VdcIdentityType]::SecurityGroups
         }
         if ( $PSBoundParameters.ContainsKey('IncludeDistributionGroups') ) {
-            $identityType += [TppIdentityType]::DistributionGroups
+            $identityType += [VdcIdentityType]::DistributionGroups
         }
 
         # if no types to include were provided, include all
         if ( $identityType -eq 0 ) {
-            $identityType = [TppIdentityType]::User + [TppIdentityType]::SecurityGroups + [TppIdentityType]::DistributionGroups
+            $identityType = [VdcIdentityType]::User + [VdcIdentityType]::SecurityGroups + [VdcIdentityType]::DistributionGroups
         }
 
         $params = @{

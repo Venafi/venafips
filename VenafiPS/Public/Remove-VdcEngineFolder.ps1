@@ -53,7 +53,7 @@ function Remove-VdcEngineFolder {
         [Parameter(Mandatory, ParameterSetName = 'Matrix', ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) { $true }
+                if ( $_ | Test-VdcDnPath ) { $true }
                 else { throw "'$_' is not a valid DN path" }
             })]
         [Alias('FolderDN', 'Folder')]
@@ -63,7 +63,7 @@ function Remove-VdcEngineFolder {
         [Parameter(Mandatory, ParameterSetName = 'Matrix', ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) { $true }
+                if ( $_ | Test-VdcDnPath ) { $true }
                 else { throw "'$_' is not a valid DN path" }
             })]
         [Alias('EngineDN', 'Engine')]
@@ -86,7 +86,7 @@ function Remove-VdcEngineFolder {
 
     process {
         if ($FolderPath) {
-            [TppObject[]] $FolderList = @()
+            [VdcObject[]] $FolderList = @()
             foreach ($path in $FolderPath) {
                 try {
                     $folder = Get-VdcObject -Path $path
@@ -110,7 +110,7 @@ function Remove-VdcEngineFolder {
         }
 
         if ($EnginePath) {
-            [TppObject[]] $EngineList = @()
+            [VdcObject[]] $EngineList = @()
             foreach ($path in $EnginePath) {
                 try {
                     $engine = Get-VdcObject -Path $path
@@ -167,7 +167,7 @@ function Remove-VdcEngineFolder {
                 foreach ($engine in $EngineList) {
                     Write-Verbose ("Processing Engine: '$($engine.Path)'")
                     if ($PSCmdlet.ParameterSetName -eq 'AllFolders') {
-                        [TppObject[]] $FolderList = @()
+                        [VdcObject[]] $FolderList = @()
                         $FolderList += ($engine | Get-VdcEngineFolder)
                         Switch ($FolderList.Count) {
                             0 { $countMessage = 'NO folders' }

@@ -130,8 +130,8 @@ function Set-VdcWorkflowTicketStatus {
 
                 $response = Invoke-TrustRestMethod @params
 
-                if ( -not ($response.Result -eq [TppWorkflowResult]::Success) ) {
-                    throw ("Error setting workflow ticket status, error is {0}" -f [enum]::GetName([TppWorkflowResult], $response.Result))
+                if ( -not ($response.Result -eq [VdcWorkflowResult]::Success) ) {
+                    throw ("Error setting workflow ticket status, error is {0}" -f [enum]::GetName([VdcWorkflowResult], $response.Result))
                 }
             }
         }

@@ -9,7 +9,7 @@ function Get-VdcPermission {
     You can retrieve all permissions for an object or for a specific user/group.
 
     .PARAMETER InputObject
-    TppObject representing an object in Certificate Manager, Self-Hosted, eg. from Find-VdcObject or Get-VdcObject
+    VdcObject representing an object in Certificate Manager, Self-Hosted, eg. from Find-VdcObject or Get-VdcObject
 
     .PARAMETER Path
     Full path to an object
@@ -117,7 +117,7 @@ function Get-VdcPermission {
         [Parameter(Mandatory, ParameterSetName = 'ByPath', ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -186,15 +186,15 @@ function Get-VdcPermission {
 
             switch ( $PsCmdLet.ParameterSetName) {
                 'ByObject' {
-                    $thisTppObject = $thisInputObject
+                    $thisVdcObject = $thisInputObject
                 }
 
                 Default {
-                    $thisTppObject = $thisInputObject | ConvertTo-VdcObject
+                    $thisVdcObject = $thisInputObject | ConvertTo-VdcObject
                 }
             }
 
-            $uriBase = ('Permissions/Object/{{{0}}}' -f $thisTppObject.Guid )
+            $uriBase = ('Permissions/Object/{{{0}}}' -f $thisVdcObject.Guid )
             $params.UriLeaf = $uriBase
 
             try {
@@ -202,7 +202,7 @@ function Get-VdcPermission {
                 $identities = Invoke-TrustRestMethod @params
             }
             catch {
-                Write-Error ('Couldn''t obtain list of permissions for {0}.  {1}' -f $thisTppObject.Path, $_ | Out-String)
+                Write-Error ('Couldn''t obtain list of permissions for {0}.  {1}' -f $thisVdcObject.Path, $_ | Out-String)
                 continue
             }
 
@@ -213,7 +213,7 @@ function Get-VdcPermission {
 
             foreach ( $thisId in $identities ) {
 
-                Write-Verbose ('Path: {0}, Id: {1}' -f $thisTppObject.Path, $thisId)
+                Write-Verbose ('Path: {0}, Id: {1}' -f $thisVdcObject.Path, $thisId)
 
                 $params.UriLeaf = $uriBase
 
@@ -234,10 +234,10 @@ function Get-VdcPermission {
                 }
 
                 $thisReturnObject = [PSCustomObject] @{
-                    Path         = $thisTppObject.Path
-                    Guid         = $thisTppObject.Guid
-                    Name         = $thisTppObject.Name
-                    TypeName     = $thisTppObject.TypeName
+                    Path         = $thisVdcObject.Path
+                    Guid         = $thisVdcObject.Guid
+                    Name         = $thisVdcObject.Name
+                    TypeName     = $thisVdcObject.TypeName
                     IdentityId   = $thisId
                     IdentityPath = $null
                     IdentityName = $null
@@ -289,7 +289,7 @@ function Get-VdcPermission {
                                 Method  = 'Post'
                                 UriLeaf = 'permissions/getpermissions'
                                 Body    = @{
-                                    ObjectDN  = $thisTppObject.Path
+                                    ObjectDN  = $thisVdcObject.Path
                                     Principal = $thisID
                                 }
                             }
@@ -302,7 +302,7 @@ function Get-VdcPermission {
                         }
                     }
                     else {
-                        Write-Error ('Unable to retrieve permissions.  Path: {0}, Id: {1}, Error: {2}' -f $thisTppObject.Path, $thisId, $_)
+                        Write-Error ('Unable to retrieve permissions.  Path: {0}, Id: {1}, Error: {2}' -f $thisVdcObject.Path, $thisId, $_)
                     }
                 }
 

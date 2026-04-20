@@ -15,7 +15,7 @@ function Convert-VdcObject {
     New class/type
 
     .PARAMETER PassThru
-    Return a TppObject representing the newly converted object
+    Return a VdcObject representing the newly converted object
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -56,7 +56,7 @@ function Convert-VdcObject {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {

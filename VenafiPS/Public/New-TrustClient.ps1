@@ -153,7 +153,7 @@ function New-TrustClient {
     Create session using a refresh token
 
     .EXAMPLE
-    New-TrustClient -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp -VaultRefreshTokenName TppRefresh
+    New-TrustClient -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp -VaultRefreshTokenName VdcRefresh
 
     Create session using a refresh token and store the newly created refresh token in the vault
 

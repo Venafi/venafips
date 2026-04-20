@@ -1,4 +1,4 @@
-enum TppWorkflowResult {
+enum VdcWorkflowResult {
     Success = 1
     GenericFailure = 2
     TicketDoesNotExist = 3

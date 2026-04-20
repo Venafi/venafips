@@ -1,4 +1,4 @@
-enum TppSecretStoreResult {
+enum VdcSecretStoreResult {
     Success = 0
     InvalidCallingAssembly = 1
     CreateDatabaseError = 2

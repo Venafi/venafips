@@ -53,7 +53,6 @@ function Get-VdcAttribute {
     .PARAMETER TrustClient
     Authentication for the function.
     The value defaults to the script session object $TrustClient created by New-TrustClient.
-    A Certificate Manager, Self-Hosted token can be provided directly.
 
     .INPUTS
     Path

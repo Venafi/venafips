@@ -222,7 +222,7 @@ function New-VdcCustomField {
 
             $response = Invoke-TrustRestMethod @params
 
-            if ( $response.Result -eq [TppMetadataResult]::Success ) {
+            if ( $response.Result -eq [VdcMetadataResult]::Success ) {
                 if (( $PassThru )) {
                     $resultObj = [PSCustomObject] @{
                         "Path"  = $response.Item.DN

@@ -1,4 +1,4 @@
-enum TppCertificateStage {
+enum VdcCertificateStage {
     CheckStore = 100
     CreateConfigureStore = 200
     CreateKey = 300

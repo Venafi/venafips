@@ -8,7 +8,7 @@ function Remove-VdcPermission {
     You can opt to remove permissions for a specific user or all assigned
 
     .PARAMETER Path
-    Full path to an object.  You can also pipe in a TppObject
+    Full path to an object.  You can also pipe in a VdcObject
 
     .PARAMETER Guid
     Guid that represents an object
@@ -52,7 +52,7 @@ function Remove-VdcPermission {
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ByPath')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 } else {
                     throw "'$_' is not a valid DN path"

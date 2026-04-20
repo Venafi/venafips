@@ -54,7 +54,7 @@ function New-VdcCapiApplication {
     Specify this switch to bypass this check.
 
     .PARAMETER PassThru
-    Return a TppObject representing the newly created capi app.
+    Return a VdcObject representing the newly created capi app.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -64,7 +64,7 @@ function New-VdcCapiApplication {
     Path
 
     .OUTPUTS
-    TppObject, if PassThru provided
+    VdcObject, if PassThru provided
 
     .EXAMPLE
     New-VdcCapiApplication -Path '\ved\policy\mydevice\capi' -CertificatePath $cert.Path -CredentialPath $cred.Path
@@ -80,7 +80,7 @@ function New-VdcCapiApplication {
 
     .EXAMPLE
     New-VdcCapiApplication -Path '\ved\policy\mydevice\capi' -CertificatePath $cert.Path -CredentialPath $cred.Path -PassThru
-    Create a new application and return a TppObject for the newly created app
+    Create a new application and return a VdcObject for the newly created app
 
     .LINK
     https://venafi.github.io/VenafiPS/functions/New-VdcCapiApplication/
@@ -109,7 +109,7 @@ function New-VdcCapiApplication {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -125,7 +125,7 @@ function New-VdcCapiApplication {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -138,7 +138,7 @@ function New-VdcCapiApplication {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {

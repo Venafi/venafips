@@ -288,7 +288,7 @@ function Invoke-TrustRestMethod {
                 # get scope details for tpp
                 if ( $thisPlatform -eq 'VDC' ) {
                     $callingFunction = @(Get-PSCallStack)[1].InvocationInfo.MyCommand.Name
-                    $callingFunctionScope = ($script:functionConfig).$callingFunction.TppTokenScope
+                    $callingFunctionScope = ($script:functionConfig).$callingFunction.VdcTokenScope
                     if ( $callingFunctionScope ) { $permMsg += "$callingFunction requires a token scope of '$callingFunctionScope'." }
 
                     $rejectedScope = Select-String -InputObject $originalError.ErrorDetails.Message -Pattern 'Grant rejected scope ([^.]+)'

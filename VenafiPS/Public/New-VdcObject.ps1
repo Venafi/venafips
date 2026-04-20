@@ -35,7 +35,7 @@ function New-VdcObject {
     Force the creation of missing parent policy folders when the class is either Policy or Device.
 
     .PARAMETER PassThru
-    Return a TppObject representing the newly created object.
+    Return a VdcObject representing the newly created object.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -70,7 +70,7 @@ function New-VdcObject {
     none
 
     .OUTPUTS
-    TppObject, if PassThru provided
+    VdcObject, if PassThru provided
 
     .LINK
     https://venafi.github.io/VenafiPS/functions/New-VdcObject/

@@ -1,4 +1,4 @@
-enum TppEventSeverity {
+enum VdcEventSeverity {
     Emergency = 1
     Alert = 2
     Critical = 3

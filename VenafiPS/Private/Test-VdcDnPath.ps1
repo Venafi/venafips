@@ -1,4 +1,4 @@
-function Test-TppDnPath {
+function Test-VdcDnPath {
 
     [CmdletBinding()]
     param (

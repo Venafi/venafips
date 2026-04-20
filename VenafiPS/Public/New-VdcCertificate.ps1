@@ -137,7 +137,7 @@ function New-VdcCertificate {
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -166,7 +166,7 @@ function New-VdcCertificate {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -181,7 +181,7 @@ function New-VdcCertificate {
         [Hashtable] $CertificateAuthorityAttribute,
 
         [Parameter()]
-        [TppManagementType] $ManagementType,
+        [VdcManagementType] $ManagementType,
 
         [Parameter()]
         [Hashtable[]] $SubjectAltName,
@@ -312,7 +312,7 @@ function New-VdcCertificate {
         }
 
         if ( $PSBoundParameters.ContainsKey('ManagementType') ) {
-            $params.Body.Add('ManagementType', [enum]::GetName([TppManagementType], $ManagementType))
+            $params.Body.Add('ManagementType', [enum]::GetName([VdcManagementType], $ManagementType))
         }
 
         if ( $PSBoundParameters.ContainsKey('TimeoutSec') ) {

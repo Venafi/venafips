@@ -75,7 +75,7 @@ function Get-VdcCustomField {
 
         $response = Invoke-TrustRestMethod @params
 
-        if ( $response.Result -eq [TppMetadataResult]::Success ) {
+        if ( $response.Result -eq [VdcMetadataResult]::Success ) {
             [PSCustomObject] @{
                 Items  = $response.Items
                 Locked = $response.Locked

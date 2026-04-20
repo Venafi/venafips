@@ -79,12 +79,12 @@ function Set-VdcPermission {
     None
 
     .EXAMPLE
-    Set-VdcPermission -Guid '1234abcd-g6g6-h7h7-faaf-f50cd6610cba' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $TppPermObject
+    Set-VdcPermission -Guid '1234abcd-g6g6-h7h7-faaf-f50cd6610cba' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $VdcPermObject
 
     Permission a user/group on an object specified by guid
 
     .EXAMPLE
-    Set-VdcPermission -Path '\ved\policy\my folder' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $TppPermObject
+    Set-VdcPermission -Path '\ved\policy\my folder' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $VdcPermObject
 
     Permission a user/group on an object specified by path
 
@@ -110,7 +110,7 @@ function Set-VdcPermission {
 
     .EXAMPLE
     $id = Find-VdcIdentity -Name 'brownstein' | Select-Object -ExpandProperty Id
-    Find-VdcObject -Path '\VED' -Recursive | Get-VdcPermission -IdentityId $id | Set-VdcPermission -Permission $TppPermObject -Force
+    Find-VdcObject -Path '\VED' -Recursive | Get-VdcPermission -IdentityId $id | Set-VdcPermission -Permission $VdcPermObject -Force
 
     Reset permissions for a specific user/group for all objects.  Note the use of -Force to overwrite existing permissions.
 
@@ -140,7 +140,7 @@ function Set-VdcPermission {
         [Parameter(Mandatory, ParameterSetName = 'PermissionPath')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {

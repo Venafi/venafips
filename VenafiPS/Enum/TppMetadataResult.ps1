@@ -1,4 +1,4 @@
-enum TppMetadataResult {
+enum VdcMetadataResult {
     Success = 0
     InvalidConfigObject = 1
     InvalidDN = 2

@@ -96,7 +96,7 @@ function Write-VdcLog {
         [String] $Component,
 
         [Parameter()]
-        [TppEventSeverity] $Severity,
+        [VdcEventSeverity] $Severity,
 
         [Parameter()]
         [ipaddress] $SourceIp,
@@ -145,7 +145,7 @@ function Write-VdcLog {
     }
 
     if ( $PSBoundParameters.ContainsKey('Severity') ) {
-        $params.Body.Add('Severity', [TppEventSeverity]::$Severity)
+        $params.Body.Add('Severity', [VdcEventSeverity]::$Severity)
     }
 
     if ( $PSBoundParameters.ContainsKey('SourceIp') ) {

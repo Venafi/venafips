@@ -59,7 +59,7 @@ function Get-VdcWorkflowTicket {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -111,14 +111,14 @@ function Get-VdcWorkflowTicket {
 
             $response = Invoke-TrustRestMethod @params
 
-            if ( $response.Result -eq [TppWorkflowResult]::Success ) {
+            if ( $response.Result -eq [VdcWorkflowResult]::Success ) {
                 $response | Add-Member @{
                     TicketGuid = [guid] $thisGuid
                 }
                 $response
             }
             else {
-                throw ("Error getting ticket details, error is {0}" -f [enum]::GetName([TppWorkflowResult], $response.Result))
+                throw ("Error getting ticket details, error is {0}" -f [enum]::GetName([VdcWorkflowResult], $response.Result))
             }
         }
     }

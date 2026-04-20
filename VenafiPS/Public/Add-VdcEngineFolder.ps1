@@ -39,7 +39,7 @@ function Add-VdcEngineFolder {
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [ValidateScript( {
-            if ( $_ | Test-TppDnPath ) { $true }
+            if ( $_ | Test-VdcDnPath ) { $true }
             else { throw "'$_' is not a valid DN path" }
         })]
         [Alias('EngineDN', 'Engine', 'Path')]
@@ -48,7 +48,7 @@ function Add-VdcEngineFolder {
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-            if ( $_ | Test-TppDnPath ) { $true }
+            if ( $_ | Test-VdcDnPath ) { $true }
             else { throw "'$_' is not a valid DN path" }
         })]
         [Alias('FolderDN', 'Folder')]

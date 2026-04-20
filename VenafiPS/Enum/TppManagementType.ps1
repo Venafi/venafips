@@ -1,4 +1,4 @@
-enum TppManagementType {
+enum VdcManagementType {
     Unassigned
     Monitoring
     Enrollment

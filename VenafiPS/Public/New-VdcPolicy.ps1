@@ -31,7 +31,7 @@ function New-VdcPolicy {
     Force the creation of missing parent policy folders
 
     .PARAMETER PassThru
-    Return a TppObject representing the newly created policy.
+    Return a VdcObject representing the newly created policy.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -41,7 +41,7 @@ function New-VdcPolicy {
     Path
 
     .OUTPUTS
-    TppObject, if PassThru provided
+    VdcObject, if PassThru provided
 
     .EXAMPLE
     $newPolicy = New-VdcPolicy -Path 'new'

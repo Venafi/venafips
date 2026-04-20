@@ -368,21 +368,21 @@ function Find-VdcCertificate {
         [String[]] $CertificateType,
 
         [Parameter()]
-        [TppManagementType[]] $ManagementType,
+        [VdcManagementType[]] $ManagementType,
 
         [Parameter()]
         [Switch] $PendingWorkflow,
 
         [Parameter()]
-        [TppCertificateStage[]] $Stage,
+        [VdcCertificateStage[]] $Stage,
 
         [Parameter()]
         [Alias('StageGreater')]
-        [TppCertificateStage] $StageGreaterThan,
+        [VdcCertificateStage] $StageGreaterThan,
 
         [Parameter()]
         [Alias('StageLess')]
-        [TppCertificateStage] $StageLessThan,
+        [VdcCertificateStage] $StageLessThan,
 
         [Parameter()]
         [Switch] $ValidationEnabled,
@@ -544,13 +544,13 @@ function Find-VdcCertificate {
                 $params.Body.Add( 'PendingWorkflow', '')
             }
             'Stage' {
-                $params.Body.Add( 'Stage', ($Stage | ForEach-Object { [TppCertificateStage]::$_.value__ }) -join ',' )
+                $params.Body.Add( 'Stage', ($Stage | ForEach-Object { [VdcCertificateStage]::$_.value__ }) -join ',' )
             }
             'StageGreaterThan' {
-                $params.Body.Add( 'StageGreater', [TppCertificateStage]::$StageGreaterThan.value__ )
+                $params.Body.Add( 'StageGreater', [VdcCertificateStage]::$StageGreaterThan.value__ )
             }
             'StageLessThan' {
-                $params.Body.Add( 'StageLess', [TppCertificateStage]::$StageLessThan.value__ )
+                $params.Body.Add( 'StageLess', [VdcCertificateStage]::$StageLessThan.value__ )
             }
             'ValidationEnabled' {
                 $params.Body.Add( 'ValidationDisabled', [int] (-not $ValidationEnabled) )

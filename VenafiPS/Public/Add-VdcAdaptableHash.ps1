@@ -62,7 +62,7 @@ function Add-VdcAdaptableHash {
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -112,8 +112,8 @@ function Add-VdcAdaptableHash {
 
             $retrieveResponse = Invoke-TrustRestMethod @paramsRetrieve
 
-            if ( $retrieveResponse.Result -ne [TppSecretStoreResult]::Success ) {
-                Write-Error ("Error retrieving VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $retrieveResponse.Result)) -ErrorAction Stop
+            if ( $retrieveResponse.Result -ne [VdcSecretStoreResult]::Success ) {
+                Write-Error ("Error retrieving VaultID: {0}" -f [enum]::GetName([VdcSecretStoreResult], $retrieveResponse.Result)) -ErrorAction Stop
             }
 
             if ($null -ne $retrieveResponse.Base64Data) {
@@ -143,8 +143,8 @@ function Add-VdcAdaptableHash {
 
         $addResponse | Write-Verbose
 
-        if ( $addResponse.Result -ne [TppSecretStoreResult]::Success ) {
-            throw ("Error adding VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $addResponse.Result))
+        if ( $addResponse.Result -ne [VdcSecretStoreResult]::Success ) {
+            throw ("Error adding VaultID: {0}" -f [enum]::GetName([VdcSecretStoreResult], $addResponse.Result))
         }
 
         if ( $thisObject.TypeName -eq 'Policy' ) {
@@ -173,8 +173,8 @@ function Add-VdcAdaptableHash {
 
             $deleteResponse = Invoke-TrustRestMethod @paramsDelete
 
-            if ( $deleteResponse.Result -ne [TppSecretStoreResult]::Success ) {
-                Write-Error ("Error removing VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $deleteResponse.Result)) -ErrorAction Stop
+            if ( $deleteResponse.Result -ne [VdcSecretStoreResult]::Success ) {
+                Write-Error ("Error removing VaultID: {0}" -f [enum]::GetName([VdcSecretStoreResult], $deleteResponse.Result)) -ErrorAction Stop
             }
         }
     }

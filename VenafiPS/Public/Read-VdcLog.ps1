@@ -88,7 +88,7 @@ function Read-VdcLog {
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -102,7 +102,7 @@ function Read-VdcLog {
         [string] $EventId,
 
         [Parameter()]
-        [TppEventSeverity] $Severity,
+        [VdcEventSeverity] $Severity,
 
         [Parameter()]
         [DateTime] $StartTime,

@@ -59,7 +59,7 @@ function Remove-VdcCertificateAssociation {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -72,7 +72,7 @@ function Remove-VdcCertificateAssociation {
         [Parameter(Mandatory, ParameterSetName = 'RemoveOne')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -105,7 +105,7 @@ function Remove-VdcCertificateAssociation {
 
         $shouldProcessAction = "Remove associations"
 
-        if ( -not ($Path | Test-TppObject -ExistOnly) ) {
+        if ( -not ($Path | Test-VdcObject -ExistOnly) ) {
             Write-Error ("Certificate path {0} does not exist" -f $Path)
             Continue
         }

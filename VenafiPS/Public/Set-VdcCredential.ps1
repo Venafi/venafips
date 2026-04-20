@@ -90,7 +90,7 @@ function Set-VdcCredential {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -149,7 +149,7 @@ function Set-VdcCredential {
         [Parameter(ParameterSetName = 'CertificateLinkPath', Mandatory)]
         [ValidateScript(
             {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {

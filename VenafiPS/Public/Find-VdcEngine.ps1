@@ -18,7 +18,7 @@ function Find-VdcEngine {
     Pattern
 
     .OUTPUTS
-    TppObject
+    VdcObject
 
     .EXAMPLE
     Find-VdcEngine -Pattern '*partialname*'

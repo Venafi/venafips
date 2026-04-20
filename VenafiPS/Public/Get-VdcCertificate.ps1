@@ -59,7 +59,7 @@ function Get-VdcCertificate {
     Get certificate info for a specific cert, including historical versions of the certificate.
 
     .EXAMPLE
-    Get-VdcCertificate -ID '\ved\policy\mycert.com' -IncludeTppPreviousVersions -ExcludeRevoked -ExcludeExpired
+    Get-VdcCertificate -ID '\ved\policy\mycert.com' -IncludePreviousVersions -ExcludeRevoked -ExcludeExpired
 
     Get certificate info for a specific cert, including historical versions of the certificate that are not revoked or expired.
 

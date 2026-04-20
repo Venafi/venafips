@@ -57,223 +57,223 @@ $script:vaasFields = @(
 
 $script:functionConfig = @{
     'Add-VdcAdaptableHash'             = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'restricted=manage,delete'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'restricted=manage,delete'
     }
     'Add-VdcCertificateAssociation'    = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=manage'
     }
     'Add-VdcEngineFolder'              = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Add-VdcTeamMember'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Add-VdcTeamOwner'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Convert-VdcObject'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Export-VdcCertificate'            = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=manage'
     }
     'Find-VdcClient'                   = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'agent=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'agent=$null'
     }
     'Find-VdcEngine'                   = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Find-VdcIdentity'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Find-VdcObject'                   = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Find-VdcVaultId'                  = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'restricted=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'restricted=$null'
     }
     'Find-VdcCertificate'              = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=$null'
     }
     'Get-VdcAttribute'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Get-VdcClassAttribute'            = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'any scope'
     }
     'Get-VdcCredential'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'security=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'security=manage'
     }
     'Get-VdcCustomField'               = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'any scope'
     }
     'Get-VdcEngineFolder'              = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Get-VdcIdentityAttribute'         = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Get-VdcObject'                    = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'any scope'
     }
     'Get-VdcPermission'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'security=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'security=$null'
     }
     'Get-VdcSystemStatus'              = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'any scope'
     }
     'Get-VdcWorkflowTicket'            = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'any scope'
     }
     'Get-VdcCertificate'               = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=$null'
     }
     'Get-VdcIdentity'                  = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Get-VdcTeam'                      = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Import-VdcCertificate'            = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=discover'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=discover'
     }
     'Import-VcCertificate'             = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = ''
+        'VdcVersion'    = ''
+        'VdcTokenScope' = ''
     }
     'Invoke-VdcCertificateAction'      = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=manage for Reset, Renew, Push, and Validate.  certificate=revoke for Revoke.  certificate=delete for Delete.'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=manage for Reset, Renew, Push, and Validate.  certificate=revoke for Revoke.  certificate=delete for Delete.'
     }
     'Move-VdcObject'                   = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'New-VdcCapiApplication'           = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'New-VdcCertificate'               = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=manage'
     }
     'New-VdcCustomField'               = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'New-VdcDevice'                    = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'New-VdcObject'                    = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage.  If a certificate is provided as an attribute, certificate=manage as well.'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage.  If a certificate is provided as an attribute, certificate=manage as well.'
     }
     'New-VdcPolicy'                    = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'New-VdcToken'                     = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'any scope'
     }
     'New-VcCertificate'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = ''
+        'VdcVersion'    = ''
+        'VdcTokenScope' = ''
     }
     'New-VcConnector'                  = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = ''
+        'VdcVersion'    = ''
+        'VdcTokenScope' = ''
     }
     'New-TrustClient'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = ''
+        'VdcVersion'    = ''
+        'VdcTokenScope' = ''
     }
     'Remove-VdcCertificate'            = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=delete.  If using KeepAssociatedApps, configuration=$null,certificate=manage as well.'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=delete.  If using KeepAssociatedApps, configuration=$null,certificate=manage as well.'
     }
     'Remove-VdcCertificateAssociation' = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'certificate=manage.  If using -All, configuration=$null as well.'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'certificate=manage.  If using -All, configuration=$null as well.'
     }
     'Remove-VdcClient'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'agent=delete'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'agent=delete'
     }
     'Remove-VdcEngineFolder'           = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=delete'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=delete'
     }
     'Remove-VdcObject'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=delete'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=delete'
     }
     'Remove-VdcPermission'             = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'security=delete'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'security=delete'
     }
     'Rename-VdcObject'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Revoke-VdcGrant'                  = @{
-        'TppVersion'    = '22.3'
-        'TppTokenScope' = 'admin=delete'
+        'VdcVersion'    = '22.3'
+        'VdcTokenScope' = 'admin=delete'
     }
     'Set-VdcAttribute'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=manage'
     }
     'Set-VdcCredential'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'security=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'security=manage'
     }
     'Set-VdcPermission'                = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'security=manage'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'security=manage'
     }
     'Set-VdcWorkflowTicketStatus'      = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'approve with any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'approve with any scope'
     }
     'Test-VdcIdentity'                 = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Test-VdcObject'                   = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'configuration=$null'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'configuration=$null'
     }
     'Write-VdcLog'                     = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
+        'VdcVersion'    = ''
+        'VdcTokenScope' = 'any scope'
     }
 }

@@ -82,7 +82,7 @@ function New-VdcTeam {
 
         [Parameter()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
