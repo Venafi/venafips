@@ -9,10 +9,9 @@ function Remove-VcConnector {
     .PARAMETER ID
     Connector ID, this is the guid/uuid
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -44,7 +43,7 @@ function Remove-VcConnector {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -52,7 +51,7 @@ function Remove-VcConnector {
 
     process {
         if ( $PSCmdlet.ShouldProcess($ID, "Delete connector") ) {
-            $null = Invoke-VenafiRestMethod -Method 'Delete' -UriLeaf "plugins/$ID"
+            $null = Invoke-TrustRestMethod -Method 'Delete' -UriLeaf "plugins/$ID"
         }
     }
 }

@@ -68,9 +68,9 @@ function Set-VdcPermission {
     To move objects in the tree, the caller must have Write permission to the objects and Create permission to the target folder.
     Write permission grants implicit Read permission.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Guid, IdentityId, Permission
@@ -226,7 +226,7 @@ function Set-VdcPermission {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -292,7 +292,7 @@ function Set-VdcPermission {
         if ( $PSCmdlet.ShouldProcess($Path, "Set permission for $IdentityId") ) {
             try {
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 switch ( $response.StatusCode ) {
 
                     { $_ -in 200, 201 } {
@@ -306,7 +306,7 @@ function Set-VdcPermission {
 
                             Write-Verbose "Existing user/group found and Force option provided, updating existing permissions"
                             $params.Method = 'Put'
-                            $response = Invoke-VenafiRestMethod @params
+                            $response = Invoke-TrustRestMethod @params
                             if ( $response.StatusCode -ne 200 ) {
                                 Write-Error ('Failed to update permission with error {0}' -f $response.Error)
                             }

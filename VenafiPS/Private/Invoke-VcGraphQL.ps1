@@ -28,7 +28,7 @@ function Invoke-VcGraphQL {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     $params = @{
@@ -39,10 +39,10 @@ function Invoke-VcGraphQL {
         ErrorAction     = 'Stop'
     }
 
-    $Server = $VenafiSession.Server
-    $auth = $VenafiSession.Auth.ApiKey.GetNetworkCredential().password
-    $SkipCertificateCheck = $VenafiSession.SkipCertificateCheck
-    $params.TimeoutSec = $VenafiSession.TimeoutSec
+    $Server = $TrustClient.Server
+    $auth = $TrustClient.ApiKey.GetNetworkCredential().password
+    $SkipCertificateCheck = $TrustClient.SkipCertificateCheck
+    $params.TimeoutSec = $TrustClient.TimeoutSec
 
     $allHeaders = @{
         "tppl-api-key" = $auth

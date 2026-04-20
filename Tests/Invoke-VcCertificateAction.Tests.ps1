@@ -85,8 +85,8 @@
 Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession' -MockWith {} -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-TrustRestMethod' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcCertificate' -MockWith { $mockCert } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -MockWith { $testAppId } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Application' -and $Object } -MockWith { $mockApp } -ModuleName $ModuleName
@@ -100,12 +100,12 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
     Context 'Retire' {
 
         BeforeEach {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockRetireResponse } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockRetireResponse } -ModuleName $ModuleName
         }
 
         It 'Should call the retirement API' {
             Invoke-VcCertificateAction -ID $testCertId -Retire -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $UriLeaf -eq 'certificates/retirement' -and $Method -eq 'Post'
             }
         }
@@ -124,19 +124,19 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
         It 'Should batch multiple certificates' {
             $ids = @([guid]$testCertId, [guid]$testCertId2)
             $ids | Invoke-VcCertificateAction -Retire -BatchSize 1 -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName
         }
     }
 
     Context 'Recover' {
 
         BeforeEach {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockRecoverResponse } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockRecoverResponse } -ModuleName $ModuleName
         }
 
         It 'Should call the recovery API' {
             Invoke-VcCertificateAction -ID $testCertId -Recover -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $UriLeaf -eq 'certificates/recovery'
             }
         }
@@ -145,13 +145,13 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
     Context 'Renew' {
 
         BeforeEach {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -ParameterFilter { $UriLeaf -eq 'certificaterequests' } -MockWith { $mockRenewResponse } -ModuleName $ModuleName
-            Mock -CommandName 'Invoke-VenafiRestMethod' -ParameterFilter { $UriLeaf -like 'certificaterequests/*' } -MockWith { $mockCertRequest } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-TrustRestMethod' -ParameterFilter { $UriLeaf -eq 'certificaterequests' } -MockWith { $mockRenewResponse } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-TrustRestMethod' -ParameterFilter { $UriLeaf -like 'certificaterequests/*' } -MockWith { $mockCertRequest } -ModuleName $ModuleName
         }
 
         It 'Should call the certificate request API' {
             Invoke-VcCertificateAction -ID $testCertId -Renew -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $UriLeaf -eq 'certificaterequests' -and $Method -eq 'Post'
             }
         }
@@ -165,7 +165,7 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
 
         It 'Should include CSR attributes in request body' {
             Invoke-VcCertificateAction -ID $testCertId -Renew -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.commonName -eq 'test.example.com' -and
                 $Body.csrAttributes.organization -eq 'TestOrg' -and
                 $Body.isVaaSGenerated -eq $true
@@ -208,7 +208,7 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
 
         It 'Should merge AdditionalParameters into renewal body' {
             Invoke-VcCertificateAction -ID $testCertId -Renew -AdditionalParameters @{ validityPeriod = 'P365D' } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.validityPeriod -eq 'P365D'
             }
         }
@@ -260,7 +260,7 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
 
         It 'Should call the validation API' {
             Invoke-VcCertificateAction -ID $testCertId -Validate -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $UriLeaf -eq 'certificates/validation'
             }
         }
@@ -274,7 +274,7 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
 
         It 'Should call the deletion API' {
             Invoke-VcCertificateAction -ID $testCertId -Delete -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -ParameterFilter {
                 $UriLeaf -eq 'certificates/deletion'
             }
         }

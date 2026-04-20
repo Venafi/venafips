@@ -1,4 +1,4 @@
-function Invoke-VenafiRestMethod {
+function Invoke-TrustRestMethod {
     <#
     .SYNOPSIS
     Ability to execute REST API calls which don't exist in a dedicated function yet
@@ -6,10 +6,9 @@ function Invoke-VenafiRestMethod {
     .DESCRIPTION
     Ability to execute REST API calls which don't exist in a dedicated function yet
 
-    .PARAMETER VenafiSession
-    VenafiSession object from New-VenafiSession.
-    For typical calls to New-VenafiSession, the object will be stored as a session object named $VenafiSession.
-    Otherwise, if -PassThru was used, provide the resulting object.
+    .PARAMETER TrustClient
+    TrustClient object from New-TrustClient.
+    For typical calls to New-TrustClient, the object will be stored as a session object named $TrustClient.
 
     .PARAMETER Method
     API method, either get, post, patch, put or delete.
@@ -22,13 +21,6 @@ function Invoke-VenafiRestMethod {
 
     .PARAMETER Body
     Optional body to pass to the endpoint
-
-    .PARAMETER VcRegion
-    Certificate Manager, SaaS region to target.  Only supported if VenafiSession is an api key otherwise the comes from VenafiSession directly.
-
-    .PARAMETER Platform
-    Venafi Platform to target, either VC, NGTS, or VDC.
-    If not provided, the platform will be determined based on the VenafiSession or the calling function name.
 
     .PARAMETER Server
     Server or url to access vedsdk, venafi.company.com or https://venafi.company.com.
@@ -58,11 +50,11 @@ function Invoke-VenafiRestMethod {
     PSCustomObject
 
     .EXAMPLE
-    Invoke-VenafiRestMethod -Method Delete -UriLeaf 'Discovery/{1345311e-83c5-4945-9b4b-1da0a17c45c6}'
+    Invoke-TrustRestMethod -Method Delete -UriLeaf 'Discovery/{1345311e-83c5-4945-9b4b-1da0a17c45c6}'
     Api call
 
     .EXAMPLE
-    Invoke-VenafiRestMethod -Method Post -UriLeaf 'Certificates/Revoke' -Body @{'CertificateDN'='\ved\policy\mycert.com'}
+    Invoke-TrustRestMethod -Method Post -UriLeaf 'Certificates/Revoke' -Body @{'CertificateDN'='\ved\policy\mycert.com'}
     Api call with optional payload
 
     #>
@@ -72,8 +64,7 @@ function Invoke-VenafiRestMethod {
     param (
         [Parameter(ParameterSetName = 'Session')]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key', 'AccessToken')]
-        [psobject] $VenafiSession,
+        [TrustClient] $TrustClient,
 
         [Parameter(Mandatory, ParameterSetName = 'URL')]
         [ValidateNotNullOrEmpty()]
@@ -99,21 +90,6 @@ function Invoke-VenafiRestMethod {
         # [ValidateNotNullOrEmpty()]
         [Parameter()]
         [String] $UriLeaf,
-
-        [Parameter()]
-        [ValidateScript(
-            {
-                if ( $_ -notin ($script:VcRegions).Keys ) {
-                    Write-Warning ('{0} is not a built-in known region which includes {1}.  Continuing with user-provided region.' -f $_, (($script:VcRegions).Keys -join ','))
-                }
-                $true
-            }
-        )]
-        [string] $VcRegion = 'us',
-
-        [Parameter()]
-        [ValidateSet('VC', 'NGTS', 'VDC')]
-        [string] $Platform,
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
@@ -146,85 +122,41 @@ function Invoke-VenafiRestMethod {
     # default parameter set, no explicit session will come here
     if ( $PSCmdLet.ParameterSetName -eq 'Session' ) {
 
-        if ( -not $VenafiSession ) { $VenafiSession = Get-VenafiSession }
+        if ( -not $TrustClient ) { $TrustClient = Get-TrustClient }
 
-        # Get-VenafiSession auto-refreshes script/nested sessions.
+        # Get-TrustClient auto-refreshes script/nested sessions.
         # For explicitly provided class sessions, ensure we also refresh when expiring soon.
-        if ($PSBoundParameters.ContainsKey('VenafiSession') -and $VenafiSession -is [VenafiSession]) {
-            if ($VenafiSession.Auth -and $VenafiSession.Auth.Expires -and $VenafiSession.Auth.Expires -gt [datetime]::MinValue) {
-                $secondsRemaining = [math]::Round((($VenafiSession.Auth.Expires.ToUniversalTime()) - [DateTime]::UtcNow).TotalSeconds, 0)
+        if ($PSBoundParameters.ContainsKey('TrustClient')) {
+            if ($TrustClient.Expires -and $TrustClient.Expires -gt [datetime]::MinValue) {
+                $secondsRemaining = [math]::Round((($TrustClient.Expires.ToUniversalTime()) - [DateTime]::UtcNow).TotalSeconds, 0)
                 Write-Verbose ("Access token expires in {0} seconds" -f $secondsRemaining)
             }
 
-            if ($VenafiSession.IsExpired()) {
-                if ($VenafiSession.CanRefresh()) {
+            if ($TrustClient.IsExpired()) {
+                if ($TrustClient.CanRefresh()) {
                     Write-Verbose 'Access token is expired or nearing expiration; refreshing provided session.'
-                    Invoke-SessionRefresh -Session $VenafiSession
+                    Invoke-SessionRefresh -Session $TrustClient
                 }
                 else {
-                    throw 'Access token has expired (or will expire within 60 seconds) and cannot be automatically refreshed. Please authenticate again with New-VenafiSession.'
+                    throw 'Access token has expired (or will expire within 60 seconds) and cannot be automatically refreshed. Please authenticate again with New-TrustClient.'
                 }
             }
         }
 
-        switch ($VenafiSession.GetType().Name) {
-            'VenafiSession' {
-                $Server = $VenafiSession.Server
-                $thisPlatform = $VenafiSession.Platform
-                if ( $VenafiSession.Auth -and $null -ne $VenafiSession.Auth.ApiKey ) {
-                    $auth = $VenafiSession.Auth.ApiKey.GetNetworkCredential().password
-                    $authType = 'apikey'
-                }
-                elseif ( $VenafiSession.Auth -and $null -ne $VenafiSession.Auth.AccessToken ) {
-                    $auth = $VenafiSession.Auth.AccessToken.GetNetworkCredential().password
-                }
-                else {
-                    throw [System.ArgumentException]::new('No usable auth material could be found in VenafiSession.Auth')
-                }
-                $SkipCertificateCheck = $VenafiSession.SkipCertificateCheck
-                $params.TimeoutSec = $VenafiSession.TimeoutSec
-                break
-            }
-
-            'String' {
-                $auth = $VenafiSession
-
-                if ( Test-IsGuid($VenafiSession) ) {
-                    # if we were provided a key directly and not a full session, determine which region to contact
-
-                    $Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
-                        ($script:VcRegions).$VcRegion
-                    }
-                    else {
-                        $VcRegion
-                    }
-                    $thisPlatform = 'VC'
-                    $authType = 'apikey'
-                }
-                else {
-                    # access token auth for VC, NGTS, and VDC, determine which one
-                    $thisPlatform = if ( $PSBoundParameters.ContainsKey('Platform') ) {
-                        $Platform
-                    }
-                    elseif ( $MyInvocation.InvocationName -match '-Vdc' ) {
-                        'VDC'
-                    }
-                    elseif ( $MyInvocation.InvocationName -match '-Ngts' ) {
-                        'NGTS'
-                    }
-                    elseif ( $MyInvocation.InvocationName -match '-Vc' ) {
-                        'VC'
-                    }
-                    else {
-                        throw 'Venafi Platform, VC, NGTS, or VDC, could not be determined'
-                    }
-                }
-            }
-
-            Default {
-                throw "Unknown session '$VenafiSession'.  Please run New-VenafiSession or provide a valid VenafiSession or raw auth value."
-            }
+        $Server = $TrustClient.Server
+        $thisPlatform = $TrustClient.Platform
+        if ( $null -ne $TrustClient.ApiKey ) {
+            $auth = $TrustClient.ApiKey.GetNetworkCredential().password
+            $authType = 'apikey'
         }
+        elseif ( $null -ne $TrustClient.AccessToken ) {
+            $auth = $TrustClient.AccessToken.GetNetworkCredential().password
+        }
+        else {
+            throw [System.ArgumentException]::new('No usable auth material could be found in TrustClient')
+        }
+        $SkipCertificateCheck = $TrustClient.SkipCertificateCheck
+        $params.TimeoutSec = $TrustClient.TimeoutSec
 
         # set auth header
         $params.Headers = if ( $authType -eq 'token' ) {
@@ -364,7 +296,7 @@ function Invoke-VenafiRestMethod {
                     if ( $rejectedScope.Matches.Groups.Count -gt 1 ) {
                         $permMsg += ("  The current scope of {0} is insufficient." -f $rejectedScope.Matches.Groups[1].Value.Replace('\u0027', "'"))
                     }
-                    $permMsg += '  Call New-VenafiSession with the correct scope.'
+                    $permMsg += '  Call New-TrustClient with the correct scope.'
                 }
                 else {
                     $permMsg = $originalError.ErrorDetails.Message

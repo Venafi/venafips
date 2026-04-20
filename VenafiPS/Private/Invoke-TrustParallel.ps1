@@ -1,4 +1,4 @@
-function Invoke-VenafiParallel {
+function Invoke-TrustParallel {
 
     <#
     .SYNOPSIS
@@ -22,22 +22,22 @@ function Invoke-VenafiParallel {
     .PARAMETER ProgressTitle
     Message displayed on the progress bar
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
 
     .EXAMPLE
-    Invoke-VenafiParallel -InputObject $myObjects -ScriptBlock { Do-Something $PSItem }
+    Invoke-TrustParallel -InputObject $myObjects -ScriptBlock { Do-Something $PSItem }
 
     Execute in parallel.  Reference each item in the scriptblock as $PSItem or $_.
 
     .EXAMPLE
-    Invoke-VenafiParallel -InputObject $myObjects -ScriptBlock { Do-Something $PSItem } -ThrottleLimit 5
+    Invoke-TrustParallel -InputObject $myObjects -ScriptBlock { Do-Something $PSItem } -ThrottleLimit 5
 
     Only run 5 threads at a time instead of the default of 100.
 
     .EXAMPLE
     $ProgressPreference = 'SilentlyContinue'
-    Invoke-VenafiParallel -InputObject $myObjects -ScriptBlock { Do-Something $PSItem }
+    Invoke-TrustParallel -InputObject $myObjects -ScriptBlock { Do-Something $PSItem }
 
     Execute in parallel with no progress bar.
 
@@ -45,7 +45,7 @@ function Invoke-VenafiParallel {
     In your ScriptBlock:
     - Use either $PSItem or $_ to reference the current input object
     - Remember, hashtables are reference types so be sure to clone if 'using' from parent
-    - all function calls which call the api require '-VenafiSession $using:VenafiSession' to be provided
+    - all function calls which call the api require '-TrustClient $using:TrustClient' to be provided
 
     #>
 
@@ -67,7 +67,7 @@ function Invoke-VenafiParallel {
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
 
     )
 
@@ -135,7 +135,7 @@ function Invoke-VenafiParallel {
         Import-Module $using:script:ParallelImportPath -Force -ArgumentList 'bypass'
 
         # bring in the venafi session from the calling ps session
-        $script:VenafiSession = $using:VenafiSession
+        $script:TrustClient = $using:TrustClient
 
         # bring in verbose preference from calling ps session
         $VerbosePreference = $using:VerbosePreference

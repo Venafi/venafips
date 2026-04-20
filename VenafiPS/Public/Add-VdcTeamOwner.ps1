@@ -13,9 +13,9 @@ function Add-VdcTeamOwner {
     1 or more owners to add to the team
     This is the identity ID property from Find-VdcIdentity or Get-VdcIdentity.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -41,7 +41,7 @@ function Add-VdcTeamOwner {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -72,7 +72,7 @@ function Add-VdcTeamOwner {
             }
         }
 
-        $null = Invoke-VenafiRestMethod @params
+        $null = Invoke-TrustRestMethod @params
     }
 }
 

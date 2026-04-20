@@ -15,10 +15,9 @@ function Get-VcSatelliteWorker {
     .PARAMETER VSatellite
     Get workers associated with a specific VSatellite, specify either VSatellite ID or name
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID, VSatelliteID
@@ -65,7 +64,7 @@ function Get-VcSatelliteWorker {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -75,12 +74,12 @@ function Get-VcSatelliteWorker {
 
         switch ($PSCmdlet.ParameterSetName) {
             'All' {
-                $response = Invoke-VenafiRestMethod -UriLeaf 'edgeworkers' | Select-Object -ExpandProperty edgeWorkers
+                $response = Invoke-TrustRestMethod -UriLeaf 'edgeworkers' | Select-Object -ExpandProperty edgeWorkers
             }
 
             'ID' {
                 $guid = [guid] $ID
-                $response = Invoke-VenafiRestMethod -UriLeaf ('edgeworkers/{0}' -f $guid.ToString())
+                $response = Invoke-TrustRestMethod -UriLeaf ('edgeworkers/{0}' -f $guid.ToString())
             }
 
             'VSatellite' {
@@ -92,10 +91,10 @@ function Get-VcSatelliteWorker {
                     $guid.ToString()
                 }
                 else {
-                    Invoke-VenafiRestMethod -UriLeaf 'edgeinstances' | Select-Object -ExpandProperty edgeInstances | Where-Object { $_.name -eq $VSatellite } | Select-Object -ExpandProperty id
+                    Invoke-TrustRestMethod -UriLeaf 'edgeinstances' | Select-Object -ExpandProperty edgeInstances | Where-Object { $_.name -eq $VSatellite } | Select-Object -ExpandProperty id
                 }
 
-                $response = Invoke-VenafiRestMethod -UriLeaf 'edgeworkers' -Body @{'edgeInstanceId' = $vsatelliteID } | Select-Object -ExpandProperty edgeWorkers
+                $response = Invoke-TrustRestMethod -UriLeaf 'edgeworkers' -Body @{'edgeInstanceId' = $vsatelliteID } | Select-Object -ExpandProperty edgeWorkers
             }
         }
 

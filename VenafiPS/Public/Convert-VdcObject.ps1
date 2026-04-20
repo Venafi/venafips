@@ -17,9 +17,9 @@ function Convert-VdcObject {
     .PARAMETER PassThru
     Return a TppObject representing the newly converted object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -73,7 +73,7 @@ function Convert-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -94,7 +94,7 @@ function Convert-VdcObject {
 
         if ( $PSCmdlet.ShouldProcess($Path, "Convert to type $Class") ) {
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response.Result -eq 1 ) {
                 if ( $PassThru ) {

@@ -33,10 +33,10 @@
 Describe 'Set-VcMachineIdentity' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession'      -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Test-TrustClient'      -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcMachineIdentity'   -MockWith { $mockMachineIdentity } -ModuleName $ModuleName
         Mock -CommandName 'Find-VcCertificate'      -MockWith { $mockCertificate } -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockUpdatedIdentity } -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockUpdatedIdentity } -ModuleName $ModuleName
     }
 
     Context 'Machine identity not found' {
@@ -48,11 +48,11 @@ Describe 'Set-VcMachineIdentity' -Tags 'Unit' {
             $err | Should -Not -BeNullOrEmpty
         }
 
-        It 'Should not call Invoke-VenafiRestMethod when identity not found' {
+        It 'Should not call Invoke-TrustRestMethod when identity not found' {
             Mock -CommandName 'Get-VcMachineIdentity' -MockWith { $null } -ModuleName $ModuleName
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Certificate 'MyCert' `
                 -ErrorAction SilentlyContinue
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 0 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 0 -ModuleName $ModuleName
         }
     }
 
@@ -64,9 +64,9 @@ Describe 'Set-VcMachineIdentity' -Tags 'Unit' {
             $err | Should -Not -BeNullOrEmpty
         }
 
-        It 'Should not call Invoke-VenafiRestMethod when nothing to update' {
+        It 'Should not call Invoke-TrustRestMethod when nothing to update' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -ErrorAction SilentlyContinue
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 0 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 0 -ModuleName $ModuleName
         }
     }
 
@@ -81,14 +81,14 @@ Describe 'Set-VcMachineIdentity' -Tags 'Unit' {
 
         It 'Should call PATCH on machineidentities/{id}' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Certificate 'MyCert' -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Method -eq 'Patch' -and $UriLeaf -eq "machineidentities/$testMachineIdentityId"
             }
         }
 
         It 'Should include certificateId in the body' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Certificate 'MyCert' -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.certificateId -eq $testCertId
             }
         }
@@ -122,21 +122,21 @@ Describe 'Set-VcMachineIdentity' -Tags 'Unit' {
 
         It 'Should include binding in the body' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Binding @{ bindingPort = 8443 } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.binding -ne $null
             }
         }
 
         It 'Should merge top-level binding key' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Binding @{ bindingPort = 8443 } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.binding.bindingPort -eq 8443
             }
         }
 
         It 'Should preserve existing binding values not in the update' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Binding @{ bindingPort = 8443 } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.binding.ContainsKey('bindingIp')
             }
         }
@@ -146,21 +146,21 @@ Describe 'Set-VcMachineIdentity' -Tags 'Unit' {
 
         It 'Should include keystore in the body' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Keystore @{ keystoreAlias = 'new-alias' } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.keystore -ne $null
             }
         }
 
         It 'Should merge keystore key' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Keystore @{ keystoreAlias = 'new-alias' } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.keystore.keystoreAlias -eq 'new-alias'
             }
         }
 
         It 'Should preserve existing keystore values not in the update' {
             Set-VcMachineIdentity -MachineIdentity $testMachineIdentityId -Keystore @{ keystoreAlias = 'new-alias' } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.keystore.ContainsKey('storeName')
             }
         }

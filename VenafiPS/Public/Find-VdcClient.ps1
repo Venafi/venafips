@@ -10,9 +10,9 @@ function Find-VdcClient {
     The client type.
     Allowed values include VenafiAgent, AgentJuniorMachine, AgentJuniorUser, Portal, Agentless, PreEnrollment, iOS, Android
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     None
@@ -48,7 +48,7 @@ function Find-VdcClient {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -71,7 +71,7 @@ function Find-VdcClient {
     }
 
     process {
-        Invoke-VenafiRestMethod @params
+        Invoke-TrustRestMethod @params
     }
 }
 

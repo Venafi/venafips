@@ -20,10 +20,9 @@ function Set-VcConnector {
     .PARAMETER Disable
     Disable or reenable a connector
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Connector
@@ -88,7 +87,7 @@ function Set-VcConnector {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -133,7 +132,7 @@ function Set-VcConnector {
                 }
 
                 if ( $PSCmdlet.ShouldProcess($manifest.name, 'Update connector') ) {
-                    $null = Invoke-VenafiRestMethod @params
+                    $null = Invoke-TrustRestMethod @params
                 }
             }
 
@@ -141,11 +140,11 @@ function Set-VcConnector {
 
                 if ( $Disable ) {
                     if ( $PSCmdlet.ShouldProcess($ID, "Disable connector") ) {
-                        $null = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf "plugins/$ID/disablements"
+                        $null = Invoke-TrustRestMethod -Method 'Post' -UriLeaf "plugins/$ID/disablements"
                     }
                 }
                 else {
-                    $null = Invoke-VenafiRestMethod -Method 'Delete' -UriLeaf "plugins/$ID/disablements"
+                    $null = Invoke-TrustRestMethod -Method 'Delete' -UriLeaf "plugins/$ID/disablements"
                 }
             }
         }

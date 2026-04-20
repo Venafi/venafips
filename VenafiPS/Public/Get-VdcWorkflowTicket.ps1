@@ -9,9 +9,9 @@ function Get-VdcWorkflowTicket {
     .PARAMETER Path
     Path to the certificate
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -71,7 +71,7 @@ function Get-VdcWorkflowTicket {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -91,7 +91,7 @@ function Get-VdcWorkflowTicket {
                 }
             }
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response ) {
                 Write-Verbose ("Found {0} workflow tickets for certificate {1}" -f $response.GUIDs.count, $thisDn)
@@ -109,7 +109,7 @@ function Get-VdcWorkflowTicket {
                 }
             }
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response.Result -eq [TppWorkflowResult]::Success ) {
                 $response | Add-Member @{

@@ -37,9 +37,9 @@ function New-VdcObject {
     .PARAMETER PassThru
     Return a TppObject representing the newly created object.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     New-VdcObject -Path '\VED\Policy\Test Device' -Class 'Device' -Attribute @{'Description'='new device testing'}
@@ -118,7 +118,7 @@ function New-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
 
@@ -169,7 +169,7 @@ function New-VdcObject {
         do {
             $retryCreate = $false
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             switch ($response.Result) {
 

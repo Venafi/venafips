@@ -14,9 +14,9 @@ function Get-VdcCredential {
     .PARAMETER IncludeDetail
     Include metadata associated with the credential in addition to the credential itself
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -59,7 +59,7 @@ function Get-VdcCredential {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -75,7 +75,7 @@ function Get-VdcCredential {
     process {
 
         $params.Body.CredentialPath = $Path
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         if ( -not $response ) {
             continue

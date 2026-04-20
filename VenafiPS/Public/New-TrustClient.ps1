@@ -1,4 +1,4 @@
-function New-VenafiSession {
+function New-TrustClient {
     <#
     .SYNOPSIS
     Create a new Venafi Certificate Manager, Self-Hosted, Certificate Manager, SaaS or NGTS session
@@ -70,7 +70,7 @@ function New-VenafiSession {
 
     .PARAMETER RefreshSession
     Obtain a new access token from the refresh token.
-    Requires an existing module scoped $VenafiSession.
+    Requires an existing module scoped $TrustClient.
 
     .PARAMETER VcKey
     Api key from your Certificate Manager, SaaS instance.  The api key can be found under your user profile->preferences.
@@ -115,78 +115,78 @@ function New-VenafiSession {
     Optionally, send the session object to the pipeline instead of script scope.
 
     .OUTPUTS
-    VenafiSession, if -PassThru is provided
+    TrustClient, if -PassThru is provided
 
     .EXAMPLE
-    New-VenafiSession -Server venafi.mycompany.com -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'}
+    New-TrustClient -Server venafi.mycompany.com -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'}
 
     Create token-based session using Windows Integrated authentication with a certain scope and privilege restriction
 
     .EXAMPLE
-    New-VenafiSession -Server venafi.mycompany.com -Credential $cred -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'}
+    New-TrustClient -Server venafi.mycompany.com -Credential $cred -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'}
 
     Create token-based session
 
     .EXAMPLE
-    New-VenafiSession -Server venafi.mycompany.com -Certificate $myCert -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'}
+    New-TrustClient -Server venafi.mycompany.com -Certificate $myCert -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'}
 
     Create token-based session using a client certificate
 
     .EXAMPLE
-    New-VenafiSession -Server venafi.mycompany.com -AuthServer tppauth.mycompany.com -ClientId VenafiPS-MyApp -Credential $cred
+    New-TrustClient -Server venafi.mycompany.com -AuthServer tppauth.mycompany.com -ClientId VenafiPS-MyApp -Credential $cred
 
     Create token-based session using oauth authentication where the vedauth and vedsdk are hosted on different servers
 
     .EXAMPLE
-    $sess = New-VenafiSession -Server venafi.mycompany.com -Credential $cred -PassThru
+    $sess = New-TrustClient -Server venafi.mycompany.com -Credential $cred -PassThru
 
     Create session and return the session object instead of setting to script scope variable
 
     .EXAMPLE
-    New-VenafiSession -Server venafi.mycompany.com -AccessToken $accessCred
+    New-TrustClient -Server venafi.mycompany.com -AccessToken $accessCred
 
     Create session using an access token obtained outside this module
 
     .EXAMPLE
-    New-VenafiSession -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp
+    New-TrustClient -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp
 
     Create session using a refresh token
 
     .EXAMPLE
-    New-VenafiSession -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp -VaultRefreshTokenName TppRefresh
+    New-TrustClient -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp -VaultRefreshTokenName TppRefresh
 
     Create session using a refresh token and store the newly created refresh token in the vault
 
     .EXAMPLE
-    New-VenafiSession -VcKey $cred
+    New-TrustClient -VcKey $cred
 
     Create session against Certificate Manager, SaaS
 
     .EXAMPLE
-    New-VenafiSession -VcKey $cred -VcRegion 'eu'
+    New-TrustClient -VcKey $cred -VcRegion 'eu'
 
     Create session against Certificate Manager, SaaS in EU region
 
     .EXAMPLE
-    New-VenafiSession -VaultVcKeyName vaas-key
+    New-TrustClient -VaultVcKeyName vaas-key
 
     Create session against Certificate Manager, SaaS with a key stored in a vault
 
     .EXAMPLE
-    New-VenafiSession -NgtsCredential $cred
+    New-TrustClient -NgtsCredential $cred
 
     Create session against NGTS with the provided credential
 
     .EXAMPLE
-    New-VenafiSession -NgtsCredential $cred -Tsg 1234567890
+    New-TrustClient -NgtsCredential $cred -Tsg 1234567890
 
     Create session against NGTS with the provided credential and override the TSG specified in the credential username
 
     .LINK
-    https://venafi.github.io/VenafiPS/functions/New-VenafiSession/
+    https://venafi.github.io/VenafiPS/functions/New-TrustClient/
 
     .LINK
-    https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-VenafiSession.ps1
+    https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/New-TrustClient.ps1
 
     .LINK
     https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/API_Reference/r-SDK-POST-Authorize.php
@@ -325,7 +325,6 @@ function New-VenafiSession {
         [string] $AuthServer,
 
         [Parameter(Mandatory, ParameterSetName = 'Vc')]
-        [Alias('VaasKey')]
         [psobject] $VcKey,
 
         [Parameter(ParameterSetName = 'Vc')]
@@ -349,7 +348,6 @@ function New-VenafiSession {
 
         [Parameter(ParameterSetName = 'Vc')]
         [Parameter(Mandatory, ParameterSetName = 'VaultVcKey')]
-        [Alias('VaultVaasKeyName')]
         [string] $VaultVcKeyName,
 
         [Parameter(ParameterSetName = 'Ngts', Mandatory)]
@@ -405,11 +403,11 @@ function New-VenafiSession {
         }
     }
 
-    $newSession = [VenafiSession]::new()
-    $newSession.Platform = 'VDC'
-    $newSession.Server = $serverUrl
-    $newSession.TimeoutSec = $TimeoutSec
-    $newSession.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
+    $newClient = [TrustClient]::new()
+    $newClient.Platform = 'VDC'
+    $newClient.Server = $serverUrl
+    $newClient.TimeoutSec = $TimeoutSec
+    $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
 
     Write-Verbose ('Parameter set: {0}' -f $PSCmdlet.ParameterSetName)
 
@@ -429,23 +427,24 @@ function New-VenafiSession {
     Switch ($PsCmdlet.ParameterSetName)	{
 
         'RefreshSession' {
-            if ( -not $script:VenafiSession ) {
+            if ( -not $script:TrustClient ) {
                 throw 'No existing session to refresh'
             }
 
-            $sessAuth = $script:VenafiSession.Auth
-            if ( -not $sessAuth -or -not $sessAuth.AuthServer -or -not $sessAuth.RefreshToken -or -not $sessAuth.ClientId ) {
+            $client = $script:TrustClient
+
+            if ( -not $client.AuthServer -or -not $client.RefreshToken -or -not $client.ClientId ) {
                 throw 'In order to refresh an existing session, it must have a Server, RefreshToken, and ClientId.'
             }
 
             $refreshParams = @{
-                Server               = $sessAuth.AuthServer
-                RefreshToken         = $sessAuth.RefreshToken
-                ClientId             = $sessAuth.ClientId
-                SkipCertificateCheck = $script:VenafiSession.SkipCertificateCheck
+                Server               = $client.AuthServer
+                RefreshToken         = $client.RefreshToken
+                ClientId             = $client.ClientId
+                SkipCertificateCheck = $client.SkipCertificateCheck
             }
 
-            New-VenafiSession @refreshParams
+            New-TrustClient @refreshParams
             return
         }
 
@@ -474,44 +473,44 @@ function New-VenafiSession {
             }
 
             $token = New-VdcToken @params -Verbose:$isVerbose
-            $newSession.Auth.Type = 'OAuth'
-            $newSession.Auth.AccessToken = $token.AccessToken
-            $newSession.Auth.RefreshToken = $token.RefreshToken
-            $newSession.Auth.AuthServer = $token.Server
-            $newSession.Auth.ClientId = $token.ClientId
-            $newSession.Auth.Scope = $token.Scope
-            $newSession.Auth.Expires = $token.Expires
-            if ($token.RefreshExpires) { $newSession.Auth.RefreshExpires = $token.RefreshExpires }
-            if ($Credential) { $newSession.Auth.Credential = $Credential }
+            $newClient.AuthType = 'OAuth'
+            $newClient.AccessToken = $token.AccessToken
+            $newClient.RefreshToken = $token.RefreshToken
+            $newClient.AuthServer = $token.Server
+            $newClient.ClientId = $token.ClientId
+            $newClient.Scope = $token.Scope
+            $newClient.Expires = $token.Expires
+            if ($token.RefreshExpires -gt [datetime]::MinValue) { $newClient.RefreshExpires = $token.RefreshExpires }
+            if ($Credential) { $newClient.Credential = $Credential }
         }
 
         'VcToken' {
             # access token via service account for Certificate Manager, SaaS
-            $newSession.Platform = 'VC'
+            $newClient.Platform = 'VC'
             $systemUri = [System.Uri]::new($VcEndpoint)
-            $newSession.Server = 'https://{0}' -f $systemUri.Host
+            $newClient.Server = 'https://{0}' -f $systemUri.Host
             $token = New-VcToken -Endpoint $VcEndpoint -Jwt $Jwt -Verbose:$isVerbose
-            $newSession.Auth.Type = 'BearerToken'
-            $newSession.Auth.AccessToken = $token.AccessToken
-            $newSession.Auth.Expires = $token.Expires
-            $newSession.Auth.Scope = $token.Scope
-            $newSession.Auth.AuthServer = $VcEndpoint
-            $newSession.Auth.Credential = New-Object System.Management.Automation.PSCredential('JWT', ($Jwt | ConvertTo-SecureString -AsPlainText -Force))
+            $newClient.AuthType = 'BearerToken'
+            $newClient.AccessToken = $token.AccessToken
+            $newClient.Expires = $token.Expires
+            $newClient.Scope = $token.Scope
+            $newClient.AuthServer = $token.Server
+            $newClient.Credential = $token.Credential
         }
 
         'AccessToken' {
-            $newSession.Auth.Type = 'BearerToken'
-            $newSession.Auth.AuthServer = $authServerUrl
+            $newClient.AuthType = 'BearerToken'
+            $newClient.AuthServer = $authServerUrl
             # we don't have the expiry so create one and rely on api failures if invalid
-            $newSession.Auth.Expires = (Get-Date).AddMonths(12)
+            $newClient.Expires = (Get-Date).AddMonths(12)
 
-            $newSession.Auth.AccessToken = if ( $AccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($AccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
+            $newClient.AccessToken = if ( $AccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($AccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($AccessToken -is [pscredential]) { $AccessToken }
             elseif ($AccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $AccessToken) }
             else { throw 'Unsupported type for -AccessToken.  Provide either a String, SecureString, or PSCredential.' }
 
             # validate token
-            $null = Invoke-VenafiRestMethod -UriRoot 'vedauth' -UriLeaf 'Authorize/Verify' -VenafiSession $newSession
+            $null = Invoke-TrustRestMethod -UriRoot 'vedauth' -UriLeaf 'Authorize/Verify' -TrustClient $newClient
         }
 
         'VaultAccessToken' {
@@ -524,17 +523,17 @@ function New-VenafiSession {
             $secretInfo = Get-SecretInfo -Name $VaultAccessTokenName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
 
             if ( $secretInfo.Metadata.Count -gt 0 ) {
-                $newSession.Server = $secretInfo.Metadata.Server
-                $newSession.Auth.Type = 'BearerToken'
-                $newSession.Auth.AuthServer = $secretInfo.Metadata.AuthServer
-                $newSession.Auth.AccessToken = $tokenSecret
-                $newSession.Auth.ClientId = $secretInfo.Metadata.ClientId
-                $newSession.Auth.Scope = $secretInfo.Metadata.Scope
-                $newSession.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
-                $newSession.TimeoutSec = $secretInfo.Metadata.TimeoutSec
+                $newClient.Server = $secretInfo.Metadata.Server
+                $newClient.AuthType = 'BearerToken'
+                $newClient.AuthServer = $secretInfo.Metadata.AuthServer
+                $newClient.AccessToken = $tokenSecret
+                $newClient.ClientId = $secretInfo.Metadata.ClientId
+                $newClient.Scope = $secretInfo.Metadata.Scope
+                $newClient.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
+                $newClient.TimeoutSec = $secretInfo.Metadata.TimeoutSec
             }
             else {
-                throw 'Server and ClientId metadata not found.  Execute New-VenafiSession -Server $server -Credential $cred -ClientId $clientId -Scope $scope -VaultAccessToken $secretName and attempt the operation again.'
+                throw 'Server and ClientId metadata not found.  Execute New-TrustClient -Server $server -Credential $cred -ClientId $clientId -Scope $scope -VaultAccessToken $secretName and attempt the operation again.'
             }
 
         }
@@ -551,14 +550,14 @@ function New-VenafiSession {
             else { throw 'Unsupported type for -RefreshToken.  Provide either a String, SecureString, or PSCredential.' }
 
             $newToken = New-VdcToken @params
-            $newSession.Auth.Type = 'OAuth'
-            $newSession.Auth.AccessToken = $newToken.AccessToken
-            $newSession.Auth.RefreshToken = $newToken.RefreshToken
-            $newSession.Auth.AuthServer = $newToken.Server
-            $newSession.Auth.ClientId = $newToken.ClientId
-            $newSession.Auth.Scope = $newToken.Scope
-            $newSession.Auth.Expires = $newToken.Expires
-            if ($newToken.RefreshExpires) { $newSession.Auth.RefreshExpires = $newToken.RefreshExpires }
+            $newClient.AuthType = 'OAuth'
+            $newClient.AccessToken = $newToken.AccessToken
+            $newClient.RefreshToken = $newToken.RefreshToken
+            $newClient.AuthServer = $newToken.Server
+            $newClient.ClientId = $newToken.ClientId
+            $newClient.Scope = $newToken.Scope
+            $newClient.Expires = $newToken.Expires
+            if ($newToken.RefreshExpires) { $newClient.RefreshExpires = $newToken.RefreshExpires }
         }
 
         'VaultRefreshToken' {
@@ -578,29 +577,29 @@ function New-VenafiSession {
                 }
             }
             else {
-                throw 'Server and ClientId metadata not found.  Execute New-VenafiSession -Server $server -Credential $cred -ClientId $clientId -Scope $scope -VaultRefreshToken $secretName and attempt the operation again.'
+                throw 'Server and ClientId metadata not found.  Execute New-TrustClient -Server $server -Credential $cred -ClientId $clientId -Scope $scope -VaultRefreshToken $secretName and attempt the operation again.'
             }
 
             $params.RefreshToken = $tokenSecret
 
             $newToken = New-VdcToken @params
-            $newSession.Auth.Type = 'OAuth'
-            $newSession.Auth.AccessToken = $newToken.AccessToken
-            $newSession.Auth.RefreshToken = $newToken.RefreshToken
-            $newSession.Auth.AuthServer = $newToken.Server
-            $newSession.Auth.ClientId = $newToken.ClientId
-            $newSession.Auth.Scope = $newToken.Scope
-            $newSession.Auth.Expires = $newToken.Expires
-            if ($newToken.RefreshExpires) { $newSession.Auth.RefreshExpires = $newToken.RefreshExpires }
-            $newSession.Server = $newToken.Server
-            $newSession.Auth.Scope = $secretInfo.Metadata.Scope | ConvertFrom-Json
-            $newSession.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
-            $newSession.TimeoutSec = $secretInfo.Metadata.TimeoutSec
+            $newClient.AuthType = 'OAuth'
+            $newClient.AccessToken = $newToken.AccessToken
+            $newClient.RefreshToken = $newToken.RefreshToken
+            $newClient.AuthServer = $newToken.Server
+            $newClient.ClientId = $newToken.ClientId
+            $newClient.Scope = $newToken.Scope
+            $newClient.Expires = $newToken.Expires
+            if ($newToken.RefreshExpires) { $newClient.RefreshExpires = $newToken.RefreshExpires }
+            $newClient.Server = $newToken.Server
+            $newClient.Scope = $secretInfo.Metadata.Scope | ConvertFrom-Json
+            $newClient.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
+            $newClient.TimeoutSec = $secretInfo.Metadata.TimeoutSec
         }
 
         'Vc' {
-            $newSession.Platform = 'VC'
-            $newSession.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+            $newClient.Platform = 'VC'
+            $newClient.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
                 ($script:VcRegions).$VcRegion
             }
             else {
@@ -610,33 +609,33 @@ function New-VenafiSession {
             elseif ($VcKey -is [pscredential]) { $VcKey }
             elseif ($VcKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('VcKey', $VcKey) }
             else { throw 'Unsupported type for -VcKey.  Provide either a String, SecureString, or PSCredential.' }
-            $newSession.Auth.Type = 'ApiKey'
-            $newSession.Auth.ApiKey = $key
+            $newClient.AuthType = 'ApiKey'
+            $newClient.ApiKey = $key
 
             if ( $VaultVcKeyName ) {
                 $metadata = @{
-                    Server     = $newSession.Server
-                    TimeoutSec = [int]$newSession.TimeoutSec
+                    Server     = $newClient.Server
+                    TimeoutSec = [int]$newClient.TimeoutSec
                 }
-                Set-Secret -Name $VaultVcKeyName -Secret $newSession.Auth.ApiKey -Vault 'VenafiPS' -Metadata $metadata
+                Set-Secret -Name $VaultVcKeyName -Secret $newClient.ApiKey -Vault 'VenafiPS' -Metadata $metadata
             }
         }
 
         'VcAccessToken' {
-            $newSession.Platform = 'VC'
-            $newSession.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+            $newClient.Platform = 'VC'
+            $newClient.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
                 ($script:VcRegions).$VcRegion
             }
             else {
                 $VcRegion
             }
-            $newSession.Auth.Type = 'BearerToken'
+            $newClient.AuthType = 'BearerToken'
 
-            $newSession.Auth.AccessToken = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
+            $newClient.AccessToken = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($VcAccessToken -is [pscredential]) { $VcAccessToken }
             elseif ($VcAccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $VcAccessToken) }
             else { throw 'Unsupported type for -VcAccessToken.  Provide either a String, SecureString, or PSCredential.' }
-            $newSession.Auth.Expires = (Get-Date).AddMonths(12)
+            $newClient.Expires = (Get-Date).AddMonths(12)
         }
 
         'VaultVcKey' {
@@ -648,15 +647,15 @@ function New-VenafiSession {
             $secretInfo = Get-SecretInfo -Name $VaultVcKeyName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
 
             if ( $secretInfo.Metadata.Count -gt 0 ) {
-                $newSession.Server = $secretInfo.Metadata.Server
+                $newClient.Server = $secretInfo.Metadata.Server
             }
             else {
-                throw 'Server metadata not found.  Execute New-VenafiSession -VcKey $key -VaultVcKeyName $secretName and attempt the operation again.'
+                throw 'Server metadata not found.  Execute New-TrustClient -VcKey $key -VaultVcKeyName $secretName and attempt the operation again.'
             }
 
-            $newSession.Platform = 'VC'
-            $newSession.Auth.Type = 'ApiKey'
-            $newSession.Auth.ApiKey = $keySecret
+            $newClient.Platform = 'VC'
+            $newClient.AuthType = 'ApiKey'
+            $newClient.ApiKey = $keySecret
         }
 
         'Ngts' {
@@ -670,18 +669,18 @@ function New-VenafiSession {
 
             $token = New-NgtsToken @params -Verbose:$isVerbose
 
-            $newSession.Platform = 'NGTS'
-            $newSession.Server = 'https://api.strata.paloaltonetworks.com'
-            $newSession.Auth.Type = 'ClientCredential'
-            $newSession.Auth.Credential = $NgtsCredential
-            $newSession.Auth.AccessToken = $token.AccessToken
-            $newSession.Auth.Scope = $token.Scope
-            $newSession.Auth.Expires = $token.Expires
+            $newClient.Platform = 'NGTS'
+            $newClient.Server = 'https://api.strata.paloaltonetworks.com'
+            $newClient.AuthType = 'ClientCredential'
+            $newClient.Credential = $NgtsCredential
+            $newClient.AccessToken = $token.AccessToken
+            $newClient.Scope = $token.Scope
+            $newClient.Expires = $token.Expires
             if ($Tsg) {
-                $newSession.Auth.Tsg = $Tsg
+                $newClient.Tsg = $Tsg
             }
             elseif ( $token.Scope -match '(?:^|\s)tsg_id:([^\s]+)' ) {
-                $newSession.Auth.Tsg = $Matches[1]
+                $newClient.Tsg = $Matches[1]
             }
         }
 
@@ -692,39 +691,31 @@ function New-VenafiSession {
 
     # will fail if user is on an older version.  this isn't required so bypass on failure
     # only applicable to tpp
-    if ( $newSession.Platform -eq 'VDC' ) {
-        #     $params = @{
-
-        #     Method        = 'Get'
-        #     UriLeaf       = 'SystemStatus/Version'
-        # }
-
-        # try {
-        $newSession.Version = [Version]((Invoke-VenafiRestMethod -UriLeaf 'SystemStatus/Version' -VenafiSession $newSession -ErrorAction SilentlyContinue).Version)
-        # $newSession.Version = (Get-VdcVersion -VenafiSession $newSession -ErrorAction SilentlyContinue)
-        $certFields = 'X509 Certificate', 'Device', 'Application Base' | Get-VdcCustomField -VenafiSession $newSession -ErrorAction SilentlyContinue
+    if ( $newClient.Platform -eq 'VDC' ) {
+        $newClient.Version = [Version]((Invoke-TrustRestMethod -UriLeaf 'SystemStatus/Version' -TrustClient $newClient -ErrorAction SilentlyContinue).Version)
+        $certFields = 'X509 Certificate', 'Device', 'Application Base' | Get-VdcCustomField -TrustClient $newClient -ErrorAction SilentlyContinue
         # make sure we remove duplicates
-        $newSession.CustomField = $certFields.Items | Sort-Object -Property Guid -Unique
+        $newClient.CustomField = $certFields.Items | Sort-Object -Property Guid -Unique
     }
-    elseif ( $newSession.Platform -eq 'NGTS' ) {
+    elseif ( $newClient.Platform -eq 'NGTS' ) {
         # NGTS does not expose the VC useraccounts endpoint. Capture TSG context from token scope.
-        # if ( -not $newSession.Auth.Tsg -and $newSession.Auth.Scope -match '(?:^|\s)tsg_id:([^\s]+)' ) {
-        #     $newSession.Auth.Tsg = $Matches[1]
+        # if ( -not $newClient.Tsg -and $newClient.Scope -match '(?:^|\s)tsg_id:([^\s]+)' ) {
+        #     $newClient.Tsg = $Matches[1]
         # }
 
-        # if ( $newSession.Auth.Tsg ) {
-        #     $newSession.User = [pscustomobject] @{
-        #         tsgId = $newSession.Auth.Tsg
-        #         scope = $newSession.Auth.Scope
+        # if ( $newClient.Tsg ) {
+        #     $newClient.User = [pscustomobject] @{
+        #         tsgId = $newClient.Tsg
+        #         scope = $newClient.Scope
         #     }
         # }
     }
     else {
 
         # user might not have access to this api, eg. service account
-        $me = Invoke-VenafiRestMethod -UriLeaf 'useraccounts' -VenafiSession $newSession -ErrorAction SilentlyContinue
+        $me = Invoke-TrustRestMethod -UriLeaf 'useraccounts' -TrustClient $newClient -ErrorAction SilentlyContinue
         if ( $me.user ) {
-            $newSession.User = $me.user | Select-Object @{
+            $newClient.User = $me.user | Select-Object @{
                 'n' = 'userId'
                 'e' = {
                     $_.Id
@@ -736,22 +727,22 @@ function New-VenafiSession {
     if ( $VaultAccessTokenName -or $VaultRefreshTokenName ) {
         # save secret and all associated metadata to be retrieved later
         $metadata = @{
-            Server               = $newSession.Server
-            AuthServer           = $newSession.Auth.AuthServer
-            ClientId             = $newSession.Auth.ClientId
-            Scope                = $newSession.Auth.Scope | ConvertTo-Json -Compress
-            SkipCertificateCheck = [int]$newSession.SkipCertificateCheck
-            TimeoutSec           = [int]$newSession.TimeoutSec
+            Server               = $newClient.Server
+            AuthServer           = $newClient.AuthServer
+            ClientId             = $newClient.ClientId
+            Scope                = $newClient.Scope | ConvertTo-Json -Compress
+            SkipCertificateCheck = [int]$newClient.SkipCertificateCheck
+            TimeoutSec           = [int]$newClient.TimeoutSec
         }
 
         $metadata | ConvertTo-Json | Write-Verbose
 
         if ( $VaultAccessTokenName ) {
-            Set-Secret -Name $VaultAccessTokenName -Secret $newSession.Auth.AccessToken -Vault 'VenafiPS' -Metadata $metadata
+            Set-Secret -Name $VaultAccessTokenName -Secret $newClient.AccessToken -Vault 'VenafiPS' -Metadata $metadata
         }
         else {
-            if ( $newSession.Auth.RefreshToken ) {
-                Set-Secret -Name $VaultRefreshTokenName -Secret $newSession.Auth.RefreshToken -Vault 'VenafiPS' -Metadata $metadata
+            if ( $newClient.RefreshToken ) {
+                Set-Secret -Name $VaultRefreshTokenName -Secret $newClient.RefreshToken -Vault 'VenafiPS' -Metadata $metadata
             }
             else {
                 Write-Warning 'Refresh token not provided by server and will not be saved in the vault'
@@ -760,10 +751,10 @@ function New-VenafiSession {
     }
 
     if ( $PassThru ) {
-        $newSession
+        $newClient
     }
     else {
-        $Script:VenafiSession = $newSession
+        $Script:TrustClient = $newClient
     }
 }
 

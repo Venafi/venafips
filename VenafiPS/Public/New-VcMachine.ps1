@@ -68,10 +68,9 @@ function New-VcMachine {
     .PARAMETER Force
     Force installation of PSSodium if not already installed
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     $params = @{
@@ -172,7 +171,7 @@ function New-VcMachine {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -279,10 +278,10 @@ function New-VcMachine {
         $params = @{
             InputObject   = $allMachines
             ThrottleLimit = $ThrottleLimit
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ProgressTitle = 'Creating machines'
             ScriptBlock   = {
-                $response = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'machines' -Body $PSItem
+                $response = Invoke-TrustRestMethod -Method 'Post' -UriLeaf 'machines' -Body $PSItem
 
                 if ( $using:NoVerify ) {
                     $response | Select-Object @{
@@ -304,7 +303,7 @@ function New-VcMachine {
             }
         }
 
-        $response = Invoke-VenafiParallel @params
+        $response = Invoke-TrustParallel @params
 
         if ( $PassThru ) {
             $response

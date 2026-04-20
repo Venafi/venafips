@@ -34,9 +34,9 @@ function Set-VdcCredential {
     Expiration date in UTC for the credential.  Provide a DateTime object.
     This can be set for username or password credentials.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -168,7 +168,7 @@ function Set-VdcCredential {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -270,7 +270,7 @@ function Set-VdcCredential {
 
         if ( $PSCmdlet.ShouldProcess( $Path )) {
             $params.Body.CredentialPath = $Path
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response.Result -ne 1 ) {
                 Write-Error $response.Error

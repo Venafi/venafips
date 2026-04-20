@@ -13,10 +13,9 @@ function Get-VcCertificateAuthority {
     .PARAMETER All
     Get all certificate authorities
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     CertificateAuthority
@@ -53,8 +52,7 @@ function Get-VcCertificateAuthority {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key', 'AccessToken')]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     process {
@@ -67,10 +65,10 @@ function Get-VcCertificateAuthority {
                 includeVSatPluginRequired = $true
             }
         }
-        $caTypes = Invoke-VenafiRestMethod @caTypeParams
+        $caTypes = Invoke-TrustRestMethod @caTypeParams
 
         $allCA = foreach ($caType in $caTypes.certificateAuthorities.certificateAuthority) {
-            $thisCAs = Invoke-VenafiRestMethod -UriLeaf ('certificateauthorities/{0}/accounts' -f $caType) -Body @{'includeOptionsDetails' = $true }
+            $thisCAs = Invoke-TrustRestMethod -UriLeaf ('certificateauthorities/{0}/accounts' -f $caType) -Body @{'includeOptionsDetails' = $true }
 
             foreach ($thisCA in $thisCAs.accounts) {
 

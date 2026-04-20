@@ -9,10 +9,9 @@ function Remove-VcCloudProvider {
     .PARAMETER CloudProvider
     1 or more cloud provider IDs or names
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     Remove-VcCloudProvider -CloudProvider 'azure1', 'gcp2'
@@ -31,7 +30,7 @@ function Remove-VcCloudProvider {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {

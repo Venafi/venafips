@@ -14,11 +14,9 @@ function Remove-VdcClient {
         For a registered Agent, delete the associated Device objects, and only certificates that belong to the associated device.
         Delete any related Discovery information. Preserve unrelated device, certificate, and Discovery information in other locations of the Policy tree and Secret Store.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
         Authentication for the function.
-        The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-        A Certificate Manager, Self-Hosted token can also be provided.
-        If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
+        The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
         ClientId
@@ -58,7 +56,7 @@ function Remove-VdcClient {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -84,7 +82,7 @@ function Remove-VdcClient {
                 $params.Body.Clients = [array] $clientIds
                 $params.Body.DeleteAssociatedDevices = $RemoveAssociatedDevice.IsPresent.ToString().ToLower()
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 if ( $response.Errors ) {
                     Write-Error ($response.Errors | ConvertTo-Json)

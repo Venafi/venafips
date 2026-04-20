@@ -29,11 +29,9 @@ function New-VdcTeam {
     .PARAMETER PassThru
     Send back details on the newly created team
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token key can also provided.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     New-VdcTeam -Name 'My New Team' -Member 'local:{803f332e-7576-4696-a5a2-8ac6be6b14e6}' -Owner 'local:{803f332e-7576-4696-a5a2-8ac6be6b14e7}' -Product 'TLS'
@@ -105,7 +103,7 @@ function New-VdcTeam {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -158,7 +156,7 @@ function New-VdcTeam {
             $params.Body.Add('Description', $Description)
         }
 
-        $response = Invoke-VenafiRestMethod @params | Select-Object -ExpandProperty ID
+        $response = Invoke-TrustRestMethod @params | Select-Object -ExpandProperty ID
 
         if ( $PassThru ) {
             $response | Get-VdcTeam

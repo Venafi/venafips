@@ -69,10 +69,9 @@ function New-VcCloudProvider {
     .PARAMETER PassThru
     Return newly created cloud provider object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .OUTPUTS
     PSCustomObject, if PassThru provided
@@ -206,7 +205,7 @@ function New-VcCloudProvider {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {

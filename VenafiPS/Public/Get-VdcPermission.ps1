@@ -24,9 +24,9 @@ function Get-VdcPermission {
     .PARAMETER Explicit
     Get explicit (direct) and implicit (inherited) permissions instead of effective.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     InputObject, Path, Guid, IdentityId
@@ -108,7 +108,6 @@ function Get-VdcPermission {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByObject')]
-    [Alias('Get-VdcPermission')]
 
     param (
 
@@ -151,7 +150,7 @@ function Get-VdcPermission {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -200,7 +199,7 @@ function Get-VdcPermission {
 
             try {
                 # get list of identities permissioned to this object
-                $identities = Invoke-VenafiRestMethod @params
+                $identities = Invoke-TrustRestMethod @params
             }
             catch {
                 Write-Error ('Couldn''t obtain list of permissions for {0}.  {1}' -f $thisTppObject.Path, $_ | Out-String)
@@ -258,7 +257,7 @@ function Get-VdcPermission {
 
                 try {
 
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
 
                     if ( $Explicit ) {
                         $thisReturnObject.ExplicitPermissions = [VdcPermission] $response.ExplicitPermissions

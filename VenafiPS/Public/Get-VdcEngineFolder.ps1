@@ -14,10 +14,9 @@ function Get-VdcEngineFolder {
     .PARAMETER All
     Get all engine/folder assignments
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -67,7 +66,7 @@ function Get-VdcEngineFolder {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -76,7 +75,7 @@ function Get-VdcEngineFolder {
     process {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
-            Invoke-VenafiRestMethod -UriLeaf 'ProcessingEngines/' | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue | Get-VdcEngineFolder
+            Invoke-TrustRestMethod -UriLeaf 'ProcessingEngines/' | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue | Get-VdcEngineFolder
         } else {
 
             if ( [guid]::TryParse($ID, $([ref][guid]::Empty)) ) {
@@ -91,7 +90,7 @@ function Get-VdcEngineFolder {
 
                 # engine
 
-                $response = Invoke-VenafiRestMethod -UriLeaf "ProcessingEngines/Engine/$thisObjectGuid" | Select-Object -ExpandProperty Folders -ErrorAction SilentlyContinue
+                $response = Invoke-TrustRestMethod -UriLeaf "ProcessingEngines/Engine/$thisObjectGuid" | Select-Object -ExpandProperty Folders -ErrorAction SilentlyContinue
 
                 $response | Where-Object { $_.FolderGuid -ne $thisObjectGuid } | Select-Object FolderName,
                 @{ 'n' = 'FolderPath'; 'e' = { $_.FolderDN } },
@@ -104,7 +103,7 @@ function Get-VdcEngineFolder {
 
                 # policy folder
 
-                $response = Invoke-VenafiRestMethod -UriLeaf "ProcessingEngines/Folder/$thisObjectGuid" | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue
+                $response = Invoke-TrustRestMethod -UriLeaf "ProcessingEngines/Folder/$thisObjectGuid" | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue
 
                 $response | Select-Object EngineName,
                 @{ 'n' = 'EnginePath'; 'e' = { $_.EngineDN } },

@@ -5,7 +5,7 @@ function New-VcToken {
 
     .DESCRIPTION
     Get a new access token from an endpoint and JWT.
-    You can also provide a VenafiSession, or no session to use the script scoped one, which will use the stored endpoint and jwt to refresh the access token.
+    You can also provide a TrustClient, or no session to use the script scoped one, which will use the stored endpoint and jwt to refresh the access token.
     This only works if the jwt has not expired.
 
     .PARAMETER Endpoint
@@ -14,14 +14,14 @@ function New-VcToken {
     .PARAMETER Jwt
     JSON web token with access to the configured service account
 
-    .PARAMETER VenafiSession
-    VenafiSession object created from New-VenafiSession method.
+    .PARAMETER TrustClient
+    TrustClient object created from New-TrustClient method.
     This can be used to refresh the access token if the JWT has not expired.
 
     .EXAMPLE
     New-VcToken
 
-    Refresh the existing access token stored in the script scoped variable VenafiSession
+    Refresh the existing access token stored in the script scoped variable TrustClient
     Only possible if the JWT has not expired.
 
     .EXAMPLE
@@ -30,7 +30,7 @@ function New-VcToken {
     Get a new token with OAuth
 
     .EXAMPLE
-    New-VcToken -VenafiSession $sess
+    New-VcToken -TrustClient $sess
 
     Refresh the existing access token stored in session.
     Only possible if the JWT has not expired.
@@ -39,16 +39,12 @@ function New-VcToken {
     None
 
     .OUTPUTS
-    PSCustomObject with the following properties:
-        Endpoint
-        AccessToken
-        JWT
-        Expires
+    TrustToken
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ScriptSession')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting to a secure string, its already plaintext')]
-    [OutputType([PSCustomObject])]
+    [OutputType([TrustToken])]
 
     param (
         [Parameter(ParameterSetName = 'Endpoint', Mandatory)]
@@ -72,13 +68,13 @@ function New-VcToken {
         [Parameter(ParameterSetName = 'Session', Mandatory)]
         [ValidateScript(
             {
-                if ( -not $_.Auth.AuthServer -or -not $_.Auth.Credential ) {
-                    throw 'VenafiSession requires Endpoint and JWT.  To get a new access token, create a new session with New-VenafiSession.'
+                if ( -not $_.AuthServer -or -not $_.Credential ) {
+                    throw 'TrustClient requires Endpoint and JWT.  To get a new access token, create a new session with New-TrustClient.'
                 }
                 $true
             }
         )]
-        [object] $VenafiSession
+        [object] $TrustClient
 
     )
 
@@ -96,18 +92,18 @@ function New-VcToken {
     if ( $PSCmdlet.ParameterSetName -in 'ScriptSession', 'Session' ) {
 
         $sess = if ( $PSCmdlet.ParameterSetName -eq 'ScriptSession' ) {
-            $script:VenafiSession
+            $script:TrustClient
         }
         else {
-            $VenafiSession
+            $TrustClient
         }
 
-        $params.Uri = $sess.Auth.AuthServer
-        if ( $sess.Auth.Credential ) {
-            $params.Body.client_assertion = $sess.Auth.Credential.GetNetworkCredential().password
+        $params.Uri = $sess.AuthServer
+        if ( $sess.Credential ) {
+            $params.Body.client_assertion = $sess.Credential.GetNetworkCredential().password
         }
         if ( -not $params.Body.client_assertion ) {
-            throw [System.ArgumentException]::new('-Jwt must be provided directly or via a VenafiSession.')
+            throw [System.ArgumentException]::new('-Jwt must be provided directly or via a TrustClient.')
         }
     }
 
@@ -118,19 +114,19 @@ function New-VcToken {
 
     $response | Write-VerboseWithSecret
 
-    $newToken = [PSCustomObject] @{
-        Endpoint    = $params.Uri
-        AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
-        JWT         = New-Object System.Management.Automation.PSCredential('JWT', ($params.Body.client_assertion | ConvertTo-SecureString -AsPlainText -Force))
-        Expires     = [DateTime]::UtcNow.AddSeconds($response.expires_in)
-    }
+    $newToken = [TrustToken]::new()
+    $newToken.Server = $params.Uri
+    $newToken.AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
+    $newToken.Credential = New-Object System.Management.Automation.PSCredential('JWT', ($params.Body.client_assertion | ConvertTo-SecureString -AsPlainText -Force))
+    $newToken.Scope = $response.scope
+    $newToken.Expires = [DateTime]::UtcNow.AddSeconds($response.expires_in)
 
     if ( $PSCmdlet.ParameterSetName -eq 'ScriptSession' ) {
-        $script:VenafiSession.Auth.AccessToken = $newToken.AccessToken
-        $script:VenafiSession.Auth.Expires = $newToken.Expires
-        $script:VenafiSession.Auth.AuthServer = $newToken.Endpoint
-        $script:VenafiSession.Auth.Credential = $newToken.JWT
-        Write-Verbose 'Refreshed access token in script scoped variable VenafiSession'
+        $script:TrustClient.AccessToken = $newToken.AccessToken
+        $script:TrustClient.Expires = $newToken.Expires
+        $script:TrustClient.AuthServer = $newToken.Server
+        $script:TrustClient.Credential = $newToken.Credential
+        Write-Verbose 'Refreshed access token in script scoped variable TrustClient'
     }
     else {
         $newToken

@@ -149,9 +149,9 @@ function Find-VdcCertificate {
     .PARAMETER CountOnly
     Return the count of certificates found from the query as opposed to the certificates themselves
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -399,7 +399,7 @@ function Find-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -589,7 +589,7 @@ function Find-VdcCertificate {
             }
         }
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         $totalRecordCount = 0
         if ($PSVersionTable.PSVersion.Major -lt 6) {
@@ -631,7 +631,7 @@ function Find-VdcCertificate {
 
             Write-Verbose ('getting {0}-{1} of {2}' -f ($params.Body.Offset + 1), $end, $totalRecordCount)
             try {
-                $response = Invoke-VenafiRestMethod @params -Verbose:$false
+                $response = Invoke-TrustRestMethod @params -Verbose:$false
             }
             catch {
                 $ProgressPreference = $oldProgressPreference

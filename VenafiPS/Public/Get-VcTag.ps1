@@ -14,10 +14,9 @@ function Get-VcTag {
     .PARAMETER All
     Get all tags
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Name
@@ -52,7 +51,7 @@ function Get-VcTag {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -61,8 +60,8 @@ function Get-VcTag {
     process {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
-            $allTags = Invoke-VenafiRestMethod -UriLeaf 'tags' | Select-Object -ExpandProperty tags
-            $allValues = Invoke-VenafiRestMethod -UriLeaf 'tags/values' | Select-Object -ExpandProperty values
+            $allTags = Invoke-TrustRestMethod -UriLeaf 'tags' | Select-Object -ExpandProperty tags
+            $allValues = Invoke-TrustRestMethod -UriLeaf 'tags/values' | Select-Object -ExpandProperty values
 
             $allTags | Select-Object @{'n' = 'tagId'; 'e' = { $_.key } },
             @{
@@ -87,8 +86,8 @@ function Get-VcTag {
                 $requestName = $Tag
             }
 
-            $thisTag = Invoke-VenafiRestMethod -UriLeaf "tags/$requestName"
-            $thisTagValues = Invoke-VenafiRestMethod -UriLeaf "tags/$requestName/values" | Select-Object -ExpandProperty values
+            $thisTag = Invoke-TrustRestMethod -UriLeaf "tags/$requestName"
+            $thisTagValues = Invoke-TrustRestMethod -UriLeaf "tags/$requestName/values" | Select-Object -ExpandProperty values
 
             if ( $thisTag ) {
 

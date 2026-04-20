@@ -28,10 +28,9 @@ function Set-VcCertificate {
     .PARAMETER PassThru
     Return the newly updated certificate object(s)
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Certificate
@@ -98,8 +97,7 @@ function Set-VcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key')]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -166,7 +164,7 @@ function Set-VcCertificate {
             'Application' {
                 $params.Body.certificateIds = $allCerts
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 if ( $PassThru ) {
                     $response.certificates
@@ -176,7 +174,7 @@ function Set-VcCertificate {
             'Tag' {
                 $params.Body.entityIds = $allCerts
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 if ( $PassThru ) {
                     $response.tagsAssignInformation | Select-Object -Property @{'n' = 'certificateId'; 'e' = { $_.entityId } }, * -ExcludeProperty entityId, entityType

@@ -22,10 +22,9 @@ function New-VcConnector {
     .PARAMETER PassThru
     Return newly created connector object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .OUTPUTS
     PSCustomObject, if PassThru provided
@@ -76,7 +75,7 @@ function New-VcConnector {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -132,7 +131,7 @@ function New-VcConnector {
         if ( $PSCmdlet.ShouldProcess($manifestBody.manifest.name, 'Create connector') ) {
 
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 if ( $PassThru ) {
                     $response.plugins | Select-Object @{ 'n' = 'connectorId'; 'e' = { $_.Id } }, @{ 'n' = 'connectorType'; 'e' = { $_.pluginType } }, * -ExcludeProperty Id, pluginType
                 }

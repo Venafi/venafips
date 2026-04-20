@@ -188,7 +188,7 @@ function Get-VcData {
 
             'Credential' {
                 if ( -not $script:vcCredential ) {
-                    $script:vcCredential = Invoke-VenafiRestMethod -UriLeaf "credentials" |
+                    $script:vcCredential = Invoke-TrustRestMethod -UriLeaf "credentials" |
                         Select-Object -ExpandProperty credentials |
                         Select-Object -Property @{'n' = 'credentialId'; 'e' = { $_.Id } }, * -ExcludeProperty id
                     $latest = $true
@@ -199,7 +199,7 @@ function Get-VcData {
                 if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.credentialId }
                     if ( -not $thisObject -and -not $latest ) {
-                        $script:vcCredential = Invoke-VenafiRestMethod -UriLeaf "credentials" |
+                        $script:vcCredential = Invoke-TrustRestMethod -UriLeaf "credentials" |
                             Select-Object -ExpandProperty credentials |
                             Select-Object -Property @{'n' = 'credentialId'; 'e' = { $_.Id } }, * -ExcludeProperty id
                         $thisObject = $script:vcCredential | Where-Object { $InputObject -in $_.name, $_.credentialId }
@@ -210,7 +210,7 @@ function Get-VcData {
 
             'Plugin' {
                 if ( -not $script:vcPlugin ) {
-                    $script:vcPlugin = Invoke-VenafiRestMethod -UriLeaf "plugins" |
+                    $script:vcPlugin = Invoke-TrustRestMethod -UriLeaf "plugins" |
                         Select-Object -ExpandProperty plugins |
                         Select-Object -Property @{'n' = 'pluginId'; 'e' = { $_.Id } }, * -ExcludeProperty id
                     $latest = $true
@@ -221,7 +221,7 @@ function Get-VcData {
                 if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.pluginId }
                     if ( -not $thisObject -and -not $latest ) {
-                        $script:vcPlugin = Invoke-VenafiRestMethod -UriLeaf "plugins" |
+                        $script:vcPlugin = Invoke-TrustRestMethod -UriLeaf "plugins" |
                             Select-Object -ExpandProperty plugins |
                             Select-Object -Property @{'n' = 'pluginId'; 'e' = { $_.Id } }, * -ExcludeProperty id
                         $thisObject = $script:vcPlugin | Where-Object { $InputObject -in $_.name, $_.pluginId }
@@ -314,7 +314,7 @@ function Get-VcData {
 
             'Algorithm' {
                 if ( -not $script:vdcAlgorithm ) {
-                    $script:vdcAlgorithm = Invoke-VenafiRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
+                    $script:vdcAlgorithm = Invoke-TrustRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
                         Select-Object -ExpandProperty Selectors |
                         Select-Object -Property @{'n' = 'AlgorithmId'; 'e' = { $_.PkixParameterSetOid } }, @{'n' = 'Name'; 'e' = { $_.Algorithm } }, * -ExcludeProperty PkixParameterSetOid, Algorithm
                     $latest = $true
@@ -325,7 +325,7 @@ function Get-VcData {
                 if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.Name, $_.AlgorithmId }
                     if ( -not $thisObject -and -not $latest ) {
-                        $script:vdcAlgorithm = Invoke-VenafiRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
+                        $script:vdcAlgorithm = Invoke-TrustRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
                             Select-Object -ExpandProperty Selectors |
                             Select-Object -Property @{'n' = 'AlgorithmId'; 'e' = { $_.PkixParameterSetOid } }, @{'n' = 'Name'; 'e' = { $_.Algorithm } }, * -ExcludeProperty PkixParameterSetOid, Algorithm
                         $thisObject = $script:vdcAlgorithm | Where-Object { $InputObject -in $_.Name, $_.AlgorithmId }

@@ -13,7 +13,7 @@ function Set-VdcAttribute {
     .PARAMETER Attribute
     Hashtable with names and values to be set.
     If setting a custom field, you can use either the name or guid as the key.
-    If using a custom field name, you must have created a session with New-VenafiSession and not just a Certificate Manager, Self-Hosted token.
+    If using a custom field name, you must have created a session with New-TrustClient and not just a Certificate Manager, Self-Hosted token.
     To clear a value overwriting policy, set the value to $null.
 
     .PARAMETER Class
@@ -31,9 +31,9 @@ function Set-VdcAttribute {
     Unlike overwriting, adding can only be a single value, not an array.
     Not applicable to custom fields.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -141,13 +141,13 @@ function Set-VdcAttribute {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
         $params = @{
             Method        = 'Post'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
         }
 
         $baseFields = @()
@@ -173,7 +173,7 @@ function Set-VdcAttribute {
             }
             $customFieldError = $null
 
-            $customField = $VenafiSession.CustomField | Where-Object { $_.Label -eq $thisKey -or $_.Guid -eq $thisKey }
+            $customField = $TrustClient.CustomField | Where-Object { $_.Label -eq $thisKey -or $_.Guid -eq $thisKey }
             if ( $customField ) {
                 Write-Verbose ('found custom field {0} - {1}' -f $customField.DN, $customField | ConvertTo-Json)
                 if ( -not $BypassValidation ) {
@@ -266,7 +266,7 @@ function Set-VdcAttribute {
                         $params.Body.Values = @($field.Value)
                     }
 
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
 
                     if ( $response.Result -ne 1 ) {
                         Write-Error $response.Error
@@ -285,7 +285,7 @@ function Set-VdcAttribute {
                             Value         = $field.Value
                         }
 
-                        $response = Invoke-VenafiRestMethod @params
+                        $response = Invoke-TrustRestMethod @params
 
                         if ( $response.Result -ne 1 ) {
                             Write-Error $response.Error
@@ -300,7 +300,7 @@ function Set-VdcAttribute {
                         AttributeData = @($baseFields)
                     }
 
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
 
                     if ( $response.Result -ne 1 ) {
                         Write-Error $response.Error
@@ -330,7 +330,7 @@ function Set-VdcAttribute {
                 }
             }
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response.Result -ne [TppMetadataResult]::Success ) {
                 Write-Error $response.Error

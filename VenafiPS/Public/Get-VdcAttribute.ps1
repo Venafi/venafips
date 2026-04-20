@@ -50,11 +50,10 @@ function Get-VdcAttribute {
     Setting the value to 1 will disable multithreading.
     On PS v5 the ThreadJob module is required at module loading time.  If not found, multithreading will be disabled.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
     A Certificate Manager, Self-Hosted token can be provided directly.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
 
     .INPUTS
     Path
@@ -230,7 +229,7 @@ function Get-VdcAttribute {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -240,7 +239,7 @@ function Get-VdcAttribute {
 
         if ( $Class -and $All ) {
             Write-Verbose ('getting attributes for {0}' -f $Class)
-            $classAttributes.$Class = Get-VdcClassAttribute -ClassName $Class -VenafiSession $VenafiSession | Select-Object -ExpandProperty Name -Unique
+            $classAttributes.$Class = Get-VdcClassAttribute -ClassName $Class -TrustClient $TrustClient | Select-Object -ExpandProperty Name -Unique
         }
     }
 
@@ -255,13 +254,13 @@ function Get-VdcAttribute {
 
                 # object attributes, get attributes for this specific type
 
-                $thisObject = Get-VdcObject -Path $Path -VenafiSession $VenafiSession
+                $thisObject = Get-VdcObject -Path $Path -TrustClient $TrustClient
 
                 $thisType = $thisObject.TypeName
 
                 if ( -not $classAttributes.$thisType ) {
                     Write-Verbose ('getting attributes for {0}' -f $thisType)
-                    $classAttributes.$thisType = Get-VdcClassAttribute -ClassName $thisObject.TypeName -VenafiSession $VenafiSession | Select-Object -ExpandProperty Name -Unique
+                    $classAttributes.$thisType = Get-VdcClassAttribute -ClassName $thisObject.TypeName -TrustClient $TrustClient | Select-Object -ExpandProperty Name -Unique
                 }
 
                 $classAttributes.$thisType
@@ -291,7 +290,7 @@ function Get-VdcAttribute {
             InputObject   = $allItems
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = 'Getting attributes'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
                 $Class = $using:Class
                 $NoLookup = $using:NoLookup
@@ -305,7 +304,7 @@ function Get-VdcAttribute {
                         AttributeName = $attribute
                     }
                     UriLeaf       = 'config/ReadEffectivePolicy'
-                    VenafiSession = $using:VenafiSession
+                    TrustClient = $using:TrustClient
                 }
                 if ( $Class ) {
                     $params.Body.Class = $Class
@@ -317,7 +316,7 @@ function Get-VdcAttribute {
                 if ( -not $NoLookup ) {
 
                     # parallel lookup
-                    $customField = ($using:VenafiSession).CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
+                    $customField = ($using:TrustClient).CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
 
                     if ( $customField ) {
                         $params.Body.AttributeName = $customField.Guid
@@ -328,11 +327,11 @@ function Get-VdcAttribute {
                 if ( $params.Body.AttributeName -eq 'Disabled' ) {
                     $oldUri = $params.UriLeaf
                     $params.UriLeaf = 'Config/Read'
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
                     $params.UriLeaf = $oldUri
                 }
                 else {
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
                 }
 
                 if ( $response.Error ) {
@@ -394,7 +393,7 @@ function Get-VdcAttribute {
             }
         }
 
-        $attribValues = Invoke-VenafiParallel @parallelParams
+        $attribValues = Invoke-TrustParallel @parallelParams
 
         # caller just wants this one value
         if ( $AsValue -and $attribValues.count -eq 1 ) {

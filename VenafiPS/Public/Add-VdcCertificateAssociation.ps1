@@ -20,9 +20,9 @@ function Add-VdcCertificateAssociation {
     Push the certificate after associating it to the Application objects.
     This will only be successful if the certificate management type is Provisioning and is not disabled, in error, or a push is already in process.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -86,7 +86,7 @@ function Add-VdcCertificateAssociation {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -111,7 +111,7 @@ function Add-VdcCertificateAssociation {
         $params.Body.ApplicationDN = @($ApplicationPath)
 
         if ( $PSCmdlet.ShouldProcess($CertificatePath, 'Add association') ) {
-            $null = Invoke-VenafiRestMethod @params
+            $null = Invoke-TrustRestMethod @params
         }
     }
 }

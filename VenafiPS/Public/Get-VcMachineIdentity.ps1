@@ -12,10 +12,9 @@ function Get-VcMachineIdentity {
     .PARAMETER All
     Get all machine identities
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -61,7 +60,7 @@ function Get-VcMachineIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -72,17 +71,17 @@ function Get-VcMachineIdentity {
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
 
             $params = @{
-                InputObject   = Find-VcObject -Type MachineIdentity -VenafiSession $VenafiSession
+                InputObject   = Find-VcObject -Type MachineIdentity -TrustClient $TrustClient
                 ScriptBlock   = {
                     $PSItem | Get-VcMachineIdentity
                 }
-                VenafiSession = $VenafiSession
+                TrustClient = $TrustClient
             }
-            Invoke-VenafiParallel @params
+            Invoke-TrustParallel @params
         }
         else {
             try {
-                $response = Invoke-VenafiRestMethod -UriLeaf ('machineidentities/{0}' -f $ID) -VenafiSession $VenafiSession
+                $response = Invoke-TrustRestMethod -UriLeaf ('machineidentities/{0}' -f $ID) -TrustClient $TrustClient
             }
             catch {
                 if ( $_.Exception.Response.StatusCode.value__ -eq 404 ) {
@@ -98,7 +97,7 @@ function Get-VcMachineIdentity {
                 $response | Select-Object @{ 'n' = 'machineIdentityId'; 'e' = { $_.Id } },
                 @{
                     'n' = 'certificateValidityEnd'
-                    'e' = { Get-VcCertificate -CertificateID $_.certificateId -VenafiSession $VenafiSession | Select-Object -ExpandProperty validityEnd }
+                    'e' = { Get-VcCertificate -CertificateID $_.certificateId -TrustClient $TrustClient | Select-Object -ExpandProperty validityEnd }
                 }, * -ExcludeProperty Id
             }
         }

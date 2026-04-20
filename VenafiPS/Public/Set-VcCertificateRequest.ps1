@@ -25,10 +25,9 @@ function Set-VcCertificateRequest {
     Return the certificate request object.
     If -Wait is specified, the returned object will have details on the newly created certificate.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -91,8 +90,7 @@ function Set-VcCertificateRequest {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key')]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -113,14 +111,14 @@ function Set-VcCertificateRequest {
             }
 
             if ( $PSCmdlet.ShouldProcess($ID, "$decision certificate request") ) {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
             }
 
             if ( $Approve -and $Wait ) {
                 Write-Verbose 'Request approved, waiting for a status of either issued or failed'
                 do {
                     Start-Sleep -Seconds 1
-                    $response = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificaterequests/$ID"
+                    $response = Invoke-TrustRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificaterequests/$ID"
                     Write-Verbose ('Current status: {0}' -f $response.status)
                 } until (
                     $response.status -in 'ISSUED', 'FAILED'

@@ -15,10 +15,9 @@ function Get-VcCertificate {
     .PARAMETER OwnerDetail
     Retrieve extended application owner info
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also be provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -53,7 +52,7 @@ function Get-VcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -88,7 +87,7 @@ function Get-VcCertificate {
         $params.UriLeaf += "?ownershipTree=true"
 
         try {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
         }
         catch {
             $originalError = $_
@@ -99,7 +98,7 @@ function Get-VcCertificate {
                 $message = $_.ErrorDetails.Message | ConvertFrom-Json
                 if ( $message.errors.code -and $message.errors.code -eq 10051 ) {
                     # check if the certificate is a trusted ca certificate, as those are accessed via a different endpoint
-                    $trustedCaCerts = Invoke-VenafiRestMethod -UriLeaf 'trustedcacertificates' | Select-Object -ExpandProperty certificates
+                    $trustedCaCerts = Invoke-TrustRestMethod -UriLeaf 'trustedcacertificates' | Select-Object -ExpandProperty certificates
                     $response = $trustedCaCerts | Where-Object { $Certificate -in $_.id, $_.subjectCN[0] }
                 }
                 else {

@@ -20,9 +20,9 @@ function Remove-VdcObject {
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -72,7 +72,7 @@ function Remove-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession= (Get-VenafiSession)
+        [TrustClient] $TrustClient= (Get-TrustClient)
     )
 
     begin {
@@ -91,7 +91,7 @@ function Remove-VdcObject {
             InputObject   = $allItems
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = 'Removing objects'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
 
                 $params = @{
@@ -104,7 +104,7 @@ function Remove-VdcObject {
                     }
                 }
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 if ( $response.Result -ne 1 ) {
                     Write-Error $response.Error
@@ -113,7 +113,7 @@ function Remove-VdcObject {
             }
         }
 
-        Invoke-VenafiParallel @parallelParams
+        Invoke-TrustParallel @parallelParams
 
     }
 }

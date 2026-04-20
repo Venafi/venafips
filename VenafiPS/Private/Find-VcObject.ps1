@@ -29,10 +29,9 @@ function Find-VcObject {
     .PARAMETER First
     Only retrieve this many records
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .OUTPUTS
     PSCustomObject
@@ -103,7 +102,7 @@ function Find-VcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
 
@@ -181,7 +180,7 @@ function Find-VcObject {
 
     if ( $PSBoundParameters.ContainsKey('SavedSearchName') ) {
         # get saved search data and update payload
-        $thisSavedSearch = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf 'savedsearches' | Select-Object -ExpandProperty savedSearchInfo | Where-Object name -eq $SavedSearchName
+        $thisSavedSearch = Invoke-TrustRestMethod -UriRoot 'outagedetection/v1' -UriLeaf 'savedsearches' | Select-Object -ExpandProperty savedSearchInfo | Where-Object name -eq $SavedSearchName
         if ( $thisSavedSearch ) {
             $body.expression = $thisSavedSearch.searchDetails.expression
             $body.ordering = $thisSavedSearch.searchDetails.ordering
@@ -205,7 +204,7 @@ function Find-VcObject {
 
     do {
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         if ( -not $response ) { continue }
 

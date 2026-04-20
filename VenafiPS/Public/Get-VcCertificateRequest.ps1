@@ -12,10 +12,9 @@ function Get-VcCertificateRequest {
     .PARAMETER All
     Get all certificate requests
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     CertificateRequest
@@ -50,7 +49,7 @@ function Get-VcCertificateRequest {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -67,7 +66,7 @@ function Get-VcCertificateRequest {
             $params.UriLeaf += "/{0}" -f $CertificateRequest
         }
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         if ( $response.PSObject.Properties.Name -contains 'certificateRequests' ) {
             $certificateRequests = $response | Select-Object -ExpandProperty 'certificateRequests'

@@ -13,10 +13,9 @@ function Export-VcReport {
     Optional path to write the output to.
     This is just the directory; the file name will be the Report name, eg. MyReport.csv.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Report
@@ -55,7 +54,7 @@ function Export-VcReport {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     process {

@@ -12,9 +12,9 @@ function Test-VdcIdentity {
     .PARAMETER ExistOnly
     Only return boolean instead of ID and Exists list.  Helpful when validating just 1 identity.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Identity
@@ -63,7 +63,7 @@ function Test-VdcIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -89,7 +89,7 @@ function Test-VdcIdentity {
                 $params.Body.ID.PrefixedName = $thisId
             }
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $ExistOnly ) {
                 $null -ne $response.Id

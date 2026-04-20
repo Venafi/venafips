@@ -15,10 +15,9 @@ function Get-VcSatellite {
     .PARAMETER IncludeWorkers
     Include VSatellite workers in the output
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -81,25 +80,25 @@ function Get-VcSatellite {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        $allKeys = Invoke-VenafiRestMethod -UriLeaf 'edgeencryptionkeys' | Select-Object -ExpandProperty encryptionKeys
+        $allKeys = Invoke-TrustRestMethod -UriLeaf 'edgeencryptionkeys' | Select-Object -ExpandProperty encryptionKeys
     }
 
     process {
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
-            $response = Invoke-VenafiRestMethod -UriLeaf 'edgeinstances' | Select-Object -ExpandProperty edgeinstances
+            $response = Invoke-TrustRestMethod -UriLeaf 'edgeinstances' | Select-Object -ExpandProperty edgeinstances
         }
         else {
             # if the value is a guid, we can look up the vsat directly otherwise get all and search by name
             if ( Test-IsGuid($VSatellite) ) {
                 $guid = [guid] $VSatellite
-                $response = Invoke-VenafiRestMethod -UriLeaf ('edgeinstances/{0}' -f $guid.ToString())
+                $response = Invoke-TrustRestMethod -UriLeaf ('edgeinstances/{0}' -f $guid.ToString())
             }
             else {
-                $response = Invoke-VenafiRestMethod -UriLeaf 'edgeinstances' | Select-Object -ExpandProperty edgeinstances | Where-Object { $_.name -eq $VSatellite }
+                $response = Invoke-TrustRestMethod -UriLeaf 'edgeinstances' | Select-Object -ExpandProperty edgeinstances | Where-Object { $_.name -eq $VSatellite }
             }
         }
 

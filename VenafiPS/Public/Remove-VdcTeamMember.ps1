@@ -13,11 +13,9 @@ function Remove-VdcTeamMember {
     1 or more members to remove from the team
     This is the identity ID property from Find-VdcIdentity or Get-VdcIdentity.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also provided.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -49,7 +47,7 @@ function Remove-VdcTeamMember {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -80,7 +78,7 @@ function Remove-VdcTeamMember {
         }
 
         if ( $PSCmdlet.ShouldProcess($ID, "Delete team members") ) {
-            $null = Invoke-VenafiRestMethod @params
+            $null = Invoke-TrustRestMethod @params
         }
     }
 }

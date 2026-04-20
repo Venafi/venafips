@@ -25,10 +25,9 @@ function Set-VcApplication {
     .PARAMETER PassThru
     Return the newly updated object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -82,8 +81,7 @@ function Set-VcApplication {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key')]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -180,7 +178,7 @@ function Set-VcApplication {
         }
 
         if ( $PSCmdlet.ShouldProcess($params.Body.name, "Update application") ) {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
         }
 
         if ( $PassThru ) {

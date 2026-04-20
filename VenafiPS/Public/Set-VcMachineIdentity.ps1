@@ -28,10 +28,9 @@ function Set-VcMachineIdentity {
     .PARAMETER PassThru
     Return the updated machine identity object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Machine
@@ -88,7 +87,7 @@ function Set-VcMachineIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -215,7 +214,7 @@ function Set-VcMachineIdentity {
         $params.Body = $body
 
         if ( $PSCmdlet.ShouldProcess($thisMI.machineIdentityId, 'Update machine identity') ) {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $PassThru -and $response ) {
                 $response | Get-VcMachineIdentity

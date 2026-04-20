@@ -73,20 +73,20 @@ MIIFLjBYBgkqhkiG9w0BBQ0wSzAqBgkqhkiG9w0BBQww
 Describe 'Import-VcCertificate' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession' -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Initialize-PSSodium' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $mockVSat } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-SodiumEncryptedString' -MockWith { 'encrypted-password' } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-PlaintextString' -MockWith { 'plaintext' } -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiParallel' -MockWith { $mockKeyImportResults } -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-TrustParallel' -MockWith { $mockKeyImportResults } -ModuleName $ModuleName
     }
 
     Context 'PKCS12 auto-detection' {
 
         It 'Should detect PKCS12 data and import with key' {
             Import-VcCertificate -Data $testPkcs12Data -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $null -ne $VenafiSession
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $null -ne $TrustClient
             }
         }
 
@@ -112,7 +112,7 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
 
         It 'Should add cert with key to keyed imports' {
             Import-VcCertificate -Data $testCertAndKeyPemBase64 -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName
         }
     }
 
@@ -122,7 +122,7 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
             Mock -CommandName 'Split-CertificateData' -MockWith {
                 @{ CertPem = "-----BEGIN CERTIFICATE-----`nMIIBIj`n-----END CERTIFICATE-----"; KeyPem = $null; ChainPem = @() }
             } -ModuleName $ModuleName
-            Mock -CommandName 'Invoke-VenafiParallel' -MockWith { $mockNoKeyImportResponse } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-TrustParallel' -MockWith { $mockNoKeyImportResponse } -ModuleName $ModuleName
         }
 
         It 'Should detect raw PEM and call Split-CertificateData' {
@@ -176,18 +176,18 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
         }
     }
 
-    Context 'VenafiSession and ThrottleLimit' {
+    Context 'TrustClient and ThrottleLimit' {
 
-        It 'Should pass VenafiSession to Invoke-VenafiParallel' {
+        It 'Should pass TrustClient to Invoke-TrustParallel' {
             Import-VcCertificate -Data $testPkcs12Data -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $null -ne $VenafiSession
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $null -ne $TrustClient
             }
         }
 
         It 'Should default ThrottleLimit to 1' {
             Import-VcCertificate -Data $testPkcs12Data -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $ThrottleLimit -eq 1
             }
         }
@@ -197,7 +197,7 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
 
         It 'Should accept Data via pipeline' {
             [pscustomobject]@{ Data = $testPkcs12Data; PrivateKeyPassword = 'pass' } | Import-VcCertificate
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName
         }
 
         It 'Should accept multiple objects via pipeline' {
@@ -205,12 +205,12 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
                 [pscustomobject]@{ Data = $testPkcs12Data; PrivateKeyPassword = 'pass' }
                 [pscustomobject]@{ Data = $testPkcs12Data; PrivateKeyPassword = 'pass' }
             ) | Import-VcCertificate
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName
         }
 
         It 'Should accept CertificateData alias via pipeline' {
             [pscustomobject]@{ certificateData = $testPkcs12Data; PrivateKeyPassword = 'pass' } | Import-VcCertificate
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName
         }
     }
 
@@ -218,7 +218,7 @@ Describe 'Import-VcCertificate' -Tags 'Unit' {
 
         It 'Should accept Format parameter without error' {
             Import-VcCertificate -Data $testPkcs12Data -Format 'PKCS12' -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName
         }
     }
 

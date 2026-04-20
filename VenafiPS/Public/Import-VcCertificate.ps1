@@ -36,10 +36,9 @@ function Import-VcCertificate {
     .PARAMETER Force
     Force installation of PSSodium if not already installed.  This is required for the import of keys.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     Import-VcCertificate -CertificatePath c:\www.VenafiPS.com.pfx
@@ -47,22 +46,22 @@ function Import-VcCertificate {
     Import a certificate/key
 
     .EXAMPLE
-    Export-VdcCertificate -Path '\ved\policy\my.cert.com' -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -VenafiSession $vaas_key
+    Export-VdcCertificate -Path '\ved\policy\my.cert.com' -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -TrustClient $vaas_key
 
     Export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
-    As $VenafiSession can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
+    As $TrustClient can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
 
     .EXAMPLE
-    Find-VdcCertificate -Path '\ved\policy\certs' -Recursive | Export-VdcCertificate -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -VenafiSession $vaas_key
+    Find-VdcCertificate -Path '\ved\policy\certs' -Recursive | Export-VdcCertificate -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-VcCertificate -TrustClient $vaas_key
 
     Bulk export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
-    As $VenafiSession can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
+    As $TrustClient can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
 
     .EXAMPLE
-    Find-VcCertificate | Export-VcCertificate -PrivateKeyPassword 'secretPassword#' -PKCS12 | Import-VcCertificate -VenafiSession $tenant2_key
+    Find-VcCertificate | Export-VcCertificate -PrivateKeyPassword 'secretPassword#' -PKCS12 | Import-VcCertificate -TrustClient $tenant2_key
 
     Export from 1 Certificate Manager, SaaS tenant and import to another.
-    This assumes New-VenafiSession has been run for the source tenant.
+    This assumes New-TrustClient has been run for the source tenant.
 
     .INPUTS
     Data
@@ -119,7 +118,7 @@ function Import-VcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -294,15 +293,15 @@ function Import-VcCertificate {
                 InputObject   = $importList
                 ThrottleLimit = $ThrottleLimit
                 ProgressTitle = 'Importing certificates with private keys'
-                VenafiSession = $VenafiSession
+                TrustClient = $TrustClient
                 ScriptBlock   = {
                     $params = $PSItem
 
-                    $requestResponse = Invoke-VenafiRestMethod @params
+                    $requestResponse = Invoke-TrustRestMethod @params
 
                     do {
                         try {
-                            $jobResponse = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificates/imports/$($requestResponse.id)"
+                            $jobResponse = Invoke-TrustRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificates/imports/$($requestResponse.id)"
                             Write-Verbose ('import id: {0}, status: {1}' -f $requestResponse.id, $jobResponse.status)
                         }
                         catch {
@@ -331,7 +330,7 @@ function Import-VcCertificate {
                 }
             }
 
-            $invokeResponse = Invoke-VenafiParallel @invokeParams
+            $invokeResponse = Invoke-TrustParallel @invokeParams
 
             $keyOut = $invokeResponse | Select-Object -Property fingerprint, status, reason
         }
@@ -371,13 +370,13 @@ function Import-VcCertificate {
                 InputObject   = $importList
                 ThrottleLimit = $ThrottleLimit
                 ProgressTitle = 'Importing certificates without private keys'
-                VenafiSession = $VenafiSession
+                TrustClient = $TrustClient
                 ScriptBlock   = {
                     $params = $PSItem
-                    Invoke-VenafiRestMethod @params
+                    Invoke-TrustRestMethod @params
                 }
             }
-            $invokeNoKeyResponse = Invoke-VenafiParallel @invokeParams
+            $invokeNoKeyResponse = Invoke-TrustParallel @invokeParams
 
             $noKeyOut = $invokeNoKeyResponse | Select-Object @{'n' = 'certificate'; 'e' = { $_.certificateInformations | Select-Object id, fingerprint } }, statistics
         }

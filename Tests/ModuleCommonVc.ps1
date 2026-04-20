@@ -1,7 +1,7 @@
 
 . $PSScriptRoot/ModuleCommon.ps1
 
-Mock -CommandName 'Get-VenafiSession' -MockWith {
+Mock -CommandName 'Get-TrustClient' -MockWith {
     [pscustomobject]@{
         Platform             = 'VC'
         Server               = 'https://api.venafi.cloud'

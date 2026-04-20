@@ -15,10 +15,9 @@ function Get-VcIssuingTemplate {
     .PARAMETER CertificateAuthority
     Limit templates to those using a specific certificate authority.  Specify by name or ID.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -93,7 +92,7 @@ function Get-VcIssuingTemplate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -119,7 +118,7 @@ function Get-VcIssuingTemplate {
         }
 
         try {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
         }
         catch {
             if ( $_.Exception.Response.StatusCode.value__ -eq 404 ) {

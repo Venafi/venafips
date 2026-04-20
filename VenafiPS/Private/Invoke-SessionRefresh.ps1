@@ -1,36 +1,36 @@
 ﻿function Invoke-SessionRefresh {
     <#
     .SYNOPSIS
-    Refresh an expired VenafiSession token.
+    Refresh an expired TrustClient token.
 
     .DESCRIPTION
-    Module-scoped function that performs the actual token refresh for a VenafiSession.
+    Module-scoped function that performs the actual token refresh for a TrustClient.
     Separated from the class method so that Pester can mock the underlying token functions.
 
     .PARAMETER Session
-    The VenafiSession object to refresh. Updated in-place.
+    The TrustClient object to refresh. Updated in-place.
     #>
 
     param(
         [Parameter(Mandatory)]
-        [VenafiSession] $Session
+        [TrustClient] $Session
     )
 
     $newToken = if ($Session.Platform -eq 'VDC') {
         $refreshParams = @{
-            AuthServer           = $Session.Auth.AuthServer
-            RefreshToken         = $Session.Auth.RefreshToken
-            ClientId             = $Session.Auth.ClientId
+            AuthServer           = $Session.AuthServer
+            RefreshToken         = $Session.RefreshToken
+            ClientId             = $Session.ClientId
             SkipCertificateCheck = $Session.SkipCertificateCheck
         }
         New-VdcToken @refreshParams -ErrorAction Stop
     }
     elseif ($Session.Platform -eq 'NGTS') {
         $ngtsParams = @{
-            Credential = $Session.Auth.Credential
+            Credential = $Session.Credential
         }
-        if ($Session.Auth.Tsg) {
-            $ngtsParams.Tsg = $Session.Auth.Tsg
+        if ($Session.Tsg) {
+            $ngtsParams.Tsg = $Session.Tsg
         }
         New-NgtsToken @ngtsParams -ErrorAction Stop
     }
@@ -41,11 +41,11 @@
         throw "Unknown platform $($Session.Platform) for token refresh"
     }
 
-    $Session.Auth.AccessToken = $newToken.AccessToken
-    if ($newToken.PSObject.Properties.Name -contains 'RefreshToken') { $Session.Auth.RefreshToken = $newToken.RefreshToken }
-    if ($newToken.PSObject.Properties.Name -contains 'Scope') { $Session.Auth.Scope = $newToken.Scope }
-    if ($newToken.PSObject.Properties.Name -contains 'Expires') { $Session.Auth.Expires = $newToken.Expires }
-    if ($newToken.PSObject.Properties.Name -contains 'RefreshExpires' -and $newToken.RefreshExpires) { $Session.Auth.RefreshExpires = $newToken.RefreshExpires }
-    if ($newToken.PSObject.Properties.Name -contains 'ClientId' -and $newToken.ClientId) { $Session.Auth.ClientId = $newToken.ClientId }
-    if ($newToken.PSObject.Properties.Name -contains 'Server' -and $newToken.Server) { $Session.Auth.AuthServer = $newToken.Server }
+    $Session.AccessToken = $newToken.AccessToken
+    $Session.Scope = $newToken.Scope
+    $Session.Expires = $newToken.Expires
+    if ($newToken.RefreshToken) { $Session.RefreshToken = $newToken.RefreshToken }
+    if ($newToken.RefreshExpires -gt [datetime]::MinValue) { $Session.RefreshExpires = $newToken.RefreshExpires }
+    if ($newToken.ClientId) { $Session.ClientId = $newToken.ClientId }
+    if ($newToken.Server) { $Session.AuthServer = $newToken.Server }
 }

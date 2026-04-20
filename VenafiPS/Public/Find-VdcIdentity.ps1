@@ -22,9 +22,9 @@ function Find-VdcIdentity {
     .PARAMETER IncludeDistributionGroups
     Include distribution group identity type in search
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Name
@@ -69,7 +69,7 @@ function Find-VdcIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -106,7 +106,7 @@ function Find-VdcIdentity {
 
         $response = $Name.ForEach{
             $params.Body.Filter = $_
-            Invoke-VenafiRestMethod @params
+            Invoke-TrustRestMethod @params
         }
 
         $ids = $response.Identities

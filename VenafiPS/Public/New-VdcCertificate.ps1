@@ -75,9 +75,9 @@ function New-VdcCertificate {
     Return an object representing the newly created certificate.
     If devices and/or applications were created, a 'Device' property will be available as well.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     None
@@ -209,7 +209,7 @@ function New-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -379,7 +379,7 @@ function New-VdcCertificate {
         if ( $PSCmdlet.ShouldProcess("$Path\$Name", 'Create new certificate') ) {
 
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 Write-Verbose ($response | Out-String)
 
                 if ( $PassThru ) {

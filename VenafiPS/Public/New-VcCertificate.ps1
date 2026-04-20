@@ -77,10 +77,9 @@ function New-VcCertificate {
     If the certificate was successfully issued, the end entity certificate will be returned as the property 'certificate'.
     'certificateId' will also be included in the output when the certificate is issued and contain the IDs of all certificates in the chain.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided directly.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     none
@@ -234,7 +233,7 @@ function New-VcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -435,7 +434,7 @@ function New-VcCertificate {
         if ( $PSCmdlet.ShouldProcess("$target", 'New certificate request') ) {
 
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 $certRequest = $response | Select-Object -ExpandProperty certificateRequests
                 $certRequestId = $certRequest.id
 

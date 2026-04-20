@@ -14,10 +14,9 @@ function Remove-VcIssuingTemplate {
     Setting the value to 1 will disable multithreading.
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -44,7 +43,7 @@ function Remove-VcIssuingTemplate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -58,9 +57,9 @@ function Remove-VcIssuingTemplate {
     }
 
     end {
-        Invoke-VenafiParallel -InputObject $allObjects -ScriptBlock {
-            $null = Invoke-VenafiRestMethod -Method 'Delete' -UriLeaf "certificateissuingtemplates/$PSItem"
-        } -ThrottleLimit $ThrottleLimit -VenafiSession $VenafiSession
+        Invoke-TrustParallel -InputObject $allObjects -ScriptBlock {
+            $null = Invoke-TrustRestMethod -Method 'Delete' -UriLeaf "certificateissuingtemplates/$PSItem"
+        } -ThrottleLimit $ThrottleLimit -TrustClient $TrustClient
     }
 }
 

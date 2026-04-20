@@ -29,10 +29,9 @@ function New-VcTeam {
     .PARAMETER PassThru
     Send back details on the newly created team
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     New-VenafiTeam -Name 'My New Team' -Member 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4') -Role 'System Admin'
@@ -92,7 +91,7 @@ function New-VcTeam {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -130,7 +129,7 @@ function New-VcTeam {
             'userMatchingRules' = @($rules)
         }
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         if ( $PassThru ) {
             $response | Get-VcTeam

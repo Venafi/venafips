@@ -4,7 +4,7 @@ function New-NgtsToken {
     Get a new access token or refresh an existing one
 
     .DESCRIPTION
-    Get an access token and refresh token (if enabled) to be used with New-VenafiSession or other scripts/utilities that take such a token.
+    Get an access token and refresh token (if enabled) to be used with New-TrustClient or other scripts/utilities that take such a token.
     You can also refresh an existing access token if you have the associated refresh token.
     Authentication can be provided as integrated, credential, or certificate.
 
@@ -28,14 +28,11 @@ function New-NgtsToken {
     None
 
     .OUTPUTS
-    PSCustomObject with the following properties:
-        AccessToken
-        Scope
-        Expires
+    TrustToken
     #>
 
     [CmdletBinding()]
-    [OutputType([PSCustomObject])]
+    [OutputType([TrustToken])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Generating cred from api call response data')]
 
     param (
@@ -83,11 +80,10 @@ function New-NgtsToken {
 
     $response | Write-VerboseWithSecret
 
-    $newToken = [PSCustomObject] @{
-        AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
-        Expires     = [DateTime]::UtcNow.AddSeconds($response.expires_in)
-        Scope       = $response.scope
-    }
+    $newToken = [TrustToken]::new()
+    $newToken.AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
+    $newToken.Expires = [DateTime]::UtcNow.AddSeconds($response.expires_in)
+    $newToken.Scope = $response.scope
 
     $newToken
 }

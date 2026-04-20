@@ -10,10 +10,9 @@ function Find-VdcEngine {
     .PARAMETER Pattern
     Filter against engine names using asterisk (*) and/or question mark (?) wildcard characters.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Pattern
@@ -41,7 +40,7 @@ function Find-VdcEngine {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {

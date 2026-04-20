@@ -35,9 +35,9 @@ function Find-VdcObject {
     To override this behavior and use the attribute name as is, add -NoLookup.
     Useful if on the off chance you have a custom field with the same name as a built-in attribute.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -162,7 +162,7 @@ function Find-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     process {
@@ -178,7 +178,7 @@ function Find-VdcObject {
 
             'FindByAttribute' {
 
-                $customField = $VenafiSession.CustomField | Where-Object { $_.Label -eq $Attribute[0] -or $_.Guid -eq $Attribute[0] }
+                $customField = $TrustClient.CustomField | Where-Object { $_.Label -eq $Attribute[0] -or $_.Guid -eq $Attribute[0] }
 
                 # if attribute isn't a custom field or user doesn't want to perform a cf lookup for a conflicting attrib/cf name, perform standard find object
                 if ( $NoLookup -or (-not $customField) ) {
@@ -235,7 +235,7 @@ function Find-VdcObject {
                 $thisClass = $_
                 $params.Body.Class = $thisClass
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 if ( $response.Result -eq 1 ) {
                     $response.Objects
@@ -247,7 +247,7 @@ function Find-VdcObject {
             }
         }
         else {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             # success for cf lookup is 0, all others are config calls and success is 1
             if ( $response.Result -in 0, 1 ) {

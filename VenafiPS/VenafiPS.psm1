@@ -10,7 +10,7 @@ $script:ModuleVersion = '((NEW_VERSION))'
 # if (Test-Path $configPath) {
 #     . $configPath
 # }
-$Script:VenafiSession = $null
+$Script:TrustClient = $null
 # Don't check at load time, check when needed via Get-ThreadJobAvailability
 $script:ThreadJobAvailable = $null
 $script:ParallelImportPath = $PSCommandPath
@@ -41,7 +41,7 @@ if ( $script:ModuleVersion -like '*NEW_VERSION*' ) {
     }
 }
 
-Export-ModuleMember -Alias * -Variable VenafiSession -Function *
+Export-ModuleMember -Alias * -Variable TrustClient -Function *
 
 if (-not $args[0]) {
     # define the argument completer details
@@ -106,7 +106,7 @@ if (-not $args[0]) {
 
             'MachineType' {
                 if ( -not $script:vcMachineType ) {
-                    $script:vcMachineType = Invoke-VenafiRestMethod -UriLeaf 'plugins?pluginTypes=MACHINE' |
+                    $script:vcMachineType = Invoke-TrustRestMethod -UriLeaf 'plugins?pluginTypes=MACHINE' |
                         Select-Object -ExpandProperty plugins |
                         Select-Object -Property @{'n' = 'machineTypeId'; 'e' = { $_.Id } }, * -ExcludeProperty id |
                         Sort-Object -Property name
@@ -175,7 +175,7 @@ if (-not $args[0]) {
         param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
         if ( -not $script:vcActivityType ) {
-            $script:vcActivityType = Invoke-VenafiRestMethod -UriLeaf 'activitytypes' |
+            $script:vcActivityType = Invoke-TrustRestMethod -UriLeaf 'activitytypes' |
                 Select-Object -Property @{'n' = 'type'; 'e' = { $_.key } }, @{'n' = 'name'; 'e' = { $_.values.key } } -ExcludeProperty readableName |
                 Sort-Object -Property type
         }

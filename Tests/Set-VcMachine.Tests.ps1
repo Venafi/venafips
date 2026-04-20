@@ -27,10 +27,10 @@
 Describe 'Set-VcMachine' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession'    -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Test-TrustClient'    -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcMachine'         -MockWith { $mockMachine } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $testSatelliteId } -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockUpdatedMachine } -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockUpdatedMachine } -ModuleName $ModuleName
     }
 
     Context 'Machine not found' {
@@ -41,10 +41,10 @@ Describe 'Set-VcMachine' -Tags 'Unit' {
             $err | Should -Not -BeNullOrEmpty
         }
 
-        It 'Should not call Invoke-VenafiRestMethod when machine not found' {
+        It 'Should not call Invoke-TrustRestMethod when machine not found' {
             Mock -CommandName 'Get-VcMachine' -MockWith { $null } -ModuleName $ModuleName
             Set-VcMachine -Machine 'missing-machine' -Name 'NewName' -ErrorAction SilentlyContinue
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 0 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 0 -ModuleName $ModuleName
         }
     }
 
@@ -55,9 +55,9 @@ Describe 'Set-VcMachine' -Tags 'Unit' {
             $err | Should -Not -BeNullOrEmpty
         }
 
-        It 'Should not call Invoke-VenafiRestMethod when nothing to update' {
+        It 'Should not call Invoke-TrustRestMethod when nothing to update' {
             Set-VcMachine -Machine $testMachineId -ErrorAction SilentlyContinue
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 0 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 0 -ModuleName $ModuleName
         }
     }
 
@@ -65,14 +65,14 @@ Describe 'Set-VcMachine' -Tags 'Unit' {
 
         It 'Should call PATCH on machines/{id}' {
             Set-VcMachine -Machine $testMachineId -Name 'NewName' -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Method -eq 'Patch' -and $UriLeaf -eq "machines/$testMachineId"
             }
         }
 
         It 'Should include name in the body' {
             Set-VcMachine -Machine $testMachineId -Name 'NewName' -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.name -eq 'NewName'
             }
         }
@@ -82,28 +82,28 @@ Describe 'Set-VcMachine' -Tags 'Unit' {
 
         It 'Should call PATCH with connectionDetails in the body' {
             Set-VcMachine -Machine $testMachineId -ConnectionDetail @{ hostnameOrAddress = 'new-host.example.com' } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.connectionDetails -ne $null
             }
         }
 
         It 'Should merge top-level connection detail key' {
             Set-VcMachine -Machine $testMachineId -ConnectionDetail @{ hostnameOrAddress = 'new-host.example.com' } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.connectionDetails.hostnameOrAddress -eq 'new-host.example.com'
             }
         }
 
         It 'Should preserve existing top-level values not in the update' {
             Set-VcMachine -Machine $testMachineId -ConnectionDetail @{ hostnameOrAddress = 'new-host.example.com' } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.connectionDetails.ContainsKey('https')
             }
         }
 
         It 'Should deep-merge nested connection detail hashtable' {
             Set-VcMachine -Machine $testMachineId -ConnectionDetail @{ kerberos = @{ keyDistributionCenter = 'new-kdc.example.com' } } -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.connectionDetails.kerberos.keyDistributionCenter -eq 'new-kdc.example.com' -and
                 $Body.connectionDetails.kerberos.domain -eq 'mydomain.example.com'
             }
@@ -121,7 +121,7 @@ Describe 'Set-VcMachine' -Tags 'Unit' {
 
         It 'Should include edgeInstanceId in the body' {
             Set-VcMachine -Machine $testMachineId -Satellite 'MySat' -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.edgeInstanceId -eq $testSatelliteId
             }
         }

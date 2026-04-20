@@ -8,25 +8,25 @@
 Describe 'Remove-VcApplication' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession' -MockWith {} -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-TrustRestMethod' -MockWith {} -ModuleName $ModuleName
     }
 
     It 'Should call the delete API with the correct endpoint and UriRoot' {
         Remove-VcApplication -ID $testId -Confirm:$false
-        Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+        Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
             $Method -eq 'Delete' -and $UriRoot -eq 'outagedetection/v1' -and $UriLeaf -eq "applications/$testId"
         }
     }
 
     It 'Should accept pipeline input' {
         $testId | Remove-VcApplication -Confirm:$false
-        Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName
+        Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName
     }
 
     It 'Should process multiple items' {
         $testId, $testId2 | Remove-VcApplication -Confirm:$false
-        Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 2 -ModuleName $ModuleName
+        Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 2 -ModuleName $ModuleName
     }
 
     It 'Should not produce output' {

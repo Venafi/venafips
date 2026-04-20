@@ -15,9 +15,9 @@ function Get-VdcCertificateStatus {
     .PARAMETER Certificate
     Output from certificates/{guid} api call
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     #>
 
@@ -28,7 +28,7 @@ function Get-VdcCertificateStatus {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
 
     )
 
@@ -37,7 +37,7 @@ function Get-VdcCertificateStatus {
         $statusSummary = 'Ok'  # Ok, Warning, Error
         $statusText = ''
 
-        $attribs = Get-VdcAttribute -Path $Certificate.DN -Attribute 'Disabled', 'Ticket DN' -VenafiSession $VenafiSession
+        $attribs = Get-VdcAttribute -Path $Certificate.DN -Attribute 'Disabled', 'Ticket DN' -TrustClient $TrustClient
         $certAttributes = @{
             'In Error'  = $Certificate.ProcessingDetails.InError
             'Status'    = $Certificate.ProcessingDetails.Status
@@ -149,7 +149,7 @@ function Get-VdcCertificateStatus {
             $consumerDisabled = 0
             $consumerOk = 0
 
-            $allAttribs = $Certificate.Consumers | Get-VdcAttribute -Attribute @('In Error', 'Status', 'Disabled') -VenafiSession $VenafiSession
+            $allAttribs = $Certificate.Consumers | Get-VdcAttribute -Attribute @('In Error', 'Status', 'Disabled') -TrustClient $TrustClient
             foreach ($consumerAttrs in $allAttribs) {
                 try {
 

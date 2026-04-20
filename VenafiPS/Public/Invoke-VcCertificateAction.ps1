@@ -86,10 +86,9 @@ function Invoke-VcCertificateAction {
     Wait for a long running operation to complete before returning
     - During a renewal, wait for enrollment to either succeed or fail
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -244,7 +243,7 @@ function Invoke-VcCertificateAction {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -369,7 +368,7 @@ function Invoke-VcCertificateAction {
                 }
 
                 if ( $thisCert.certificateRequestId ) {
-                    $thisCertRequest = Invoke-VenafiRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificaterequests/$($thisCert.certificateRequestId)"
+                    $thisCertRequest = Invoke-TrustRestMethod -UriRoot 'outagedetection/v1' -UriLeaf "certificaterequests/$($thisCert.certificateRequestId)"
                 }
 
                 # to get the appropriate application:
@@ -493,7 +492,7 @@ function Invoke-VcCertificateAction {
 
                 try {
 
-                    $renewResponse = Invoke-VenafiRestMethod -Method 'Post' -UriRoot 'outagedetection/v1' -UriLeaf 'certificaterequests' -Body $renewParams -ErrorAction Stop
+                    $renewResponse = Invoke-TrustRestMethod -Method 'Post' -UriRoot 'outagedetection/v1' -UriLeaf 'certificaterequests' -Body $renewParams -ErrorAction Stop
 
                     $out | Add-Member @{ renew = $renewResponse.certificateRequests | Select-Object @{
                             n = 'certificateRequestId'
@@ -607,10 +606,10 @@ function Invoke-VcCertificateAction {
                 }
 
                 if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Retire {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
-                    $allCerts | Select-VenBatch -Activity 'Retiring certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
+                    $allCerts | Select-TrustBatch -Activity 'Retiring certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
                         $params.Body = @{"certificateIds" = $_ }
 
-                        $response = Invoke-VenafiRestMethod @params
+                        $response = Invoke-TrustRestMethod @params
 
                         $processedIds = $response.certificates.id
 
@@ -632,10 +631,10 @@ function Invoke-VcCertificateAction {
                 }
 
                 if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Recover {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
-                    $allCerts | Select-VenBatch -Activity 'Recovering certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
+                    $allCerts | Select-TrustBatch -Activity 'Recovering certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
                         $params.Body = @{"certificateIds" = $_ }
 
-                        $response = Invoke-VenafiRestMethod @params
+                        $response = Invoke-TrustRestMethod @params
 
                         $processedIds = $response.certificates.id
 
@@ -653,10 +652,10 @@ function Invoke-VcCertificateAction {
                 $params.UriLeaf = "certificates/validation"
 
                 if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Validate {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
-                    $allCerts | Select-VenBatch -Activity 'Validating certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
+                    $allCerts | Select-TrustBatch -Activity 'Validating certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
                         $params.Body = @{"certificateIds" = $_ }
 
-                        $null = Invoke-VenafiRestMethod @params
+                        $null = Invoke-TrustRestMethod @params
                     }
                 }
             }
@@ -670,10 +669,10 @@ function Invoke-VcCertificateAction {
                     # only retired certs can be deleted, product requirement
                     $null = $allCerts | Invoke-VcCertificateAction -Retire -BatchSize $BatchSize -Confirm:$false
 
-                    $allCerts | Select-VenBatch -Activity 'Deleting certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
+                    $allCerts | Select-TrustBatch -Activity 'Deleting certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
                         $params.Body = @{"certificateIds" = $_ }
 
-                        $null = Invoke-VenafiRestMethod @params
+                        $null = Invoke-TrustRestMethod @params
                     }
                 }
             }

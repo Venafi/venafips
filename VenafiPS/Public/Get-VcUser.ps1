@@ -15,10 +15,9 @@ function Get-VcUser {
     .PARAMETER All
     Return a complete list of local users.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -85,7 +84,7 @@ function Get-VcUser {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -98,19 +97,19 @@ function Get-VcUser {
                 # can search by user id (guid) or username
                 if ( Test-IsGuid($User) ) {
                     $guid = [guid] $User
-                    $response = Invoke-VenafiRestMethod -UriLeaf ('users/{0}' -f $guid.ToString())
+                    $response = Invoke-TrustRestMethod -UriLeaf ('users/{0}' -f $guid.ToString())
                 }
                 else {
-                    $response = Invoke-VenafiRestMethod -UriLeaf "users/username/$User" | Select-Object -ExpandProperty users
+                    $response = Invoke-TrustRestMethod -UriLeaf "users/username/$User" | Select-Object -ExpandProperty users
                 }
             }
 
             'Me' {
-                $response = Invoke-VenafiRestMethod -UriLeaf 'useraccounts' | Select-Object -ExpandProperty user
+                $response = Invoke-TrustRestMethod -UriLeaf 'useraccounts' | Select-Object -ExpandProperty user
             }
 
             'All' {
-                $response = Invoke-VenafiRestMethod -UriLeaf 'users' | Select-Object -ExpandProperty users
+                $response = Invoke-TrustRestMethod -UriLeaf 'users' | Select-Object -ExpandProperty users
             }
         }
 

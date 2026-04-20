@@ -22,9 +22,9 @@ function New-VdcCredential {
     .PARAMETER PassThru
     Return the newly created object properties.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     New-VdcCredential -Path '\VED\Policy\cred' -Secret $myCred
@@ -90,7 +90,7 @@ function New-VdcCredential {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -172,7 +172,7 @@ function New-VdcCredential {
 
         if ( $PSCmdlet.ShouldProcess($newPath, 'Create credential') ) {
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response.Result -eq 1 ) {
                 Write-Verbose "Credential created at path $newPath"
@@ -182,7 +182,7 @@ function New-VdcCredential {
             }
 
             if ( $PassThru ) {
-                Get-VdcObject -Path $newPath -VenafiSession $VenafiSession
+                Get-VdcObject -Path $newPath -TrustClient $TrustClient
             }
         }
     }

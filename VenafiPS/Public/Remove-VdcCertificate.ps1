@@ -20,9 +20,9 @@ function Remove-VdcCertificate {
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -78,7 +78,7 @@ function Remove-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -100,7 +100,7 @@ function Remove-VdcCertificate {
             InputObject   = $allCerts
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = 'Deleting certificates'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
 
                 $guid = $PSItem | ConvertTo-VdcObject -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Guid
@@ -116,11 +116,11 @@ function Remove-VdcCertificate {
                     }
                 }
 
-                $null = Invoke-VenafiRestMethod -Method Delete -UriLeaf "Certificates/$guid"
+                $null = Invoke-TrustRestMethod -Method Delete -UriLeaf "Certificates/$guid"
             }
         }
 
-        Invoke-VenafiParallel @parallelParams
+        Invoke-TrustParallel @parallelParams
     }
 }
 

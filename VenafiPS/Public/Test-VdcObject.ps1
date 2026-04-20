@@ -15,9 +15,9 @@ function Test-VdcObject {
     .PARAMETER ExistOnly
     Only return boolean instead of Object and Exists list.  Helpful when validating just 1 object.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path or Guid.
@@ -74,7 +74,7 @@ function Test-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -115,7 +115,7 @@ function Test-VdcObject {
                 }
             }
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $ExistOnly ) {
                 $response.Result -eq 1

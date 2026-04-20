@@ -88,13 +88,13 @@ FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash
                'Get-VdcTeam', 'Get-VdcWorkflowTicket',
                'Import-VcCertificate', 'Import-VdcCertificate',
                'Invoke-VcCertificateAction', 'Invoke-VcWorkflow',
-               'Invoke-VdcCertificateAction', 'Invoke-VenafiRestMethod',
+               'Invoke-VdcCertificateAction', 'Invoke-TrustRestMethod',
                'Move-VdcObject', 'New-VcApplication', 'New-VcCertificate',
                'New-VcConnector', 'New-VcMachine', 'New-VcMachineCommonKeystore',
                'New-VcMachineIis', 'New-VcTeam', 'New-VcWebhook',
                'New-VdcCapiApplication', 'New-VdcCertificate', 'New-VdcCustomField',
                'New-VdcDevice', 'New-VdcObject', 'New-VdcPolicy', 'New-VdcTeam',
-               'New-VdcToken', 'New-VenafiSession', 'Read-VdcLog',
+               'New-TrustClient', 'Read-VdcLog',
                'Remove-VcApplication', 'Remove-VcCertificate', 'Remove-VcConnector',
                'Remove-VcIssuingTemplate', 'Remove-VcMachine',
                'Remove-VcMachineIdentity', 'Remove-VcTag', 'Remove-VcTeam',
@@ -103,24 +103,24 @@ FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash
                'Remove-VdcClient', 'Remove-VdcEngineFolder', 'Remove-VdcObject',
                'Remove-VdcPermission', 'Remove-VdcTeam', 'Remove-VdcTeamMember',
                'Remove-VdcTeamOwner', 'Rename-VdcObject', 'Revoke-VdcGrant',
-               'Revoke-VdcToken', 'Set-VcApplication',
+               'Set-VcApplication',
                'Set-VcConnector', 'Set-VcTeam', 'Set-VdcAttribute',
                'Set-VdcCredential', 'Set-VdcPermission',
                'Set-VdcWorkflowTicketStatus', 'Test-VdcIdentity', 'Test-VdcObject',
-               'Test-VdcToken', 'Write-VdcLog', 'Set-VcCertificate',
+               'Write-VdcLog', 'Set-VcCertificate',
                'Get-VcSatelliteWorker', 'Remove-VcSatelliteWorker',
-               'Set-VcCertificateRequest', 'Get-VcCertificateRequest', 'New-VcToken',
+               'Set-VcCertificateRequest', 'Get-VcCertificateRequest',
                'Get-VcCloudProvider', 'Get-VcCloudKeystore', 'New-VcCloudKeystore',
                'Remove-VcCloudKeystore', 'New-VcCloudProvider',
                'Remove-VcCloudProvider', 'Set-VcUser', 'Export-VcReport',
                'Get-VcCertificateAuthority', 'Set-VcIssuingTemplate',
-               'New-VdcCredential', 'Set-VcMachine', 'Set-VcMachineIdentity', 'New-NgtsToken'
+               'New-VdcCredential', 'Set-VcMachine', 'Set-VcMachineIdentity'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
 
 # Variables to export from this module
-VariablesToExport = 'VenafiSession'
+VariablesToExport = 'TrustClient'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
 AliasesToExport = @()

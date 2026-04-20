@@ -20,11 +20,9 @@ function Remove-VdcCertificateAssociation {
     .PARAMETER All
     Remove all associated application objects
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also provided.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -91,7 +89,7 @@ function Remove-VdcCertificateAssociation {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -139,7 +137,7 @@ function Remove-VdcCertificateAssociation {
 
         try {
             if ( $PSCmdlet.ShouldProcess($Path, $shouldProcessAction) ) {
-                $null = Invoke-VenafiRestMethod @params
+                $null = Invoke-TrustRestMethod @params
             }
         }
         catch {

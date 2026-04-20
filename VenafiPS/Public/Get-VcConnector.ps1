@@ -12,10 +12,9 @@ function Get-VcConnector {
     .PARAMETER All
     Get all connectors
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Connector
@@ -45,7 +44,7 @@ function Get-VcConnector {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -71,7 +70,7 @@ function Get-VcConnector {
             $params.Body = @{'includeDisabled' = $true }
         }
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         if ( $response.PSObject.Properties.Name -contains 'plugins' ) {
             $connectors = $response | Select-Object -ExpandProperty 'plugins'

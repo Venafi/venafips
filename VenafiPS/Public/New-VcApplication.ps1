@@ -31,10 +31,9 @@ function New-VcApplication {
     .PARAMETER PassThru
     Return newly created application object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .OUTPUTS
     PSCustomObject, if PassThru provided
@@ -95,7 +94,7 @@ function New-VcApplication {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -169,7 +168,7 @@ function New-VcApplication {
         if ( $PSCmdlet.ShouldProcess($Name, 'Create application') ) {
 
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 switch ( $response.StatusCode ) {
 
                     201 {

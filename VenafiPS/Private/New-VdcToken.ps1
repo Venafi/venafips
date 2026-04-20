@@ -4,7 +4,7 @@ function New-VdcToken {
     Get a new access token or refresh an existing one
 
     .DESCRIPTION
-    Get an access token and refresh token (if enabled) to be used with New-VenafiSession or other scripts/utilities that take such a token.
+    Get an access token and refresh token (if enabled) to be used with New-TrustClient or other scripts/utilities that take such a token.
     You can also refresh an existing access token if you have the associated refresh token.
     Authentication can be provided as integrated, credential, or certificate.
 
@@ -48,8 +48,8 @@ function New-VdcToken {
     Bypass certificate validation when connecting to the server.
     This can be helpful for pre-prod environments where ssl isn't setup on the website or you are connecting via IP.
 
-    .PARAMETER VenafiSession
-    VenafiSession object created from New-VenafiSession method.
+    .PARAMETER TrustClient
+    TrustClient object created from New-TrustClient method.
 
     .EXAMPLE
     New-VdcToken -AuthServer 'https://mytppserver.example.com' -Scope @{ Certificate = "manage,discover"; Configuration = "manage" } -ClientId 'MyAppId' -Credential $credential
@@ -68,29 +68,19 @@ function New-VdcToken {
     Refresh an existing access token by providing the refresh token directly
 
     .EXAMPLE
-    New-VdcToken -VenafiSession $mySession
-    Refresh an existing access token by providing a VenafiSession object
+    New-VdcToken -TrustClient $mySession
+    Refresh an existing access token by providing a TrustClient object
 
     .INPUTS
     None
 
     .OUTPUTS
-    PSCustomObject with the following properties:
-        Server
-        AccessToken
-        RefreshToken
-        Scope
-        Identity
-        TokenType
-        ClientId
-        Expires
-        RefreshExpires (This property is null when Certificate Manager, Self-Hosted version is less than 21.1)
+    TrustToken
     #>
 
     [CmdletBinding(SupportsShouldProcess, DefaultParameterSetName = 'Integrated')]
-    [OutputType([PSCustomObject])]
+    [OutputType([TrustToken])]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Generating cred from api call response data')]
-    [OutputType([System.Boolean])]
 
     param (
         [Parameter(ParameterSetName = 'OAuth', Mandatory)]
@@ -163,17 +153,17 @@ function New-VdcToken {
 
         [Parameter(ParameterSetName = 'RefreshSession', Mandatory)]
         [ValidateScript( {
-                if ( -not $_.Auth.RefreshToken ) {
-                    throw 'VenafiSession does not have a refresh token.  To get a new access token, create a new session with New-VenafiSession.'
+                if ( -not $_.RefreshToken ) {
+                    throw 'TrustClient does not have a refresh token.  To get a new access token, create a new session with New-TrustClient.'
                 }
 
-                if ( $_.Auth.RefreshExpires -and $_.Auth.RefreshExpires -lt (Get-Date) ) {
-                    throw "The refresh token has expired.  Retrieve a new access token with New-VenafiSession."
+                if ( $_.RefreshExpires -and $_.RefreshExpires -lt (Get-Date) ) {
+                    throw "The refresh token has expired.  Retrieve a new access token with New-TrustClient."
                 }
 
                 $true
             })]
-        [object] $VenafiSession
+        [object] $TrustClient
 
     )
 
@@ -185,15 +175,15 @@ function New-VdcToken {
     }
 
     if ( $PsCmdlet.ParameterSetName -eq 'RefreshSession' ) {
-        $params.Server = $VenafiSession.Auth.AuthServer
+        $params.Server = $TrustClient.AuthServer
         $params.UriLeaf = 'authorize/token'
         $params.Body = @{
-            client_id     = $VenafiSession.Auth.ClientId
-            refresh_token = $VenafiSession.Auth.RefreshToken.GetNetworkCredential().password
+            client_id     = $TrustClient.ClientId
+            refresh_token = $TrustClient.RefreshToken.GetNetworkCredential().password
         }
 
         # workaround for bug pre 21.3 where client id needs to be lowercase
-        if ( $VenafiSession.Version -lt [Version]::new('21', '3', '0') ) {
+        if ( $TrustClient.Version -lt [Version]::new('21', '3', '0') ) {
             $params.Body.client_id = $params.Body.client_id.ToLower()
         }
     }
@@ -279,13 +269,13 @@ function New-VdcToken {
 
         if ( $PsCmdlet.ParameterSetName -eq 'RefreshToken' ) {
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
             }
             catch {
                 # workaround bug pre 21.3 where client_id must be lowercase
                 if ( $_ -like '*The client_id value being requested with the refresh token does not match the client_id of the access token making the call*') {
                     $params.Body.client_id = $params.Body.client_id.ToLower()
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
                 }
                 else {
                     throw $_
@@ -293,22 +283,19 @@ function New-VdcToken {
             }
         }
         else {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
         }
 
         $response | Write-VerboseWithSecret
 
-        $newToken = [PSCustomObject] @{
-            Server         = $params.Server
-            AccessToken    = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
-            RefreshToken   = $null
-            Scope          = $Scope
-            Identity       = $response.identity
-            TokenType      = $response.token_type
-            ClientId       = $params.Body.client_id
-            Expires        = ([datetime] '1970-01-01 00:00:00').AddSeconds($response.Expires)
-            RefreshExpires = $null
-        }
+        $newToken = [TrustToken]::new()
+        $newToken.Server = $params.Server
+        $newToken.AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ($response.access_token | ConvertTo-SecureString -AsPlainText -Force))
+        $newToken.Scope = $Scope
+        $newToken.Identity = $response.identity
+        $newToken.TokenType = $response.token_type
+        $newToken.ClientId = $params.Body.client_id
+        $newToken.Expires = ([datetime] '1970-01-01 00:00:00').AddSeconds($response.Expires)
 
         if ( $response.refresh_token ) {
             $newToken.RefreshToken = New-Object System.Management.Automation.PSCredential('RefreshToken', ($response.refresh_token | ConvertTo-SecureString -AsPlainText -Force))

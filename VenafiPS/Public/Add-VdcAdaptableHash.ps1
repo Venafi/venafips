@@ -20,9 +20,9 @@ function Add-VdcAdaptableHash {
     Required. The full path to the adaptable script file. This should typically be in a
     '<drive>:\Program Files\Venafi\Scripts\<subdir>' directory for Certificate Manager, Self-Hosted to recognize the script.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     None
@@ -81,7 +81,7 @@ function Add-VdcAdaptableHash {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -110,7 +110,7 @@ function Add-VdcAdaptableHash {
                 }
             }
 
-            $retrieveResponse = Invoke-VenafiRestMethod @paramsRetrieve
+            $retrieveResponse = Invoke-TrustRestMethod @paramsRetrieve
 
             if ( $retrieveResponse.Result -ne [TppSecretStoreResult]::Success ) {
                 Write-Error ("Error retrieving VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $retrieveResponse.Result)) -ErrorAction Stop
@@ -139,7 +139,7 @@ function Add-VdcAdaptableHash {
             }
         }
 
-        $addResponse = Invoke-VenafiRestMethod @paramsAdd
+        $addResponse = Invoke-TrustRestMethod @paramsAdd
 
         $addResponse | Write-Verbose
 
@@ -171,7 +171,7 @@ function Add-VdcAdaptableHash {
                 }
             }
 
-            $deleteResponse = Invoke-VenafiRestMethod @paramsDelete
+            $deleteResponse = Invoke-TrustRestMethod @paramsDelete
 
             if ( $deleteResponse.Result -ne [TppSecretStoreResult]::Success ) {
                 Write-Error ("Error removing VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $deleteResponse.Result)) -ErrorAction Stop

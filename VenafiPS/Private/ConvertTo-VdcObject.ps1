@@ -40,7 +40,7 @@ function ConvertTo-VdcObject {
                         ObjectDN = $Path
                     }
                 }
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 switch ($response.Result) {
                     1 {
@@ -74,7 +74,7 @@ function ConvertTo-VdcObject {
                     }
                 }
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 switch ($response.Result) {
                     1 {

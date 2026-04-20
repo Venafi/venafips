@@ -9,9 +9,9 @@ function Get-VdcClassAttribute {
     .PARAMETER ClassName
     Class name to retrieve attributes for
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     Get-VdcClassAttribute -ClassName 'X509 Server Certificate'
@@ -33,7 +33,7 @@ function Get-VdcClassAttribute {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -51,12 +51,12 @@ function Get-VdcClassAttribute {
             Body          = @{
                 'Class' = $ClassName
             }
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
         }
-        $classDetails = Invoke-VenafiRestMethod @params | Select-Object -ExpandProperty 'ClassDefinition'
+        $classDetails = Invoke-TrustRestMethod @params | Select-Object -ExpandProperty 'ClassDefinition'
 
         if ($ClassName -ne 'Top') {
-            $recurseAttribs = $classDetails.SuperClassNames | Get-VdcClassAttribute -VenafiSession $VenafiSession
+            $recurseAttribs = $classDetails.SuperClassNames | Get-VdcClassAttribute -TrustClient $TrustClient
             foreach ($item in $recurseAttribs) {
                 $allAttributes.Add($item)
             }

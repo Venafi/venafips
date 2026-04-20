@@ -21,10 +21,9 @@ function Invoke-VcWorkflow {
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     Invoke-VcWorkflow -ID '1345baf1-fc56-49b7-aa03-78e35bfe0a1a' -Workflow 'Provision'
@@ -69,7 +68,7 @@ function Invoke-VcWorkflow {
 
     .NOTES
     Currently no eu or au region support when providing an api key directly
-    Use a session from New-VenafiSession
+    Use a session from New-TrustClient
     #>
 
 
@@ -89,7 +88,7 @@ function Invoke-VcWorkflow {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -106,7 +105,7 @@ function Invoke-VcWorkflow {
             InputObject   = $allIDs
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = 'Invoking workflow'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
                 $workflow = $using:Workflow
                 # $allIDs | ForEach-Object {
@@ -118,17 +117,9 @@ function Invoke-VcWorkflow {
                     $WS = New-Object System.Net.WebSockets.ClientWebSocket
                     $CT = New-Object System.Threading.CancellationToken
 
-                    if ( $script:VenafiSession -is [VenafiSession] ) {
-                        $server = $script:VenafiSession.Server.Replace('https://', '')
-                        $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession.Auth.ApiKey.GetNetworkCredential().password)
-                    }
-                    else {
-                        # TODO: defaults to US, add other region support
-                        # for other regions, create a session first
-                        $server = ($script:VcRegions).'us'
-                        $server = $server.Replace('https://', '')
-                        $WS.Options.SetRequestHeader("tppl-api-key", $script:VenafiSession)
-                    }
+                    $server = $script:TrustClient.Server.Replace('https://', '')
+                    $WS.Options.SetRequestHeader("tppl-api-key", $script:TrustClient.ApiKey.GetNetworkCredential().password)
+
                     $URL = 'wss://{0}/ws/notificationclients/{1}' -f $server, $thisWebSocketID
 
                     #Get connected
@@ -185,7 +176,7 @@ function Invoke-VcWorkflow {
                         }
                     }
 
-                    $null = Invoke-VenafiRestMethod @triggerParams
+                    $null = Invoke-TrustRestMethod @triggerParams
 
                     While (!$Conn.IsCompleted) {
                         Start-Sleep -Milliseconds 100
@@ -227,7 +218,7 @@ function Invoke-VcWorkflow {
 
         }
 
-        Invoke-VenafiParallel @params
+        Invoke-TrustParallel @params
     }
 }
 

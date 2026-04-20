@@ -44,9 +44,9 @@ function Invoke-VdcCertificateAction {
     Setting the value to 1 will disable multithreading.
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -149,7 +149,7 @@ function Invoke-VdcCertificateAction {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -178,7 +178,7 @@ function Invoke-VdcCertificateAction {
             InputObject   = $allCerts
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = "$action certificates"
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
 
                 $action = $using:action
@@ -250,7 +250,7 @@ function Invoke-VdcCertificateAction {
 
                 if ( $performInvoke ) {
                     try {
-                        $null = Invoke-VenafiRestMethod @params -FullResponse
+                        $null = Invoke-TrustRestMethod @params -FullResponse
                     }
                     catch {
                         $returnObject.Success = $false
@@ -264,7 +264,7 @@ function Invoke-VdcCertificateAction {
             }
         }
 
-        Invoke-VenafiParallel @parallelParams
+        Invoke-TrustParallel @parallelParams
 
     }
 }

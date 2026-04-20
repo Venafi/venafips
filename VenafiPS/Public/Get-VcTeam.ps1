@@ -13,10 +13,9 @@ function Get-VcTeam {
     .PARAMETER All
     Get all teams
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -59,8 +58,7 @@ function Get-VcTeam {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key', 'AccessToken')]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -69,17 +67,17 @@ function Get-VcTeam {
     process {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
-            $response = Invoke-VenafiRestMethod -UriLeaf 'teams'
+            $response = Invoke-TrustRestMethod -UriLeaf 'teams'
         }
         else {
 
             if ( Test-IsGuid -InputObject $Team ) {
                 $guid = [guid] $Team
-                $response = Invoke-VenafiRestMethod -UriLeaf ('teams/{0}' -f $guid.ToString())
+                $response = Invoke-TrustRestMethod -UriLeaf ('teams/{0}' -f $guid.ToString())
             }
             else {
                 # assume team name
-                $response = Invoke-VenafiRestMethod -UriLeaf 'teams' | Select-Object -ExpandProperty teams | Where-Object name -eq $Team
+                $response = Invoke-TrustRestMethod -UriLeaf 'teams' | Select-Object -ExpandProperty teams | Where-Object name -eq $Team
             }
         }
 

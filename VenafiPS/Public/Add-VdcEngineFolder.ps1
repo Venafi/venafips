@@ -10,10 +10,9 @@ function Add-VdcEngineFolder {
     TPPObject belonging to the 'Venafi Platform' class.
     .PARAMETER FolderPath
     The full DN path to one or more policy folders (string array).
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
     .INPUTS
     EnginePath or EngineObject, FolderPath[]
     .OUTPUTS
@@ -57,7 +56,7 @@ function Add-VdcEngineFolder {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -107,7 +106,7 @@ function Add-VdcEngineFolder {
         }
 
         if ($PSCmdlet.ShouldProcess($EngineObject.Name, $shouldProcessAction)) {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ($response.AddedCount -ne $FolderGuids.Count) {
                 $errorMessage = "Added $($response.AddedCount) folder(s), but requested $($FolderGuids.Count)"

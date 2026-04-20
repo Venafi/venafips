@@ -42,7 +42,7 @@
         owningTeamId     = $testTeamId
     }
 
-    # This is the shape returned by Invoke-VenafiParallel after the scriptblock runs
+    # This is the shape returned by Invoke-TrustParallel after the scriptblock runs
     $mockParallelResponseNoVerify = [pscustomobject]@{
         machineId        = $testMachineId
         companyId        = '20b24f81-b22b-11ea-91f3-ebd6dea5453f'
@@ -71,30 +71,30 @@
 Describe 'New-VcMachine' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession' -MockWith {} -ModuleName $ModuleName
+        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Initialize-PSSodium' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Plugin' } -MockWith { $mockPlugin } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Team' } -MockWith { $testTeamId } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $mockVSat } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-SodiumEncryptedString' -MockWith { 'encrypted' } -ModuleName $ModuleName
-        # Mock Invoke-VenafiParallel to avoid needing Invoke-VenafiRestMethod/Invoke-VcWorkflow inside scriptblock
-        Mock -CommandName 'Invoke-VenafiParallel' -MockWith { $mockParallelResponseWithVerify } -ModuleName $ModuleName
+        # Mock Invoke-TrustParallel to avoid needing Invoke-TrustRestMethod/Invoke-VcWorkflow inside scriptblock
+        Mock -CommandName 'Invoke-TrustParallel' -MockWith { $mockParallelResponseWithVerify } -ModuleName $ModuleName
     }
 
     Context 'Basic machine creation' {
 
-        It 'Should call Invoke-VenafiParallel with VenafiSession' {
+        It 'Should call Invoke-TrustParallel with TrustClient' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
             New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $null -ne $VenafiSession
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $null -ne $TrustClient
             }
         }
 
-        It 'Should pass machine data to Invoke-VenafiParallel' {
+        It 'Should pass machine data to Invoke-TrustParallel' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
             New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject.Count -eq 1 -and $InputObject[0].name -eq 'c1'
             }
         }
@@ -102,7 +102,7 @@ Describe 'New-VcMachine' -Tags 'Unit' {
         It 'Should set pluginId from machine type lookup' {
             $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
             New-VcMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].pluginId -eq $testPluginId
             }
         }
@@ -151,7 +151,7 @@ Describe 'New-VcMachine' -Tags 'Unit' {
                 Owner       = 'MyTeam'
                 Credential  = $cred
             } | New-VcMachine
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName
         }
     }
 }

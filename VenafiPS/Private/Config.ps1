@@ -212,7 +212,7 @@ $script:functionConfig = @{
         'TppVersion'    = ''
         'TppTokenScope' = ''
     }
-    'New-VenafiSession'                = @{
+    'New-TrustClient'                = @{
         'TppVersion'    = ''
         'TppTokenScope' = ''
     }
@@ -248,10 +248,6 @@ $script:functionConfig = @{
         'TppVersion'    = '22.3'
         'TppTokenScope' = 'admin=delete'
     }
-    'Revoke-VdcToken'                  = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
-    }
     'Set-VdcAttribute'                 = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'configuration=manage'
@@ -275,10 +271,6 @@ $script:functionConfig = @{
     'Test-VdcObject'                   = @{
         'TppVersion'    = ''
         'TppTokenScope' = 'configuration=$null'
-    }
-    'Test-VdcToken'                    = @{
-        'TppVersion'    = ''
-        'TppTokenScope' = 'any scope'
     }
     'Write-VdcLog'                     = @{
         'TppVersion'    = ''

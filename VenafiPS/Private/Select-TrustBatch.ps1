@@ -1,4 +1,4 @@
-function Select-VenBatch {
+function Select-TrustBatch {
     <#
     .SYNOPSIS
     Batches pipeline input.
@@ -27,7 +27,7 @@ function Select-VenBatch {
     System.Collections.Generic.List[T]
 
     .EXAMPLE
-    1..6000 | Select-VenBatch -batchsize 1000 -BatchType string
+    1..6000 | Select-TrustBatch -batchsize 1000 -BatchType string
 
     #>
 

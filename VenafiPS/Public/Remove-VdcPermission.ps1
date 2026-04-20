@@ -16,9 +16,9 @@ function Remove-VdcPermission {
     .PARAMETER IdentityId
     Prefixed Universal Id of the user or group to have their permissions removed
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path, Guid, IdentityId
@@ -78,7 +78,7 @@ function Remove-VdcPermission {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -115,7 +115,7 @@ function Remove-VdcPermission {
                 # get list of identities permissioned to this object
                 $getParams = $params.Clone()
                 $getParams.Method = 'Get'
-                $identities = Invoke-VenafiRestMethod @getParams
+                $identities = Invoke-TrustRestMethod @getParams
             }
 
             foreach ( $thisIdentity in $identities ) {
@@ -135,7 +135,7 @@ function Remove-VdcPermission {
 
                 if ( $PSCmdlet.ShouldProcess($thisGuid, "Remove permissions for $thisIdentity") ) {
                     try {
-                        Invoke-VenafiRestMethod @params
+                        Invoke-TrustRestMethod @params
                     } catch {
                         Write-Error ("Failed to remove permissions on path $thisGuid, user/group $thisIdentity.  $_")
                     }

@@ -35,10 +35,9 @@ function New-VcWebhook {
     .PARAMETER PassThru
     Return newly created webhook object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .OUTPUTS
     PSCustomObject, if PassThru provided
@@ -118,13 +117,13 @@ function New-VcWebhook {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
 
         # validate inputs
-        $at = Invoke-VenafiRestMethod -UriLeaf 'activitytypes'
+        $at = Invoke-TrustRestMethod -UriLeaf 'activitytypes'
 
         if ( $PSBoundParameters.ContainsKey('EventType') ) {
             $compare = compare-object -ReferenceObject $EventType -DifferenceObject $at.readablename | Where-Object { $_.SideIndicator -eq '<=' }
@@ -179,7 +178,7 @@ function New-VcWebhook {
         if ( $PSCmdlet.ShouldProcess($Name, 'Create webhook') ) {
 
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 switch ( $response.StatusCode ) {
 
                     201 {

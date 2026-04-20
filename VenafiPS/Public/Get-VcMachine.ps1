@@ -17,10 +17,9 @@ function Get-VcMachine {
     Use -IncludeConnectionDetail to add this to the output, but note it will require an additional API call for each machine and can take some time.
     Execute with PowerShell v7+ to run in parallel and speed things up.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Machine
@@ -112,7 +111,7 @@ function Get-VcMachine {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
@@ -122,15 +121,15 @@ function Get-VcMachine {
 
         if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
 
-            $allMachines = Find-VcObject -Type Machine -VenafiSession $VenafiSession
+            $allMachines = Find-VcObject -Type Machine -TrustClient $TrustClient
 
             if ( $IncludeConnectionDetail ) {
                 $params = @{
                     InputObject   = $allMachines
                     ScriptBlock   = { $PSItem | Get-VcMachine }
-                    VenafiSession = $VenafiSession
+                    TrustClient = $TrustClient
                 }
-                return Invoke-VenafiParallel @params
+                return Invoke-TrustParallel @params
             }
             else {
                 return $allMachines
@@ -140,7 +139,7 @@ function Get-VcMachine {
             $mId = Get-VcData -Type Machine -InputObject $Machine
             if ( $mId ) {
                 try {
-                    $response = Invoke-VenafiRestMethod -UriLeaf ('machines/{0}' -f $mId) -VenafiSession $VenafiSession
+                    $response = Invoke-TrustRestMethod -UriLeaf ('machines/{0}' -f $mId) -TrustClient $TrustClient
                     $response | Select-Object @{ 'n' = 'machineId'; 'e' = { $_.Id } }, * -ExcludeProperty Id
                 }
                 catch {

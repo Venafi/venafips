@@ -20,10 +20,9 @@ function Remove-VdcEngineFolder {
     The full DN path to one or more Certificate Manager, Self-Hosted processing engines (string array).
     .PARAMETER Force
     Suppress the confirmation prompt before removing engine/folder assignments.
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
     .INPUTS
     FolderPath[], EnginePath[]
     .OUTPUTS
@@ -72,7 +71,7 @@ function Remove-VdcEngineFolder {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -142,7 +141,7 @@ function Remove-VdcEngineFolder {
                 foreach ($folder in $FolderList) {
                     $uriLeaf = "$($apiCall)/{$($folder.Guid)}"
                     try {
-                        $null = Invoke-VenafiRestMethod @params -UriLeaf $uriLeaf
+                        $null = Invoke-TrustRestMethod @params -UriLeaf $uriLeaf
                     }
                     catch {
                         $myError = $_.ToString() | ConvertFrom-Json
@@ -180,7 +179,7 @@ function Remove-VdcEngineFolder {
                     foreach ($folder in $FolderList) {
                         $uriLeaf = "$($apiCall)/{$($folder.Guid)}/{$($engine.Guid)}"
                         try {
-                            $null = Invoke-VenafiRestMethod @params -UriLeaf $uriLeaf
+                            $null = Invoke-TrustRestMethod @params -UriLeaf $uriLeaf
                         }
                         catch {
                             $myError = $_.ToString() | ConvertFrom-Json
