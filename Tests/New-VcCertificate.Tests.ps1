@@ -60,7 +60,6 @@
 Describe "New-VcCertificate" -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Application' } -MockWith { $mockApp } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'IssuingTemplate' } -MockWith { $mockTemplate } -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockCertRequestResponse } -ModuleName $ModuleName

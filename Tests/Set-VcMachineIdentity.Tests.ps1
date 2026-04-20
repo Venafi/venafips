@@ -33,7 +33,6 @@
 Describe 'Set-VcMachineIdentity' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient'      -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcMachineIdentity'   -MockWith { $mockMachineIdentity } -ModuleName $ModuleName
         Mock -CommandName 'Find-VcCertificate'      -MockWith { $mockCertificate } -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockUpdatedIdentity } -ModuleName $ModuleName

@@ -50,7 +50,6 @@ MIIFLjBYBgkqhkiG9w0BBQ0wSzAqBgkqhkiG9w0BBQww
 Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-VdcFullPath' -MockWith { $testPolicyPath } -ModuleName $ModuleName
         Mock -CommandName 'Test-VdcObject' -MockWith { $true } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-PlaintextString' -MockWith { 'plaintext' } -ModuleName $ModuleName

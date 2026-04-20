@@ -73,7 +73,6 @@ MIIFLjBYBgkqhkiG9w0BBQ0wSzAqBgkqhkiG9w0BBQww
 Describe 'Import-VcCertificate' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Initialize-PSSodium' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $mockVSat } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-SodiumEncryptedString' -MockWith { 'encrypted-password' } -ModuleName $ModuleName

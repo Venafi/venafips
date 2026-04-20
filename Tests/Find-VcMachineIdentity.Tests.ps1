@@ -16,7 +16,6 @@
 Describe 'Find-VcMachineIdentity' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Find-VcObject'      -MockWith { $mockMachineIdentity } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Machine' } -MockWith { $testMachineId } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Certificate' } -MockWith { $testCertId } -ModuleName $ModuleName

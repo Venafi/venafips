@@ -27,7 +27,6 @@
 Describe 'Set-VcMachine' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient'    -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcMachine'         -MockWith { $mockMachine } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $testSatelliteId } -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockUpdatedMachine } -ModuleName $ModuleName

@@ -8,7 +8,6 @@
 Describe 'Remove-VcMachineIdentity' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith {} -ModuleName $ModuleName
     }
 

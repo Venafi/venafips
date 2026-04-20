@@ -760,13 +760,13 @@ Describe 'ConvertTo-VdcIdentity' {
 }
 #endregion
 
-#region Select-VenBatch
-Describe 'Select-VenBatch' {
+#region Select-TrustBatch
+Describe 'Select-TrustBatch' {
     Context 'String batching' {
         It 'should batch strings into specified size' {
             $input = 1..10 | ForEach-Object { "Item$_" }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 4
@@ -779,7 +779,7 @@ Describe 'Select-VenBatch' {
         It 'should handle exact batch size divisor' {
             $input = 1..9 | ForEach-Object { "Item$_" }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -791,7 +791,7 @@ Describe 'Select-VenBatch' {
         It 'should handle single batch' {
             $input = 1..5 | ForEach-Object { "Item$_" }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 10 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 10 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 1
@@ -801,7 +801,7 @@ Describe 'Select-VenBatch' {
         It 'should preserve string values' {
             $input = 'alpha', 'beta', 'gamma', 'delta', 'epsilon'
             $batches = @()
-            $input | Select-VenBatch -BatchSize 2 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 2 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be 'alpha'
@@ -816,7 +816,7 @@ Describe 'Select-VenBatch' {
         It 'should batch integers into specified size' {
             $input = 1..15
             $batches = @()
-            $input | Select-VenBatch -BatchSize 5 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 5 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -828,7 +828,7 @@ Describe 'Select-VenBatch' {
         It 'should preserve integer values' {
             $input = 10, 20, 30, 40
             $batches = @()
-            $input | Select-VenBatch -BatchSize 2 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 2 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be 10
@@ -840,7 +840,7 @@ Describe 'Select-VenBatch' {
         It 'should handle remainder batch' {
             $input = 1..7
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -855,7 +855,7 @@ Describe 'Select-VenBatch' {
         It 'should batch GUIDs into specified size' {
             $input = 1..8 | ForEach-Object { [guid]::NewGuid() }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType guid | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType guid | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -869,7 +869,7 @@ Describe 'Select-VenBatch' {
             $guid2 = [guid]'87654321-4321-4321-4321-210987654321'
             $input = $guid1, $guid2
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1 -BatchType guid | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1 -BatchType guid | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be $guid1
@@ -883,7 +883,7 @@ Describe 'Select-VenBatch' {
                 [PSCustomObject]@{ Id = $_; Name = "Object$_" }
             }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 2 -BatchType pscustomobject | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 2 -BatchType pscustomobject | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -898,7 +898,7 @@ Describe 'Select-VenBatch' {
                 [PSCustomObject]@{ Id = 2; Name = 'Second' }
             )
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1 -BatchType pscustomobject | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1 -BatchType pscustomobject | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0].Id | Should -Be 1
@@ -912,7 +912,7 @@ Describe 'Select-VenBatch' {
         It 'should handle single item' {
             $input = 'single'
             $batches = @()
-            $input | Select-VenBatch -BatchSize 5 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 5 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 1
@@ -923,7 +923,7 @@ Describe 'Select-VenBatch' {
         It 'should handle large batch size' {
             $input = 1..100
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1000 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1000 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 1
@@ -933,7 +933,7 @@ Describe 'Select-VenBatch' {
         It 'should handle batch size of 1' {
             $input = 'a', 'b', 'c'
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -947,7 +947,7 @@ Describe 'Select-VenBatch' {
         It 'should maintain order of items' {
             $input = 1..10
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be 1
@@ -965,7 +965,7 @@ Describe 'Select-VenBatch' {
         It 'should create correct number of batches for large dataset' {
             $input = 1..1000
             $batchCount = 0
-            $input | Select-VenBatch -BatchSize 100 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 100 -BatchType int | ForEach-Object {
                 $batchCount++
                 $batchItems = @($_ | ForEach-Object { $_ })
                 $batchItems.Count | Should -Be 100
@@ -1152,35 +1152,35 @@ Describe 'ConvertTo-VdcObject' -Tags 'Unit' {
 }
 #endregion
 
-Describe "Test-TppDnPath" -Tags 'Unit' {
+Describe "Test-VdcDnPath" -Tags 'Unit' {
 
     Context "Valid DN Paths" {
         It "Should accept valid path with \VED\Policy" {
-            '\VED\Policy\Certificates' | Test-TppDnPath | Should -Be $true
+            '\VED\Policy\Certificates' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept valid path with \\VED\\Policy (double backslash)" {
-            '\\VED\\Policy\\Certificates' | Test-TppDnPath | Should -Be $true
+            '\\VED\\Policy\\Certificates' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept root path \VED" {
-            '\VED' | Test-TppDnPath | Should -Be $true
+            '\VED' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept root path \\VED\\" {
-            '\\VED\\' | Test-TppDnPath | Should -Be $true
+            '\\VED\\' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept path with multiple levels" {
-            '\VED\Policy\Level1\Level2\Level3' | Test-TppDnPath | Should -Be $true
+            '\VED\Policy\Level1\Level2\Level3' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should be case-insensitive" {
-            '\ved\policy\test' | Test-TppDnPath | Should -Be $true
+            '\ved\policy\test' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept VED with different casing" {
-            '\VeD\Policy\Test' | Test-TppDnPath | Should -Be $true
+            '\VeD\Policy\Test' | Test-VdcDnPath | Should -Be $true
         }
     }
 
@@ -1188,37 +1188,37 @@ Describe "Test-TppDnPath" -Tags 'Unit' {
         It "Should reject empty string" {
             # Empty string validation happens in parameter validation
             # Testing the logic directly with non-empty invalid string
-            'invalid' | Test-TppDnPath | Should -Be $false
+            'invalid' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject path without \VED prefix" {
-            '\Policy\Certificates' | Test-TppDnPath | Should -Be $false
+            '\Policy\Certificates' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject path with VED but no backslash" {
-            'VED\Policy\Certificates' | Test-TppDnPath | Should -Be $false
+            'VED\Policy\Certificates' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject completely invalid path" {
-            'C:\Windows\System32' | Test-TppDnPath | Should -Be $false
+            'C:\Windows\System32' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject path with wrong separator" {
-            '/VED/Policy/Test' | Test-TppDnPath | Should -Be $false
+            '/VED/Policy/Test' | Test-VdcDnPath | Should -Be $false
         }
     }
 
     Context "AllowRoot Parameter" {
         It "Should reject root path when AllowRoot is false" {
-            '\VED' | Test-TppDnPath -AllowRoot $false | Should -Be $false
+            '\VED' | Test-VdcDnPath -AllowRoot $false | Should -Be $false
         }
 
         It "Should accept non-root path when AllowRoot is false" {
-            '\VED\Policy\Test' | Test-TppDnPath -AllowRoot $false | Should -Be $true
+            '\VED\Policy\Test' | Test-VdcDnPath -AllowRoot $false | Should -Be $true
         }
 
         It "Should accept root path when AllowRoot is true (default)" {
-            '\VED' | Test-TppDnPath -AllowRoot $true | Should -Be $true
+            '\VED' | Test-VdcDnPath -AllowRoot $true | Should -Be $true
         }
     }
 }

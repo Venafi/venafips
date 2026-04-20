@@ -19,7 +19,6 @@
 Describe 'New-VdcCredential' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-VdcFullPath' -MockWith { $testFullPath } -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockSuccessResponse } -ModuleName $ModuleName
         Mock -CommandName 'Get-VdcObject' -MockWith { $mockVdcObject } -ModuleName $ModuleName

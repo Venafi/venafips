@@ -71,7 +71,6 @@
 Describe 'New-VcMachine' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Initialize-PSSodium' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Plugin' } -MockWith { $mockPlugin } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Team' } -MockWith { $testTeamId } -ModuleName $ModuleName

@@ -85,7 +85,6 @@
 Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-TrustClient' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-VcCertificate' -MockWith { $mockCert } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -MockWith { $testAppId } -ModuleName $ModuleName
@@ -93,7 +92,7 @@ Describe 'Invoke-VcCertificateAction' -Tags 'Unit' {
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'Certificate' } -MockWith { $testCertId } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'IssuingTemplate' } -MockWith { $testTemplateId } -ModuleName $ModuleName
         Mock -CommandName 'Get-VcData' -ParameterFilter { $Type -eq 'CloudKeystore' } -MockWith { 'ks-id-123' } -ModuleName $ModuleName
-        Mock -CommandName 'Select-VenBatch' -MockWith { , $InputObject } -ModuleName $ModuleName
+        Mock -CommandName 'Select-TrustBatch' -MockWith { , $InputObject } -ModuleName $ModuleName
         Mock -CommandName 'Invoke-VcGraphQL' -MockWith {} -ModuleName $ModuleName
     }
 
