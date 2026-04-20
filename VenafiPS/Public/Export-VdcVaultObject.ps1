@@ -73,7 +73,6 @@ function Export-VdcVaultObject {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

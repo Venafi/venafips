@@ -78,7 +78,6 @@ function Find-VcCertificateInstance {
         [psobject] $VenafiSession
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
         Type  = 'CertificateInstance'

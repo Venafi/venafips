@@ -77,7 +77,6 @@ function Remove-VdcObject {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allItems = [System.Collections.Generic.List[string]]::new()
     }
 

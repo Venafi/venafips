@@ -177,7 +177,6 @@ function New-VcMachine {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         Initialize-PSSodium -Force:$Force
 

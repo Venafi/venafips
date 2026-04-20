@@ -94,7 +94,6 @@ function New-VdcCredential {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

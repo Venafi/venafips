@@ -60,7 +60,6 @@ function Get-VdcObject {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

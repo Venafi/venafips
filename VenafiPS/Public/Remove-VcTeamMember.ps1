@@ -52,7 +52,6 @@ function Remove-VcTeamMember {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

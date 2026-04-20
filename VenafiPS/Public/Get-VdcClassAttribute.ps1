@@ -37,7 +37,6 @@ function Get-VdcClassAttribute {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $allAttributes = [System.Collections.Generic.List[object]]::new()
     }

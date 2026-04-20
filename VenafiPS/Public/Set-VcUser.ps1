@@ -67,7 +67,6 @@ function Set-VcUser {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

@@ -62,7 +62,6 @@ function Remove-VdcClient {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

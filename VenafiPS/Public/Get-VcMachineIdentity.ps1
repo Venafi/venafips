@@ -65,7 +65,6 @@ function Get-VcMachineIdentity {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

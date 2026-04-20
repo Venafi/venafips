@@ -48,7 +48,6 @@ function Add-VdcTeamMember {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

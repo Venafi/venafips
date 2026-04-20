@@ -167,7 +167,6 @@ function New-VdcCustomField {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $resultObj = @()
 

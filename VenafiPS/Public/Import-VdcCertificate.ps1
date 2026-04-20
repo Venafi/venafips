@@ -169,7 +169,6 @@ function Import-VdcCertificate {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allCerts = [System.Collections.Generic.List[hashtable]]::new()
 
         if ( $PSBoundParameters.ContainsKey('EnrollmentAttribute') ) {

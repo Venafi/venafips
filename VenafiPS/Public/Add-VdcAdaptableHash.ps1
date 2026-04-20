@@ -85,7 +85,6 @@ function Add-VdcAdaptableHash {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

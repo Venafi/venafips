@@ -67,7 +67,6 @@ function Test-VdcIdentity {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

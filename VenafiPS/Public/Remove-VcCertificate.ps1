@@ -48,7 +48,6 @@ function Remove-VcCertificate {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allObjects = [System.Collections.Generic.List[object]]::new()
     }
 

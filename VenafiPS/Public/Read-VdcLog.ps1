@@ -136,7 +136,6 @@ function Read-VdcLog {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method        = 'Get'

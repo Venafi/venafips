@@ -100,7 +100,6 @@ function Find-VcCertificateRequest {
         [psobject] $VenafiSession
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
         Type  = 'CertificateRequest'

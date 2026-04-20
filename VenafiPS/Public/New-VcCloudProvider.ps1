@@ -211,7 +211,6 @@ function New-VcCloudProvider {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $ownerId = Get-VcData -Type Team -InputObject $OwnerTeam
 

@@ -46,7 +46,6 @@ function Add-VcTeamOwner {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method = 'Post'

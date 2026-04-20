@@ -87,7 +87,6 @@ function Set-VcApplication {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

@@ -116,7 +116,6 @@ function Get-VcMachine {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

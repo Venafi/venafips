@@ -58,7 +58,6 @@ function Get-VdcIdentityAttribute {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method     = 'Post'

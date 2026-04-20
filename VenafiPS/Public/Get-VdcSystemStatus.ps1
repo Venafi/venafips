@@ -40,7 +40,6 @@ function Get-VdcSystemStatus {
 
     Write-Warning "Possible bug with Venafi Certificate Manager, Self-Hosted API causing this to fail"
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
 

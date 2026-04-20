@@ -93,7 +93,6 @@ function Invoke-VcWorkflow {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allIDs = [System.Collections.Generic.List[string]]::new()
     }
 

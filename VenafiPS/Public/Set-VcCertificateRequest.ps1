@@ -96,7 +96,6 @@ function Set-VcCertificateRequest {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

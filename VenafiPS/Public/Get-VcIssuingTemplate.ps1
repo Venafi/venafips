@@ -97,7 +97,6 @@ function Get-VcIssuingTemplate {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         if ( $CertificateAuthority ) {
             $caId = Get-VcData -InputObject $CertificateAuthority -Type 'CertificateAuthority' -FailOnNotFound
         }

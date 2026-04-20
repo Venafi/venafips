@@ -64,7 +64,6 @@ function Get-VcCloudProvider {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

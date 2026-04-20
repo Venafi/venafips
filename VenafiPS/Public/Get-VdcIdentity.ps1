@@ -105,7 +105,6 @@ function Get-VdcIdentity {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

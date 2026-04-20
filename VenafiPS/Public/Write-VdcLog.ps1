@@ -127,7 +127,6 @@ function Write-VdcLog {
         [psobject] $VenafiSession
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     # the event id is the group id coupled with the event id
     $fullEventId = "$CustomEventGroup$EventId"

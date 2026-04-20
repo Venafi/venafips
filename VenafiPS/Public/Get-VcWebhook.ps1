@@ -73,7 +73,6 @@ function Get-VcWebhook {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

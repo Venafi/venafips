@@ -239,7 +239,6 @@ function New-VcCertificate {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         # if Application or IssuingTemplate are names or aliases, resolve to IDs
         # bypass for GUIDs to support token based auth which cannot access these APIs

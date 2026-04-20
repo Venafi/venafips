@@ -36,7 +36,6 @@ function Remove-VcCloudKeystore {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $query = 'mutation DeleteCloudKeystore($cloudKeystoreIds: [UUID!]!) {
                     deleteCloudKeystore(cloudKeystoreIds: $cloudKeystoreIds)

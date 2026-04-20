@@ -36,7 +36,6 @@ function Remove-VcCloudProvider {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $query = 'mutation DeleteCloudProvider($cloudProviderId: [UUID!]!) {
                     deleteCloudProvider(cloudProviderId: $cloudProviderId)

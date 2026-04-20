@@ -56,7 +56,6 @@ function Get-VcTag {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

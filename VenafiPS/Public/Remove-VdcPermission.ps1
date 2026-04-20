@@ -82,7 +82,6 @@ function Remove-VdcPermission {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method     = 'Delete'

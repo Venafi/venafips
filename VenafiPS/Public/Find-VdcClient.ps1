@@ -52,7 +52,6 @@ function Find-VdcClient {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

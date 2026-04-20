@@ -49,7 +49,6 @@ function Get-VcConnector {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

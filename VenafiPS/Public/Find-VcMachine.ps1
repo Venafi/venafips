@@ -72,7 +72,6 @@ function Find-VcMachine {
         [psobject] $VenafiSession
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
         Type  = 'Machine'

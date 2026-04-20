@@ -152,7 +152,6 @@ function Export-VcCertificate {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         Initialize-PSSodium -Force:$Force
 
         $allCerts = [System.Collections.Generic.List[string]]::new()

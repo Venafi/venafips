@@ -63,7 +63,6 @@ function Get-VcCloudKeystore {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

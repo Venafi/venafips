@@ -155,7 +155,6 @@ function Get-VdcPermission {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

@@ -153,7 +153,6 @@ function New-VcCloudKeystore {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $ownerId = Get-VcData -Type Team -InputObject $OwnerTeam
 

@@ -46,7 +46,6 @@ function Find-VdcVaultId {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

@@ -45,7 +45,6 @@ function Find-VdcEngine {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

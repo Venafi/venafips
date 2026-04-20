@@ -100,7 +100,6 @@ function New-VcApplication {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         # determine if user or team and build the payload
         $ownerHash = foreach ($thisOwner in $Owner) {

@@ -47,7 +47,6 @@ function Remove-VcSatelliteWorker {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

@@ -230,7 +230,6 @@ function Set-VdcPermission {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
     }
 

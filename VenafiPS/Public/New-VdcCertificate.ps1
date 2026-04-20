@@ -214,7 +214,6 @@ function New-VdcCertificate {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         if ( $PSBoundParameters.ContainsKey('SubjectAltName') ) {
 

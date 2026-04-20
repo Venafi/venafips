@@ -69,7 +69,6 @@ function Get-VcSatelliteWorker {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

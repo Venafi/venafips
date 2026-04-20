@@ -172,7 +172,6 @@ function Set-VdcCredential {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

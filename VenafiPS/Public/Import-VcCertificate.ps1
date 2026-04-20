@@ -124,7 +124,6 @@ function Import-VcCertificate {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         Initialize-PSSodium -Force:$Force
 

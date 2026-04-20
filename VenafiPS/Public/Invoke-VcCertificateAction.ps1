@@ -248,7 +248,6 @@ function Invoke-VcCertificateAction {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method  = 'Post'

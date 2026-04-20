@@ -71,7 +71,6 @@ function Get-VdcEngineFolder {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

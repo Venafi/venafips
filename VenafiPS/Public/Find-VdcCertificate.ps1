@@ -403,7 +403,6 @@ function Find-VdcCertificate {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 

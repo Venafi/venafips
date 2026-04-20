@@ -109,7 +109,6 @@ function New-VdcTeam {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

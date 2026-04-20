@@ -92,7 +92,6 @@ function Set-VcMachineIdentity {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         if ( $Certificate ) {
             $certLookup = if ( $Force ) {

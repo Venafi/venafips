@@ -85,7 +85,6 @@ function Get-VcSatellite {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allKeys = Invoke-VenafiRestMethod -UriLeaf 'edgeencryptionkeys' | Select-Object -ExpandProperty encryptionKeys
     }
 

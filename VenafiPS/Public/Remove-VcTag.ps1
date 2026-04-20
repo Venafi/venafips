@@ -48,7 +48,6 @@ function Remove-VcTag {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allObjects = [System.Collections.Generic.List[object]]::new()
     }
 

@@ -147,7 +147,6 @@ function Find-VcLog {
         [psobject] $VenafiSession
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
         Type  = 'ActivityLog'

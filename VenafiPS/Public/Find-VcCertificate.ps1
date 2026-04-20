@@ -239,7 +239,6 @@ function Find-VcCertificate {
         [psobject] $VenafiSession
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $apps = [System.Collections.Generic.List[object]]::new()
     $appOwners = [System.Collections.Generic.List[object]]::new()

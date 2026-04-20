@@ -62,7 +62,6 @@ function Get-VdcCustomField {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

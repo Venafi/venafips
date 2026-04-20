@@ -71,7 +71,6 @@ function Find-VcMachineIdentity {
         [psobject] $VenafiSession
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
         Type  = 'MachineIdentity'

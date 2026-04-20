@@ -200,7 +200,6 @@ function New-VdcCapiApplication {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         if ( $PushCertificate.IsPresent -and (-not $PSBoundParameters.ContainsKey('CertificatePath')) ) {
             throw 'A CertificatePath must be provided when using PushCertificate'

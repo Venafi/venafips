@@ -119,7 +119,6 @@ function Set-VcTeam {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method        = 'Patch'

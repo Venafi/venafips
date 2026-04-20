@@ -64,7 +64,6 @@ function Get-VcTeam {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

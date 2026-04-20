@@ -58,7 +58,6 @@ function Get-VcCertificate {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $appOwners = [System.Collections.Generic.List[object]]::new()
 

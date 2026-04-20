@@ -103,7 +103,6 @@ function Set-VcCertificate {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         switch ($PSCmdlet.ParameterSetName) {
             'Application' {

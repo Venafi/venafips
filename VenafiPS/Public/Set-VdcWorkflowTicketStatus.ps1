@@ -99,7 +99,6 @@ function Set-VdcWorkflowTicketStatus {
             }
         }
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

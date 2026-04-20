@@ -61,7 +61,6 @@ function Add-VdcEngineFolder {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method        = 'Post'

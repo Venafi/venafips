@@ -89,7 +89,6 @@ function Get-VcUser {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

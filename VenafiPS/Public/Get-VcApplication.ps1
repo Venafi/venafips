@@ -78,7 +78,6 @@ function Get-VcApplication {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

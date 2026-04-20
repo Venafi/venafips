@@ -80,7 +80,6 @@ function New-VcConnector {
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {

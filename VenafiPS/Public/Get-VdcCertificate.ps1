@@ -105,7 +105,6 @@ function Get-VdcCertificate {
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $certs = [System.Collections.Generic.List[string]]::new()
 
