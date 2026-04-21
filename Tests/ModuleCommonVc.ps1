@@ -2,7 +2,7 @@
 . $PSScriptRoot/ModuleCommon.ps1
 
 Mock -CommandName 'Get-TrustClient' -MockWith {
-    $tc = [TrustClient]::new()
+    $tc = & (Get-Module VenafiPS) ([scriptblock]::Create('[TrustClient]::new()'))
     $tc.Platform = 'VC'
     $tc.Server = 'https://api.venafi.cloud'
     $tc.TimeoutSec = 0
