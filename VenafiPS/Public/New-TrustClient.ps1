@@ -219,6 +219,7 @@ function New-TrustClient {
     [CmdletBinding(DefaultParameterSetName = 'TokenIntegrated')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Not needed')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting secret to credential')]
+    [Alias('New-VenafiSession')]
 
     param(
         [Parameter(Mandatory, ParameterSetName = 'TokenOAuth')]

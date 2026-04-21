@@ -75,17 +75,20 @@
     }
 
     [void] Revoke() {
-        if ($this.Platform -eq 'VDC') {
-            if (-not $this.AccessToken) {
-                throw 'No access token to revoke.'
+        switch ($this.Platform) {
+            'VDC' {
+                if (-not $this.AccessToken) {
+                    throw 'No access token to revoke.'
+                }
+                Invoke-TrustRestMethod -TrustClient $this -Method Get -UriRoot 'vedauth' -UriLeaf 'Revoke/Token'
+                break
             }
-            Invoke-TrustRestMethod -TrustClient $this -Method Get -UriRoot 'vedauth' -UriLeaf 'Revoke/Token'
-        }
-        elseif ($this.Platform -eq 'VC') {
-            throw 'Token revocation is not supported for Certificate Manager, SaaS.'
-        }
-        else {
-            throw "Token revocation is not supported for platform '$($this.Platform)'."
+            'VC' {
+                throw 'Token revocation is not supported for Certificate Manager, SaaS.'
+            }
+            'NGTS' {
+                Write-Warning 'Token revocation is not currently supported for NGTS/SCM.  Clearing tokens locally, but this session may still be valid until the access token expires.'
+            }
         }
 
         $this.AccessToken = $null
