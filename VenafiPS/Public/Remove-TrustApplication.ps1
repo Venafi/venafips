@@ -1,0 +1,67 @@
+function Remove-TrustApplication {
+    <#
+    .SYNOPSIS
+    Remove a application
+
+    .DESCRIPTION
+    Remove a application from Certificate Manager, SaaS
+
+    .PARAMETER ID
+    Application ID, this is the guid/uuid
+
+    .PARAMETER ThrottleLimit
+    Limit the number of threads when running in parallel; the default is 100.
+    Setting the value to 1 will disable multithreading.
+    On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
+
+    .PARAMETER TrustClient
+    Authentication for the function.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
+
+    .INPUTS
+    ID
+
+    .EXAMPLE
+    Remove-TrustApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+    Remove a application
+
+    .EXAMPLE
+    Remove-TrustApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Confirm:$false
+    Remove a application bypassing the confirmation prompt
+    #>
+
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+    [Alias('Remove-VcApplication')]
+
+    param (
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [Alias('applicationId')]
+        [string] $ID,
+
+        [Parameter()]
+        [int32] $ThrottleLimit = 100,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [TrustClient] $TrustClient = (Get-TrustClient)
+    )
+
+    begin {
+        $allObjects = [System.Collections.Generic.List[object]]::new()
+    }
+
+    process {
+        if ( $PSCmdlet.ShouldProcess($ID, "Delete application") ) {
+            $allObjects.Add($ID)
+        }
+    }
+
+    end {
+        Invoke-TrustParallel -InputObject $allObjects -ScriptBlock {
+            $null = Invoke-TrustRestMethod -Method 'Delete' -UriRoot 'outagedetection/v1' -UriLeaf "applications/$PSItem"
+        } -ThrottleLimit $ThrottleLimit -TrustClient $TrustClient
+    }
+}
+
+

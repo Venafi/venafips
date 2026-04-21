@@ -230,7 +230,7 @@ function New-TrustClient {
         [Parameter(Mandatory, ParameterSetName = 'RefreshToken')]
         [Parameter(ParameterSetName = 'VaultAccessToken')]
         [Parameter(ParameterSetName = 'VaultRefreshToken')]
-        [Alias('ServerUrl', 'Url')]
+        [Alias('ServerUrl')]
         [ValidateScript(
             {
                 $validateMe = if ( $_ -notlike 'https://*') {

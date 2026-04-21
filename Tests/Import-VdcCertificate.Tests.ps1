@@ -21,7 +21,7 @@ MIIFLjBYBgkqhkiG9w0BBQ0wSzAqBgkqhkiG9w0BBQww
 -----END ENCRYPTED PRIVATE KEY-----
 "@
 
-    # base64-encode the PEM strings (simulating Export-VcCertificate output)
+    # base64-encode the PEM strings (simulating Export-TrustCertificate output)
     $testCertPemBase64 = [System.Convert]::ToBase64String(
         [System.Text.Encoding]::ASCII.GetBytes($testCertPem)
     )

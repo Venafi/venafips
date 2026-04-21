@@ -164,7 +164,7 @@ $script:functionConfig = @{
         'VdcVersion'    = ''
         'VdcTokenScope' = 'certificate=discover'
     }
-    'Import-VcCertificate'             = @{
+    'Import-TrustCertificate'             = @{
         'VdcVersion'    = ''
         'VdcTokenScope' = ''
     }
@@ -203,18 +203,6 @@ $script:functionConfig = @{
     'New-VdcToken'                     = @{
         'VdcVersion'    = ''
         'VdcTokenScope' = 'any scope'
-    }
-    'New-VcCertificate'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = ''
-    }
-    'New-VcConnector'                  = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = ''
-    }
-    'New-TrustClient'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = ''
     }
     'Remove-VdcCertificate'            = @{
         'VdcVersion'    = ''

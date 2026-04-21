@@ -78,7 +78,7 @@ function Import-VdcCertificate {
     .EXAMPLE
     New-TrustClient -VcKey <api_key>
     $sess = New-TrustClient -Server venafi.mycompany.com -Credential $cred -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'} -PassThru
-    Find-VcCertificate -VersionType CURRENT | Export-VcCertificate -PrivateKeyPassword 'myPassword!' -PKCS12 | Import-VdcCertificate -PolicyPath 'certificates' -TrustClient $sess
+    Find-TrustCertificate -VersionType CURRENT | Export-TrustCertificate -PrivateKeyPassword 'myPassword!' -PKCS12 | Import-VdcCertificate -PolicyPath 'certificates' -TrustClient $sess
 
     Export 1 or more certificates from Certificate Manager, SaaS and import to Certificate Manager, Self-Hosted.  Note the use of 2 sessions at once where the Certificate Manager, Self-Hosted session is stored in a variable.
 

@@ -30,7 +30,7 @@ CompanyName = 'Venafi'
 Copyright = '(c) Venafi, Inc. and CyberArk Software Ltd. ("CyberArk")'
 
 # Description of the functionality provided by this module
-Description = 'Automate your CyberArk Certificate Manager Self-Hosted and SaaS platforms!'
+Description = 'Automate your CyberArk Certificate Manager Self-Hosted/SaaS and NGTS platforms!'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
@@ -69,52 +69,52 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash',
+FunctionsToExport = 'Add-TrustTeamMember', 'Add-TrustTeamOwner', 'Add-VdcAdaptableHash',
                'Add-VdcCertificateAssociation', 'Add-VdcEngineFolder',
                'Add-VdcTeamMember', 'Add-VdcTeamOwner', 'Convert-VdcObject',
-               'Export-VcCertificate',
+               'Export-TrustCertificate',
                'Export-VdcCertificate', 'Export-VdcVaultObject',
-               'Find-VcCertificate', 'Find-VcCertificateInstance',
-               'Find-VcCertificateRequest', 'Find-VcLog', 'Find-VcMachine',
-               'Find-VcMachineIdentity', 'Find-VdcCertificate', 'Find-VdcClient',
+               'Find-TrustCertificate', 'Find-TrustCertificateInstance',
+               'Find-TrustCertificateRequest', 'Find-TrustLog', 'Find-TrustMachine',
+               'Find-TrustMachineIdentity', 'Find-VdcCertificate', 'Find-VdcClient',
                'Find-VdcEngine', 'Find-VdcIdentity', 'Find-VdcObject',
-               'Find-VdcVaultId', 'Get-VcApplication', 'Get-VcCertificate',
-               'Get-VcConnector', 'Get-VcIssuingTemplate', 'Get-VcMachine',
-               'Get-VcMachineIdentity', 'Get-VcSatellite', 'Get-VcTag', 'Get-VcTeam',
-               'Get-VcUser', 'Get-VcWebhook', 'Get-VdcAttribute', 'Get-VdcCertificate',
+               'Find-VdcVaultId', 'Get-TrustApplication', 'Get-TrustCertificate',
+               'Get-TrustConnector', 'Get-TrustIssuingTemplate', 'Get-TrustMachine',
+               'Get-TrustMachineIdentity', 'Get-TrustSatellite', 'Get-TrustTag', 'Get-TrustTeam',
+               'Get-TrustUser', 'Get-TrustWebhook', 'Get-VdcAttribute', 'Get-VdcCertificate',
                'Get-VdcClassAttribute', 'Get-VdcCredential', 'Get-VdcCustomField',
                'Get-VdcEngineFolder', 'Get-VdcIdentity', 'Get-VdcIdentityAttribute',
                'Get-VdcObject', 'Get-VdcPermission', 'Get-VdcSystemStatus',
                'Get-VdcTeam', 'Get-VdcWorkflowTicket',
-               'Import-VcCertificate', 'Import-VdcCertificate',
-               'Invoke-VcCertificateAction', 'Invoke-VcWorkflow',
+               'Import-TrustCertificate', 'Import-VdcCertificate',
+               'Invoke-TrustCertificateAction', 'Invoke-TrustWorkflow',
                'Invoke-VdcCertificateAction', 'Invoke-TrustRestMethod',
-               'Move-VdcObject', 'New-VcApplication', 'New-VcCertificate',
-               'New-VcConnector', 'New-VcMachine', 'New-VcMachineCommonKeystore',
-               'New-VcMachineIis', 'New-VcTeam', 'New-VcWebhook',
+               'Move-VdcObject', 'New-TrustApplication', 'New-TrustCertificate',
+               'New-TrustConnector', 'New-TrustMachine', 'New-TrustMachineCommonKeystore',
+               'New-TrustMachineIis', 'New-TrustTeam', 'New-TrustWebhook',
                'New-VdcCapiApplication', 'New-VdcCertificate', 'New-VdcCustomField',
                'New-VdcDevice', 'New-VdcObject', 'New-VdcPolicy', 'New-VdcTeam',
                'New-TrustClient', 'Read-VdcLog',
-               'Remove-VcApplication', 'Remove-VcCertificate', 'Remove-VcConnector',
-               'Remove-VcIssuingTemplate', 'Remove-VcMachine',
-               'Remove-VcMachineIdentity', 'Remove-VcTag', 'Remove-VcTeam',
-               'Remove-VcTeamMember', 'Remove-VcTeamOwner', 'Remove-VcWebhook',
+               'Remove-TrustApplication', 'Remove-TrustCertificate', 'Remove-TrustConnector',
+               'Remove-TrustIssuingTemplate', 'Remove-TrustMachine',
+               'Remove-TrustMachineIdentity', 'Remove-TrustTag', 'Remove-TrustTeam',
+               'Remove-TrustTeamMember', 'Remove-TrustTeamOwner', 'Remove-TrustWebhook',
                'Remove-VdcCertificate', 'Remove-VdcCertificateAssociation',
                'Remove-VdcClient', 'Remove-VdcEngineFolder', 'Remove-VdcObject',
                'Remove-VdcPermission', 'Remove-VdcTeam', 'Remove-VdcTeamMember',
                'Remove-VdcTeamOwner', 'Rename-VdcObject', 'Revoke-VdcGrant',
-               'Set-VcApplication',
-               'Set-VcConnector', 'Set-VcTeam', 'Set-VdcAttribute',
+               'Set-TrustApplication',
+               'Set-TrustConnector', 'Set-TrustTeam', 'Set-VdcAttribute',
                'Set-VdcCredential', 'Set-VdcPermission',
                'Set-VdcWorkflowTicketStatus', 'Test-VdcIdentity', 'Test-VdcObject',
-               'Write-VdcLog', 'Set-VcCertificate',
-               'Get-VcSatelliteWorker', 'Remove-VcSatelliteWorker',
-               'Set-VcCertificateRequest', 'Get-VcCertificateRequest',
-               'Get-VcCloudProvider', 'Get-VcCloudKeystore', 'New-VcCloudKeystore',
-               'Remove-VcCloudKeystore', 'New-VcCloudProvider',
-               'Remove-VcCloudProvider', 'Set-VcUser', 'Export-VcReport',
-               'Get-VcCertificateAuthority', 'Set-VcIssuingTemplate',
-               'New-VdcCredential', 'Set-VcMachine', 'Set-VcMachineIdentity'
+               'Write-VdcLog', 'Set-TrustCertificate',
+               'Get-TrustSatelliteWorker', 'Remove-TrustSatelliteWorker',
+               'Set-TrustCertificateRequest', 'Get-TrustCertificateRequest',
+               'Get-TrustCloudProvider', 'Get-TrustCloudKeystore', 'New-TrustCloudKeystore',
+               'Remove-TrustCloudKeystore', 'New-TrustCloudProvider',
+               'Remove-TrustCloudProvider', 'Set-TrustUser', 'Export-TrustReport',
+               'Get-TrustCertificateAuthority', 'Set-TrustIssuingTemplate',
+               'New-VdcCredential', 'Set-TrustMachine', 'Set-TrustMachineIdentity'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -123,7 +123,36 @@ CmdletsToExport = @()
 VariablesToExport = 'TrustClient'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = @('New-VenafiSession')
+AliasesToExport = @(
+               'New-VenafiSession',
+               'Add-VcTeamMember', 'Add-VcTeamOwner',
+               'Export-VcCertificate', 'Export-VcReport',
+               'Find-VcCertificate', 'Find-VcCertificateInstance',
+               'Find-VcCertificateRequest', 'Find-VcLog', 'Find-VcMachine',
+               'Find-VcMachineIdentity',
+               'Get-VcApplication', 'Get-VcCertificate',
+               'Get-VcCertificateAuthority', 'Get-VcCertificateRequest',
+               'Get-VcCloudKeystore', 'Get-VcCloudProvider',
+               'Get-VcConnector', 'Get-VcIssuingTemplate', 'Get-VcMachine',
+               'Get-VcMachineIdentity', 'Get-VcSatellite', 'Get-VcSatelliteWorker',
+               'Get-VcTag', 'Get-VcTeam', 'Get-VcUser', 'Get-VcIdentity',
+               'Get-TrustIdentity', 'Get-VcWebhook',
+               'Import-VcCertificate',
+               'Invoke-VcCertificateAction', 'Invoke-VcWorkflow',
+               'New-VcApplication', 'New-VcCertificate',
+               'New-VcCloudKeystore', 'New-VcCloudProvider',
+               'New-VcConnector', 'New-VcMachine', 'New-VcMachineCommonKeystore',
+               'New-VcMachineIis', 'New-VcTeam', 'New-VcWebhook',
+               'Remove-VcApplication', 'Remove-VcCertificate',
+               'Remove-VcCloudKeystore', 'Remove-VcCloudProvider',
+               'Remove-VcConnector', 'Remove-VcIssuingTemplate', 'Remove-VcMachine',
+               'Remove-VcMachineIdentity', 'Remove-VcSatelliteWorker',
+               'Remove-VcTag', 'Remove-VcTeam',
+               'Remove-VcTeamMember', 'Remove-VcTeamOwner', 'Remove-VcWebhook',
+               'Set-VcApplication', 'Set-VcCertificate', 'Set-VcCertificateRequest',
+               'Set-VcConnector', 'Set-VcIssuingTemplate', 'Set-VcMachine',
+               'Set-VcMachineIdentity', 'Set-VcTeam', 'Set-VcUser'
+           )
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()

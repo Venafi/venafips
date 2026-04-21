@@ -51,7 +51,7 @@ if ( $args[0] ) { return }
 
 # a wildcard for Register-ArgumentCompleter -CommandName doesn't work so we need to get the command names to register against
 $manifest = Import-PowerShellDataFile "$PSScriptRoot/VenafiPS.psd1"
-$vcCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Vc*' }
+$vcCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Trust*' }
 $vdcCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Vdc*' }
 
 # define the argument completer details
@@ -132,13 +132,13 @@ $vcGenericArgCompleterSb = {
         'Certificate' {
             # there might be a ton of certs so ensure they provide at least 3 characters
             if ( $wordToComplete.Length -ge 3 ) {
-                Find-VcCertificate -Name $wordToComplete | ForEach-Object { "'$($_.certificateName)'" }
+                Find-TrustCertificate -Name $wordToComplete | ForEach-Object { "'$($_.certificateName)'" }
             }
         }
 
         default {
             # catch all for $vcCompletions
-            Get-VcData -Type $parameterName | Where-Object $lookup -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
+            Get-TrustData -Type $parameterName | Where-Object $lookup -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
                 $itemText = "'{0}'" -f $_.$lookup
                 $itemDescription = & $vcCompletions.$parameterName.d
                 [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
@@ -215,8 +215,8 @@ $vcLogArgCompleterSb = {
         }
     }
 }
-Register-ArgumentCompleter -CommandName 'Find-VcLog', 'New-VcWebhook' -ParameterName 'EventType' -ScriptBlock $vcLogArgCompleterSb
-Register-ArgumentCompleter -CommandName 'Find-VcLog', 'New-VcWebhook' -ParameterName 'EventName' -ScriptBlock $vcLogArgCompleterSb
+Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventType' -ScriptBlock $vcLogArgCompleterSb
+Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventName' -ScriptBlock $vcLogArgCompleterSb
 
 $vdcGenericArgCompleterSb = {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)

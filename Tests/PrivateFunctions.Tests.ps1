@@ -584,19 +584,19 @@ KEYDATA
 }
 #endregion
 
-#region ConvertTo-VcTeam
-Describe 'ConvertTo-VcTeam' {
+#region ConvertTo-TrustTeam
+Describe 'ConvertTo-TrustTeam' {
     Context 'Basic property transformation' {
         It 'should rename id to teamId' {
             $input = [PSCustomObject]@{ id = 'team123'; name = 'TestTeam' }
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.teamId | Should -Be 'team123'
             $result.name | Should -Be 'TestTeam'
         }
 
         It 'should exclude original id property' {
             $input = [PSCustomObject]@{ id = 'team456'; name = 'AnotherTeam' }
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.PSObject.Properties.Name | Should -Not -Contain 'id'
         }
 
@@ -607,7 +607,7 @@ Describe 'ConvertTo-VcTeam' {
                 description = 'Test description'
                 role = 'Admin'
             }
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.teamId | Should -Be 'team789'
             $result.name | Should -Be 'TeamWithProps'
             $result.description | Should -Be 'Test description'
@@ -619,7 +619,7 @@ Describe 'ConvertTo-VcTeam' {
                 [PSCustomObject]@{ id = 'team1'; name = 'Team1' }
                 [PSCustomObject]@{ id = 'team2'; name = 'Team2' }
             )
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.Count | Should -Be 2
             $result[0].teamId | Should -Be 'team1'
             $result[1].teamId | Should -Be 'team2'
@@ -1296,11 +1296,11 @@ Describe "New-HttpQueryString" -Tags 'Unit' {
     }
 }
 
-#region New-VcSearchQuery Tests
-Describe 'New-VcSearchQuery' -Tags 'Unit' {
+#region New-TrustSearchQuery Tests
+Describe 'New-TrustSearchQuery' -Tags 'Unit' {
 
     BeforeAll {
-        # New-VcSearchQuery expects these lookup arrays to be in scope.
+        # New-TrustSearchQuery expects these lookup arrays to be in scope.
         $script:vaasFields = @('status', 'name', 'machineId', 'certificateId')
         $script:vaasValuesToUpper = @('status')
     }
@@ -1309,7 +1309,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
 
         It 'Should not add operator wrapper for a single filter item' {
             $filter = [System.Collections.Generic.List[object]]@(, @('status', 'EQ', 'ACTIVE'))
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             # A single operand returns the operand directly, not wrapped in operator/operands
             $result.expression | Should -Not -BeNullOrEmpty
             $result.expression.ContainsKey('operands') | Should -BeFalse
@@ -1323,7 +1323,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('name', 'FIND', 'test')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operator | Should -Be 'AND'
         }
 
@@ -1332,7 +1332,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('name', 'FIND', 'test')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operands.Count | Should -Be 2
         }
     }
@@ -1345,7 +1345,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('name', 'FIND', 'test')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operator | Should -Be 'AND'
         }
     }
@@ -1358,7 +1358,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('status', 'EQ', 'INACTIVE')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operator | Should -Be 'OR'
         }
     }
@@ -1366,22 +1366,22 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
     Context 'Paging defaults' {
 
         It 'Should set pageNumber to 0 by default' {
-            $result = New-VcSearchQuery
+            $result = New-TrustSearchQuery
             $result.paging.pageNumber | Should -Be 0
         }
 
         It 'Should set pageSize to 1000 when First is not provided' {
-            $result = New-VcSearchQuery
+            $result = New-TrustSearchQuery
             $result.paging.pageSize | Should -Be 1000
         }
 
         It 'Should respect -First parameter for pageSize' {
-            $result = New-VcSearchQuery -First 25
+            $result = New-TrustSearchQuery -First 25
             $result.paging.pageSize | Should -Be 25
         }
 
         It 'Should cap pageSize at 1000 even when First exceeds it' {
-            $result = New-VcSearchQuery -First 9999
+            $result = New-TrustSearchQuery -First 9999
             $result.paging.pageSize | Should -Be 1000
         }
     }
