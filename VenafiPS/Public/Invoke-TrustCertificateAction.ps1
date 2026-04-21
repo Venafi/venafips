@@ -352,7 +352,7 @@ function Invoke-TrustCertificateAction {
                     error            = $null
                 }
 
-                $thisCert = Get-TrustCertificate -ID $ID
+                $thisCert = Get-TrustCertificate -Certificate $ID
 
                 # only current certs can be renewed
                 if ( $thisCert.versionType -ne 'CURRENT' ) {
@@ -558,7 +558,7 @@ function Invoke-TrustCertificateAction {
                     error         = $null
                 }
 
-                $thisCert = Get-TrustCertificate -ID $ID
+                $thisCert = Get-TrustCertificate -Certificate $ID
 
                 $variables = @{
                     fingerprint       = $thisCert.fingerprint
