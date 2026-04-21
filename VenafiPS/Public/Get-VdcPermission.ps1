@@ -190,7 +190,7 @@ function Get-VdcPermission {
                 }
 
                 Default {
-                    $thisVdcObject = $thisInputObject | ConvertTo-VdcObject
+                    $thisVdcObject = [vdcObject]::new($thisInputObject)
                 }
             }
 

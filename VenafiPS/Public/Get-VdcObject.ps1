@@ -66,12 +66,12 @@ function Get-VdcObject {
 
         if ( $PSCmdLet.ParameterSetName -eq 'ByPath' ) {
             foreach ($p in $Path) {
-                ConvertTo-VdcObject -Path ($p | ConvertTo-VdcFullPath)
+                [VdcObject]::new($p)
             }
         }
         else {
             foreach ($g in $Guid) {
-                ConvertTo-VdcObject -Guid $g
+                [VdcObject]::new($g)
             }
         }
     }

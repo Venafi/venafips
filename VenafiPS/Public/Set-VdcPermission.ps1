@@ -245,7 +245,7 @@ function Set-VdcPermission {
         }
 
         if ( $Path ) {
-            $thisGuid = $Path | ConvertTo-VdcObject | Select-Object -ExpandProperty Guid
+            $thisGuid = [VdcObject]::new($Path).Guid
         }
         else {
             $thisGuid = $Guid

@@ -98,7 +98,7 @@ function Convert-VdcObject {
 
             if ( $response.Result -eq 1 ) {
                 if ( $PassThru ) {
-                    ConvertTo-VdcObject -Path $Path
+                    [VdcObject]::new($Path)
                 }
             }
             else {

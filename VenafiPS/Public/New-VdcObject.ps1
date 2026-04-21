@@ -175,7 +175,7 @@ function New-VdcObject {
 
                 1 {
                     Write-Verbose "Successfully created $Class at $newPath"
-                    $returnObject = ConvertTo-VdcObject -Path $response.Object.DN -Guid $response.Object.Guid -TypeName $response.Object.TypeName
+                    $returnObject = [VdcObject]::new($response.Object.DN, $response.Object.Guid, $response.Object.TypeName)
                 }
 
                 400 {

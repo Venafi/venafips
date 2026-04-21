@@ -265,7 +265,7 @@ function Find-VdcObject {
         }
 
         foreach ($object in $objects) {
-            ConvertTo-VdcObject -Path $object.DN -Guid $object.Guid -TypeName $object.TypeName
+            [VdcObject]::new($object.DN, $object.Guid, $object.TypeName)
         }
     }
 }

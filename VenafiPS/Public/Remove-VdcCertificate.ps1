@@ -103,8 +103,10 @@ function Remove-VdcCertificate {
             TrustClient = $TrustClient
             ScriptBlock   = {
 
-                $guid = $PSItem | ConvertTo-VdcObject -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Guid
-                if ( -not $guid ) {
+                try {
+                    $guid = [VdcObject]::new($PSItem).Guid
+                }
+                catch {
                     Write-Error "'$PSItem' is not a valid path"
                     return
                 }

@@ -530,7 +530,8 @@ function Find-VdcCertificate {
             'IsExpired' {
                 if ( $IsExpired.IsPresent ) {
                     $params.Body.Add( 'ValidToLess', ((Get-Date) | ConvertTo-UtcIso8601) )
-                } else {
+                }
+                else {
                     $params.Body.Add( 'ValidToGreater', ((Get-Date) | ConvertTo-UtcIso8601) )
                 }
             }
@@ -572,7 +573,7 @@ function Find-VdcCertificate {
         }
         elseif ( $PSBoundParameters.ContainsKey('Guid') ) {
             # guid provided, get path
-            $pathObject = ConvertTo-VdcObject -Guid $Guid
+            $pathObject = [VdcObject]::new($Guid)
             if ( $pathObject.TypeName -ne 'Policy' ) {
                 throw [System.Management.Automation.PSArgumentOutOfRangeException]::new('Guid', $pathObject.TypeName, 'Must be a Policy')
                 return
@@ -607,7 +608,7 @@ function Find-VdcCertificate {
 
         $content = $response.content | ConvertFrom-Json
         $content.Certificates.ForEach{
-            ConvertTo-VdcObject -Path $_.DN -Guid $_.Guid -TypeName $_.SchemaClass
+            [VdcObject]::new($_.DN, $_.Guid, $_.SchemaClass)
         }
 
         if ($PSBoundParameters.ContainsKey('First')) {
@@ -640,7 +641,7 @@ function Find-VdcCertificate {
 
             $content = $response.content | ConvertFrom-Json
             $content.Certificates.ForEach{
-                ConvertTo-VdcObject -Path $_.DN -Guid $_.Guid -TypeName $_.SchemaClass
+                [VdcObject]::new($_.DN, $_.Guid, $_.SchemaClass)
             }
         }
     }

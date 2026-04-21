@@ -135,7 +135,7 @@ function Get-VdcCertificate {
 
                 if ( $PSItem -like '\ved*' ) {
                     # a path was provided, get the guid
-                    $thisGuid = (ConvertTo-VdcObject -Path $PSItem).Guid
+                    $thisGuid = [VdcObject]::new($PSItem).Guid
                 }
                 else {
                     $thisGuid = ([guid] $PSItem).ToString()
