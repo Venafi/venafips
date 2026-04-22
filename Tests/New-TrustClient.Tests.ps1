@@ -53,17 +53,17 @@ Describe 'New-TrustClient Auth Model' -Tags 'Unit' {
     Context 'Certificate Manager, Self-Hosted token session' {
         BeforeEach {
             Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
-                [pscustomobject]@{
-                    Server         = 'https://venafi.example.com'
-                    AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-token')
-                    RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh')
-                    Scope          = @{ certificate = 'manage' }
-                    Identity       = 'admin'
-                    TokenType      = 'Bearer'
-                    ClientId       = 'VenafiPS-MyApp'
-                    Expires        = [DateTime]::UtcNow.AddMinutes(30)
-                    RefreshExpires = [DateTime]::UtcNow.AddHours(1)
-                }
+                $token = [TrustToken]::new()
+                $token.Server         = 'https://venafi.example.com'
+                $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-token')
+                $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh')
+                $token.Scope          = @{ certificate = 'manage' }
+                $token.Identity       = 'admin'
+                $token.TokenType      = 'Bearer'
+                $token.ClientId       = 'VenafiPS-MyApp'
+                $token.Expires        = [DateTime]::UtcNow.AddMinutes(30)
+                $token.RefreshExpires = [DateTime]::UtcNow.AddHours(1)
+                $token
             }
             Mock -CommandName 'Get-VdcCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
         }
@@ -130,15 +130,15 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
     Context 'Refresh' {
         It 'Should refresh VDC session via New-VdcToken and update Auth' {
             Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
-                [pscustomobject]@{
-                    Server         = 'https://venafi.example.com'
-                    AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'new-access')
-                    RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'new-refresh')
-                    Scope          = @{ certificate = 'manage' }
-                    ClientId       = 'VenafiPS-MyApp'
-                    Expires        = [DateTime]::UtcNow.AddMinutes(30)
-                    RefreshExpires = [DateTime]::UtcNow.AddHours(1)
-                }
+                $token = [TrustToken]::new()
+                $token.Server         = 'https://venafi.example.com'
+                $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'new-access')
+                $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'new-refresh')
+                $token.Scope          = @{ certificate = 'manage' }
+                $token.ClientId       = 'VenafiPS-MyApp'
+                $token.Expires        = [DateTime]::UtcNow.AddMinutes(30)
+                $token.RefreshExpires = [DateTime]::UtcNow.AddHours(1)
+                $token
             }
 
             $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
@@ -168,15 +168,15 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
 
     It 'Should refresh an explicitly provided expiring VDC session before request execution' {
         Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
-            [pscustomobject]@{
-                Server         = 'https://venafi.example.com'
-                AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-refreshed')
-                RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh-new')
-                Scope          = @{ certificate = 'manage' }
-                ClientId       = 'VenafiPS-MyApp'
-                Expires        = [DateTime]::UtcNow.AddMinutes(30)
-                RefreshExpires = [DateTime]::UtcNow.AddHours(1)
-            }
+            $token = [TrustToken]::new()
+            $token.Server         = 'https://venafi.example.com'
+            $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-refreshed')
+            $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh-new')
+            $token.Scope          = @{ certificate = 'manage' }
+            $token.ClientId       = 'VenafiPS-MyApp'
+            $token.Expires        = [DateTime]::UtcNow.AddMinutes(30)
+            $token.RefreshExpires = [DateTime]::UtcNow.AddHours(1)
+            $token
         }
 
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru

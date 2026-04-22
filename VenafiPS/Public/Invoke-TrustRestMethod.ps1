@@ -108,10 +108,6 @@ function Invoke-TrustRestMethod {
         [switch] $SkipCertificateCheck
     )
 
-    # VC supports both apiley and token based auth, VDC only token
-
-    $authType = 'token'
-
     $params = @{
         Method          = $Method
         ContentType     = 'application/json'
@@ -123,6 +119,18 @@ function Invoke-TrustRestMethod {
     if ( $PSCmdLet.ParameterSetName -eq 'Session' ) {
 
         if ( -not $TrustClient ) { $TrustClient = Get-TrustClient }
+
+        # When a TrustClient is explicitly provided, validate the platform matches the calling function
+        $callingCmd = @(Get-PSCallStack)[1].Command
+        $expectedPlatform = switch -Regex ($callingCmd) {
+            '-Ngts' { 'NGTS' }
+            '-Vc' { 'VC' }
+            '-Vdc' { 'VDC' }
+            default { $null }
+        }
+        if ($expectedPlatform -and $expectedPlatform -ne $TrustClient.Platform) {
+            throw "You are attempting to call a $expectedPlatform function with a $($TrustClient.Platform) session.  Please provide the correct session or call New-TrustClient for the target platform."
+        }
 
         # Get-TrustClient auto-refreshes script/nested sessions.
         # For explicitly provided class sessions, ensure we also refresh when expiring soon.
@@ -144,55 +152,42 @@ function Invoke-TrustRestMethod {
         }
 
         $Server = $TrustClient.Server
-        $thisPlatform = $TrustClient.Platform
-        if ( $null -ne $TrustClient.ApiKey ) {
-            $auth = $TrustClient.ApiKey.GetNetworkCredential().password
-            $authType = 'apikey'
+
+        # set auth header based on TrustClient auth type
+        $params.Headers = switch ($TrustClient.AuthType) {
+            'ApiKey' {
+                @{ 'tppl-api-key' = $TrustClient.ApiKey.GetNetworkCredential().password }
+            }
+            default {
+                # BearerToken and ClientCredential both use bearer auth
+                @{ 'Authorization' = 'Bearer {0}' -f $TrustClient.AccessToken.GetNetworkCredential().password }
+            }
         }
-        elseif ( $null -ne $TrustClient.AccessToken ) {
-            $auth = $TrustClient.AccessToken.GetNetworkCredential().password
-        }
-        else {
-            throw [System.ArgumentException]::new('No usable auth material could be found in TrustClient')
-        }
+
+        if ( $null -ne $Header ) { $params.Headers += $Header }
         $SkipCertificateCheck = $TrustClient.SkipCertificateCheck
         $params.TimeoutSec = $TrustClient.TimeoutSec
-
-        # set auth header
-        $params.Headers = if ( $authType -eq 'token' ) {
-            # vc and vdc
-            @{
-                'Authorization' = "Bearer $auth"
-            }
-        }
-        else {
-            # vc only
-            @{
-                "tppl-api-key" = $auth
-            }
-        }
-        if ( $null -ne $Header ) { $params.Headers += $Header }
     }
 
-    if ( $thisPlatform -in 'VC', 'NGTS' ) {
-        # switch the default uri root for VC and NGTS
-
-        if ( -not $PSBoundParameters.ContainsKey('UriRoot') ) {
-            $UriRoot = 'v1'
-        }
-
-        if ( $thisPlatform -eq 'NGTS' ) {
-            $UriRoot = 'ngts/{0}' -f $UriRoot.TrimStart('/')
-        }
-    }
-    else {
-        # VDC specific
+    if ( $TrustClient.Platform -eq 'VDC' ) {
         if ( $UseDefaultCredential.IsPresent ) {
             $params.Add('UseDefaultCredentials', $true)
         }
 
         if ( $null -ne $Certificate ) {
             $params.Add('Certificate', $Certificate)
+        }
+    }
+    else {
+
+        # switch the default uri root for VC and NGTS
+
+        if ( -not $PSBoundParameters.ContainsKey('UriRoot') ) {
+            $UriRoot = 'v1'
+        }
+
+        if ( $TrustClient.Platform -eq 'NGTS' ) {
+            $UriRoot = 'ngts/{0}' -f $UriRoot.TrimStart('/')
         }
     }
 
@@ -286,7 +281,7 @@ function Invoke-TrustRestMethod {
                 $permMsg = ''
 
                 # get scope details for tpp
-                if ( $thisPlatform -eq 'VDC' ) {
+                if ( $TrustClient.Platform -eq 'VDC' ) {
                     $callingFunction = @(Get-PSCallStack)[1].InvocationInfo.MyCommand.Name
                     $callingFunctionScope = ($script:functionConfig).$callingFunction.VdcTokenScope
                     if ( $callingFunctionScope ) { $permMsg += "$callingFunction requires a token scope of '$callingFunctionScope'." }
