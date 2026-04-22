@@ -200,7 +200,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
         $sess.Platform = 'NGTS'
         $sess.Server = 'https://api.strata.paloaltonetworks.com'
-        $sess.AuthType = 'ClientCredential'
+        $sess.AuthType = 'BearerToken'
         $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'ngts-token'
         $sess.Expires = [DateTime]::UtcNow.AddMinutes(30)
         $sess.Credential = New-TestCredential -UserName 'svc' -Password 'secret'
@@ -210,5 +210,268 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
         Should -Invoke -CommandName 'Invoke-RestMethod' -ModuleName $ModuleName -Times 1 -ParameterFilter {
             $Uri -eq 'https://api.strata.paloaltonetworks.com/ngts/v1/useraccounts'
         }
+    }
+
+    It 'Should send ApiKey header for VC key sessions' {
+        $sess = New-TrustClient -VcKey (New-TestCredential -UserName 'VcKey' -Password 'my-api-key') -PassThru
+
+        $null = Invoke-TrustRestMethod -TrustClient $sess -UriLeaf 'useraccounts' -Method Get
+
+        Should -Invoke -CommandName 'Invoke-RestMethod' -ModuleName $ModuleName -Times 1 -ParameterFilter {
+            $Headers -and $Headers['tppl-api-key'] -eq 'my-api-key'
+        }
+    }
+
+    It 'Should not refresh a non-expired session' {
+        Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName
+
+        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess.Platform = 'VDC'
+        $sess.Server = 'https://venafi.example.com'
+        $sess.AuthType = 'BearerToken'
+        $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'valid'
+        $sess.Expires = [DateTime]::UtcNow.AddMinutes(30)
+
+        $null = Invoke-TrustRestMethod -TrustClient $sess -UriRoot 'vedsdk' -UriLeaf 'Certificates' -Method Get
+
+        Should -Invoke -CommandName 'New-VdcToken' -ModuleName $ModuleName -Times 0
+    }
+
+    It 'Should throw when expired and cannot refresh' {
+        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess.Platform = 'VDC'
+        $sess.Server = 'https://venafi.example.com'
+        $sess.AuthType = 'BearerToken'
+        $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'expired'
+        $sess.Expires = [DateTime]::UtcNow.AddSeconds(-10)
+        # No RefreshToken, AuthServer, or ClientId — CanRefresh() is false
+
+        { Invoke-TrustRestMethod -TrustClient $sess -UriRoot 'vedsdk' -UriLeaf 'Certificates' -Method Get } |
+            Should -Throw '*expired*'
+    }
+}
+
+Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
+
+    BeforeEach {
+        Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
+        Mock -CommandName 'Get-VdcCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
+    }
+
+    Context 'VDC AccessToken (existing token)' {
+        It 'Should create VDC session from an existing access token string' {
+            $sess = New-TrustClient -Server 'venafi.example.com' -AccessToken 'my-token' -PassThru
+
+            $sess.Platform | Should -Be 'VDC'
+            $sess.AuthType | Should -Be 'BearerToken'
+            $sess.AccessToken | Should -Not -BeNullOrEmpty
+            $sess.Expires | Should -BeGreaterThan (Get-Date).ToUniversalTime()
+        }
+
+        It 'Should accept a PSCredential for AccessToken' {
+            $cred = New-TestCredential -UserName 'AccessToken' -Password 'cred-token'
+
+            $sess = New-TrustClient -Server 'venafi.example.com' -AccessToken $cred -PassThru
+
+            $sess.AccessToken.GetNetworkCredential().Password | Should -Be 'cred-token'
+        }
+
+        It 'Should accept a SecureString for AccessToken' {
+            $secure = 'secure-token' | ConvertTo-SecureString -AsPlainText -Force
+
+            $sess = New-TrustClient -Server 'venafi.example.com' -AccessToken $secure -PassThru
+
+            $sess.AccessToken | Should -Not -BeNullOrEmpty
+        }
+    }
+
+    Context 'VDC RefreshToken' {
+        BeforeEach {
+            Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
+                $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
+                $token.Server       = 'https://venafi.example.com'
+                $token.AccessToken  = (New-TestCredential -UserName 'AccessToken' -Password 'refreshed-access')
+                $token.RefreshToken = (New-TestCredential -UserName 'RefreshToken' -Password 'new-refresh')
+                $token.ClientId     = 'VenafiPS-MyApp'
+                $token.Expires      = [DateTime]::UtcNow.AddMinutes(30)
+                $token.RefreshExpires = [DateTime]::UtcNow.AddHours(1)
+                $token
+            }
+        }
+
+        It 'Should create VDC session from a refresh token' {
+            $sess = New-TrustClient -Server 'venafi.example.com' -RefreshToken 'old-refresh' -ClientId 'VenafiPS-MyApp' -PassThru
+
+            $sess.Platform | Should -Be 'VDC'
+            $sess.AuthType | Should -Be 'BearerToken'
+            $sess.AccessToken | Should -Not -BeNullOrEmpty
+            Should -Invoke -CommandName 'New-VdcToken' -ModuleName $ModuleName -Times 1
+        }
+    }
+
+    Context 'NGTS credential session' {
+        BeforeEach {
+            Mock -CommandName 'New-NgtsToken' -ModuleName $ModuleName -MockWith {
+                $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
+                $token.Server      = 'https://auth.apps.paloaltonetworks.com'
+                $token.AccessToken = (New-TestCredential -UserName 'AccessToken' -Password 'ngts-access')
+                $token.Expires     = [DateTime]::UtcNow.AddMinutes(30)
+                $token.Scope       = 'tsg_id:1234567890 logging-service:read'
+                $token
+            }
+        }
+
+        It 'Should create NGTS session with credential' {
+            $ngtsCred = New-TestCredential -UserName 'svcaccount@1234567890.iam.panserviceaccount.com' -Password 'client-secret'
+
+            $sess = New-TrustClient -NgtsCredential $ngtsCred -PassThru
+
+            $sess.Platform | Should -Be 'NGTS'
+            $sess.AuthType | Should -Be 'BearerToken'
+            $sess.AccessToken | Should -Not -BeNullOrEmpty
+            $sess.Credential | Should -Not -BeNullOrEmpty
+            $sess.PlatformData.Tsg | Should -Be '1234567890'
+        }
+
+        It 'Should override Tsg when explicitly provided' {
+            $ngtsCred = New-TestCredential -UserName 'svcaccount@1234567890.iam.panserviceaccount.com' -Password 'client-secret'
+
+            $sess = New-TrustClient -NgtsCredential $ngtsCred -Tsg 9999999999 -PassThru
+
+            $sess.PlatformData.Tsg | Should -Be 9999999999
+        }
+    }
+
+    Context 'VC string key' {
+        It 'Should accept a plain string for VcKey' {
+            $sess = New-TrustClient -VcKey 'my-api-key-string' -PassThru
+
+            $sess.Platform | Should -Be 'VC'
+            $sess.AuthType | Should -Be 'ApiKey'
+            $sess.ApiKey.GetNetworkCredential().Password | Should -Be 'my-api-key-string'
+        }
+    }
+
+    Context 'VC access token string' {
+        It 'Should accept a plain string for VcAccessToken' {
+            $sess = New-TrustClient -VcAccessToken 'vc-bearer-string' -PassThru
+
+            $sess.Platform | Should -Be 'VC'
+            $sess.AuthType | Should -Be 'BearerToken'
+            $sess.AccessToken.GetNetworkCredential().Password | Should -Be 'vc-bearer-string'
+        }
+    }
+}
+
+Describe 'TrustClient Validate' -Tags 'Unit' {
+
+    It 'Should throw when Platform is None' {
+        $client = & (Get-Module $ModuleName) { [TrustClient]::new() }
+
+        { $client.Validate() } | Should -Throw '*Platform must be set*'
+    }
+
+    It 'Should throw when AuthType is invalid for platform' {
+        $client = & (Get-Module $ModuleName) { [TrustClient]::new() }
+        $client.Platform = 'VDC'
+        $client.AuthType = 'ApiKey'
+
+        { $client.Validate() } | Should -Throw '*not a valid auth type*'
+    }
+
+    It 'Should throw when required properties are missing' {
+        $client = & (Get-Module $ModuleName) { [TrustClient]::new() }
+        $client.Platform = 'VDC'
+        $client.AuthType = 'BearerToken'
+        # AccessToken and Server are required but not set
+
+        { $client.Validate() } | Should -Throw '*Missing required properties*'
+    }
+}
+
+Describe 'TrustClient CanRefresh Negative Cases' -Tags 'Unit' {
+
+    BeforeEach {
+        Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
+    }
+
+    It 'Should return false for VDC without refresh material' {
+        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess.Platform = 'VDC'
+        # No RefreshToken, AuthServer, or ClientId
+
+        $sess.CanRefresh() | Should -BeFalse
+    }
+
+    It 'Should return false for VDC when RefreshExpires is in the past' {
+        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess.Platform = 'VDC'
+        $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'refresh'
+        $sess.AuthServer = 'https://venafi.example.com'
+        $sess.ClientId = 'VenafiPS-MyApp'
+        $sess.RefreshExpires = [DateTime]::UtcNow.AddMinutes(-5)
+
+        $sess.CanRefresh() | Should -BeFalse
+    }
+
+    It 'Should return false for VC ApiKey sessions' {
+        $sess = New-TrustClient -VcKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
+
+        $sess.CanRefresh() | Should -BeFalse
+    }
+
+    It 'Should return false for NGTS without credential' {
+        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess.Platform = 'NGTS'
+        $sess.Credential = $null
+
+        $sess.CanRefresh() | Should -BeFalse
+    }
+}
+
+Describe 'TrustClient IsExpired Edge Cases' -Tags 'Unit' {
+
+    BeforeEach {
+        Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
+    }
+
+    It 'Should return false when Expires is MinValue (never set)' {
+        $sess = New-TrustClient -VcKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
+        # ApiKey sessions have Expires at MinValue
+
+        $sess.IsExpired() | Should -BeFalse
+    }
+}
+
+Describe 'NGTS Session Refresh' -Tags 'Unit' {
+
+    BeforeEach {
+        Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
+    }
+
+    It 'Should refresh NGTS session via New-NgtsToken and update Auth' {
+        Mock -CommandName 'New-NgtsToken' -ModuleName $ModuleName -MockWith {
+            $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
+            $token.Server      = 'https://auth.apps.paloaltonetworks.com'
+            $token.AccessToken = (New-TestCredential -UserName 'AccessToken' -Password 'ngts-refreshed')
+            $token.Expires     = [DateTime]::UtcNow.AddMinutes(30)
+            $token.Scope       = 'tsg_id:1234567890'
+            $token
+        }
+
+        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess.Platform = 'NGTS'
+        $sess.Server = 'https://api.strata.paloaltonetworks.com'
+        $sess.AuthType = 'BearerToken'
+        $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'old-ngts'
+        $sess.Expires = [DateTime]::UtcNow.AddSeconds(10)
+        $sess.Credential = New-TestCredential -UserName 'svcaccount@1234567890.iam.panserviceaccount.com' -Password 'secret'
+        $sess.PlatformData.Tsg = '1234567890'
+
+        & (Get-Module $ModuleName) { Invoke-SessionRefresh -Session $args[0] } $sess
+
+        $sess.AccessToken.GetNetworkCredential().Password | Should -Be 'ngts-refreshed'
+        $sess.Expires | Should -BeGreaterThan ([DateTime]::UtcNow)
+        Should -Invoke -CommandName 'New-NgtsToken' -ModuleName $ModuleName -Times 1
     }
 }

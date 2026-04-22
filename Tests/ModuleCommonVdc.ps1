@@ -13,8 +13,8 @@ Mock -CommandName 'Get-TrustClient' -MockWith {
     $tc.ClientId = 'VenafiPS'
     $tc.Expires = (Get-Date)
     $tc.RefreshExpires = (Get-Date)
-    $tc.Version = [version]'24.3.1.1989'
-    $tc.CustomField = @(
+    $tc.PlatformData.Version = [version]'24.3.1.1989'
+    $tc.PlatformData.CustomField = @(
         @{
             Label = 'Environment'
             Guid  = '2f04f078-046b-4ccb-9784-39e5127b588a'

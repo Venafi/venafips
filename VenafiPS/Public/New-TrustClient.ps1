@@ -255,6 +255,8 @@ function New-TrustClient {
         [System.Management.Automation.PSCredential] $Credential,
 
         [Parameter(Mandatory, ParameterSetName = 'TokenIntegrated')]
+        [Parameter(Mandatory, ParameterSetName = 'TokenIntegratedVaultAccess')]
+        [Parameter(Mandatory, ParameterSetName = 'TokenIntegratedVaultRefresh')]
         [Parameter(Mandatory, ParameterSetName = 'TokenOAuth')]
         [Parameter(Mandatory, ParameterSetName = 'TokenCertificate')]
         [Parameter(Mandatory, ParameterSetName = 'TokenJwt')]
@@ -289,14 +291,14 @@ function New-TrustClient {
 
         [Parameter(Mandatory, ParameterSetName = 'VaultAccessToken')]
         [Parameter(ParameterSetName = 'AccessToken')]
-        [Parameter(ParameterSetName = 'TokenIntegrated')]
+        [Parameter(Mandatory, ParameterSetName = 'TokenIntegratedVaultAccess')]
         [Parameter(ParameterSetName = 'TokenOAuth')]
         [Parameter(ParameterSetName = 'TokenCertificate')]
         [string] $VaultAccessTokenName,
 
         [Parameter(Mandatory, ParameterSetName = 'VaultRefreshToken')]
         [Parameter(ParameterSetName = 'RefreshToken')]
-        [Parameter(ParameterSetName = 'TokenIntegrated')]
+        [Parameter(Mandatory, ParameterSetName = 'TokenIntegratedVaultRefresh')]
         [Parameter(ParameterSetName = 'TokenOAuth')]
         [Parameter(ParameterSetName = 'TokenCertificate')]
         [string] $VaultRefreshTokenName,
@@ -642,10 +644,10 @@ function New-TrustClient {
             $newClient = [TrustClient]::NewNgtsClientCredential('https://api.strata.paloaltonetworks.com', $NgtsCredential, $token)
             $newClient.TimeoutSec = $TimeoutSec
             if ($Tsg) {
-                $newClient.Tsg = $Tsg
+                $newClient.PlatformData.Tsg = $Tsg
             }
             elseif ( $token.Scope -match '(?:^|\s)tsg_id:([^\s]+)' ) {
-                $newClient.Tsg = $Matches[1]
+                $newClient.PlatformData.Tsg = $Matches[1]
             }
         }
 
@@ -657,36 +659,16 @@ function New-TrustClient {
     # will fail if user is on an older version.  this isn't required so bypass on failure
     # only applicable to tpp
     if ( $newClient.Platform -eq 'VDC' ) {
-        $newClient.Version = [Version]((Invoke-TrustRestMethod -UriLeaf 'SystemStatus/Version' -TrustClient $newClient -ErrorAction SilentlyContinue).Version)
+        $newClient.PlatformData.Version = [Version]((Invoke-TrustRestMethod -UriLeaf 'SystemStatus/Version' -TrustClient $newClient -ErrorAction SilentlyContinue).Version)
         $certFields = 'X509 Certificate', 'Device', 'Application Base' | Get-VdcCustomField -TrustClient $newClient -ErrorAction SilentlyContinue
         # make sure we remove duplicates
-        $newClient.CustomField = $certFields.Items | Sort-Object -Property Guid -Unique
+        $newClient.PlatformData.CustomField = $certFields.Items | Sort-Object -Property Guid -Unique
     }
     elseif ( $newClient.Platform -eq 'NGTS' ) {
         # NGTS does not expose the VC useraccounts endpoint. Capture TSG context from token scope.
-        # if ( -not $newClient.Tsg -and $newClient.Scope -match '(?:^|\s)tsg_id:([^\s]+)' ) {
-        #     $newClient.Tsg = $Matches[1]
+        # if ( -not $newClient.PlatformData.Tsg -and $newClient.Scope -match '(?:^|\s)tsg_id:([^\s]+)' ) {
+        #     $newClient.PlatformData.Tsg = $Matches[1]
         # }
-
-        # if ( $newClient.Tsg ) {
-        #     $newClient.User = [pscustomobject] @{
-        #         tsgId = $newClient.Tsg
-        #         scope = $newClient.Scope
-        #     }
-        # }
-    }
-    else {
-
-        # user might not have access to this api, eg. service account
-        $me = Invoke-TrustRestMethod -UriLeaf 'useraccounts' -TrustClient $newClient -ErrorAction SilentlyContinue
-        if ( $me.user ) {
-            $newClient.User = $me.user | Select-Object @{
-                'n' = 'userId'
-                'e' = {
-                    $_.Id
-                }
-            }, * -ExcludeProperty id
-        }
     }
 
     if ( $VaultAccessTokenName -or $VaultRefreshTokenName ) {

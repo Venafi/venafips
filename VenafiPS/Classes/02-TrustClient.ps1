@@ -14,10 +14,7 @@
     [object] $Scope
     [datetime] $Expires
     [datetime] $RefreshExpires
-    [string] $Tsg
-    [object] $Version
-    [object] $CustomField
-    [object] $User
+    [hashtable] $PlatformData
 
     TrustClient() {
         $this.Platform = [TrustPlatform]::None
@@ -34,10 +31,7 @@
         $this.Scope = $null
         $this.Expires = [datetime]::MinValue
         $this.RefreshExpires = [datetime]::MinValue
-        $this.Tsg = ''
-        $this.Version = $null
-        $this.CustomField = $null
-        $this.User = $null
+        $this.PlatformData = @{}
     }
 
     [bool] IsExpired() {
@@ -57,7 +51,7 @@
             [TrustAuthType]::ApiKey      = @('ApiKey', 'Server')
         }
         [TrustPlatform]::NGTS = @{
-            [TrustAuthType]::ClientCredential = @('Credential', 'AccessToken', 'Expires', 'Server')
+            [TrustAuthType]::BearerToken = @('Credential', 'AccessToken', 'Expires', 'Server')
         }
     }
 
@@ -150,7 +144,7 @@
         $client = [TrustClient]::new()
         $client.Platform = [TrustPlatform]::NGTS
         $client.Server = $server
-        $client.AuthType = [TrustAuthType]::ClientCredential
+        $client.AuthType = [TrustAuthType]::BearerToken
         $client.Credential = $credential
         $client.AccessToken = $accessToken
         $client.Expires = $expires

@@ -173,7 +173,7 @@ function Set-VdcAttribute {
             }
             $customFieldError = $null
 
-            $customField = $TrustClient.CustomField | Where-Object { $_.Label -eq $thisKey -or $_.Guid -eq $thisKey }
+            $customField = $TrustClient.PlatformData.CustomField | Where-Object { $_.Label -eq $thisKey -or $_.Guid -eq $thisKey }
             if ( $customField ) {
                 Write-Verbose ('found custom field {0} - {1}' -f $customField.DN, $customField | ConvertTo-Json)
                 if ( -not $BypassValidation ) {

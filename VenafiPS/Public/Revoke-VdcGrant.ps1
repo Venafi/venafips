@@ -63,7 +63,7 @@ function Revoke-VdcGrant {
 
         $sess = Get-TrustClient
 
-        if ( $sess.Version -lt [Version]::new('22', '3', '0') ) {
+        if ( $sess.PlatformData.Version -lt [Version]::new('22', '3', '0') ) {
             throw 'Revoke-VdcGrant is available on Certificate Manager, Self-Hosted v22.3 and greater'
         }
 

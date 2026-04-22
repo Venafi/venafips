@@ -159,7 +159,6 @@ function Invoke-TrustRestMethod {
                 @{ 'tppl-api-key' = $TrustClient.ApiKey.GetNetworkCredential().password }
             }
             default {
-                # BearerToken and ClientCredential both use bearer auth
                 @{ 'Authorization' = 'Bearer {0}' -f $TrustClient.AccessToken.GetNetworkCredential().password }
             }
         }

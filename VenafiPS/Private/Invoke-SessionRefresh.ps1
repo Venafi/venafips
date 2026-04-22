@@ -29,8 +29,8 @@
         $ngtsParams = @{
             Credential = $Session.Credential
         }
-        if ($Session.Tsg) {
-            $ngtsParams.Tsg = $Session.Tsg
+        if ($Session.PlatformData.Tsg) {
+            $ngtsParams.Tsg = $Session.PlatformData.Tsg
         }
         New-NgtsToken @ngtsParams -ErrorAction Stop
     }

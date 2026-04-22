@@ -315,7 +315,7 @@ function Get-VdcAttribute {
                 if ( -not $NoLookup ) {
 
                     # parallel lookup
-                    $customField = ($using:TrustClient).CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
+                    $customField = ($using:TrustClient).PlatformData.CustomField | Where-Object { $_.Label -eq $attribute -or $_.Guid -eq $attribute }
 
                     if ( $customField ) {
                         $params.Body.AttributeName = $customField.Guid

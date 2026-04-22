@@ -2,6 +2,4 @@
     None
     BearerToken
     ApiKey
-    ClientCredential
-    Certificate
 }

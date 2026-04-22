@@ -183,7 +183,7 @@ function New-VdcToken {
         }
 
         # workaround for bug pre 21.3 where client id needs to be lowercase
-        if ( $TrustClient.Version -lt [Version]::new('21', '3', '0') ) {
+        if ( $TrustClient.PlatformData.Version -lt [Version]::new('21', '3', '0') ) {
             $params.Body.client_id = $params.Body.client_id.ToLower()
         }
     }
