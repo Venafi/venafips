@@ -75,7 +75,7 @@ Describe 'New-TrustClient Auth Model' -Tags 'Unit' {
             $sess = New-TrustClient -Server 'venafi.example.com' -Credential $cred -ClientId 'VenafiPS-MyApp' -Scope $scope -PassThru
 
             $sess.Platform | Should -Be 'VDC'
-            $sess.AuthType | Should -Be 'OAuth'
+            $sess.AuthType | Should -Be 'BearerToken'
             $sess.AccessToken | Should -Not -BeNullOrEmpty
             $sess.RefreshToken | Should -Not -BeNullOrEmpty
             $sess.ClientId | Should -Be 'VenafiPS-MyApp'
@@ -182,7 +182,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
         $sess.Platform = 'VDC'
         $sess.Server = 'https://venafi.example.com'
-        $sess.AuthType = 'OAuth'
+        $sess.AuthType = 'BearerToken'
         $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'old'
         $sess.Expires = [DateTime]::UtcNow.AddSeconds(10)
         $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'old-refresh'
@@ -200,9 +200,10 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
         $sess.Platform = 'NGTS'
         $sess.Server = 'https://api.strata.paloaltonetworks.com'
-        $sess.AuthType = 'BearerToken'
+        $sess.AuthType = 'ClientCredential'
         $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'ngts-token'
         $sess.Expires = [DateTime]::UtcNow.AddMinutes(30)
+        $sess.Credential = New-TestCredential -UserName 'svc' -Password 'secret'
 
         $null = Invoke-TrustRestMethod -TrustClient $sess -UriLeaf 'useraccounts' -Method Get
 

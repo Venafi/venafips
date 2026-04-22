@@ -404,11 +404,7 @@ function New-TrustClient {
         }
     }
 
-    $newClient = [TrustClient]::new()
-    $newClient.Platform = 'VDC'
-    $newClient.Server = $serverUrl
-    $newClient.TimeoutSec = $TimeoutSec
-    $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
+    $newClient = $null
 
     Write-Verbose ('Parameter set: {0}' -f $PSCmdlet.ParameterSetName)
 
@@ -474,41 +470,33 @@ function New-TrustClient {
             }
 
             $token = New-VdcToken @params -Verbose:$isVerbose
-            $newClient.AuthType = [TrustAuthType]::BearerToken
-            $newClient.AccessToken = $token.AccessToken
-            $newClient.RefreshToken = $token.RefreshToken
-            $newClient.AuthServer = $token.Server
-            $newClient.ClientId = $token.ClientId
-            $newClient.Scope = $token.Scope
-            $newClient.Expires = $token.Expires
-            if ($token.RefreshExpires -gt [datetime]::MinValue) { $newClient.RefreshExpires = $token.RefreshExpires }
+            $newClient = [TrustClient]::NewVdcBearerToken($serverUrl, $token)
+            $newClient.TimeoutSec = $TimeoutSec
+            $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
             if ($Credential) { $newClient.Credential = $Credential }
         }
 
         'VcToken' {
             # access token via service account for Certificate Manager, SaaS
-            $newClient.Platform = 'VC'
             $systemUri = [System.Uri]::new($VcEndpoint)
-            $newClient.Server = 'https://{0}' -f $systemUri.Host
+            $vcServer = 'https://{0}' -f $systemUri.Host
             $token = New-VcToken -Endpoint $VcEndpoint -Jwt $Jwt -Verbose:$isVerbose
-            $newClient.AuthType = [TrustAuthType]::BearerToken
-            $newClient.AccessToken = $token.AccessToken
-            $newClient.Expires = $token.Expires
-            $newClient.Scope = $token.Scope
-            $newClient.AuthServer = $token.Server
-            $newClient.Credential = $token.Credential
+            $newClient = [TrustClient]::NewVcBearerToken($vcServer, $token)
+            $newClient.TimeoutSec = $TimeoutSec
         }
 
         'AccessToken' {
-            $newClient.AuthType = [TrustAuthType]::BearerToken
-            $newClient.AuthServer = $authServerUrl
-            # we don't have the expiry so create one and rely on api failures if invalid
-            $newClient.Expires = (Get-Date).AddMonths(12)
-
-            $newClient.AccessToken = if ( $AccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($AccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
+            $accessTokenCred = if ( $AccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($AccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($AccessToken -is [pscredential]) { $AccessToken }
             elseif ($AccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $AccessToken) }
             else { throw 'Unsupported type for -AccessToken.  Provide either a String, SecureString, or PSCredential.' }
+
+            $newClient = [TrustClient]::NewVdcBearerToken($serverUrl, $accessTokenCred)
+            $newClient.TimeoutSec = $TimeoutSec
+            $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
+            $newClient.AuthServer = $authServerUrl
+            # we don't have the expiry so create one and rely on api failures if invalid
+            $newClient.Expires = (Get-Date).AddMonths(12)
 
             # validate token
             $null = Invoke-TrustRestMethod -UriRoot 'vedauth' -UriLeaf 'Authorize/Verify' -TrustClient $newClient
@@ -524,10 +512,8 @@ function New-TrustClient {
             $secretInfo = Get-SecretInfo -Name $VaultAccessTokenName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
 
             if ( $secretInfo.Metadata.Count -gt 0 ) {
-                $newClient.Server = $secretInfo.Metadata.Server
-                $newClient.AuthType = [TrustAuthType]::BearerToken
+                $newClient = [TrustClient]::NewVdcBearerToken($secretInfo.Metadata.Server, $tokenSecret)
                 $newClient.AuthServer = $secretInfo.Metadata.AuthServer
-                $newClient.AccessToken = $tokenSecret
                 $newClient.ClientId = $secretInfo.Metadata.ClientId
                 $newClient.Scope = $secretInfo.Metadata.Scope
                 $newClient.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
@@ -551,14 +537,9 @@ function New-TrustClient {
             else { throw 'Unsupported type for -RefreshToken.  Provide either a String, SecureString, or PSCredential.' }
 
             $newToken = New-VdcToken @params
-            $newClient.AuthType = [TrustAuthType]::BearerToken
-            $newClient.AccessToken = $newToken.AccessToken
-            $newClient.RefreshToken = $newToken.RefreshToken
-            $newClient.AuthServer = $newToken.Server
-            $newClient.ClientId = $newToken.ClientId
-            $newClient.Scope = $newToken.Scope
-            $newClient.Expires = $newToken.Expires
-            if ($newToken.RefreshExpires) { $newClient.RefreshExpires = $newToken.RefreshExpires }
+            $newClient = [TrustClient]::NewVdcBearerToken($serverUrl, $newToken)
+            $newClient.TimeoutSec = $TimeoutSec
+            $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
         }
 
         'VaultRefreshToken' {
@@ -584,23 +565,14 @@ function New-TrustClient {
             $params.RefreshToken = $tokenSecret
 
             $newToken = New-VdcToken @params
-            $newClient.AuthType = [TrustAuthType]::BearerToken
-            $newClient.AccessToken = $newToken.AccessToken
-            $newClient.RefreshToken = $newToken.RefreshToken
-            $newClient.AuthServer = $newToken.Server
-            $newClient.ClientId = $newToken.ClientId
-            $newClient.Scope = $newToken.Scope
-            $newClient.Expires = $newToken.Expires
-            if ($newToken.RefreshExpires) { $newClient.RefreshExpires = $newToken.RefreshExpires }
-            $newClient.Server = $newToken.Server
+            $newClient = [TrustClient]::NewVdcBearerToken($newToken.Server, $newToken)
             $newClient.Scope = $secretInfo.Metadata.Scope | ConvertFrom-Json
             $newClient.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
             $newClient.TimeoutSec = $secretInfo.Metadata.TimeoutSec
         }
 
         'Vc' {
-            $newClient.Platform = 'VC'
-            $newClient.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+            $vcServer = if ( $VcRegion -in ($script:VcRegions).Keys ) {
                 ($script:VcRegions).$VcRegion
             }
             else {
@@ -610,8 +582,8 @@ function New-TrustClient {
             elseif ($VcKey -is [pscredential]) { $VcKey }
             elseif ($VcKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('VcKey', $VcKey) }
             else { throw 'Unsupported type for -VcKey.  Provide either a String, SecureString, or PSCredential.' }
-            $newClient.AuthType = [TrustAuthType]::ApiKey
-            $newClient.ApiKey = $key
+            $newClient = [TrustClient]::NewVcApiKey($vcServer, $key)
+            $newClient.TimeoutSec = $TimeoutSec
 
             if ( $VaultVcKeyName ) {
                 $metadata = @{
@@ -623,19 +595,19 @@ function New-TrustClient {
         }
 
         'VcAccessToken' {
-            $newClient.Platform = 'VC'
-            $newClient.Server = if ( $VcRegion -in ($script:VcRegions).Keys ) {
+            $vcServer = if ( $VcRegion -in ($script:VcRegions).Keys ) {
                 ($script:VcRegions).$VcRegion
             }
             else {
                 $VcRegion
             }
-            $newClient.AuthType = [TrustAuthType]::BearerToken
 
-            $newClient.AccessToken = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
+            $vcAccessTokenCred = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($VcAccessToken -is [pscredential]) { $VcAccessToken }
             elseif ($VcAccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $VcAccessToken) }
             else { throw 'Unsupported type for -VcAccessToken.  Provide either a String, SecureString, or PSCredential.' }
+            $newClient = [TrustClient]::NewVcBearerToken($vcServer, $vcAccessTokenCred)
+            $newClient.TimeoutSec = $TimeoutSec
             $newClient.Expires = (Get-Date).AddMonths(12)
         }
 
@@ -648,15 +620,12 @@ function New-TrustClient {
             $secretInfo = Get-SecretInfo -Name $VaultVcKeyName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
 
             if ( $secretInfo.Metadata.Count -gt 0 ) {
-                $newClient.Server = $secretInfo.Metadata.Server
+                $newClient = [TrustClient]::NewVcApiKey($secretInfo.Metadata.Server, $keySecret)
+                $newClient.TimeoutSec = $TimeoutSec
             }
             else {
                 throw 'Server metadata not found.  Execute New-TrustClient -VcKey $key -VaultVcKeyName $secretName and attempt the operation again.'
             }
-
-            $newClient.Platform = 'VC'
-            $newClient.AuthType = [TrustAuthType]::ApiKey
-            $newClient.ApiKey = $keySecret
         }
 
         'Ngts' {
@@ -670,13 +639,8 @@ function New-TrustClient {
 
             $token = New-NgtsToken @params -Verbose:$isVerbose
 
-            $newClient.Platform = 'NGTS'
-            $newClient.Server = 'https://api.strata.paloaltonetworks.com'
-            $newClient.AuthType = [TrustAuthType]::ClientCredential
-            $newClient.Credential = $NgtsCredential
-            $newClient.AccessToken = $token.AccessToken
-            $newClient.Scope = $token.Scope
-            $newClient.Expires = $token.Expires
+            $newClient = [TrustClient]::NewNgtsClientCredential('https://api.strata.paloaltonetworks.com', $NgtsCredential, $token)
+            $newClient.TimeoutSec = $TimeoutSec
             if ($Tsg) {
                 $newClient.Tsg = $Tsg
             }
@@ -752,9 +716,11 @@ function New-TrustClient {
     }
 
     if ( $PassThru ) {
+        $newClient.Validate()
         $newClient
     }
     else {
+        $newClient.Validate()
         $Script:TrustClient = $newClient
     }
 }
