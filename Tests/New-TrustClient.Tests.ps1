@@ -53,7 +53,7 @@ Describe 'New-TrustClient Auth Model' -Tags 'Unit' {
     Context 'Certificate Manager, Self-Hosted token session' {
         BeforeEach {
             Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
-                $token = [TrustToken]::new()
+                $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
                 $token.Server         = 'https://venafi.example.com'
                 $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-token')
                 $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh')
@@ -130,7 +130,7 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
     Context 'Refresh' {
         It 'Should refresh VDC session via New-VdcToken and update Auth' {
             Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
-                $token = [TrustToken]::new()
+                $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
                 $token.Server         = 'https://venafi.example.com'
                 $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'new-access')
                 $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'new-refresh')
@@ -168,7 +168,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
 
     It 'Should refresh an explicitly provided expiring VDC session before request execution' {
         Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
-            $token = [TrustToken]::new()
+            $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
             $token.Server         = 'https://venafi.example.com'
             $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-refreshed')
             $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh-new')
