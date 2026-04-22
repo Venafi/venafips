@@ -1,10 +1,10 @@
 ﻿class TrustClient {
 
-    [string] $Platform
+    [TrustPlatform] $Platform
     [string] $Server
     [int] $TimeoutSec
     [bool] $SkipCertificateCheck
-    [string] $AuthType
+    [TrustAuthType] $AuthType
     [pscredential] $AccessToken
     [pscredential] $RefreshToken
     [pscredential] $ApiKey
@@ -20,11 +20,11 @@
     [object] $User
 
     TrustClient() {
-        $this.Platform = 'VDC'
+        $this.Platform = [TrustPlatform]::None
         $this.Server = ''
         $this.TimeoutSec = 0
         $this.SkipCertificateCheck = $false
-        $this.AuthType = ''
+        $this.AuthType = [TrustAuthType]::None
         $this.AccessToken = $null
         $this.RefreshToken = $null
         $this.ApiKey = $null
@@ -48,15 +48,27 @@
     }
 
     [bool] CanRefresh() {
-        if ($this.Platform -eq 'NGTS') {
-            return $null -ne $this.Credential
-        }
-
-        if ($this.RefreshToken -and $this.AuthServer -and $this.ClientId) {
-            if ($this.RefreshExpires -gt [datetime]::MinValue) {
-                return $this.RefreshExpires -gt [DateTime]::UtcNow
+        switch ($this.Platform) {
+            'VDC' {
+                if ($this.RefreshToken -and $this.AuthServer -and $this.ClientId) {
+                    if ($this.RefreshExpires -gt [datetime]::MinValue) {
+                        return $this.RefreshExpires -gt [DateTime]::UtcNow
+                    }
+                    return $true
+                }
+                return $false
             }
-            return $true
+
+            'VC' {
+                if ($this.AuthType -eq 'BearerToken' -and $this.Credential) {
+                    return $true
+                }
+                return $false
+            }
+
+            'NGTS' {
+                return $null -ne $this.Credential
+            }
         }
         return $false
     }

@@ -474,7 +474,7 @@ function New-TrustClient {
             }
 
             $token = New-VdcToken @params -Verbose:$isVerbose
-            $newClient.AuthType = 'OAuth'
+            $newClient.AuthType = [TrustAuthType]::BearerToken
             $newClient.AccessToken = $token.AccessToken
             $newClient.RefreshToken = $token.RefreshToken
             $newClient.AuthServer = $token.Server
@@ -491,7 +491,7 @@ function New-TrustClient {
             $systemUri = [System.Uri]::new($VcEndpoint)
             $newClient.Server = 'https://{0}' -f $systemUri.Host
             $token = New-VcToken -Endpoint $VcEndpoint -Jwt $Jwt -Verbose:$isVerbose
-            $newClient.AuthType = 'BearerToken'
+            $newClient.AuthType = [TrustAuthType]::BearerToken
             $newClient.AccessToken = $token.AccessToken
             $newClient.Expires = $token.Expires
             $newClient.Scope = $token.Scope
@@ -500,7 +500,7 @@ function New-TrustClient {
         }
 
         'AccessToken' {
-            $newClient.AuthType = 'BearerToken'
+            $newClient.AuthType = [TrustAuthType]::BearerToken
             $newClient.AuthServer = $authServerUrl
             # we don't have the expiry so create one and rely on api failures if invalid
             $newClient.Expires = (Get-Date).AddMonths(12)
@@ -525,7 +525,7 @@ function New-TrustClient {
 
             if ( $secretInfo.Metadata.Count -gt 0 ) {
                 $newClient.Server = $secretInfo.Metadata.Server
-                $newClient.AuthType = 'BearerToken'
+                $newClient.AuthType = [TrustAuthType]::BearerToken
                 $newClient.AuthServer = $secretInfo.Metadata.AuthServer
                 $newClient.AccessToken = $tokenSecret
                 $newClient.ClientId = $secretInfo.Metadata.ClientId
@@ -551,7 +551,7 @@ function New-TrustClient {
             else { throw 'Unsupported type for -RefreshToken.  Provide either a String, SecureString, or PSCredential.' }
 
             $newToken = New-VdcToken @params
-            $newClient.AuthType = 'OAuth'
+            $newClient.AuthType = [TrustAuthType]::BearerToken
             $newClient.AccessToken = $newToken.AccessToken
             $newClient.RefreshToken = $newToken.RefreshToken
             $newClient.AuthServer = $newToken.Server
@@ -584,7 +584,7 @@ function New-TrustClient {
             $params.RefreshToken = $tokenSecret
 
             $newToken = New-VdcToken @params
-            $newClient.AuthType = 'OAuth'
+            $newClient.AuthType = [TrustAuthType]::BearerToken
             $newClient.AccessToken = $newToken.AccessToken
             $newClient.RefreshToken = $newToken.RefreshToken
             $newClient.AuthServer = $newToken.Server
@@ -610,7 +610,7 @@ function New-TrustClient {
             elseif ($VcKey -is [pscredential]) { $VcKey }
             elseif ($VcKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('VcKey', $VcKey) }
             else { throw 'Unsupported type for -VcKey.  Provide either a String, SecureString, or PSCredential.' }
-            $newClient.AuthType = 'ApiKey'
+            $newClient.AuthType = [TrustAuthType]::ApiKey
             $newClient.ApiKey = $key
 
             if ( $VaultVcKeyName ) {
@@ -630,7 +630,7 @@ function New-TrustClient {
             else {
                 $VcRegion
             }
-            $newClient.AuthType = 'BearerToken'
+            $newClient.AuthType = [TrustAuthType]::BearerToken
 
             $newClient.AccessToken = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
             elseif ($VcAccessToken -is [pscredential]) { $VcAccessToken }
@@ -655,7 +655,7 @@ function New-TrustClient {
             }
 
             $newClient.Platform = 'VC'
-            $newClient.AuthType = 'ApiKey'
+            $newClient.AuthType = [TrustAuthType]::ApiKey
             $newClient.ApiKey = $keySecret
         }
 
@@ -672,7 +672,7 @@ function New-TrustClient {
 
             $newClient.Platform = 'NGTS'
             $newClient.Server = 'https://api.strata.paloaltonetworks.com'
-            $newClient.AuthType = 'ClientCredential'
+            $newClient.AuthType = [TrustAuthType]::ClientCredential
             $newClient.Credential = $NgtsCredential
             $newClient.AccessToken = $token.AccessToken
             $newClient.Scope = $token.Scope

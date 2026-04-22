@@ -14,26 +14,10 @@ function New-VcToken {
     .PARAMETER Jwt
     JSON web token with access to the configured service account
 
-    .PARAMETER TrustClient
-    TrustClient object created from New-TrustClient method.
-    This can be used to refresh the access token if the JWT has not expired.
-
-    .EXAMPLE
-    New-VcToken
-
-    Refresh the existing access token stored in the script scoped variable TrustClient
-    Only possible if the JWT has not expired.
-
     .EXAMPLE
     New-VcToken -Endpoint 'https://api.venafi.cloud/v1/oauth2/v2.0/2222c771-61f3-11ec-8a47-490a1e43c222/token' -Jwt $Jwt
 
     Get a new token with OAuth
-
-    .EXAMPLE
-    New-VcToken -TrustClient $sess
-
-    Refresh the existing access token stored in session.
-    Only possible if the JWT has not expired.
 
     .INPUTS
     None
