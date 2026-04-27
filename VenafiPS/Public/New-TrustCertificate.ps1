@@ -409,6 +409,7 @@ function New-TrustCertificate {
         # common fields between ASK and CSR
 
         if ( $SanDns -or $SanEmail -or $SanIP -or $SanUri ) {
+            $params.Body.csrAttributes = @{}
             $params.Body.csrAttributes.subjectAlternativeNamesByType = @{}
         }
 
