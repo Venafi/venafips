@@ -60,10 +60,10 @@ function Invoke-TrustCertificateAction {
     Optional name or ID of an application.
     Only needed in circumstances where the application can't be determined automatically.
 
-    If not provided, get the application from the original certificate request.
+    If not provided for renewal, get the application from the original certificate request.
     If not available, check for associated applications with the certificate.  If more than 1, throw an error as we don't know which to use, otherwise use that one application.
 
-    Renew only.
+    Associate a recovered certificate with an application.
 
     .PARAMETER IssuingTemplate
     Optional name or ID of an issuing template.
@@ -635,6 +635,13 @@ function Invoke-TrustCertificateAction {
                     Body    = @{
                         'certificateIds' = $null
                     }
+                }
+
+                if ( $Application ) {
+                    $thisApp = Get-TrustData -Type Application -InputObject $Application -Object -FailOnNotFound
+                    $thisAppId = $thisApp.applicationId
+
+                    $params.Body.applicationIds = @($thisAppId)
                 }
 
                 if ( $AdditionalParameters ) {
