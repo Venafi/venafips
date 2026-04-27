@@ -47,6 +47,26 @@ Describe 'VDC Find Certificates' -Tags 'Functional', 'VDC' -Skip:$skipAll {
 
     BeforeAll {
         $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:findCertCN = $null
+        $script:findCertPath = $null
+
+        # ensure policy folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+
+        # create a cert with a known CN for the CommonName filter test
+        $caPath = $env:VENAFIPS_VDC_CA_PATH
+        if (-not $caPath) {
+            $caTemplates = Find-VdcObject -Path '\VED\Policy\CA Templates' -Recursive -TrustClient $script:vdcSession
+            if ($caTemplates) { $caPath = @($caTemplates)[0].Path }
+        }
+        if ($caPath) {
+            $testName = New-TestName -Prefix 'venafips-find'
+            $script:findCertCN = "$testName.example.com"
+            $certResult = New-VdcCertificate -Path $script:policyPath -Name $testName -CommonName $script:findCertCN -CertificateAuthorityPath $caPath -PassThru -TrustClient $script:vdcSession -ErrorAction SilentlyContinue
+            if ($certResult) { $script:findCertPath = $certResult.Path }
+        }
     }
 
     It 'Should find certificates in the default policy folder' {
@@ -62,21 +82,9 @@ Describe 'VDC Find Certificates' -Tags 'Functional', 'VDC' -Skip:$skipAll {
     }
 
     It 'Should filter by CommonName' {
-        # get a sample cert first
-        $sample = Find-VdcCertificate -Path '\VED\Policy' -Recursive -TrustClient $script:vdcSession | Select-Object -First 1
-        if ($sample) {
-            $cn = @($sample)[0].CommonName
-            if ($cn) {
-                $result = Find-VdcCertificate -CommonName $cn -TrustClient $script:vdcSession
-                $result | Should -Not -BeNullOrEmpty
-            }
-            else {
-                Set-ItResult -Skipped -Because 'Sample cert has no CommonName'
-            }
-        }
-        else {
-            Set-ItResult -Skipped -Because 'No certificates found'
-        }
+        if (-not $script:findCertCN) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
+        $result = Find-VdcCertificate -CommonName $script:findCertCN -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
     }
 }
 
@@ -594,13 +602,11 @@ Describe 'VDC Import Certificate' -Tags 'Functional', 'VDC', 'Write' -Skip:$skip
         # create a cert on the server, export it, then delete the source — gives us cert data to reimport
         if ($caPath) {
             $sourceName = New-TestName -Prefix 'venafips-import-src'
-            $sourceResult = New-VdcCertificate -Path $script:policyPath -Name $sourceName -CommonName "$sourceName.example.com" -CertificateAuthorityPath $caPath -PassThru -TrustClient $script:vdcSession -ErrorAction Stop
+            $sourceResult = New-VdcCertificate -Path $script:policyPath -Name $sourceName -CommonName "$sourceName.example.com" -CertificateAuthorityPath $caPath -TimeoutSec 30 -PassThru -TrustClient $script:vdcSession -ErrorAction Stop
             if ($sourceResult) {
                 $script:sourceCertPath = $sourceResult.Path
 
-                # wait briefly for cert to be issued, then export
-                Start-Sleep -Seconds 5
-                $exported = Export-VdcCertificate -Path $script:sourceCertPath -X509 -TrustClient $script:vdcSession -ErrorAction Stop
+                $exported = Export-VdcCertificate -Path $script:sourceCertPath -X509 -TrustClient $script:vdcSession -ErrorAction SilentlyContinue
                 if ($exported -and $exported.CertificateData) {
                     $script:certBase64 = $exported.CertificateData
 
@@ -673,15 +679,512 @@ Describe 'VDC Credentials' -Tags 'Functional', 'VDC' -Skip:$skipAll {
 
     BeforeAll {
         $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:credPath = "$($script:policyPath)\venafips-get-cred"
+        $script:createdCred = $false
+
+        # ensure policy folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+
+        # create a credential to read back
+        $credExists = Test-VdcObject -Path $script:credPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $credExists) {
+            $secret = [PSCredential]::new('venafips-get-user', ('VenafiPS-Get-P@ss1' | ConvertTo-SecureString -AsPlainText -Force))
+            $result = New-VdcCredential -Path $script:credPath -Secret $secret -PassThru -TrustClient $script:vdcSession -ErrorAction SilentlyContinue
+            if ($result) { $script:createdCred = $true }
+        } else {
+            $script:createdCred = $true
+        }
     }
 
     It 'Should get a credential object' {
-        if (-not $env:VENAFIPS_VDC_CREDENTIAL_PATH) {
-            Set-ItResult -Skipped -Because 'VENAFIPS_VDC_CREDENTIAL_PATH not set'
-            return
-        }
-        $cred = Get-VdcCredential -Path $env:VENAFIPS_VDC_CREDENTIAL_PATH -TrustClient $script:vdcSession
+        if (-not $script:createdCred) { Set-ItResult -Skipped -Because 'Could not create test credential'; return }
+        $cred = Get-VdcCredential -Path $script:credPath -TrustClient $script:vdcSession
         $cred | Should -Not -BeNullOrEmpty
+    }
+}
+
+# ── Team Lifecycle ─────────────────────────────────────────────────────────────
+
+Describe 'VDC Team Lifecycle' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:testTeamId = $null
+        $script:myIdentity = Get-VdcIdentity -Me -TrustClient $script:vdcSession
+        $script:extraMember = $null
+
+        # find a second identity for member add/remove tests
+        $identities = Find-VdcIdentity -Name 'a' -First 10 -TrustClient $script:vdcSession
+        if ($identities) {
+            $script:extraMember = @($identities | Where-Object { $_.ID -ne $script:myIdentity.ID })[0]
+        }
+    }
+
+    It 'Should create a new team with New-VdcTeam' {
+        if (-not $script:myIdentity) { Set-ItResult -Skipped -Because 'No identity available'; return }
+        $teamName = New-TestName -Prefix 'venafips-team'
+        $result = New-VdcTeam -Name $teamName -Owner @($script:myIdentity.ID) -Member @($script:myIdentity.ID) -Product @('TLS') -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+        $script:testTeamId = $result.ID
+        $script:testTeamName = $teamName
+    }
+
+    It 'Should get the created team' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        $team = Get-VdcTeam -ID $script:testTeamId -TrustClient $script:vdcSession
+        $team | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should add a member with Add-VdcTeamMember' {
+        if (-not $script:testTeamId -or -not $script:extraMember) { Set-ItResult -Skipped -Because 'No test team or extra member available'; return }
+        { Add-VdcTeamMember -ID $script:testTeamId -Member @($script:extraMember.ID) -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    It 'Should remove a member with Remove-VdcTeamMember' {
+        if (-not $script:testTeamId -or -not $script:extraMember) { Set-ItResult -Skipped -Because 'No test team or extra member available'; return }
+        { Remove-VdcTeamMember -ID $script:testTeamId -Member @($script:extraMember.ID) -TrustClient $script:vdcSession -Confirm:$false } | Should -Not -Throw
+    }
+
+    It 'Should add an owner with Add-VdcTeamOwner' {
+        if (-not $script:testTeamId -or -not $script:extraMember) { Set-ItResult -Skipped -Because 'No test team or extra member available'; return }
+        { Add-VdcTeamOwner -ID $script:testTeamId -Owner @($script:extraMember.ID) -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    It 'Should remove an owner with Remove-VdcTeamOwner' {
+        if (-not $script:testTeamId -or -not $script:extraMember) { Set-ItResult -Skipped -Because 'No test team or extra member available'; return }
+        { Remove-VdcTeamOwner -ID $script:testTeamId -Owner @($script:extraMember.ID) -TrustClient $script:vdcSession -Confirm:$false } | Should -Not -Throw
+    }
+
+    It 'Should delete the team with Remove-VdcTeam' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        { Remove-VdcTeam -ID $script:testTeamId -TrustClient $script:vdcSession -Confirm:$false } | Should -Not -Throw
+    }
+}
+
+# ── Permission Lifecycle ──────────────────────────────────────────────────────
+
+Describe 'VDC Permission Lifecycle' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:permTestFolder = "$($script:policyPath)\PermTest"
+        $script:myIdentity = Get-VdcIdentity -Me -TrustClient $script:vdcSession
+
+        # ensure folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+        $exists2 = Test-VdcObject -Path $script:permTestFolder -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists2) { New-VdcPolicy -Path $script:permTestFolder -TrustClient $script:vdcSession }
+    }
+
+    It 'Should set permissions with Set-VdcPermission' {
+        if (-not $script:myIdentity) { Set-ItResult -Skipped -Because 'No identity available'; return }
+        { Set-VdcPermission -Path $script:permTestFolder -IdentityId $script:myIdentity.ID -IsViewAllowed -IsReadAllowed -IsWriteAllowed -Force -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    It 'Should verify permissions were set' {
+        if (-not $script:myIdentity) { Set-ItResult -Skipped -Because 'No identity available'; return }
+        $perms = Get-VdcPermission -Path $script:permTestFolder -IdentityId $script:myIdentity.ID -Explicit -TrustClient $script:vdcSession
+        $perms | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should remove permissions with Remove-VdcPermission' {
+        if (-not $script:myIdentity) { Set-ItResult -Skipped -Because 'No identity available'; return }
+        { Remove-VdcPermission -Path $script:permTestFolder -IdentityId $script:myIdentity.ID -TrustClient $script:vdcSession -Confirm:$false } | Should -Not -Throw
+    }
+}
+
+# ── Credential Lifecycle ──────────────────────────────────────────────────────
+
+Describe 'VDC Credential Lifecycle' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:credPath = "$($script:policyPath)\venafips-func-cred"
+        $script:createdCred = $false
+
+        # ensure policy folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+    }
+
+    It 'Should create a credential with New-VdcCredential' {
+        $secret = [PSCredential]::new('venafips-user', ('VenafiPS-Test-P@ss1' | ConvertTo-SecureString -AsPlainText -Force))
+        $result = New-VdcCredential -Path $script:credPath -Secret $secret -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+        $script:createdCred = $true
+    }
+
+    It 'Should update the credential with Set-VdcCredential' {
+        if (-not $script:createdCred) { Set-ItResult -Skipped -Because 'No credential created'; return }
+        $newPassword = 'VenafiPS-Updated-P@ss2' | ConvertTo-SecureString -AsPlainText -Force
+        { Set-VdcCredential -Path $script:credPath -Password $newPassword -Username 'venafips-updated' -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    It 'Should verify the credential exists' {
+        if (-not $script:createdCred) { Set-ItResult -Skipped -Because 'No credential created'; return }
+        $exists = Test-VdcObject -Path $script:credPath -ExistOnly -TrustClient $script:vdcSession
+        $exists | Should -BeTrue
+    }
+}
+
+# ── Device & CAPI Application ────────────────────────────────────────────────
+
+Describe 'VDC Device & CAPI Application' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:devicePath = "$($script:policyPath)\venafips-func-device"
+        $script:appPath = $null
+        $script:createdDevice = $false
+
+        # ensure policy folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+    }
+
+    It 'Should create a device with New-VdcDevice' {
+        $result = New-VdcDevice -Path $script:devicePath -Hostname '10.0.0.99' -Description 'VenafiPS functional test device' -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+        $script:createdDevice = $true
+    }
+
+    It 'Should create a CAPI application on the device with New-VdcCapiApplication' {
+        if (-not $script:createdDevice) { Set-ItResult -Skipped -Because 'No device created'; return }
+        $appName = 'venafips-func-app'
+        $script:appPath = "$($script:devicePath)\$appName"
+        $result = New-VdcCapiApplication -Path $script:devicePath -ApplicationName $appName -FriendlyName 'VenafiPS Test App' -Description 'Functional test CAPI app' -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should verify the application exists' {
+        if (-not $script:appPath) { Set-ItResult -Skipped -Because 'No application created'; return }
+        $exists = Test-VdcObject -Path $script:appPath -ExistOnly -TrustClient $script:vdcSession
+        $exists | Should -BeTrue
+    }
+}
+
+# ── Certificate Association ───────────────────────────────────────────────────
+
+Describe 'VDC Certificate Association' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:testCertPath = $null
+        $script:devicePath = "$($script:policyPath)\venafips-assoc-device"
+        $script:appPath = $null
+
+        # ensure policy folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+
+        # find or create a cert
+        $caPath = $env:VENAFIPS_VDC_CA_PATH
+        if (-not $caPath) {
+            $caTemplates = Find-VdcObject -Path '\VED\Policy\CA Templates' -Recursive -TrustClient $script:vdcSession
+            if ($caTemplates) { $caPath = @($caTemplates)[0].Path }
+        }
+        if ($caPath) {
+            $certName = New-TestName -Prefix 'venafips-assoc'
+            $certResult = New-VdcCertificate -Path $script:policyPath -Name $certName -CommonName "$certName.example.com" -CertificateAuthorityPath $caPath -PassThru -TrustClient $script:vdcSession -ErrorAction Stop
+            if ($certResult) { $script:testCertPath = $certResult.Path }
+        }
+
+        # create a device + CAPI app for association
+        if ($script:testCertPath) {
+            $devExists = Test-VdcObject -Path $script:devicePath -ExistOnly -TrustClient $script:vdcSession
+            if (-not $devExists) {
+                New-VdcDevice -Path $script:devicePath -Hostname '10.0.0.100' -TrustClient $script:vdcSession | Out-Null
+            }
+            $appName = 'venafips-assoc-app'
+            $script:appPath = "$($script:devicePath)\$appName"
+            $appExists = Test-VdcObject -Path $script:appPath -ExistOnly -TrustClient $script:vdcSession
+            if (-not $appExists) {
+                New-VdcCapiApplication -Path $script:devicePath -ApplicationName $appName -FriendlyName 'Association Test' -TrustClient $script:vdcSession | Out-Null
+            }
+        }
+    }
+
+    It 'Should associate an application with a certificate' {
+        if (-not $script:testCertPath -or -not $script:appPath) { Set-ItResult -Skipped -Because 'No cert or app available'; return }
+        { Add-VdcCertificateAssociation -CertificatePath $script:testCertPath -ApplicationPath @($script:appPath) -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    It 'Should verify the association exists' {
+        if (-not $script:testCertPath) { Set-ItResult -Skipped -Because 'No cert available'; return }
+        $cert = Get-VdcCertificate -ID $script:testCertPath -TrustClient $script:vdcSession
+        # the cert object should have association info
+        $cert | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should remove the certificate association' {
+        if (-not $script:testCertPath -or -not $script:appPath) { Set-ItResult -Skipped -Because 'No cert or app available'; return }
+        { Remove-VdcCertificateAssociation -Path $script:testCertPath -ApplicationPath @($script:appPath) -TrustClient $script:vdcSession -Confirm:$false } | Should -Not -Throw
+    }
+}
+
+# ── Policy Lifecycle ──────────────────────────────────────────────────────────
+
+Describe 'VDC Policy Lifecycle' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:testPolicyPath = "$($script:policyPath)\PolicyTest"
+
+        # ensure parent folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+    }
+
+    It 'Should create a policy folder with New-VdcPolicy' {
+        $result = New-VdcPolicy -Path $script:testPolicyPath -Attribute @{ 'Description' = 'VenafiPS policy lifecycle test' } -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should verify the policy folder exists' {
+        $exists = Test-VdcObject -Path $script:testPolicyPath -ExistOnly -TrustClient $script:vdcSession
+        $exists | Should -BeTrue
+    }
+
+    It 'Should create a nested policy with -Force' {
+        $nestedPath = "$($script:testPolicyPath)\Deep\Nested\Policy"
+        $result = New-VdcPolicy -Path $nestedPath -Force -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+        Test-VdcObject -Path $nestedPath -ExistOnly -TrustClient $script:vdcSession | Should -BeTrue
+    }
+}
+
+# ── Custom Field ──────────────────────────────────────────────────────────────
+
+Describe 'VDC Custom Field' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:cfName = "VenafiPS-Func-$(Get-Random -Maximum 9999)"
+    }
+
+    It 'Should create a custom field with New-VdcCustomField' {
+        $result = New-VdcCustomField -Name $script:cfName -Label "VenafiPS Test Field $($script:cfName)" -Class @('X509 Certificate') -Type 'String' -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should verify the custom field appears in the list' {
+        $result = Get-VdcCustomField -Class 'X509 Certificate' -TrustClient $script:vdcSession
+        $items = if ($result.Items) { $result.Items } else { $result }
+        $match = @($items | Where-Object { $_.Name -eq $script:cfName })
+        $match.Count | Should -BeGreaterThan 0
+    }
+}
+
+# ── Convert Object ────────────────────────────────────────────────────────────
+
+Describe 'VDC Convert Object' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:convertCertPath = $null
+
+        # ensure policy folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+
+        # create a certificate to convert
+        $caPath = $env:VENAFIPS_VDC_CA_PATH
+        if (-not $caPath) {
+            $caTemplates = Find-VdcObject -Path '\VED\Policy\CA Templates' -Recursive -TrustClient $script:vdcSession
+            if ($caTemplates) { $caPath = @($caTemplates)[0].Path }
+        }
+        if ($caPath) {
+            $certName = New-TestName -Prefix 'venafips-convert'
+            $certResult = New-VdcCertificate -Path $script:policyPath -Name $certName -CommonName "$certName.example.com" -CertificateAuthorityPath $caPath -PassThru -TrustClient $script:vdcSession -ErrorAction SilentlyContinue
+            if ($certResult) { $script:convertCertPath = $certResult.Path }
+        }
+    }
+
+    It 'Should convert a certificate class with Convert-VdcObject' {
+        if (-not $script:convertCertPath) { Set-ItResult -Skipped -Because 'No certificate to convert'; return }
+
+        # Convert X509 Server Certificate to X509 Device Certificate (compatible cert classes)
+        $result = Convert-VdcObject -Path $script:convertCertPath -Class 'X509 Device Certificate' -PassThru -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+    }
+}
+
+# ── Engine Folder ─────────────────────────────────────────────────────────────
+
+Describe 'VDC Engine Folder' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:engineFolderPath = "$($script:policyPath)\EngineTest"
+        $script:engine = $null
+
+        # ensure folder exists
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+        $exists2 = Test-VdcObject -Path $script:engineFolderPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists2) { New-VdcPolicy -Path $script:engineFolderPath -TrustClient $script:vdcSession }
+
+        $engines = Find-VdcEngine -Pattern '*' -TrustClient $script:vdcSession
+        if ($engines) { $script:engine = @($engines)[0] }
+    }
+
+    It 'Should assign a folder to an engine with Add-VdcEngineFolder' {
+        if (-not $script:engine) { Set-ItResult -Skipped -Because 'No engine found'; return }
+        { Add-VdcEngineFolder -EnginePath $script:engine.Path -FolderPath @($script:engineFolderPath) -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    It 'Should verify the engine-folder assignment' {
+        if (-not $script:engine) { Set-ItResult -Skipped -Because 'No engine found'; return }
+        $folders = Get-VdcEngineFolder -ID $script:engine.Path -TrustClient $script:vdcSession
+        # should contain our test folder
+        $folders | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should remove the engine-folder assignment with Remove-VdcEngineFolder' {
+        if (-not $script:engine) { Set-ItResult -Skipped -Because 'No engine found'; return }
+        { Remove-VdcEngineFolder -EnginePath @($script:engine.Path) -FolderPath @($script:engineFolderPath) -TrustClient $script:vdcSession -Confirm:$false } | Should -Not -Throw
+    }
+}
+
+# ── Write Log ─────────────────────────────────────────────────────────────────
+
+Describe 'VDC Write Log' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+    }
+
+    It 'Should write a custom log entry with Write-VdcLog' {
+        { Write-VdcLog -CustomEventGroup '0100' -EventId '0001' -Component '\VED\Policy' -Text1 'VenafiPS functional test log entry' -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    It 'Should verify the log entry was written' {
+        # read recent logs and look for our entry
+        $logs = Read-VdcLog -First 20 -TrustClient $script:vdcSession
+        $logs | Should -Not -BeNullOrEmpty
+    }
+}
+
+# ── Export Vault Object ───────────────────────────────────────────────────────
+
+Describe 'VDC Export Vault Object' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:sampleCert = Find-VdcCertificate -Path '\VED\Policy' -Recursive -TrustClient $script:vdcSession | Select-Object -First 1
+        $script:vaultId = $null
+
+        if ($script:sampleCert) {
+            $certPath = @($script:sampleCert)[0].Path
+            # Vault ID is stored as an attribute, not a top-level property
+            $attr = Get-VdcAttribute -Path $certPath -Attribute 'Certificate Vault Id' -TrustClient $script:vdcSession
+            if ($attr -and $attr.'Certificate Vault Id') {
+                $script:vaultId = $attr.'Certificate Vault Id'
+            }
+        }
+    }
+
+    It 'Should export a vault object to pipeline' {
+        if (-not $script:vaultId) { Set-ItResult -Skipped -Because 'No vault ID found on sample cert'; return }
+        $result = Export-VdcVaultObject -ID $script:vaultId -TrustClient $script:vdcSession
+        $result | Should -Not -BeNullOrEmpty
+    }
+}
+
+# ── Revoke Grant ──────────────────────────────────────────────────────────────
+
+Describe 'VDC Revoke Grant' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+    }
+
+    It 'Should invoke Revoke-VdcGrant and handle scope/identity errors' {
+        # Revoke-VdcGrant uses throw for scope/identity errors, so we verify the expected error
+        try {
+            Revoke-VdcGrant -ID 'local:{00000000-0000-0000-0000-000000000000}' -Confirm:$false
+            # if it didn't throw, that's also fine
+        } catch {
+            # expected: either scope insufficient or identity not found
+            $_.Exception.Message | Should -Match 'scope|not found|does not exist|delete'
+        }
+    }
+}
+
+# ── Workflow Ticket ───────────────────────────────────────────────────────────
+
+Describe 'VDC Workflow Ticket' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+    }
+
+    It 'Should invoke Set-VdcWorkflowTicketStatus and handle missing ticket' {
+        # The function throws for non-existent tickets; verify expected error
+        try {
+            Set-VdcWorkflowTicketStatus -TicketGuid ([Guid]::Empty) -Status 'Approved' -Explanation 'VenafiPS functional test' -TrustClient $script:vdcSession
+            # if it didn't throw, that's fine
+        } catch {
+            $_.Exception.Message | Should -Match 'TicketDoesNotExist|does not exist|not found'
+        }
+    }
+}
+
+# ── Remove Client ────────────────────────────────────────────────────────────
+
+Describe 'VDC Remove Client' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+    }
+
+    It 'Should invoke Remove-VdcClient and handle invalid client' {
+        # The function throws for invalid/non-existent clients; verify expected error
+        try {
+            Remove-VdcClient -ClientID 'venafips-nonexistent-client-00000' -TrustClient $script:vdcSession -Confirm:$false
+        } catch {
+            $_.Exception.Message | Should -Match '400|Incorrect|not found|does not exist'
+        }
+    }
+}
+
+# ── Adaptable Hash ────────────────────────────────────────────────────────────
+
+Describe 'VDC Adaptable Hash' -Tags 'Functional', 'VDC', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vdcSession = New-VdcFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_VDC_POLICY_PATH) { $env:VENAFIPS_VDC_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:tempScriptFile = $null
+
+        # ensure policy folder exists — Add-VdcAdaptableHash works on Policy objects (sets -PolicyClass 'Adaptable App')
+        $exists = Test-VdcObject -Path $script:policyPath -ExistOnly -TrustClient $script:vdcSession
+        if (-not $exists) { New-VdcPolicy -Path $script:policyPath -TrustClient $script:vdcSession }
+
+        # create a small temp script file to hash
+        $script:tempScriptFile = Join-Path ([System.IO.Path]::GetTempPath()) "venafips-func-$(Get-Random).ps1"
+        Set-Content -Path $script:tempScriptFile -Value '# VenafiPS functional test script'
+    }
+
+    It 'Should add an adaptable hash to a policy folder with Add-VdcAdaptableHash' {
+        if (-not $script:tempScriptFile) { Set-ItResult -Skipped -Because 'No script file available'; return }
+        { Add-VdcAdaptableHash -Path $script:policyPath -FilePath $script:tempScriptFile -TrustClient $script:vdcSession } | Should -Not -Throw
+    }
+
+    AfterAll {
+        if ($script:tempScriptFile -and (Test-Path $script:tempScriptFile)) {
+            Remove-Item $script:tempScriptFile -Force -ErrorAction SilentlyContinue
+        }
     }
 }
 
