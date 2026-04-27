@@ -25,10 +25,8 @@ if ( $script:ModuleVersion -like '*NEW_VERSION*' ) {
             Try {
                 Write-Verbose ('dot sourcing {0}' -f $thisFile.FullName)
                 . $thisFile.fullname
-                # if ( $folder -eq 'Public' ) {
                 Export-ModuleMember -Function $thisFile.Basename
                 $publicFunction += $thisFile.BaseName
-                # }
             }
             Catch {
                 Write-Error ("Failed to import function {0}: {1}" -f $thisFile.fullname, $folder)

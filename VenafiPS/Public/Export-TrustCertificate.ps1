@@ -187,7 +187,7 @@ function Export-TrustCertificate {
                     format        = $using:pset
                 }
 
-                $thisCert = Get-TrustCertificate -id $id
+                $thisCert = Get-TrustCertificate -Certificate $id
 
                 if ( -not $thisCert ) {
                     $out.error = 'Certificate not found'
@@ -324,7 +324,7 @@ function Export-TrustCertificate {
                     error         = if ($innerResponse.StatusCode -notin 200, 201, 202) { $innerResponse.StatusDescription }
                 }
 
-                $thisCert = Get-TrustCertificate -id $PSItem
+                $thisCert = Get-TrustCertificate -Certificate $PSItem
 
                 if ( -not $thisCert ) {
                     $out.error = 'Certificate not found'

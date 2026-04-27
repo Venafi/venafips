@@ -49,10 +49,12 @@ function Add-TrustTeamMember {
 
         $teamId = $Team | Get-TrustData -Type Team -FailOnNotFound -FailOnMultiple
 
-        $params.Method = 'Post'
-        $params.UriLeaf = "teams/$teamId/members"
-        $params.Body = @{
-            'members' = @($Member)
+        $params = @{
+            Method  = 'Post'
+            UriLeaf = "teams/$teamId/members"
+            Body    = @{
+                'members' = @($Member)
+            }
         }
 
         $null = Invoke-TrustRestMethod @params

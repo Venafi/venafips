@@ -24,7 +24,7 @@ GUID = 'a1c0ef7c-8499-4ac4-9659-52ca91258d13'
 Author = 'Greg Brownstein'
 
 # Company or vendor of this module
-CompanyName = 'Venafi'
+CompanyName = 'CyberArk'
 
 # Copyright statement for this module
 Copyright = '(c) Venafi, Inc. and CyberArk Software Ltd. ("CyberArk")'
