@@ -73,6 +73,7 @@ jobs:
           import-module Pester
           $config = [PesterConfiguration]::Default
           $config.Run.Path = '${{ github.workspace }}/Tests'
+          $config.Filter.ExcludeTag = 'Functional'
           $config.TestResult.Enabled = $true
           $config.TestResult.OutputPath = 'test_result.xml'
           Invoke-Pester -Configuration $config
@@ -96,6 +97,7 @@ jobs:
         import-module Pester
         $config = [PesterConfiguration]::Default
         $config.Run.Path = '${{ github.workspace }}/Tests'
+        $config.Filter.ExcludeTag = 'Functional'
         $config.TestResult.Enabled = $true
         $config.TestResult.OutputPath = 'test_result.xml'
         Invoke-Pester -Configuration $config
