@@ -219,6 +219,7 @@ function Invoke-TrustCertificateAction {
         [string] $CloudKeystore,
 
         [Parameter(ParameterSetName = 'Renew')]
+        [Parameter(ParameterSetName = 'Recover')]
         [ValidateNotNullOrEmpty()]
         [String] $Application,
 
@@ -248,11 +249,6 @@ function Invoke-TrustCertificateAction {
     )
 
     begin {
-
-        $params = @{
-            Method  = 'Post'
-            UriRoot = 'outagedetection/v1'
-        }
 
         $allCerts = [System.Collections.Generic.List[string]]::new()
         Write-Verbose $PSCmdlet.ParameterSetName
@@ -600,7 +596,14 @@ function Invoke-TrustCertificateAction {
             }
 
             'Retire' {
-                $params.UriLeaf = "certificates/retirement"
+                $params = @{
+                    Method  = 'Post'
+                    UriRoot = 'outagedetection/v1'
+                    UriLeaf = "certificates/retirement"
+                    Body    = @{
+                        'certificateIds' = $null
+                    }
+                }
 
                 if ( $AdditionalParameters ) {
                     $params.Body += $AdditionalParameters
@@ -608,7 +611,7 @@ function Invoke-TrustCertificateAction {
 
                 if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Retire {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
                     $allCerts | Select-TrustBatch -Activity 'Retiring certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
-                        $params.Body = @{"certificateIds" = $_ }
+                        $params.Body.certificateIds = $_
 
                         $response = Invoke-TrustRestMethod @params
 
@@ -625,7 +628,14 @@ function Invoke-TrustCertificateAction {
             }
 
             'Recover' {
-                $params.UriLeaf = "certificates/recovery"
+                $params = @{
+                    Method  = 'Post'
+                    UriRoot = 'outagedetection/v1'
+                    UriLeaf = "certificates/recovery"
+                    Body    = @{
+                        'certificateIds' = $null
+                    }
+                }
 
                 if ( $AdditionalParameters ) {
                     $params.Body += $AdditionalParameters
@@ -633,7 +643,7 @@ function Invoke-TrustCertificateAction {
 
                 if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Recover {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
                     $allCerts | Select-TrustBatch -Activity 'Recovering certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
-                        $params.Body = @{"certificateIds" = $_ }
+                        $params.Body.certificateIds = $_
 
                         $response = Invoke-TrustRestMethod @params
 
@@ -650,11 +660,18 @@ function Invoke-TrustCertificateAction {
             }
 
             'Validate' {
-                $params.UriLeaf = "certificates/validation"
+                $params = @{
+                    Method  = 'Post'
+                    UriRoot = 'outagedetection/v1'
+                    UriLeaf = "certificates/validation"
+                    Body    = @{
+                        'certificateIds' = $null
+                    }
+                }
 
                 if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Validate {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
                     $allCerts | Select-TrustBatch -Activity 'Validating certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
-                        $params.Body = @{"certificateIds" = $_ }
+                        $params.Body.certificateIds = $_
 
                         $null = Invoke-TrustRestMethod @params
                     }
@@ -662,8 +679,14 @@ function Invoke-TrustCertificateAction {
             }
 
             'Delete' {
-
-                $params.UriLeaf = "certificates/deletion"
+                $params = @{
+                    Method  = 'Post'
+                    UriRoot = 'outagedetection/v1'
+                    UriLeaf = "certificates/deletion"
+                    Body    = @{
+                        'certificateIds' = $null
+                    }
+                }
 
                 if ( $PSCmdlet.ShouldProcess('Certificate Manager, SaaS', ('Delete {0} certificate(s) in batches of {1}' -f $allCerts.Count, $BatchSize) ) ) {
 
@@ -671,7 +694,7 @@ function Invoke-TrustCertificateAction {
                     $null = $allCerts | Invoke-TrustCertificateAction -Retire -BatchSize $BatchSize -Confirm:$false
 
                     $allCerts | Select-TrustBatch -Activity 'Deleting certificates' -BatchSize $BatchSize -BatchType 'string' -TotalCount $allCerts.Count | ForEach-Object {
-                        $params.Body = @{"certificateIds" = $_ }
+                        $params.Body.certificateIds = $_
 
                         $null = Invoke-TrustRestMethod @params
                     }
