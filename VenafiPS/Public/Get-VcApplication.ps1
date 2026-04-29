@@ -1,4 +1,4 @@
-function Get-TrustApplication {
+function Get-VcApplication {
     <#
     .SYNOPSIS
     Get application info
@@ -24,7 +24,7 @@ function Get-TrustApplication {
     ID
 
     .EXAMPLE
-    Get-TrustApplication -Application 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+    Get-VcApplication -Application 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
 
     applicationId              : 96fc9310-67ec-11eb-a8a7-794fe75a8e6f
     issuingTemplate            : @{Name=MyTemplate; id=7fb6af20-b22e-11ea-9a24-930fb5d2b247}
@@ -46,19 +46,18 @@ function Get-TrustApplication {
     Get a single object by ID
 
     .EXAMPLE
-    Get-TrustApplication -Application 'My Awesome App'
+    Get-VcApplication -Application 'My Awesome App'
 
     Get a single object by name.  The name is case sensitive.
 
     .EXAMPLE
-    Get-TrustApplication -All
+    Get-VcApplication -All
 
     Get all applications
 
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-VcApplication')]
 
     param (
 

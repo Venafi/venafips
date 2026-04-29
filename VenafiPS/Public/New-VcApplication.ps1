@@ -1,4 +1,4 @@
-function New-TrustApplication {
+function New-VcApplication {
     <#
     .SYNOPSIS
     Create a new application
@@ -39,24 +39,23 @@ function New-TrustApplication {
     PSCustomObject, if PassThru provided
 
     .EXAMPLE
-    New-TrustApplication -Name 'MyNewApp' -Owner '4ba1e64f-12ad-4a34-a0e2-bc4481a56f7d','greg@venafi.com'
+    New-VcApplication -Name 'MyNewApp' -Owner '4ba1e64f-12ad-4a34-a0e2-bc4481a56f7d','greg@venafi.com'
 
     Create a new application
 
     .EXAMPLE
-    New-TrustApplication -Name 'MyNewApp' -Owner '4ba1e64f-12ad-4a34-a0e2-bc4481a56f7d' -CertificateIssuingTemplate @{'9c9618e8-6b4c-4a1c-8c11-902c9b2676d3'=$null} -Description 'this app is awesome' -Fqdn 'me.com' -IPRange '1.2.3.4/24' -Port '443','9443'
+    New-VcApplication -Name 'MyNewApp' -Owner '4ba1e64f-12ad-4a34-a0e2-bc4481a56f7d' -CertificateIssuingTemplate @{'9c9618e8-6b4c-4a1c-8c11-902c9b2676d3'=$null} -Description 'this app is awesome' -Fqdn 'me.com' -IPRange '1.2.3.4/24' -Port '443','9443'
 
     Create a new application with optional details
 
     .EXAMPLE
-    New-TrustApplication -Name 'MyNewApp' -Owner '4ba1e64f-12ad-4a34-a0e2-bc4481a56f7d' -PassThru
+    New-VcApplication -Name 'MyNewApp' -Owner '4ba1e64f-12ad-4a34-a0e2-bc4481a56f7d' -PassThru
 
     Create a new application and return the newly created application object
 
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'NoTarget', SupportsShouldProcess)]
-    [Alias('New-VcApplication')]
 
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]

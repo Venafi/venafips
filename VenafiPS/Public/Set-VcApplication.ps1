@@ -1,4 +1,4 @@
-function Set-TrustApplication {
+function Set-VcApplication {
     <#
     .SYNOPSIS
     Update an existing application
@@ -36,28 +36,27 @@ function Set-TrustApplication {
     PSCustomObject
 
     .EXAMPLE
-    Set-TrustApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Name 'ThisAppNameIsBetter'
+    Set-VcApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Name 'ThisAppNameIsBetter'
 
     Rename an existing application
 
     .EXAMPLE
-    Set-TrustApplication -ID 'MyApp' -TeamOwner 'GreatTeam'
+    Set-VcApplication -ID 'MyApp' -TeamOwner 'GreatTeam'
 
     Change the owner to this team
 
     .EXAMPLE
-    Set-TrustApplication -ID 'MyApp' -TeamOwner 'GreatTeam' -NoOverwrite
+    Set-VcApplication -ID 'MyApp' -TeamOwner 'GreatTeam' -NoOverwrite
 
     Append this team to the list of owners
 
     .EXAMPLE
-    Set-TrustApplication -ID 'MyApp' -IssuingTemplate 'Template1', 'Template2'
+    Set-VcApplication -ID 'MyApp' -IssuingTemplate 'Template1', 'Template2'
 
     Update the templates associated with application.  This will overwrite any existing templates configured.
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Set-VcApplication')]
 
     param (
 

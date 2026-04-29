@@ -1,4 +1,4 @@
-function Remove-TrustApplication {
+function Remove-VcApplication {
     <#
     .SYNOPSIS
     Remove a application
@@ -22,16 +22,15 @@ function Remove-TrustApplication {
     ID
 
     .EXAMPLE
-    Remove-TrustApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+    Remove-VcApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
     Remove a application
 
     .EXAMPLE
-    Remove-TrustApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Confirm:$false
+    Remove-VcApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Confirm:$false
     Remove a application bypassing the confirmation prompt
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-VcApplication')]
 
     param (
 
