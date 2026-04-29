@@ -42,8 +42,8 @@ function Get-TrustCertificate {
     param (
 
         [Parameter(ParameterSetName = 'Id', Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('certificateId')]
-        [string] $Certificate,
+        [Alias('certificateId', 'certificateIds')]
+        [string[]] $Certificate,
 
         [Parameter(Mandatory, ParameterSetName = 'All')]
         [Switch] $All,
@@ -57,143 +57,142 @@ function Get-TrustCertificate {
     )
 
     begin {
-
-
         $appOwners = [System.Collections.Generic.List[object]]::new()
-
     }
 
     process {
 
         if ( $All ) {
-            return (Find-TrustCertificate -IncludeVaasOwner:$OwnerDetail)
+            return (Find-TrustCertificate -OwnerDetail:$OwnerDetail)
         }
 
-        $params = @{
-            UriRoot = 'outagedetection/v1'
-            UriLeaf = "certificates/"
-        }
+        foreach ( $thisCert in $Certificate ) {
 
-        if ( Test-IsGuid($Certificate) ) {
-            $params.UriLeaf += $Certificate
-        }
-        else {
-            $findParams = @{
-                Filter           = @('certificateName', 'eq', $Certificate)
-                IncludeVaasOwner = $OwnerDetail
+            $params = @{
+                UriRoot = 'outagedetection/v1'
+                UriLeaf = "certificates/"
             }
-            return (Find-TrustCertificate @findParams | Get-TrustCertificate)
-        }
 
-        $params.UriLeaf += "?ownershipTree=true"
+            if ( Test-IsGuid($thisCert) ) {
+                $params.UriLeaf += $thisCert
+            }
+            else {
+                $findParams = @{
+                    Filter      = @('certificateName', 'eq', $thisCert)
+                    OwnerDetail = $OwnerDetail
+                }
+                return (Find-TrustCertificate @findParams | Get-TrustCertificate)
+            }
 
-        try {
-            $response = Invoke-TrustRestMethod @params
-        }
-        catch {
-            $originalError = $_
+            $params.UriLeaf += "?ownershipTree=true"
 
             try {
-                Write-Verbose "Initial request failed with error: $($_.ErrorDetails.Message). Attempting to determine if certificate is a trusted CA certificate."
+                $response = Invoke-TrustRestMethod @params
+            }
+            catch {
+                $originalError = $_
 
-                $message = $_.ErrorDetails.Message | ConvertFrom-Json
-                if ( $message.errors.code -and $message.errors.code -eq 10051 ) {
-                    # check if the certificate is a trusted ca certificate, as those are accessed via a different endpoint
-                    $trustedCaCerts = Invoke-TrustRestMethod -UriLeaf 'trustedcacertificates' | Select-Object -ExpandProperty certificates
-                    $response = $trustedCaCerts | Where-Object { $Certificate -in $_.id, $_.subjectCN[0] }
+                try {
+                    Write-Verbose "Initial request failed with error: $($_.ErrorDetails.Message). Attempting to determine if certificate is a trusted CA certificate."
+
+                    $message = $_.ErrorDetails.Message | ConvertFrom-Json
+                    if ( $message.errors.code -and $message.errors.code -eq 10051 ) {
+                        # check if the certificate is a trusted ca certificate, as those are accessed via a different endpoint
+                        $trustedCaCerts = Invoke-TrustRestMethod -UriLeaf 'trustedcacertificates' | Select-Object -ExpandProperty certificates
+                        $response = $trustedCaCerts | Where-Object { $thisCert -in $_.id, $_.subjectCN[0] }
+                    }
+                    else {
+                        throw $originalError
+                    }
                 }
-                else {
+                catch {
                     throw $originalError
                 }
             }
-            catch {
-                throw $originalError
-            }
-        }
 
-        if ( $response.PSObject.Properties.Name -contains 'certificates' ) {
-            $certs = $response | Select-Object -ExpandProperty certificates
-        }
-        else {
-            $certs = $response
-        }
-
-        $certs | Select-Object @{
-            'n' = 'certificateId'
-            'e' = {
-                $_.Id
+            if ( $response.PSObject.Properties.Name -contains 'certificates' ) {
+                $certs = $response | Select-Object -ExpandProperty certificates
             }
-        },
-        @{
-            'n' = 'application'
-            'e' = {
-                if ( $_.applicationIds ) {
-                    $_.applicationIds | Get-TrustApplication | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
+            else {
+                $certs = $response
+            }
+
+            $certs | Select-Object @{
+                'n' = 'certificateId'
+                'e' = {
+                    $_.Id
                 }
-            }
-        },
-        @{
-            'n' = 'owner'
-            'e' = {
-                if ( $OwnerDetail ) {
-
-                    # this scriptblock requires ?ownershipTree=true be part of the url
-                    foreach ( $thisOwner in $_.ownership.owningContainers.owningUsers ) {
-                        $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
-                        if ( -not $thisOwnerDetail ) {
-                            $thisOwnerDetail = Get-TrustIdentity -ID $thisOwner | Select-Object firstName, lastName, emailAddress,
-                            @{
-                                'n' = 'status'
-                                'e' = { $_.userStatus }
-                            },
-                            @{
-                                'n' = 'role'
-                                'e' = { $_.systemRoles }
-                            },
-                            @{
-                                'n' = 'type'
-                                'e' = { 'USER' }
-                            },
-                            @{
-                                'n' = 'userId'
-                                'e' = { $_.id }
-                            }
-
-                            $appOwners.Add($thisOwnerDetail)
-
-                        }
-                        $thisOwnerDetail
-                    }
-
-                    foreach ($thisOwner in $_.ownership.owningContainers.owningTeams) {
-                        $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
-                        if ( -not $thisOwnerDetail ) {
-                            $thisOwnerDetail = Get-TrustTeam -ID $thisOwner | Select-Object name, role, members,
-                            @{
-                                'n' = 'type'
-                                'e' = { 'TEAM' }
-                            },
-                            @{
-                                'n' = 'teamId'
-                                'e' = { $_.id }
-                            }
-
-                            $appOwners.Add($thisOwnerDetail)
-                        }
-                        $thisOwnerDetail
+            },
+            @{
+                'n' = 'application'
+                'e' = {
+                    if ( $_.applicationIds ) {
+                        $_.applicationIds | Get-TrustApplication | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
                     }
                 }
-                else {
-                    $_.ownership.owningContainers | Select-Object owningUsers, owningTeams
+            },
+            @{
+                'n' = 'owner'
+                'e' = {
+                    if ( $OwnerDetail ) {
+
+                        # this scriptblock requires ?ownershipTree=true be part of the url
+                        foreach ( $thisOwner in $_.ownership.owningContainers.owningUsers ) {
+                            $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
+                            if ( -not $thisOwnerDetail ) {
+                                $thisOwnerDetail = Get-TrustIdentity -ID $thisOwner | Select-Object firstName, lastName, emailAddress,
+                                @{
+                                    'n' = 'status'
+                                    'e' = { $_.userStatus }
+                                },
+                                @{
+                                    'n' = 'role'
+                                    'e' = { $_.systemRoles }
+                                },
+                                @{
+                                    'n' = 'type'
+                                    'e' = { 'USER' }
+                                },
+                                @{
+                                    'n' = 'userId'
+                                    'e' = { $_.id }
+                                }
+
+                                $appOwners.Add($thisOwnerDetail)
+
+                            }
+                            $thisOwnerDetail
+                        }
+
+                        foreach ($thisOwner in $_.ownership.owningContainers.owningTeams) {
+                            $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
+                            if ( -not $thisOwnerDetail ) {
+                                $thisOwnerDetail = Get-TrustTeam -ID $thisOwner | Select-Object name, role, members,
+                                @{
+                                    'n' = 'type'
+                                    'e' = { 'TEAM' }
+                                },
+                                @{
+                                    'n' = 'teamId'
+                                    'e' = { $_.id }
+                                }
+
+                                $appOwners.Add($thisOwnerDetail)
+                            }
+                            $thisOwnerDetail
+                        }
+                    }
+                    else {
+                        $_.ownership.owningContainers | Select-Object owningUsers, owningTeams
+                    }
                 }
-            }
-        },
-        @{
-            'n' = 'instance'
-            'e' = { $_.instances }
-        },
-        * -ExcludeProperty Id, applicationIds, instances, totalInstanceCount, ownership
+            },
+            @{
+                'n' = 'instance'
+                'e' = { $_.instances }
+            },
+            * -ExcludeProperty Id, applicationIds, instances, totalInstanceCount, ownership
+
+        } # end foreach
     }
 }
-
-

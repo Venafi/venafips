@@ -144,6 +144,14 @@ function New-TrustCertificate {
 
     param (
 
+        [Parameter(ParameterSetName = 'ASK', Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [String] $CommonName,
+
+        [Parameter(ParameterSetName = 'CSR', Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string] $Csr,
+
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $Application,
@@ -151,10 +159,6 @@ function New-TrustCertificate {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [String] $IssuingTemplate,
-
-        [Parameter(ParameterSetName = 'ASK', Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [String] $CommonName,
 
         [Parameter(ParameterSetName = 'ASK')]
         [ValidateNotNullOrEmpty()]
@@ -184,10 +188,6 @@ function New-TrustCertificate {
         [ValidateSet('P256', 'P384', 'P521', 'ED25519')]
         [string] $KeyCurve,
 
-        [Parameter(ParameterSetName = 'CSR', Mandatory)]
-        [ValidateNotNullOrEmpty()]
-        [string] $Csr,
-
         # [Parameter(ParameterSetName = 'ExistingCSR', Mandatory, ValueFromPipelineByPropertyName)]
         # [Alias('certificateId')]
         # [string] $Certificate,
@@ -196,15 +196,15 @@ function New-TrustCertificate {
         [ValidateNotNullOrEmpty()]
         [String[]] $SanDns,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ASK')]
         [ValidateNotNullOrEmpty()]
         [String[]] $SanIP,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ASK')]
         [ValidateNotNullOrEmpty()]
         [String[]] $SanUri,
 
-        [Parameter()]
+        [Parameter(ParameterSetName = 'ASK')]
         [ValidateNotNullOrEmpty()]
         [String[]] $SanEmail,
 
@@ -374,10 +374,37 @@ function New-TrustCertificate {
                         keyCurve = $thisTemplate.recommendedSettings.key.curve
                     }
                 }
+
+                if ( $SanDns -or $SanEmail -or $SanIP -or $SanUri ) {
+                    $params.Body.csrAttributes.subjectAlternativeNamesByType = @{}
+                }
+
+                if ( $PSBoundParameters.ContainsKey('SanDns') ) {
+                    $params.Body.csrAttributes.subjectAlternativeNamesByType.dnsNames = @($SanDns)
+                }
+
+                if ( $PSBoundParameters.ContainsKey('SanEmail') ) {
+                    $params.Body.csrAttributes.subjectAlternativeNamesByType.rfc822Names = @($SanEmail)
+                }
+
+                if ( $PSBoundParameters.ContainsKey('SanIP') ) {
+                    $params.Body.csrAttributes.subjectAlternativeNamesByType.ipAddresses = @($SanIP)
+                }
+
+                if ( $PSBoundParameters.ContainsKey('SanUri') ) {
+                    $params.Body.csrAttributes.subjectAlternativeNamesByType.uniformResourceIdentifiers = @($SanUri)
+                }
             }
 
             'CSR' {
                 $params.Body.certificateSigningRequest = $Csr
+
+                if ( $PSBoundParameters.ContainsKey('SanDns') ) {
+                    $params.Body.customAttributes = @{
+                        dnsNames      = @($SanDns)
+                        overwriteSans = $true
+                    }
+                }
                 $target = 'CSR'
             }
 
@@ -404,29 +431,6 @@ function New-TrustCertificate {
 
                 $target = 'Existing CSR'
             }
-        }
-
-        # common fields between ASK and CSR
-
-        if ( $SanDns -or $SanEmail -or $SanIP -or $SanUri ) {
-            $params.Body.csrAttributes = @{}
-            $params.Body.csrAttributes.subjectAlternativeNamesByType = @{}
-        }
-
-        if ( $PSBoundParameters.ContainsKey('SanDns') ) {
-            $params.Body.csrAttributes.subjectAlternativeNamesByType.dnsNames = @($SanDns)
-        }
-
-        if ( $PSBoundParameters.ContainsKey('SanEmail') ) {
-            $params.Body.csrAttributes.subjectAlternativeNamesByType.rfc822Names = @($SanEmail)
-        }
-
-        if ( $PSBoundParameters.ContainsKey('SanIP') ) {
-            $params.Body.csrAttributes.subjectAlternativeNamesByType.ipAddresses = @($SanIP)
-        }
-
-        if ( $PSBoundParameters.ContainsKey('SanUri') ) {
-            $params.Body.csrAttributes.subjectAlternativeNamesByType.uniformResourceIdentifiers = @($SanUri)
         }
 
         if ($PSBoundParameters.ContainsKey('Tag')) {
