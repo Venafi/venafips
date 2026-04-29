@@ -5,31 +5,31 @@
     $testId2 = 'da8ff666-99e3-5cfd-a0fb-3741bd55d2e3'
 }
 
-Describe 'Remove-TrustApplication' -Tags 'Unit' {
+Describe 'Remove-VcApplication' -Tags 'Unit' {
 
     BeforeEach {
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith {} -ModuleName $ModuleName
     }
 
     It 'Should call the delete API with the correct endpoint and UriRoot' {
-        Remove-TrustApplication -ID $testId -Confirm:$false
+        Remove-VcApplication -ID $testId -Confirm:$false
         Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
             $Method -eq 'Delete' -and $UriRoot -eq 'outagedetection/v1' -and $UriLeaf -eq "applications/$testId"
         }
     }
 
     It 'Should accept pipeline input' {
-        $testId | Remove-TrustApplication -Confirm:$false
+        $testId | Remove-VcApplication -Confirm:$false
         Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName
     }
 
     It 'Should process multiple items' {
-        $testId, $testId2 | Remove-TrustApplication -Confirm:$false
+        $testId, $testId2 | Remove-VcApplication -Confirm:$false
         Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 2 -ModuleName $ModuleName
     }
 
     It 'Should not produce output' {
-        $result = Remove-TrustApplication -ID $testId -Confirm:$false
+        $result = Remove-VcApplication -ID $testId -Confirm:$false
         $result | Should -BeNullOrEmpty
     }
 }

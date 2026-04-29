@@ -103,7 +103,7 @@ function Set-VcApplication {
 
     process {
 
-        $thisApp = Get-TrustApplication -Application $Application
+        $thisApp = Get-VcApplication -Application $Application
 
         if ( -not $thisApp ) {
             # process the next one in the pipeline if we don't have a valid ID this time

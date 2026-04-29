@@ -75,7 +75,7 @@ function Get-TrustData {
             switch ($Type) {
                 'Application' {
                     if ( -not $script:vcApplication ) {
-                        $script:vcApplication = Get-TrustApplication -All | Sort-Object -Property name
+                        $script:vcApplication = Get-VcApplication -All | Sort-Object -Property name
                     }
                     $allObject = $script:vcApplication
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.applicationId }

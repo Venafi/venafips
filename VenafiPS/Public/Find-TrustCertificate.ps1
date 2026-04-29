@@ -314,7 +314,7 @@ function Find-TrustCertificate {
                 foreach ($thisAppId in $_.applicationIds) {
                     $thisApp = $apps | Where-Object applicationId -eq $thisAppId
                     if ( -not $thisApp ) {
-                        $thisApp = Get-TrustApplication -ID $thisAppId | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
+                        $thisApp = Get-VcApplication -ID $thisAppId | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
                         $apps.Add($thisApp)
                     }
                     $thisApp

@@ -127,7 +127,7 @@ function Get-TrustCertificate {
                 'n' = 'application'
                 'e' = {
                     if ( $_.applicationIds ) {
-                        $_.applicationIds | Get-TrustApplication | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
+                        $_.applicationIds | Get-VcApplication | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
                     }
                 }
             },
