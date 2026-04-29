@@ -65,6 +65,12 @@ function New-TrustCertificate {
     Date at which the certificate becomes invalid.
     The day and hour will be set and not to the minute level.
 
+    .PARAMETER OverwriteSan
+    When creating a certificate request from a CSR, any SANs included in the CSR will be used by default.
+    Use this switch to overwrite the DNS SANs in the CSR with the values provided in the -SanDns parameter.
+
+    This parameter only applies to DNS SAN, not other SANs.
+
     .PARAMETER Tag
     One or more tags to assign to the certificate at creation.
 
@@ -225,6 +231,9 @@ function New-TrustCertificate {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [String[]] $Tag,
+
+        [Parameter(ParameterSetName = 'CSR')]
+        [switch] $OverwriteSan,
 
         [Parameter()]
         [switch] $Wait,
@@ -402,7 +411,7 @@ function New-TrustCertificate {
                 if ( $PSBoundParameters.ContainsKey('SanDns') ) {
                     $params.Body.customAttributes = @{
                         dnsNames      = @($SanDns)
-                        overwriteSans = $true
+                        overwriteSans = $OverwriteSan.IsPresent
                     }
                 }
                 $target = 'CSR'
