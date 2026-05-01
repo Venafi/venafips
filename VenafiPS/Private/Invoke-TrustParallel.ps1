@@ -118,7 +118,8 @@ function Invoke-TrustParallel {
         else {
             # No progress bar needed
             # remove $using: from vars which is only available in the parallel context
-            $InputObject | ForEach-Object -Process ([ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
+            $sb = ([ScriptBlock]::Create(($ScriptBlock.ToString() -ireplace [regex]::Escape('$using:'), '$')))
+            $InputObject | ForEach-Object -Process $sb
         }
         return
     }
