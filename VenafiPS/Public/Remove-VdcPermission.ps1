@@ -8,7 +8,7 @@ function Remove-VdcPermission {
     You can opt to remove permissions for a specific user or all assigned
 
     .PARAMETER Path
-    Full path to an object.  You can also pipe in a TppObject
+    Full path to an object.  You can also pipe in a VdcObject
 
     .PARAMETER Guid
     Guid that represents an object
@@ -16,9 +16,9 @@ function Remove-VdcPermission {
     .PARAMETER IdentityId
     Prefixed Universal Id of the user or group to have their permissions removed
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path, Guid, IdentityId
@@ -46,14 +46,13 @@ function Remove-VdcPermission {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High', DefaultParameterSetName = 'ByGuid')]
-    [Alias('Remove-TppPermission')]
 
     param (
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'ByPath')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 } else {
                     throw "'$_' is not a valid DN path"
@@ -79,11 +78,10 @@ function Remove-VdcPermission {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method     = 'Delete'
@@ -103,7 +101,7 @@ function Remove-VdcPermission {
 
         foreach ($thisInputObject in $inputObject) {
             if ( $PSCmdLet.ParameterSetName -eq 'ByPath' ) {
-                $thisGuid = $thisInputObject | ConvertTo-VdcObject | Select-Object -ExpandProperty Guid
+                $thisGuid = [VdcObject]::new($thisInputObject).Guid
             } else {
                 $thisGuid = $thisInputObject
             }
@@ -117,7 +115,7 @@ function Remove-VdcPermission {
                 # get list of identities permissioned to this object
                 $getParams = $params.Clone()
                 $getParams.Method = 'Get'
-                $identities = Invoke-VenafiRestMethod @getParams
+                $identities = Invoke-TrustRestMethod @getParams
             }
 
             foreach ( $thisIdentity in $identities ) {
@@ -137,7 +135,7 @@ function Remove-VdcPermission {
 
                 if ( $PSCmdlet.ShouldProcess($thisGuid, "Remove permissions for $thisIdentity") ) {
                     try {
-                        Invoke-VenafiRestMethod @params
+                        Invoke-TrustRestMethod @params
                     } catch {
                         Write-Error ("Failed to remove permissions on path $thisGuid, user/group $thisIdentity.  $_")
                     }

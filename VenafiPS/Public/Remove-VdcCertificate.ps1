@@ -20,9 +20,9 @@ function Remove-VdcCertificate {
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -54,14 +54,13 @@ function Remove-VdcCertificate {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-TppCertificate')]
 
     param (
 
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -79,11 +78,10 @@ function Remove-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allCerts = [System.Collections.Generic.List[string]]::new()
 
         # use in shouldprocess messaging below
@@ -102,11 +100,13 @@ function Remove-VdcCertificate {
             InputObject   = $allCerts
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = 'Deleting certificates'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
 
-                $guid = $PSItem | ConvertTo-VdcObject -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Guid
-                if ( -not $guid ) {
+                try {
+                    $guid = [VdcObject]::new($PSItem).Guid
+                }
+                catch {
                     Write-Error "'$PSItem' is not a valid path"
                     return
                 }
@@ -118,11 +118,11 @@ function Remove-VdcCertificate {
                     }
                 }
 
-                $null = Invoke-VenafiRestMethod -Method Delete -UriLeaf "Certificates/$guid"
+                $null = Invoke-TrustRestMethod -Method Delete -UriLeaf "Certificates/$guid"
             }
         }
 
-        Invoke-VenafiParallel @parallelParams
+        Invoke-TrustParallel @parallelParams
     }
 }
 

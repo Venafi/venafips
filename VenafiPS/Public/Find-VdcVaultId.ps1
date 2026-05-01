@@ -9,9 +9,9 @@ function Find-VdcVaultId {
     .PARAMETER Path
     Path of the object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -42,11 +42,10 @@ function Find-VdcVaultId {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 
@@ -62,7 +61,7 @@ function Find-VdcVaultId {
 
         $params.Body.Owner = $Path
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         if ( $response.Result -eq 0 ) {
             [pscustomobject]@{

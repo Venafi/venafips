@@ -9,11 +9,9 @@ function Remove-VdcTeam {
     .PARAMETER ID
     Team ID, the "local" ID.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also provided.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -38,11 +36,10 @@ function Remove-VdcTeam {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -67,7 +64,7 @@ function Remove-VdcTeam {
         }
 
         if ( $PSCmdlet.ShouldProcess($ID, "Delete team") ) {
-            $null = Invoke-VenafiRestMethod @params
+            $null = Invoke-TrustRestMethod @params
         }
 
     }

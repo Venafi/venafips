@@ -15,11 +15,11 @@ function Convert-VdcObject {
     New class/type
 
     .PARAMETER PassThru
-    Return a TppObject representing the newly converted object
+    Return a VdcObject representing the newly converted object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -51,13 +51,12 @@ function Convert-VdcObject {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Convert-TppObject')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -74,12 +73,11 @@ function Convert-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method        = 'Post'
@@ -96,11 +94,11 @@ function Convert-VdcObject {
 
         if ( $PSCmdlet.ShouldProcess($Path, "Convert to type $Class") ) {
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response.Result -eq 1 ) {
                 if ( $PassThru ) {
-                    ConvertTo-VdcObject -Path $Path
+                    [VdcObject]::new($Path)
                 }
             }
             else {

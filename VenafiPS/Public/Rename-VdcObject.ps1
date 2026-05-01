@@ -12,9 +12,9 @@ function Rename-VdcObject {
     .PARAMETER NewPath
     New path, including name
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     none
@@ -41,13 +41,12 @@ function Rename-VdcObject {
     #>
 
     [CmdletBinding()]
-    [Alias('Rename-TppObject')]
 
     param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 } else {
                     throw "'$_' is not a valid DN path"
@@ -62,10 +61,9 @@ function Rename-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
 
@@ -77,7 +75,7 @@ function Rename-VdcObject {
         }
     }
 
-    $response = Invoke-VenafiRestMethod @params
+    $response = Invoke-TrustRestMethod @params
 
     if ( $response.Result -ne 1 ) {
         throw $response.Error

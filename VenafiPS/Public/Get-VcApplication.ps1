@@ -16,10 +16,9 @@ function Get-VcApplication {
     .PARAMETER All
     Get all applications
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -59,12 +58,11 @@ function Get-VcApplication {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-VaasApplication')]
 
     param (
 
         [Parameter(Mandatory, ParameterSetName = 'ID', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('applicationId', 'ID')]
+        [Alias('applicationId')]
         [string] $Application,
 
         [Parameter()]
@@ -75,11 +73,10 @@ function Get-VcApplication {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -100,7 +97,7 @@ function Get-VcApplication {
         }
 
         try {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
         }
         catch {
             if ( $_.Exception.Response.StatusCode.value__ -eq 404 ) {
@@ -122,7 +119,7 @@ function Get-VcApplication {
         if ( $IncludeConfig ) {
 
             foreach ($app in $applications) {
-                $thisConfig = Invoke-VenafiRestMethod -UriLeaf ('autorenewal/{0}/configuration' -f $app.id)
+                $thisConfig = Invoke-TrustRestMethod -UriLeaf ('autorenewal/{0}/configuration' -f $app.id)
                 $app | Select-Object @{'n' = 'applicationId'; 'e' = { $_.Id } },
                 @{
                     'n' = 'issuingTemplate'

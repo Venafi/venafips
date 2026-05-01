@@ -19,9 +19,8 @@
 Describe 'New-VdcCredential' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-VdcFullPath' -MockWith { $testFullPath } -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockSuccessResponse } -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockSuccessResponse } -ModuleName $ModuleName
         Mock -CommandName 'Get-VdcObject' -MockWith { $mockVdcObject } -ModuleName $ModuleName
     }
 
@@ -29,21 +28,21 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
 
         It 'Should create a Password credential' {
             New-VdcCredential -Path $testPath -Secret $testPassword -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.FriendlyName -eq 'Password'
             }
         }
 
         It 'Should set Password value in body' {
             New-VdcCredential -Path $testPath -Secret $testPassword -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 ($Body.Values | Where-Object { $_.Name -eq 'Password' }).Value -eq $testPassword
             }
         }
 
         It 'Should call Credentials/Create endpoint' {
             New-VdcCredential -Path $testPath -Secret $testPassword -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $UriLeaf -eq 'Credentials/Create' -and $Method -eq 'Post'
             }
         }
@@ -68,14 +67,14 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
 
         It 'Should create a Password credential' {
             New-VdcCredential -Path $testPath -Secret $securePassword -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.FriendlyName -eq 'Password'
             }
         }
 
         It 'Should have Password in Values' {
             New-VdcCredential -Path $testPath -Secret $securePassword -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 ($Body.Values | Where-Object { $_.Name -eq 'Password' }) -ne $null
             }
         }
@@ -92,21 +91,21 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
 
         It 'Should create a UsernamePassword credential' {
             New-VdcCredential -Path $testPath -Secret $psCred -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.FriendlyName -eq 'UsernamePassword'
             }
         }
 
         It 'Should include Username in Values' {
             New-VdcCredential -Path $testPath -Secret $psCred -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 ($Body.Values | Where-Object { $_.Name -eq 'Username' }).Value -eq $testUsername
             }
         }
 
         It 'Should include Password in Values' {
             New-VdcCredential -Path $testPath -Secret $psCred -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 ($Body.Values | Where-Object { $_.Name -eq 'Password' }).Value -eq $testPassword
             }
         }
@@ -144,14 +143,14 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
 
         It 'Should create a Certificate credential' {
             New-VdcCredential -Path $testPath -Secret $certPassword -CertificatePath $tempCertPath -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.FriendlyName -eq 'Certificate'
             }
         }
 
         It 'Should include Certificate byte array in Values' {
             New-VdcCredential -Path $testPath -Secret $certPassword -CertificatePath $tempCertPath -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $certValue = $Body.Values | Where-Object { $_.Name -eq 'Certificate' }
                 $certValue -ne $null -and $certValue.Type -eq 'byte[]' -and $certValue.Value.Length -gt 0
             }
@@ -159,7 +158,7 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
 
         It 'Should include Password in Values' {
             New-VdcCredential -Path $testPath -Secret $certPassword -CertificatePath $tempCertPath -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 ($Body.Values | Where-Object { $_.Name -eq 'Password' }).Value -eq $certPassword
             }
         }
@@ -170,7 +169,7 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
                 ($certPassword | ConvertTo-SecureString -AsPlainText -Force)
             )
             New-VdcCredential -Path $testPath -Secret $psCred -CertificatePath $tempCertPath -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 ($Body.Values | Where-Object { $_.Name -eq 'Username' }) -eq $null
             }
         }
@@ -189,7 +188,7 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
     Context 'API failure' {
 
         It 'Should throw when API returns failure' {
-            Mock -CommandName 'Invoke-VenafiRestMethod' -MockWith { $mockFailureResponse } -ModuleName $ModuleName
+            Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockFailureResponse } -ModuleName $ModuleName
             { New-VdcCredential -Path $testPath -Secret $testPassword -Confirm:$false } |
                 Should -Throw -ExpectedMessage '*Failed to create credential*'
         }
@@ -204,7 +203,7 @@ Describe 'New-VdcCredential' -Tags 'Unit' {
 
         It 'Should set CredentialPath in body' {
             New-VdcCredential -Path $testPath -Secret $testPassword -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-VenafiRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.CredentialPath -eq $testFullPath
             }
         }

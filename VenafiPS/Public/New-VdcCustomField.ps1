@@ -79,9 +79,9 @@ function New-VdcCustomField {
         TimeOnly
         Type
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     None
@@ -105,7 +105,6 @@ function New-VdcCustomField {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('New-TppCustomField')]
 
     param (
         [Parameter(Mandatory)]
@@ -164,11 +163,10 @@ function New-VdcCustomField {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $resultObj = @()
 
@@ -222,9 +220,9 @@ function New-VdcCustomField {
     end {
         if ( $PSCmdlet.ShouldProcess($Label) ) {
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
-            if ( $response.Result -eq [TppMetadataResult]::Success ) {
+            if ( $response.Result -eq [VdcMetadataResult]::Success ) {
                 if (( $PassThru )) {
                     $resultObj = [PSCustomObject] @{
                         "Path"  = $response.Item.DN

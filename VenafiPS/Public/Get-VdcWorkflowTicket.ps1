@@ -9,9 +9,9 @@ function Get-VdcWorkflowTicket {
     .PARAMETER Path
     Path to the certificate
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -53,14 +53,13 @@ function Get-VdcWorkflowTicket {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppWorkflowTicket')]
 
     param (
 
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -72,11 +71,10 @@ function Get-VdcWorkflowTicket {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
         Write-Verbose ("Parameter set {0}" -f $PsCmdlet.ParameterSetName)
     }
 
@@ -93,7 +91,7 @@ function Get-VdcWorkflowTicket {
                 }
             }
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response ) {
                 Write-Verbose ("Found {0} workflow tickets for certificate {1}" -f $response.GUIDs.count, $thisDn)
@@ -111,16 +109,16 @@ function Get-VdcWorkflowTicket {
                 }
             }
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
-            if ( $response.Result -eq [TppWorkflowResult]::Success ) {
+            if ( $response.Result -eq [VdcWorkflowResult]::Success ) {
                 $response | Add-Member @{
                     TicketGuid = [guid] $thisGuid
                 }
                 $response
             }
             else {
-                throw ("Error getting ticket details, error is {0}" -f [enum]::GetName([TppWorkflowResult], $response.Result))
+                throw ("Error getting ticket details, error is {0}" -f [enum]::GetName([VdcWorkflowResult], $response.Result))
             }
         }
     }

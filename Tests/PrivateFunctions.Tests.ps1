@@ -584,19 +584,19 @@ KEYDATA
 }
 #endregion
 
-#region ConvertTo-VcTeam
-Describe 'ConvertTo-VcTeam' {
+#region ConvertTo-TrustTeam
+Describe 'ConvertTo-TrustTeam' {
     Context 'Basic property transformation' {
         It 'should rename id to teamId' {
             $input = [PSCustomObject]@{ id = 'team123'; name = 'TestTeam' }
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.teamId | Should -Be 'team123'
             $result.name | Should -Be 'TestTeam'
         }
 
         It 'should exclude original id property' {
             $input = [PSCustomObject]@{ id = 'team456'; name = 'AnotherTeam' }
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.PSObject.Properties.Name | Should -Not -Contain 'id'
         }
 
@@ -607,7 +607,7 @@ Describe 'ConvertTo-VcTeam' {
                 description = 'Test description'
                 role = 'Admin'
             }
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.teamId | Should -Be 'team789'
             $result.name | Should -Be 'TeamWithProps'
             $result.description | Should -Be 'Test description'
@@ -619,7 +619,7 @@ Describe 'ConvertTo-VcTeam' {
                 [PSCustomObject]@{ id = 'team1'; name = 'Team1' }
                 [PSCustomObject]@{ id = 'team2'; name = 'Team2' }
             )
-            $result = $input | ConvertTo-VcTeam
+            $result = $input | ConvertTo-TrustTeam
             $result.Count | Should -Be 2
             $result[0].teamId | Should -Be 'team1'
             $result[1].teamId | Should -Be 'team2'
@@ -760,13 +760,13 @@ Describe 'ConvertTo-VdcIdentity' {
 }
 #endregion
 
-#region Select-VenBatch
-Describe 'Select-VenBatch' {
+#region Select-TrustBatch
+Describe 'Select-TrustBatch' {
     Context 'String batching' {
         It 'should batch strings into specified size' {
             $input = 1..10 | ForEach-Object { "Item$_" }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 4
@@ -779,7 +779,7 @@ Describe 'Select-VenBatch' {
         It 'should handle exact batch size divisor' {
             $input = 1..9 | ForEach-Object { "Item$_" }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -791,7 +791,7 @@ Describe 'Select-VenBatch' {
         It 'should handle single batch' {
             $input = 1..5 | ForEach-Object { "Item$_" }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 10 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 10 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 1
@@ -801,7 +801,7 @@ Describe 'Select-VenBatch' {
         It 'should preserve string values' {
             $input = 'alpha', 'beta', 'gamma', 'delta', 'epsilon'
             $batches = @()
-            $input | Select-VenBatch -BatchSize 2 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 2 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be 'alpha'
@@ -816,7 +816,7 @@ Describe 'Select-VenBatch' {
         It 'should batch integers into specified size' {
             $input = 1..15
             $batches = @()
-            $input | Select-VenBatch -BatchSize 5 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 5 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -828,7 +828,7 @@ Describe 'Select-VenBatch' {
         It 'should preserve integer values' {
             $input = 10, 20, 30, 40
             $batches = @()
-            $input | Select-VenBatch -BatchSize 2 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 2 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be 10
@@ -840,7 +840,7 @@ Describe 'Select-VenBatch' {
         It 'should handle remainder batch' {
             $input = 1..7
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -855,7 +855,7 @@ Describe 'Select-VenBatch' {
         It 'should batch GUIDs into specified size' {
             $input = 1..8 | ForEach-Object { [guid]::NewGuid() }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType guid | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType guid | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -869,7 +869,7 @@ Describe 'Select-VenBatch' {
             $guid2 = [guid]'87654321-4321-4321-4321-210987654321'
             $input = $guid1, $guid2
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1 -BatchType guid | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1 -BatchType guid | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be $guid1
@@ -883,7 +883,7 @@ Describe 'Select-VenBatch' {
                 [PSCustomObject]@{ Id = $_; Name = "Object$_" }
             }
             $batches = @()
-            $input | Select-VenBatch -BatchSize 2 -BatchType pscustomobject | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 2 -BatchType pscustomobject | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -898,7 +898,7 @@ Describe 'Select-VenBatch' {
                 [PSCustomObject]@{ Id = 2; Name = 'Second' }
             )
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1 -BatchType pscustomobject | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1 -BatchType pscustomobject | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0].Id | Should -Be 1
@@ -912,7 +912,7 @@ Describe 'Select-VenBatch' {
         It 'should handle single item' {
             $input = 'single'
             $batches = @()
-            $input | Select-VenBatch -BatchSize 5 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 5 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 1
@@ -923,7 +923,7 @@ Describe 'Select-VenBatch' {
         It 'should handle large batch size' {
             $input = 1..100
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1000 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1000 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 1
@@ -933,7 +933,7 @@ Describe 'Select-VenBatch' {
         It 'should handle batch size of 1' {
             $input = 'a', 'b', 'c'
             $batches = @()
-            $input | Select-VenBatch -BatchSize 1 -BatchType string | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 1 -BatchType string | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches.Count | Should -Be 3
@@ -947,7 +947,7 @@ Describe 'Select-VenBatch' {
         It 'should maintain order of items' {
             $input = 1..10
             $batches = @()
-            $input | Select-VenBatch -BatchSize 3 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 3 -BatchType int | ForEach-Object {
                 $batches += ,@($_ | ForEach-Object { $_ })
             }
             $batches[0][0] | Should -Be 1
@@ -965,7 +965,7 @@ Describe 'Select-VenBatch' {
         It 'should create correct number of batches for large dataset' {
             $input = 1..1000
             $batchCount = 0
-            $input | Select-VenBatch -BatchSize 100 -BatchType int | ForEach-Object {
+            $input | Select-TrustBatch -BatchSize 100 -BatchType int | ForEach-Object {
                 $batchCount++
                 $batchItems = @($_ | ForEach-Object { $_ })
                 $batchItems.Count | Should -Be 100
@@ -1036,151 +1036,35 @@ Describe 'Initialize-PSSodium' -Tags 'Unit' {
 }
 #endregion
 
-#region ConvertTo-VdcObject
-Describe 'ConvertTo-VdcObject' -Tags 'Unit' {
-    Context 'All parameter set' {
-        It 'should create object with all properties specified' {
-            $guid = [guid]'12345678-1234-1234-1234-123456789012'
-            $result = ConvertTo-VdcObject -Path '\VED\Policy\Certificates\Test' -Guid $guid -TypeName 'X509 Certificate'
-
-            $result.Path | Should -Be '\VED\Policy\Certificates\Test'
-            $result.Guid | Should -Be $guid
-            $result.TypeName | Should -Be 'X509 Certificate'
-            $result.Name | Should -Be 'Test'
-            $result.ParentPath | Should -Be '\VED\Policy\Certificates'
-        }
-
-        It 'should handle root path' {
-            $guid = [guid]'87654321-4321-4321-4321-210987654321'
-            $result = ConvertTo-VdcObject -Path '\VED\Policy' -Guid $guid -TypeName 'Policy'
-
-            $result.Path | Should -Be '\VED\Policy'
-            $result.Name | Should -Be 'Policy'
-            $result.ParentPath | Should -Be '\VED'
-        }
-
-        It 'should handle deep nested paths' {
-            $guid = [guid]::NewGuid()
-            $result = ConvertTo-VdcObject -Path '\VED\Policy\Folder1\Folder2\Folder3\Item' -Guid $guid -TypeName 'Folder'
-
-            $result.Name | Should -Be 'Item'
-            $result.ParentPath | Should -Be '\VED\Policy\Folder1\Folder2\Folder3'
-        }
-
-        It 'should normalize double backslashes' {
-            $guid = [guid]::NewGuid()
-            $result = ConvertTo-VdcObject -Path '\VED\\Policy\\Test' -Guid $guid -TypeName 'Folder'
-
-            $result.Path | Should -Be '\VED\Policy\Test'
-        }
-    }
-
-    Context 'ByObject parameter set' {
-        It 'should convert object with all properties' {
-            $guid = [guid]'11111111-2222-3333-4444-555555555555'
-            $inputObj = [PSCustomObject]@{
-                Path = '\VED\Policy\MyObject'
-                Guid = $guid
-                TypeName = 'Code Signing Certificate'
-            }
-
-            $result = ConvertTo-VdcObject -InputObject $inputObj
-
-            $result.Path | Should -Be '\VED\Policy\MyObject'
-            $result.Guid | Should -Be $guid
-            $result.TypeName | Should -Be 'Code Signing Certificate'
-            $result.Name | Should -Be 'MyObject'
-            $result.ParentPath | Should -Be '\VED\Policy'
-        }
-
-        It 'should handle pipeline input' {
-            $guid1 = [guid]::NewGuid()
-            $guid2 = [guid]::NewGuid()
-
-            $input = @(
-                [PSCustomObject]@{ Path = '\VED\Policy\Obj1'; Guid = $guid1; TypeName = 'Type1' }
-                [PSCustomObject]@{ Path = '\VED\Policy\Obj2'; Guid = $guid2; TypeName = 'Type2' }
-            )
-
-            $results = $input | ConvertTo-VdcObject
-
-            $results.Count | Should -Be 2
-            $results[0].Name | Should -Be 'Obj1'
-            $results[1].Name | Should -Be 'Obj2'
-        }
-
-        It 'should normalize path in object' {
-            $inputObj = [PSCustomObject]@{
-                Path = '\VED\\Policy\\Test\\Item'
-                Guid = [guid]::NewGuid()
-                TypeName = 'Application'
-            }
-
-            $result = ConvertTo-VdcObject -InputObject $inputObj
-
-            $result.Path | Should -Be '\VED\Policy\Test\Item'
-        }
-    }
-
-    Context 'Object structure' {
-        It 'should include all required properties' {
-            $guid = [guid]::NewGuid()
-            $result = ConvertTo-VdcObject -Path '\VED\Policy\Test' -Guid $guid -TypeName 'Device'
-
-            $result.PSObject.Properties.Name | Should -Contain 'Path'
-            $result.PSObject.Properties.Name | Should -Contain 'TypeName'
-            $result.PSObject.Properties.Name | Should -Contain 'Guid'
-            $result.PSObject.Properties.Name | Should -Contain 'Name'
-            $result.PSObject.Properties.Name | Should -Contain 'ParentPath'
-        }
-
-        It 'should extract name from path correctly' {
-            $guid = [guid]::NewGuid()
-            $result = ConvertTo-VdcObject -Path '\VED\Policy\Certificates\WebServer\prod.example.com' -Guid $guid -TypeName 'X509 Certificate'
-
-            $result.Name | Should -Be 'prod.example.com'
-        }
-
-        It 'should handle path with single folder' {
-            $guid = [guid]::NewGuid()
-            $result = ConvertTo-VdcObject -Path '\VED' -Guid $guid -TypeName 'Root'
-
-            $result.Name | Should -Be 'VED'
-            $result.ParentPath | Should -Be ''
-        }
-    }
-}
-#endregion
-
-Describe "Test-TppDnPath" -Tags 'Unit' {
+Describe "Test-VdcDnPath" -Tags 'Unit' {
 
     Context "Valid DN Paths" {
         It "Should accept valid path with \VED\Policy" {
-            '\VED\Policy\Certificates' | Test-TppDnPath | Should -Be $true
+            '\VED\Policy\Certificates' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept valid path with \\VED\\Policy (double backslash)" {
-            '\\VED\\Policy\\Certificates' | Test-TppDnPath | Should -Be $true
+            '\\VED\\Policy\\Certificates' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept root path \VED" {
-            '\VED' | Test-TppDnPath | Should -Be $true
+            '\VED' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept root path \\VED\\" {
-            '\\VED\\' | Test-TppDnPath | Should -Be $true
+            '\\VED\\' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept path with multiple levels" {
-            '\VED\Policy\Level1\Level2\Level3' | Test-TppDnPath | Should -Be $true
+            '\VED\Policy\Level1\Level2\Level3' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should be case-insensitive" {
-            '\ved\policy\test' | Test-TppDnPath | Should -Be $true
+            '\ved\policy\test' | Test-VdcDnPath | Should -Be $true
         }
 
         It "Should accept VED with different casing" {
-            '\VeD\Policy\Test' | Test-TppDnPath | Should -Be $true
+            '\VeD\Policy\Test' | Test-VdcDnPath | Should -Be $true
         }
     }
 
@@ -1188,37 +1072,37 @@ Describe "Test-TppDnPath" -Tags 'Unit' {
         It "Should reject empty string" {
             # Empty string validation happens in parameter validation
             # Testing the logic directly with non-empty invalid string
-            'invalid' | Test-TppDnPath | Should -Be $false
+            'invalid' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject path without \VED prefix" {
-            '\Policy\Certificates' | Test-TppDnPath | Should -Be $false
+            '\Policy\Certificates' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject path with VED but no backslash" {
-            'VED\Policy\Certificates' | Test-TppDnPath | Should -Be $false
+            'VED\Policy\Certificates' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject completely invalid path" {
-            'C:\Windows\System32' | Test-TppDnPath | Should -Be $false
+            'C:\Windows\System32' | Test-VdcDnPath | Should -Be $false
         }
 
         It "Should reject path with wrong separator" {
-            '/VED/Policy/Test' | Test-TppDnPath | Should -Be $false
+            '/VED/Policy/Test' | Test-VdcDnPath | Should -Be $false
         }
     }
 
     Context "AllowRoot Parameter" {
         It "Should reject root path when AllowRoot is false" {
-            '\VED' | Test-TppDnPath -AllowRoot $false | Should -Be $false
+            '\VED' | Test-VdcDnPath -AllowRoot $false | Should -Be $false
         }
 
         It "Should accept non-root path when AllowRoot is false" {
-            '\VED\Policy\Test' | Test-TppDnPath -AllowRoot $false | Should -Be $true
+            '\VED\Policy\Test' | Test-VdcDnPath -AllowRoot $false | Should -Be $true
         }
 
         It "Should accept root path when AllowRoot is true (default)" {
-            '\VED' | Test-TppDnPath -AllowRoot $true | Should -Be $true
+            '\VED' | Test-VdcDnPath -AllowRoot $true | Should -Be $true
         }
     }
 }
@@ -1412,11 +1296,11 @@ Describe "New-HttpQueryString" -Tags 'Unit' {
     }
 }
 
-#region New-VcSearchQuery Tests
-Describe 'New-VcSearchQuery' -Tags 'Unit' {
+#region New-TrustSearchQuery Tests
+Describe 'New-TrustSearchQuery' -Tags 'Unit' {
 
     BeforeAll {
-        # New-VcSearchQuery expects these lookup arrays to be in scope.
+        # New-TrustSearchQuery expects these lookup arrays to be in scope.
         $script:vaasFields = @('status', 'name', 'machineId', 'certificateId')
         $script:vaasValuesToUpper = @('status')
     }
@@ -1425,7 +1309,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
 
         It 'Should not add operator wrapper for a single filter item' {
             $filter = [System.Collections.Generic.List[object]]@(, @('status', 'EQ', 'ACTIVE'))
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             # A single operand returns the operand directly, not wrapped in operator/operands
             $result.expression | Should -Not -BeNullOrEmpty
             $result.expression.ContainsKey('operands') | Should -BeFalse
@@ -1439,7 +1323,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('name', 'FIND', 'test')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operator | Should -Be 'AND'
         }
 
@@ -1448,7 +1332,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('name', 'FIND', 'test')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operands.Count | Should -Be 2
         }
     }
@@ -1461,7 +1345,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('name', 'FIND', 'test')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operator | Should -Be 'AND'
         }
     }
@@ -1474,7 +1358,7 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
                 @('status', 'EQ', 'ACTIVE'),
                 @('status', 'EQ', 'INACTIVE')
             )
-            $result = New-VcSearchQuery -Filter $filter
+            $result = New-TrustSearchQuery -Filter $filter
             $result.expression.operator | Should -Be 'OR'
         }
     }
@@ -1482,22 +1366,22 @@ Describe 'New-VcSearchQuery' -Tags 'Unit' {
     Context 'Paging defaults' {
 
         It 'Should set pageNumber to 0 by default' {
-            $result = New-VcSearchQuery
+            $result = New-TrustSearchQuery
             $result.paging.pageNumber | Should -Be 0
         }
 
         It 'Should set pageSize to 1000 when First is not provided' {
-            $result = New-VcSearchQuery
+            $result = New-TrustSearchQuery
             $result.paging.pageSize | Should -Be 1000
         }
 
         It 'Should respect -First parameter for pageSize' {
-            $result = New-VcSearchQuery -First 25
+            $result = New-TrustSearchQuery -First 25
             $result.paging.pageSize | Should -Be 25
         }
 
         It 'Should cap pageSize at 1000 even when First exceeds it' {
-            $result = New-VcSearchQuery -First 9999
+            $result = New-TrustSearchQuery -First 9999
             $result.paging.pageSize | Should -Be 1000
         }
     }

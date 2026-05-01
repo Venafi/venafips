@@ -6,9 +6,9 @@ function Get-VdcSystemStatus {
     .DESCRIPTION
     Returns service module statuses for Trust Protection Platform, Log Server, and Trust Protection Platform services that run on Microsoft Internet Information Services (IIS)
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     none
@@ -31,17 +31,15 @@ function Get-VdcSystemStatus {
 
     #>
     [CmdletBinding()]
-    [Alias('Get-TppSystemStatus')]
 
     param (
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     Write-Warning "Possible bug with Venafi Certificate Manager, Self-Hosted API causing this to fail"
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     $params = @{
 
@@ -50,7 +48,7 @@ function Get-VdcSystemStatus {
     }
 
     try {
-        Invoke-VenafiRestMethod @params
+        Invoke-TrustRestMethod @params
     }
     catch {
         Throw ("Getting the system status failed with the following error: {0}.  Ensure you have read rights to the engine root." -f $_)

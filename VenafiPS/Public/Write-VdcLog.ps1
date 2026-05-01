@@ -42,9 +42,9 @@ function Write-VdcLog {
     .PARAMETER Value2
     Integer data to write to log.  See link for event ID messages for more info.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     none
@@ -68,7 +68,6 @@ function Write-VdcLog {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Write-TppLog')]
 
     param (
 
@@ -97,7 +96,7 @@ function Write-VdcLog {
         [String] $Component,
 
         [Parameter()]
-        [TppEventSeverity] $Severity,
+        [VdcEventSeverity] $Severity,
 
         [Parameter()]
         [ipaddress] $SourceIp,
@@ -125,10 +124,9 @@ function Write-VdcLog {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     # the event id is the group id coupled with the event id
     $fullEventId = "$CustomEventGroup$EventId"
@@ -147,7 +145,7 @@ function Write-VdcLog {
     }
 
     if ( $PSBoundParameters.ContainsKey('Severity') ) {
-        $params.Body.Add('Severity', [TppEventSeverity]::$Severity)
+        $params.Body.Add('Severity', [VdcEventSeverity]::$Severity)
     }
 
     if ( $PSBoundParameters.ContainsKey('SourceIp') ) {
@@ -180,7 +178,7 @@ function Write-VdcLog {
 
     if ( $PSCmdlet.ShouldProcess($Component, 'Write log entry') ) {
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         if ( $response.LogResult -eq 1 ) {
             throw "Writing to the Certificate Manager, Self-Hosted log failed.  Ensure you have View permission and Read permission to the default SQL channel object."

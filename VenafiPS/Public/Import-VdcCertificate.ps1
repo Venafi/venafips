@@ -56,9 +56,9 @@ function Import-VdcCertificate {
     .PARAMETER PassThru
     Return the newly imported object.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     Import-VdcCertificate -PolicyPath \ved\policy\mycerts -Path c:\www.VenafiPS.com.cer
@@ -76,9 +76,9 @@ function Import-VdcCertificate {
     Import a certificate from data instead of a path
 
     .EXAMPLE
-    New-VenafiSession -VcKey <api_key>
-    $sess = New-VenafiSession -Server venafi.mycompany.com -Credential $cred -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'} -PassThru
-    Find-VcCertificate -VersionType CURRENT | Export-VcCertificate -PrivateKeyPassword 'myPassword!' -PKCS12 | Import-VdcCertificate -PolicyPath 'certificates' -VenafiSession $sess
+    New-TrustClient -VcKey <api_key>
+    $sess = New-TrustClient -Server venafi.mycompany.com -Credential $cred -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'} -PassThru
+    Find-TrustCertificate -VersionType CURRENT | Export-TrustCertificate -PrivateKeyPassword 'myPassword!' -PKCS12 | Import-VdcCertificate -PolicyPath 'certificates' -TrustClient $sess
 
     Export 1 or more certificates from Certificate Manager, SaaS and import to Certificate Manager, Self-Hosted.  Note the use of 2 sessions at once where the Certificate Manager, Self-Hosted session is stored in a variable.
 
@@ -93,7 +93,6 @@ function Import-VdcCertificate {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByData')]
-    [Alias('Import-TppCertificate')]
 
     param (
 
@@ -165,12 +164,11 @@ function Import-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
         $allCerts = [System.Collections.Generic.List[hashtable]]::new()
 
         if ( $PSBoundParameters.ContainsKey('EnrollmentAttribute') ) {
@@ -206,10 +204,10 @@ function Import-VdcCertificate {
 
         # check if the policy path exists and if we should create it
         $fullPolicyPath = $PolicyPath | ConvertTo-VdcFullPath
-        if ( -not (Test-VdcObject -Path $fullPolicyPath -ExistOnly -VenafiSession $VenafiSession) ) {
+        if ( -not (Test-VdcObject -Path $fullPolicyPath -ExistOnly -TrustClient $TrustClient) ) {
             if ( $Force ) {
                 Write-Verbose "Creating policy path $fullPolicyPath"
-                New-VdcPolicy -Path $fullPolicyPath -Force -VenafiSession $VenafiSession
+                New-VdcPolicy -Path $fullPolicyPath -Force -TrustClient $TrustClient
             }
             else {
                 Write-Error "Cannot import to $fullPolicyPath as it does not exist.  To create the policy folder, add -Force."
@@ -237,7 +235,7 @@ function Import-VdcCertificate {
             InputObject   = $allCerts
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = 'Importing certificates'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
 
                 $thisItem = $PSItem
@@ -277,7 +275,7 @@ function Import-VdcCertificate {
                 }
 
                 try {
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
 
                     Write-Verbose ('Imported certificate, path: {0}, guid: {1}' -f $response.CertificateDN, $response.Guid)
 
@@ -292,7 +290,7 @@ function Import-VdcCertificate {
             }
         }
 
-        Invoke-VenafiParallel @parallelParams
+        Invoke-TrustParallel @parallelParams
 
     }
 }

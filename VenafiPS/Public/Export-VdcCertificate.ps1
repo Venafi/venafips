@@ -69,9 +69,9 @@ function Export-VdcCertificate {
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path, VaultId
@@ -234,11 +234,10 @@ function Export-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $allCerts = [System.Collections.Generic.List[hashtable]]::new()
 
@@ -291,7 +290,7 @@ function Export-VdcCertificate {
         $parallelParams = @{
             InputObject   = $allCerts
             ThrottleLimit = $ThrottleLimit
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ProgressTitle = 'Exporting certificates'
             ScriptBlock   = {
                 $thisBody = $PSItem
@@ -301,10 +300,10 @@ function Export-VdcCertificate {
 
                 try {
                     if ( $isByPath ) {
-                        $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
+                        $innerResponse = Invoke-TrustRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
                     }
                     else {
-                        $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
+                        $innerResponse = Invoke-TrustRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
                     }
                 }
                 catch {
@@ -321,10 +320,10 @@ function Export-VdcCertificate {
                             $thisBody.IncludePrivateKey = $false
                             $thisBody.Password = $null
                             if ( $isByPath ) {
-                                $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
+                                $innerResponse = Invoke-TrustRestMethod -Method 'Post' -UriLeaf 'certificates/retrieve' -Body $thisBody
                             }
                             else {
-                                $innerResponse = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
+                                $innerResponse = Invoke-TrustRestMethod -Method 'Post' -UriLeaf ('certificates/retrieve/{0}' -f $thisBody.VaultId) -Body $thisBody
                             }
                         }
                         else {
@@ -461,7 +460,7 @@ function Export-VdcCertificate {
             }
         }
 
-        Invoke-VenafiParallel @parallelParams
+        Invoke-TrustParallel @parallelParams
 
     }
 }

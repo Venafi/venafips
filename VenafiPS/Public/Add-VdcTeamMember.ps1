@@ -13,11 +13,10 @@ function Add-VdcTeamMember {
     1 or more members to add to the team.
     The identity ID property from Find-VdcIdentity or Get-VdcIdentity.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
     A Certificate Manager, Self-Hosted token can be provided.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
 
     .INPUTS
     ID
@@ -44,11 +43,10 @@ function Add-VdcTeamMember {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -76,7 +74,7 @@ function Add-VdcTeamMember {
             }
         }
 
-        $null = Invoke-VenafiRestMethod @params
+        $null = Invoke-TrustRestMethod @params
     }
 }
 

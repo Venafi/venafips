@@ -8,7 +8,7 @@ function Add-VdcCertificateAssociation {
     Optionally, you can push the certificate once the association is complete.
 
     .PARAMETER InputObject
-    TppObject which represents a certificate
+    VdcObject which represents a certificate
 
     .PARAMETER CertificatePath
     Path to the certificate.  Required if InputObject not provided.
@@ -20,9 +20,9 @@ function Add-VdcCertificateAssociation {
     Push the certificate after associating it to the Application objects.
     This will only be successful if the certificate management type is Provisioning and is not disabled, in error, or a push is already in process.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -55,14 +55,13 @@ function Add-VdcCertificateAssociation {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Add-TppCertificateAssociation')]
 
     param (
 
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 } else {
                     throw "'$_' is not a valid DN path"
@@ -73,7 +72,7 @@ function Add-VdcCertificateAssociation {
 
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 } else {
                     throw "'$_' is not a valid DN path"
@@ -87,11 +86,10 @@ function Add-VdcCertificateAssociation {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method     = 'Post'
@@ -113,7 +111,7 @@ function Add-VdcCertificateAssociation {
         $params.Body.ApplicationDN = @($ApplicationPath)
 
         if ( $PSCmdlet.ShouldProcess($CertificatePath, 'Add association') ) {
-            $null = Invoke-VenafiRestMethod @params
+            $null = Invoke-TrustRestMethod @params
         }
     }
 }

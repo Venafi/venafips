@@ -23,17 +23,17 @@ function New-VdcDevice {
     Hostname or IP Address of the device
 
     .PARAMETER PassThru
-    Return a TppObject representing the newly created policy.
+    Return a VdcObject representing the newly created policy.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
 
     .OUTPUTS
-    TppObject, if PassThru provided
+    VdcObject, if PassThru provided
 
     .EXAMPLE
     $newPolicy = New-VdcDevice -Path '\VED\Policy\MyFolder\device' -PassThru
@@ -64,7 +64,7 @@ function New-VdcDevice {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -84,7 +84,7 @@ function New-VdcDevice {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -102,7 +102,7 @@ function New-VdcDevice {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {

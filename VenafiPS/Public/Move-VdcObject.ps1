@@ -13,9 +13,9 @@ function Move-VdcObject {
     .PARAMETER TargetPath
     New path.  This can either be an existing policy and the existing object name will be kept or a full path including a new object name.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     SourcePath (Path)
@@ -46,13 +46,12 @@ function Move-VdcObject {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Move-TppObject')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -65,7 +64,7 @@ function Move-VdcObject {
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -77,11 +76,10 @@ function Move-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         # determine if target is a policy or other object
         # if policy, we'll need to append the object name in the process block when moving
@@ -113,7 +111,7 @@ function Move-VdcObject {
         }
 
         if ( $PSCmdlet.ShouldProcess($SourcePath, ('Move to {0}' -f $params.Body.NewObjectDN)) ) {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ( $response.Result -ne 1 ) {
                 Write-Error $response.Error

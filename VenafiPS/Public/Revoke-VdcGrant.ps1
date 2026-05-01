@@ -13,9 +13,9 @@ function Revoke-VdcGrant {
     .PARAMETER ID
     Prefixed universal id for the user.  To search, use Find-VdcIdentity.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -45,7 +45,6 @@ function Revoke-VdcGrant {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Revoke-TppGrant')]
 
     param (
         [Parameter(ValueFromPipelineByPropertyName)]
@@ -62,9 +61,9 @@ function Revoke-VdcGrant {
 
     begin {
 
-        $sess = Get-VenafiSession
+        $sess = Get-TrustClient
 
-        if ( $sess.Version -lt [Version]::new('22', '3', '0') ) {
+        if ( $sess.PlatformData.Version -lt [Version]::new('22', '3', '0') ) {
             throw 'Revoke-VdcGrant is available on Certificate Manager, Self-Hosted v22.3 and greater'
         }
 
@@ -82,7 +81,7 @@ function Revoke-VdcGrant {
             $params.Body.GranteePrefixedUniversal = $thisID
 
             if ( $PSCmdlet.ShouldProcess($thisID, 'Revoke all grants') ) {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 switch ( $response.StatusCode ) {
                     200 {

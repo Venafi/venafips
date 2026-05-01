@@ -10,10 +10,9 @@ function Add-VdcEngineFolder {
     TPPObject belonging to the 'Venafi Platform' class.
     .PARAMETER FolderPath
     The full DN path to one or more policy folders (string array).
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
     .INPUTS
     EnginePath or EngineObject, FolderPath[]
     .OUTPUTS
@@ -36,12 +35,11 @@ function Add-VdcEngineFolder {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Add-TppEngineFolder')]
 
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [ValidateScript( {
-            if ( $_ | Test-TppDnPath ) { $true }
+            if ( $_ | Test-VdcDnPath ) { $true }
             else { throw "'$_' is not a valid DN path" }
         })]
         [Alias('EngineDN', 'Engine', 'Path')]
@@ -50,7 +48,7 @@ function Add-VdcEngineFolder {
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-            if ( $_ | Test-TppDnPath ) { $true }
+            if ( $_ | Test-VdcDnPath ) { $true }
             else { throw "'$_' is not a valid DN path" }
         })]
         [Alias('FolderDN', 'Folder')]
@@ -58,11 +56,10 @@ function Add-VdcEngineFolder {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method        = 'Post'
@@ -109,7 +106,7 @@ function Add-VdcEngineFolder {
         }
 
         if ($PSCmdlet.ShouldProcess($EngineObject.Name, $shouldProcessAction)) {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             if ($response.AddedCount -ne $FolderGuids.Count) {
                 $errorMessage = "Added $($response.AddedCount) folder(s), but requested $($FolderGuids.Count)"

@@ -9,7 +9,7 @@ function Get-VdcPermission {
     You can retrieve all permissions for an object or for a specific user/group.
 
     .PARAMETER InputObject
-    TppObject representing an object in Certificate Manager, Self-Hosted, eg. from Find-VdcObject or Get-VdcObject
+    VdcObject representing an object in Certificate Manager, Self-Hosted, eg. from Find-VdcObject or Get-VdcObject
 
     .PARAMETER Path
     Full path to an object
@@ -24,9 +24,9 @@ function Get-VdcPermission {
     .PARAMETER Explicit
     Get explicit (direct) and implicit (inherited) permissions instead of effective.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     InputObject, Path, Guid, IdentityId
@@ -54,7 +54,7 @@ function Get-VdcPermission {
     IdentityId           : AD+domain:410aaf10ea816c4d823e9e05b1ad055d
     IdentityPath         : CN=Greg Brownstein,OU=Users,OU=Enterprise Administration,DC=domain,DC=net
     IdentityName         : greg
-    EffectivePermissions : TppPermission
+    EffectivePermissions : VdcPermission
 
     Get all assigned effective permissions for users/groups on a specific policy folder
 
@@ -73,8 +73,8 @@ function Get-VdcPermission {
     IdentityId          : AD+domain:410aaf10ea816c4d823e9e05b1ad055d
     IdentityPath        : CN=Greg Brownstein,OU=Users,OU=Enterprise Administration,DC=domain,DC=net
     IdentityName        : greg
-    ExplicitPermissions : TppPermission
-    ImplicitPermissions : TppPermission
+    ExplicitPermissions : VdcPermission
+    ImplicitPermissions : VdcPermission
 
     Get explicit and implicit permissions for users/groups on a specific policy folder
 
@@ -108,7 +108,6 @@ function Get-VdcPermission {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByObject')]
-    [Alias('Get-TppPermission')]
 
     param (
 
@@ -118,7 +117,7 @@ function Get-VdcPermission {
         [Parameter(Mandatory, ParameterSetName = 'ByPath', ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -151,11 +150,10 @@ function Get-VdcPermission {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 
@@ -188,23 +186,23 @@ function Get-VdcPermission {
 
             switch ( $PsCmdLet.ParameterSetName) {
                 'ByObject' {
-                    $thisTppObject = $thisInputObject
+                    $thisVdcObject = $thisInputObject
                 }
 
                 Default {
-                    $thisTppObject = $thisInputObject | ConvertTo-VdcObject
+                    $thisVdcObject = [vdcObject]::new($thisInputObject)
                 }
             }
 
-            $uriBase = ('Permissions/Object/{{{0}}}' -f $thisTppObject.Guid )
+            $uriBase = ('Permissions/Object/{{{0}}}' -f $thisVdcObject.Guid )
             $params.UriLeaf = $uriBase
 
             try {
                 # get list of identities permissioned to this object
-                $identities = Invoke-VenafiRestMethod @params
+                $identities = Invoke-TrustRestMethod @params
             }
             catch {
-                Write-Error ('Couldn''t obtain list of permissions for {0}.  {1}' -f $thisTppObject.Path, $_ | Out-String)
+                Write-Error ('Couldn''t obtain list of permissions for {0}.  {1}' -f $thisVdcObject.Path, $_ | Out-String)
                 continue
             }
 
@@ -215,7 +213,7 @@ function Get-VdcPermission {
 
             foreach ( $thisId in $identities ) {
 
-                Write-Verbose ('Path: {0}, Id: {1}' -f $thisTppObject.Path, $thisId)
+                Write-Verbose ('Path: {0}, Id: {1}' -f $thisVdcObject.Path, $thisId)
 
                 $params.UriLeaf = $uriBase
 
@@ -236,10 +234,10 @@ function Get-VdcPermission {
                 }
 
                 $thisReturnObject = [PSCustomObject] @{
-                    Path         = $thisTppObject.Path
-                    Guid         = $thisTppObject.Guid
-                    Name         = $thisTppObject.Name
-                    TypeName     = $thisTppObject.TypeName
+                    Path         = $thisVdcObject.Path
+                    Guid         = $thisVdcObject.Guid
+                    Name         = $thisVdcObject.Name
+                    TypeName     = $thisVdcObject.TypeName
                     IdentityId   = $thisId
                     IdentityPath = $null
                     IdentityName = $null
@@ -259,14 +257,14 @@ function Get-VdcPermission {
 
                 try {
 
-                    $response = Invoke-VenafiRestMethod @params
+                    $response = Invoke-TrustRestMethod @params
 
                     if ( $Explicit ) {
-                        $thisReturnObject.ExplicitPermissions = [TppPermission] $response.ExplicitPermissions
-                        $thisReturnObject.ImplicitPermissions = [TppPermission] $response.ImplicitPermissions
+                        $thisReturnObject.ExplicitPermissions = [VdcPermission] $response.ExplicitPermissions
+                        $thisReturnObject.ImplicitPermissions = [VdcPermission] $response.ImplicitPermissions
                     }
                     else {
-                        $thisReturnObject.EffectivePermissions = [TppPermission] $response.EffectivePermissions
+                        $thisReturnObject.EffectivePermissions = [VdcPermission] $response.EffectivePermissions
                     }
 
                     $attribParams = @{
@@ -291,7 +289,7 @@ function Get-VdcPermission {
                                 Method  = 'Post'
                                 UriLeaf = 'permissions/getpermissions'
                                 Body    = @{
-                                    ObjectDN  = $thisTppObject.Path
+                                    ObjectDN  = $thisVdcObject.Path
                                     Principal = $thisID
                                 }
                             }
@@ -299,12 +297,12 @@ function Get-VdcPermission {
                             $notFoundResponse = invoke-venafirestmethod @notFoundParams
 
                             if ( $notFoundResponse.Permissions ) {
-                                $thisReturnObject.ExplicitPermissions = [TppPermission]$notFoundResponse.Permissions
+                                $thisReturnObject.ExplicitPermissions = [VdcPermission]$notFoundResponse.Permissions
                             }
                         }
                     }
                     else {
-                        Write-Error ('Unable to retrieve permissions.  Path: {0}, Id: {1}, Error: {2}' -f $thisTppObject.Path, $thisId, $_)
+                        Write-Error ('Unable to retrieve permissions.  Path: {0}, Id: {1}, Error: {2}' -f $thisVdcObject.Path, $thisId, $_)
                     }
                 }
 

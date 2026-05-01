@@ -75,9 +75,9 @@ function New-VdcCertificate {
     Return an object representing the newly created certificate.
     If devices and/or applications were created, a 'Device' property will be available as well.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     None
@@ -131,14 +131,13 @@ function New-VdcCertificate {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ByName', SupportsShouldProcess)]
-    [Alias('New-TppCertificate')]
 
     param (
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -167,7 +166,7 @@ function New-VdcCertificate {
         [Parameter()]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -182,7 +181,7 @@ function New-VdcCertificate {
         [Hashtable] $CertificateAuthorityAttribute,
 
         [Parameter()]
-        [TppManagementType] $ManagementType,
+        [VdcManagementType] $ManagementType,
 
         [Parameter()]
         [Hashtable[]] $SubjectAltName,
@@ -210,12 +209,11 @@ function New-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         if ( $PSBoundParameters.ContainsKey('SubjectAltName') ) {
 
@@ -314,7 +312,7 @@ function New-VdcCertificate {
         }
 
         if ( $PSBoundParameters.ContainsKey('ManagementType') ) {
-            $params.Body.Add('ManagementType', [enum]::GetName([TppManagementType], $ManagementType))
+            $params.Body.Add('ManagementType', [enum]::GetName([VdcManagementType], $ManagementType))
         }
 
         if ( $PSBoundParameters.ContainsKey('TimeoutSec') ) {
@@ -381,7 +379,7 @@ function New-VdcCertificate {
         if ( $PSCmdlet.ShouldProcess("$Path\$Name", 'Create new certificate') ) {
 
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 Write-Verbose ($response | Out-String)
 
                 if ( $PassThru ) {

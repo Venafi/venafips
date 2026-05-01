@@ -24,9 +24,9 @@ function Set-VdcWorkflowTicketStatus {
     Specifies the time before which the ticket should be processed.
     ScheduledStop must be specified when the "Approved Between" status is set
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     TicketGuid
@@ -54,7 +54,6 @@ function Set-VdcWorkflowTicketStatus {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Set-TppWorkflowTicketStatus')]
 
     param (
 
@@ -77,7 +76,7 @@ function Set-VdcWorkflowTicketStatus {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
@@ -100,7 +99,6 @@ function Set-VdcWorkflowTicketStatus {
             }
         }
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -130,10 +128,10 @@ function Set-VdcWorkflowTicketStatus {
 
             if ( $PSCmdlet.ShouldProcess($params.Body.GUID, 'Set workflow ticket status') ) {
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
-                if ( -not ($response.Result -eq [TppWorkflowResult]::Success) ) {
-                    throw ("Error setting workflow ticket status, error is {0}" -f [enum]::GetName([TppWorkflowResult], $response.Result))
+                if ( -not ($response.Result -eq [VdcWorkflowResult]::Success) ) {
+                    throw ("Error setting workflow ticket status, error is {0}" -f [enum]::GetName([VdcWorkflowResult], $response.Result))
                 }
             }
         }

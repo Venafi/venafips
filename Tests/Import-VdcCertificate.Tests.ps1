@@ -21,7 +21,7 @@ MIIFLjBYBgkqhkiG9w0BBQ0wSzAqBgkqhkiG9w0BBQww
 -----END ENCRYPTED PRIVATE KEY-----
 "@
 
-    # base64-encode the PEM strings (simulating Export-VcCertificate output)
+    # base64-encode the PEM strings (simulating Export-TrustCertificate output)
     $testCertPemBase64 = [System.Convert]::ToBase64String(
         [System.Text.Encoding]::ASCII.GetBytes($testCertPem)
     )
@@ -50,11 +50,10 @@ MIIFLjBYBgkqhkiG9w0BBQ0wSzAqBgkqhkiG9w0BBQww
 Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Test-VenafiSession' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-VdcFullPath' -MockWith { $testPolicyPath } -ModuleName $ModuleName
         Mock -CommandName 'Test-VdcObject' -MockWith { $true } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-PlaintextString' -MockWith { 'plaintext' } -ModuleName $ModuleName
-        Mock -CommandName 'Invoke-VenafiParallel' -MockWith {
+        Mock -CommandName 'Invoke-TrustParallel' -MockWith {
             # simulate the scriptblock execution by returning the mock response
             $mockImportResponse
         } -ModuleName $ModuleName
@@ -65,21 +64,21 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
         It 'Should pass PKCS12 data directly as CertificateData' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].Data -eq $testPkcs12Data
             }
         }
 
         It 'Should set the policy path in the body' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].InvokeParams.Body.PolicyDN -eq $testPolicyPath
             }
         }
 
         It 'Should call certificates/import endpoint' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].InvokeParams.UriLeaf -eq 'certificates/import' -and
                 $InputObject[0].InvokeParams.Method -eq 'Post'
             }
@@ -92,9 +91,9 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
             $testCertPemBase64 | Should -Match '^LS0'
         }
 
-        It 'Should pass base64-encoded PEM to Invoke-VenafiParallel' {
+        It 'Should pass base64-encoded PEM to Invoke-TrustParallel' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testCertPemBase64
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].Data -eq $testCertPemBase64
             }
         }
@@ -102,9 +101,9 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
     Context 'Base64-encoded PEM cert+key (PKCS8) import' {
 
-        It 'Should pass full cert+key base64 data to Invoke-VenafiParallel' {
+        It 'Should pass full cert+key base64 data to Invoke-TrustParallel' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testCertAndKeyPemBase64 -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].Data -eq $testCertAndKeyPemBase64
             }
         }
@@ -115,7 +114,7 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
         It 'Should set PrivateKeyData in the body when -PrivateKey is provided' {
             $testKeyData = 'base64keydata=='
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testCertPemBase64 -PrivateKey $testKeyData -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].InvokeParams.Body.PrivateKeyData -eq $testKeyData
             }
         }
@@ -126,7 +125,7 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
         It 'Should set Password in body when PrivateKeyPassword provided as string' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data -PrivateKeyPassword 'myPassword!'
             Should -Invoke -CommandName 'ConvertTo-PlaintextString' -Times 1 -ModuleName $ModuleName
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].InvokeParams.Body.Password -eq 'plaintext'
             }
         }
@@ -145,7 +144,7 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
         It 'Should not set Password when PrivateKeyPassword not provided' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 -not $InputObject[0].InvokeParams.Body.ContainsKey('Password')
             }
         }
@@ -155,14 +154,14 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
         It 'Should set Reconcile in body when switch is used' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data -Reconcile
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].InvokeParams.Body.Reconcile -eq 'true'
             }
         }
 
         It 'Should not set Reconcile when switch is not used' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 -not $InputObject[0].InvokeParams.Body.ContainsKey('Reconcile')
             }
         }
@@ -172,14 +171,14 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
         It 'Should set ObjectName when -Name is provided' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data -Name 'MyCert'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].InvokeParams.Body.ObjectName -eq 'MyCert'
             }
         }
 
         It 'Should not set ObjectName when -Name is not provided' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 -not $InputObject[0].InvokeParams.Body.ContainsKey('ObjectName')
             }
         }
@@ -190,7 +189,7 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
         It 'Should set CASpecificAttributes when EnrollmentAttribute is provided' {
             $attrs = @{ 'san-dns' = 'test.com'; 'Validity' = '365' }
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data -EnrollmentAttribute $attrs
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $null -ne $InputObject[0].InvokeParams.Body.CASpecificAttributes
             }
         }
@@ -233,28 +232,28 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
         }
     }
 
-    Context 'VenafiSession parameter' {
+    Context 'TrustClient parameter' {
 
-        It 'Should pass VenafiSession to Invoke-VenafiParallel' {
+        It 'Should pass TrustClient to Invoke-TrustParallel' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $null -ne $VenafiSession
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $null -ne $TrustClient
             }
         }
     }
 
     Context 'ThrottleLimit' {
 
-        It 'Should pass ThrottleLimit to Invoke-VenafiParallel' {
+        It 'Should pass ThrottleLimit to Invoke-TrustParallel' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data -ThrottleLimit 5
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $ThrottleLimit -eq 5
             }
         }
 
         It 'Should default ThrottleLimit to 100' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $ThrottleLimit -eq 100
             }
         }
@@ -267,14 +266,14 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
                 [pscustomobject]@{ Data = $testPkcs12Data; PolicyPath = $testPolicyPath }
                 [pscustomobject]@{ Data = $testPkcs12Data; PolicyPath = $testPolicyPath }
             ) | Import-VdcCertificate
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject.Count -eq 2
             }
         }
 
         It 'Should accept CertificateData alias' {
             [pscustomobject]@{ CertificateData = $testPkcs12Data; PolicyPath = $testPolicyPath } | Import-VdcCertificate
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].Data -eq $testPkcs12Data
             }
         }
@@ -282,9 +281,9 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
 
     Context 'ScriptBlock PEM splitting logic' {
 
-        # The scriptblock inside Invoke-VenafiParallel does the PEM detection/splitting.
+        # The scriptblock inside Invoke-TrustParallel does the PEM detection/splitting.
         # We can't easily test the real scriptblock in isolation, so we verify the
-        # data that flows INTO Invoke-VenafiParallel is correct, and that the
+        # data that flows INTO Invoke-TrustParallel is correct, and that the
         # detection patterns work as expected.
 
         It 'Should detect base64-encoded PEM (LS0 prefix) correctly' {
@@ -300,16 +299,16 @@ Describe 'Import-VdcCertificate' -Tags 'Unit' {
             $testCertAndKeyPem | Should -Match '-----BEGIN'
         }
 
-        It 'Should pass base64-encoded cert+key PEM as-is to Invoke-VenafiParallel Data' {
+        It 'Should pass base64-encoded cert+key PEM as-is to Invoke-TrustParallel Data' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testCertAndKeyPemBase64 -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].Data -eq $testCertAndKeyPemBase64
             }
         }
 
-        It 'Should pass PKCS12 as-is to Invoke-VenafiParallel Data' {
+        It 'Should pass PKCS12 as-is to Invoke-TrustParallel Data' {
             Import-VdcCertificate -PolicyPath $testPolicyPath -Data $testPkcs12Data
-            Should -Invoke -CommandName 'Invoke-VenafiParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].Data -eq $testPkcs12Data
             }
         }

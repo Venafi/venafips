@@ -20,11 +20,9 @@ function Remove-VdcCertificateAssociation {
     .PARAMETER All
     Remove all associated application objects
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also provided.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -61,7 +59,7 @@ function Remove-VdcCertificateAssociation {
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -74,7 +72,7 @@ function Remove-VdcCertificateAssociation {
         [Parameter(Mandatory, ParameterSetName = 'RemoveOne')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -91,11 +89,10 @@ function Remove-VdcCertificateAssociation {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method  = 'Post'
@@ -108,7 +105,7 @@ function Remove-VdcCertificateAssociation {
 
         $shouldProcessAction = "Remove associations"
 
-        if ( -not ($Path | Test-TppObject -ExistOnly) ) {
+        if ( -not ($Path | Test-VdcObject -ExistOnly) ) {
             Write-Error ("Certificate path {0} does not exist" -f $Path)
             Continue
         }
@@ -140,7 +137,7 @@ function Remove-VdcCertificateAssociation {
 
         try {
             if ( $PSCmdlet.ShouldProcess($Path, $shouldProcessAction) ) {
-                $null = Invoke-VenafiRestMethod @params
+                $null = Invoke-TrustRestMethod @params
             }
         }
         catch {

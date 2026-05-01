@@ -9,9 +9,9 @@ function Get-VdcCustomField {
     .PARAMETER Class
     Class to get details on
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     None
@@ -47,11 +47,10 @@ function Get-VdcCustomField {
     https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Metadata-GetItemsForClass.php
 
     .NOTES
-    All custom fields are retrieved upon inital connect to the server and a property of VenafiSession
+    All custom fields are retrieved upon inital connect to the server and a property of TrustClient
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppCustomField')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -59,11 +58,10 @@ function Get-VdcCustomField {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -75,9 +73,9 @@ function Get-VdcCustomField {
             }
         }
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
-        if ( $response.Result -eq [TppMetadataResult]::Success ) {
+        if ( $response.Result -eq [VdcMetadataResult]::Success ) {
             [PSCustomObject] @{
                 Items  = $response.Items
                 Locked = $response.Locked

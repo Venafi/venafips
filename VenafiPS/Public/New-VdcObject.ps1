@@ -35,11 +35,11 @@ function New-VdcObject {
     Force the creation of missing parent policy folders when the class is either Policy or Device.
 
     .PARAMETER PassThru
-    Return a TppObject representing the newly created object.
+    Return a VdcObject representing the newly created object.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .EXAMPLE
     New-VdcObject -Path '\VED\Policy\Test Device' -Class 'Device' -Attribute @{'Description'='new device testing'}
@@ -70,7 +70,7 @@ function New-VdcObject {
     none
 
     .OUTPUTS
-    TppObject, if PassThru provided
+    VdcObject, if PassThru provided
 
     .LINK
     https://venafi.github.io/VenafiPS/functions/New-VdcObject/
@@ -90,7 +90,6 @@ function New-VdcObject {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'NonDup', SupportsShouldProcess)]
-    [Alias('New-TppObject')]
 
     param (
         [Parameter(Mandatory)]
@@ -119,10 +118,9 @@ function New-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
-    Test-VenafiSession $PSCmdlet.MyInvocation
 
     if ( $PushCertificate -and (-not $Attribute.Certificate) ) {
         Write-Warning 'A ''Certificate'' key containing the certificate path must be provided for Attribute when using PushCertificate, eg. -Attribute @{''Certificate''=''\Ved\Policy\mycert.com''}.  Certificate provisioning will not take place.'
@@ -171,13 +169,13 @@ function New-VdcObject {
         do {
             $retryCreate = $false
 
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
 
             switch ($response.Result) {
 
                 1 {
                     Write-Verbose "Successfully created $Class at $newPath"
-                    $returnObject = ConvertTo-VdcObject -Path $response.Object.DN -Guid $response.Object.Guid -TypeName $response.Object.TypeName
+                    $returnObject = [VdcObject]::new($response.Object.DN, $response.Object.Guid, $response.Object.TypeName)
                 }
 
                 400 {

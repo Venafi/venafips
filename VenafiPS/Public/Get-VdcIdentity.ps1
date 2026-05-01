@@ -22,9 +22,9 @@ function Get-VdcIdentity {
     .PARAMETER All
     Return a complete list of local users.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -78,7 +78,6 @@ function Get-VdcIdentity {
 
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = "Parameter is used")]
-    [Alias('Get-TppIdentity')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'Id', ValueFromPipelineByPropertyName)]
@@ -102,11 +101,10 @@ function Get-VdcIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -135,12 +133,12 @@ function Get-VdcIdentity {
                     return
                 }
 
-                $response = Invoke-VenafiRestMethod @params | Select-Object -ExpandProperty ID
+                $response = Invoke-TrustRestMethod @params | Select-Object -ExpandProperty ID
 
                 if ( $IncludeAssociated ) {
                     $assocParams = $params.Clone()
                     $assocParams.UriLeaf = 'Identity/GetAssociatedEntries'
-                    $associated = Invoke-VenafiRestMethod @assocParams
+                    $associated = Invoke-TrustRestMethod @assocParams
                     $response | Add-Member @{ 'Associated' = $null }
                     $response.Associated = $associated.Identities | ConvertTo-VdcIdentity
                 }
@@ -151,7 +149,7 @@ function Get-VdcIdentity {
                         $assocParams = $params.Clone()
                         $assocParams.UriLeaf = 'Identity/GetMembers'
                         $assocParams.Body.ResolveNested = "1"
-                        $members = Invoke-VenafiRestMethod @assocParams
+                        $members = Invoke-TrustRestMethod @assocParams
                         $response.Members = $members.Identities | ConvertTo-VdcIdentity
                     }
                 }
@@ -160,7 +158,7 @@ function Get-VdcIdentity {
             }
 
             'Me' {
-                $response = Invoke-VenafiRestMethod -UriLeaf 'Identity/Self'
+                $response = Invoke-TrustRestMethod -UriLeaf 'Identity/Self'
 
                 $idOut = $response.Identities | Select-Object -First 1
             }

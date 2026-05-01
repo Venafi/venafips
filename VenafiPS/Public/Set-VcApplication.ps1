@@ -25,10 +25,9 @@ function Set-VcApplication {
     .PARAMETER PassThru
     Return the newly updated object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -62,7 +61,7 @@ function Set-VcApplication {
     param (
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
-        [Alias('applicationId', 'ID')]
+        [Alias('applicationId')]
         [string] $Application,
 
         [Parameter()]
@@ -82,12 +81,10 @@ function Set-VcApplication {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [Alias('Key')]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 
@@ -98,7 +95,7 @@ function Set-VcApplication {
 
         switch ($PSBoundParameters.Keys ) {
             'TeamOwner' {
-                $allTeams = Get-VcTeam -All
+                $allTeams = Get-TrustTeam -All
             }
             Default {}
         }
@@ -164,7 +161,7 @@ function Set-VcApplication {
                 }
 
                 foreach ($template in $IssuingTemplate ) {
-                    $t = Get-VcIssuingTemplate -IssuingTemplate $template
+                    $t = Get-TrustIssuingTemplate -IssuingTemplate $template
                     if ( $t ) {
                         $newT[$t.name] = $t.issuingTemplateId
                     }
@@ -181,7 +178,7 @@ function Set-VcApplication {
         }
 
         if ( $PSCmdlet.ShouldProcess($params.Body.name, "Update application") ) {
-            $response = Invoke-VenafiRestMethod @params
+            $response = Invoke-TrustRestMethod @params
         }
 
         if ( $PassThru ) {

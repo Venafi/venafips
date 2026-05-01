@@ -12,9 +12,9 @@ function Get-VdcTeam {
     .PARAMETER All
     Provide this switch to get all teams
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -42,7 +42,6 @@ function Get-VdcTeam {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'ID')]
-    [Alias('Get-TppTeam')]
 
     param (
 
@@ -55,11 +54,10 @@ function Get-VdcTeam {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -83,7 +81,7 @@ function Get-VdcTeam {
 
             try {
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 $out = [pscustomobject] ($response.ID | ConvertTo-VdcIdentity)
                 $out | Add-Member @{

@@ -31,10 +31,9 @@ function New-VcApplication {
     .PARAMETER PassThru
     Return newly created application object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, SaaS key can also provided.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .OUTPUTS
     PSCustomObject, if PassThru provided
@@ -57,7 +56,6 @@ function New-VcApplication {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'NoTarget', SupportsShouldProcess)]
-    [Alias('New-VaasApplication')]
 
     param (
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
@@ -96,22 +94,21 @@ function New-VcApplication {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         # determine if user or team and build the payload
         $ownerHash = foreach ($thisOwner in $Owner) {
 
-            $teamId = Get-VcData -Type Team -InputObject $thisOwner
+            $teamId = Get-TrustData -Type Team -InputObject $thisOwner
             if ( $teamId ) {
                 @{ 'ownerId' = $teamId; 'ownerType' = 'TEAM' }
             }
             else {
-                $user = Get-VcIdentity -ID $thisOwner -ErrorAction SilentlyContinue
+                $user = Get-TrustIdentity -ID $thisOwner -ErrorAction SilentlyContinue
                 if ( $user ) {
                     @{ 'ownerId' = $user.userId; 'ownerType' = 'USER' }
                 }
@@ -124,7 +121,7 @@ function New-VcApplication {
 
         $templateHash = @{}
         foreach ($thisTemplateID in $IssuingTemplate) {
-            $thisTemplate = Get-VcData -Type IssuingTemplate -InputObject $thisTemplateID -FailOnNotFound -Object
+            $thisTemplate = Get-TrustData -Type IssuingTemplate -InputObject $thisTemplateID -FailOnNotFound -Object
             $templateHash.Add($thisTemplate.name, $thisTemplate.issuingTemplateId)
         }
     }
@@ -171,7 +168,7 @@ function New-VcApplication {
         if ( $PSCmdlet.ShouldProcess($Name, 'Create application') ) {
 
             try {
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 switch ( $response.StatusCode ) {
 
                     201 {

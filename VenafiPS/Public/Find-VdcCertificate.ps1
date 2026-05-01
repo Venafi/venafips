@@ -149,9 +149,9 @@ function Find-VdcCertificate {
     .PARAMETER CountOnly
     Return the count of certificates found from the query as opposed to the certificates themselves
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -368,21 +368,21 @@ function Find-VdcCertificate {
         [String[]] $CertificateType,
 
         [Parameter()]
-        [TppManagementType[]] $ManagementType,
+        [VdcManagementType[]] $ManagementType,
 
         [Parameter()]
         [Switch] $PendingWorkflow,
 
         [Parameter()]
-        [TppCertificateStage[]] $Stage,
+        [VdcCertificateStage[]] $Stage,
 
         [Parameter()]
         [Alias('StageGreater')]
-        [TppCertificateStage] $StageGreaterThan,
+        [VdcCertificateStage] $StageGreaterThan,
 
         [Parameter()]
         [Alias('StageLess')]
-        [TppCertificateStage] $StageLessThan,
+        [VdcCertificateStage] $StageLessThan,
 
         [Parameter()]
         [Switch] $ValidationEnabled,
@@ -399,11 +399,10 @@ function Find-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
 
@@ -531,7 +530,8 @@ function Find-VdcCertificate {
             'IsExpired' {
                 if ( $IsExpired.IsPresent ) {
                     $params.Body.Add( 'ValidToLess', ((Get-Date) | ConvertTo-UtcIso8601) )
-                } else {
+                }
+                else {
                     $params.Body.Add( 'ValidToGreater', ((Get-Date) | ConvertTo-UtcIso8601) )
                 }
             }
@@ -545,13 +545,13 @@ function Find-VdcCertificate {
                 $params.Body.Add( 'PendingWorkflow', '')
             }
             'Stage' {
-                $params.Body.Add( 'Stage', ($Stage | ForEach-Object { [TppCertificateStage]::$_.value__ }) -join ',' )
+                $params.Body.Add( 'Stage', ($Stage | ForEach-Object { [VdcCertificateStage]::$_.value__ }) -join ',' )
             }
             'StageGreaterThan' {
-                $params.Body.Add( 'StageGreater', [TppCertificateStage]::$StageGreaterThan.value__ )
+                $params.Body.Add( 'StageGreater', [VdcCertificateStage]::$StageGreaterThan.value__ )
             }
             'StageLessThan' {
-                $params.Body.Add( 'StageLess', [TppCertificateStage]::$StageLessThan.value__ )
+                $params.Body.Add( 'StageLess', [VdcCertificateStage]::$StageLessThan.value__ )
             }
             'ValidationEnabled' {
                 $params.Body.Add( 'ValidationDisabled', [int] (-not $ValidationEnabled) )
@@ -573,7 +573,7 @@ function Find-VdcCertificate {
         }
         elseif ( $PSBoundParameters.ContainsKey('Guid') ) {
             # guid provided, get path
-            $pathObject = ConvertTo-VdcObject -Guid $Guid
+            $pathObject = [VdcObject]::new($Guid)
             if ( $pathObject.TypeName -ne 'Policy' ) {
                 throw [System.Management.Automation.PSArgumentOutOfRangeException]::new('Guid', $pathObject.TypeName, 'Must be a Policy')
                 return
@@ -590,7 +590,7 @@ function Find-VdcCertificate {
             }
         }
 
-        $response = Invoke-VenafiRestMethod @params
+        $response = Invoke-TrustRestMethod @params
 
         $totalRecordCount = 0
         if ($PSVersionTable.PSVersion.Major -lt 6) {
@@ -608,7 +608,7 @@ function Find-VdcCertificate {
 
         $content = $response.content | ConvertFrom-Json
         $content.Certificates.ForEach{
-            ConvertTo-VdcObject -Path $_.DN -Guid $_.Guid -TypeName $_.SchemaClass
+            [VdcObject]::new($_.DN, $_.Guid, $_.SchemaClass)
         }
 
         if ($PSBoundParameters.ContainsKey('First')) {
@@ -632,7 +632,7 @@ function Find-VdcCertificate {
 
             Write-Verbose ('getting {0}-{1} of {2}' -f ($params.Body.Offset + 1), $end, $totalRecordCount)
             try {
-                $response = Invoke-VenafiRestMethod @params -Verbose:$false
+                $response = Invoke-TrustRestMethod @params -Verbose:$false
             }
             catch {
                 $ProgressPreference = $oldProgressPreference
@@ -641,7 +641,7 @@ function Find-VdcCertificate {
 
             $content = $response.content | ConvertFrom-Json
             $content.Certificates.ForEach{
-                ConvertTo-VdcObject -Path $_.DN -Guid $_.Guid -TypeName $_.SchemaClass
+                [VdcObject]::new($_.DN, $_.Guid, $_.SchemaClass)
             }
         }
     }

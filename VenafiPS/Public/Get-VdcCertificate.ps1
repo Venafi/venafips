@@ -33,9 +33,9 @@ function Get-VdcCertificate {
     Setting the value to 1 will disable multithreading.
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -59,7 +59,7 @@ function Get-VdcCertificate {
     Get certificate info for a specific cert, including historical versions of the certificate.
 
     .EXAMPLE
-    Get-VdcCertificate -ID '\ved\policy\mycert.com' -IncludeTppPreviousVersions -ExcludeRevoked -ExcludeExpired
+    Get-VdcCertificate -ID '\ved\policy\mycert.com' -IncludePreviousVersions -ExcludeRevoked -ExcludeExpired
 
     Get certificate info for a specific cert, including historical versions of the certificate that are not revoked or expired.
 
@@ -100,12 +100,11 @@ function Get-VdcCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession = (Get-VenafiSession)
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $certs = [System.Collections.Generic.List[string]]::new()
 
@@ -114,7 +113,7 @@ function Get-VdcCertificate {
     process {
 
         if ( $All ) {
-            return (Find-VdcCertificate -Path '\ved' -Recursive -VenafiSession $VenafiSession | Get-VdcCertificate -IncludePreviousVersions:$IncludePreviousVersions -ExcludeExpired:$ExcludeExpired -ExcludeRevoked:$ExcludeRevoked -VenafiSession $VenafiSession)
+            return (Find-VdcCertificate -Path '\ved' -Recursive -TrustClient $TrustClient | Get-VdcCertificate -IncludePreviousVersions:$IncludePreviousVersions -ExcludeExpired:$ExcludeExpired -ExcludeRevoked:$ExcludeRevoked -TrustClient $TrustClient)
         }
 
         if ( Test-IsGuid($ID) ) {
@@ -131,12 +130,12 @@ function Get-VdcCertificate {
             InputObject   = $certs
             ThrottleLimit = $ThrottleLimit
             ProgressTitle = 'Getting certificates'
-            VenafiSession = $VenafiSession
+            TrustClient = $TrustClient
             ScriptBlock   = {
 
                 if ( $PSItem -like '\ved*' ) {
                     # a path was provided, get the guid
-                    $thisGuid = (ConvertTo-VdcObject -Path $PSItem).Guid
+                    $thisGuid = [VdcObject]::new($PSItem).Guid
                 }
                 else {
                     $thisGuid = ([guid] $PSItem).ToString()
@@ -146,7 +145,7 @@ function Get-VdcCertificate {
                     UriLeaf       = [System.Web.HttpUtility]::UrlEncode("certificates/{$thisGuid}")
                 }
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
 
                 if ( $using:IncludeStatus ) {
                     $status = $response | Get-VdcCertificateStatus
@@ -167,7 +166,7 @@ function Get-VdcCertificate {
                         $params.Body.ExcludeRevoked = $ExcludeRevoked
                     }
 
-                    $previous = Invoke-VenafiRestMethod @params
+                    $previous = Invoke-TrustRestMethod @params
 
                     if ( $previous.PreviousVersions ) {
                         $previous.PreviousVersions.CertificateDetails | ForEach-Object {
@@ -223,7 +222,7 @@ function Get-VdcCertificate {
             }
         }
 
-        Invoke-VenafiParallel @parallelParams
+        Invoke-TrustParallel @parallelParams
 
     }
 }

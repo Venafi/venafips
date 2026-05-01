@@ -20,10 +20,9 @@ function Remove-VdcEngineFolder {
     The full DN path to one or more Certificate Manager, Self-Hosted processing engines (string array).
     .PARAMETER Force
     Suppress the confirmation prompt before removing engine/folder assignments.
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also be provided, but this requires an environment variable VDC_SERVER to be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
     .INPUTS
     FolderPath[], EnginePath[]
     .OUTPUTS
@@ -48,14 +47,13 @@ function Remove-VdcEngineFolder {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-TppEngineFolder')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'AllEngines', ValueFromPipelineByPropertyName)]
         [Parameter(Mandatory, ParameterSetName = 'Matrix', ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) { $true }
+                if ( $_ | Test-VdcDnPath ) { $true }
                 else { throw "'$_' is not a valid DN path" }
             })]
         [Alias('FolderDN', 'Folder')]
@@ -65,7 +63,7 @@ function Remove-VdcEngineFolder {
         [Parameter(Mandatory, ParameterSetName = 'Matrix', ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) { $true }
+                if ( $_ | Test-VdcDnPath ) { $true }
                 else { throw "'$_' is not a valid DN path" }
             })]
         [Alias('EngineDN', 'Engine')]
@@ -73,11 +71,10 @@ function Remove-VdcEngineFolder {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation -Verbose:$false
 
         $params = @{
 
@@ -89,7 +86,7 @@ function Remove-VdcEngineFolder {
 
     process {
         if ($FolderPath) {
-            [TppObject[]] $FolderList = @()
+            [VdcObject[]] $FolderList = @()
             foreach ($path in $FolderPath) {
                 try {
                     $folder = Get-VdcObject -Path $path
@@ -113,7 +110,7 @@ function Remove-VdcEngineFolder {
         }
 
         if ($EnginePath) {
-            [TppObject[]] $EngineList = @()
+            [VdcObject[]] $EngineList = @()
             foreach ($path in $EnginePath) {
                 try {
                     $engine = Get-VdcObject -Path $path
@@ -144,7 +141,7 @@ function Remove-VdcEngineFolder {
                 foreach ($folder in $FolderList) {
                     $uriLeaf = "$($apiCall)/{$($folder.Guid)}"
                     try {
-                        $null = Invoke-VenafiRestMethod @params -UriLeaf $uriLeaf
+                        $null = Invoke-TrustRestMethod @params -UriLeaf $uriLeaf
                     }
                     catch {
                         $myError = $_.ToString() | ConvertFrom-Json
@@ -170,7 +167,7 @@ function Remove-VdcEngineFolder {
                 foreach ($engine in $EngineList) {
                     Write-Verbose ("Processing Engine: '$($engine.Path)'")
                     if ($PSCmdlet.ParameterSetName -eq 'AllFolders') {
-                        [TppObject[]] $FolderList = @()
+                        [VdcObject[]] $FolderList = @()
                         $FolderList += ($engine | Get-VdcEngineFolder)
                         Switch ($FolderList.Count) {
                             0 { $countMessage = 'NO folders' }
@@ -182,7 +179,7 @@ function Remove-VdcEngineFolder {
                     foreach ($folder in $FolderList) {
                         $uriLeaf = "$($apiCall)/{$($folder.Guid)}/{$($engine.Guid)}"
                         try {
-                            $null = Invoke-VenafiRestMethod @params -UriLeaf $uriLeaf
+                            $null = Invoke-TrustRestMethod @params -UriLeaf $uriLeaf
                         }
                         catch {
                             $myError = $_.ToString() | ConvertFrom-Json

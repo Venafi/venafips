@@ -15,9 +15,9 @@ function Export-VdcVaultObject {
     Folder path to save the certificate/key to.  The name of the file will be determined automatically.
     If not provided, details will be provided to the pipeline.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     ID
@@ -69,11 +69,10 @@ function Export-VdcVaultObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -86,7 +85,7 @@ function Export-VdcVaultObject {
                 $thisId
             }
 
-            $response = Invoke-VenafiRestMethod -Method 'Post' -UriLeaf 'SecretStore/Retrieve' -Body @{ 'VaultID' = $vaultId }
+            $response = Invoke-TrustRestMethod -Method 'Post' -UriLeaf 'SecretStore/Retrieve' -Body @{ 'VaultID' = $vaultId }
 
             if ( $response.Result -ne 0 ) {
                 Write-Error "Failed to retrieve vault object with a result code of $($response.Result).  Look up this code at https://docs.venafi.com/Docs/currentSDK/TopNav/Content/SDK/WebSDK/r-SDK-SecretStore-ResultCodes.php."

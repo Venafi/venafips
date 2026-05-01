@@ -36,11 +36,9 @@ function Read-VdcLog {
     .PARAMETER First
     Return only these number of records
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
-    A Certificate Manager, Self-Hosted token can also provided.
-    If providing a Certificate Manager, Self-Hosted token, an environment variable named VDC_SERVER must also be set.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path
@@ -90,7 +88,7 @@ function Read-VdcLog {
 
         [Parameter(ValueFromPipelineByPropertyName)]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -104,7 +102,7 @@ function Read-VdcLog {
         [string] $EventId,
 
         [Parameter()]
-        [TppEventSeverity] $Severity,
+        [VdcEventSeverity] $Severity,
 
         [Parameter()]
         [DateTime] $StartTime,
@@ -131,12 +129,11 @@ function Read-VdcLog {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
 
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $params = @{
             Method        = 'Get'
@@ -190,7 +187,7 @@ function Read-VdcLog {
             $params.Body.Component = $Path
         }
 
-        Invoke-VenafiRestMethod @params |
+        Invoke-TrustRestMethod @params |
         Select-Object -ExpandProperty LogEvents |
         Select-Object -Property @{'n' = 'EventId'; 'e' = { '{0:x8}' -f $_.Id } }, *
     }

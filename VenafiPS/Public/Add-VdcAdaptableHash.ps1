@@ -20,9 +20,9 @@ function Add-VdcAdaptableHash {
     Required. The full path to the adaptable script file. This should typically be in a
     '<drive>:\Program Files\Venafi\Scripts\<subdir>' directory for Certificate Manager, Self-Hosted to recognize the script.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     None
@@ -57,13 +57,12 @@ function Add-VdcAdaptableHash {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias('Add-TppAdaptableHash')]
 
     param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -82,11 +81,10 @@ function Add-VdcAdaptableHash {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
@@ -112,10 +110,10 @@ function Add-VdcAdaptableHash {
                 }
             }
 
-            $retrieveResponse = Invoke-VenafiRestMethod @paramsRetrieve
+            $retrieveResponse = Invoke-TrustRestMethod @paramsRetrieve
 
-            if ( $retrieveResponse.Result -ne [TppSecretStoreResult]::Success ) {
-                Write-Error ("Error retrieving VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $retrieveResponse.Result)) -ErrorAction Stop
+            if ( $retrieveResponse.Result -ne [VdcSecretStoreResult]::Success ) {
+                Write-Error ("Error retrieving VaultID: {0}" -f [enum]::GetName([VdcSecretStoreResult], $retrieveResponse.Result)) -ErrorAction Stop
             }
 
             if ($null -ne $retrieveResponse.Base64Data) {
@@ -141,12 +139,12 @@ function Add-VdcAdaptableHash {
             }
         }
 
-        $addResponse = Invoke-VenafiRestMethod @paramsAdd
+        $addResponse = Invoke-TrustRestMethod @paramsAdd
 
         $addResponse | Write-Verbose
 
-        if ( $addResponse.Result -ne [TppSecretStoreResult]::Success ) {
-            throw ("Error adding VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $addResponse.Result))
+        if ( $addResponse.Result -ne [VdcSecretStoreResult]::Success ) {
+            throw ("Error adding VaultID: {0}" -f [enum]::GetName([VdcSecretStoreResult], $addResponse.Result))
         }
 
         if ( $thisObject.TypeName -eq 'Policy' ) {
@@ -173,10 +171,10 @@ function Add-VdcAdaptableHash {
                 }
             }
 
-            $deleteResponse = Invoke-VenafiRestMethod @paramsDelete
+            $deleteResponse = Invoke-TrustRestMethod @paramsDelete
 
-            if ( $deleteResponse.Result -ne [TppSecretStoreResult]::Success ) {
-                Write-Error ("Error removing VaultID: {0}" -f [enum]::GetName([TppSecretStoreResult], $deleteResponse.Result)) -ErrorAction Stop
+            if ( $deleteResponse.Result -ne [VdcSecretStoreResult]::Success ) {
+                Write-Error ("Error removing VaultID: {0}" -f [enum]::GetName([VdcSecretStoreResult], $deleteResponse.Result)) -ErrorAction Stop
             }
         }
     }

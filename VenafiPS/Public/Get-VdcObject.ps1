@@ -13,9 +13,9 @@ function Get-VdcObject {
     .PARAMETER Guid
     Guid of the object
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Path, Guid
@@ -42,7 +42,6 @@ function Get-VdcObject {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-TppObject', 'gvdo')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'ByPath', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
@@ -57,23 +56,22 @@ function Get-VdcObject {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
     }
 
     process {
 
         if ( $PSCmdLet.ParameterSetName -eq 'ByPath' ) {
             foreach ($p in $Path) {
-                ConvertTo-VdcObject -Path ($p | ConvertTo-VdcFullPath)
+                [VdcObject]::new($p)
             }
         }
         else {
             foreach ($g in $Guid) {
-                ConvertTo-VdcObject -Guid $g
+                [VdcObject]::new($g)
             }
         }
     }

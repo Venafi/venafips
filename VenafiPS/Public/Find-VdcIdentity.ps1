@@ -22,9 +22,9 @@ function Find-VdcIdentity {
     .PARAMETER IncludeDistributionGroups
     Include distribution group identity type in search
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Name
@@ -48,7 +48,6 @@ function Find-VdcIdentity {
     #>
 
     [CmdletBinding()]
-    [Alias('Find-TppIdentity')]
 
     param (
         [Parameter(Mandatory, ValueFromPipeline)]
@@ -70,27 +69,26 @@ function Find-VdcIdentity {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
         $identityType = 0
         # determine settings to use
         if ( $PSBoundParameters.ContainsKey('IncludeUsers') ) {
-            $identityType += [TppIdentityType]::User
+            $identityType += [VdcIdentityType]::User
         }
         if ( $PSBoundParameters.ContainsKey('IncludeSecurityGroups') ) {
-            $identityType += [TppIdentityType]::SecurityGroups
+            $identityType += [VdcIdentityType]::SecurityGroups
         }
         if ( $PSBoundParameters.ContainsKey('IncludeDistributionGroups') ) {
-            $identityType += [TppIdentityType]::DistributionGroups
+            $identityType += [VdcIdentityType]::DistributionGroups
         }
 
         # if no types to include were provided, include all
         if ( $identityType -eq 0 ) {
-            $identityType = [TppIdentityType]::User + [TppIdentityType]::SecurityGroups + [TppIdentityType]::DistributionGroups
+            $identityType = [VdcIdentityType]::User + [VdcIdentityType]::SecurityGroups + [VdcIdentityType]::DistributionGroups
         }
 
         $params = @{
@@ -108,7 +106,7 @@ function Find-VdcIdentity {
 
         $response = $Name.ForEach{
             $params.Body.Filter = $_
-            Invoke-VenafiRestMethod @params
+            Invoke-TrustRestMethod @params
         }
 
         $ids = $response.Identities

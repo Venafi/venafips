@@ -17,11 +17,11 @@ function Set-VdcPermission {
     The id that represents the user or group.  You can use Find-VdcIdentity or Get-VdcPermission to get the id.
 
     .PARAMETER Permission
-    TppPermission object to set.
+    VdcPermission object to set.
     You can create a new object and modify it or get an existing object with Get-VdcPermission.
 
     .PARAMETER Force
-    When setting a TppPermission object with -Permission and one already exists, use this to overwrite
+    When setting a VdcPermission object with -Permission and one already exists, use this to overwrite
 
     .PARAMETER IsAssociateAllowed
     Associate or disassociate an Application and Device object with a certificate.
@@ -68,9 +68,9 @@ function Set-VdcPermission {
     To move objects in the tree, the caller must have Write permission to the objects and Create permission to the target folder.
     Write permission grants implicit Read permission.
 
-    .PARAMETER VenafiSession
+    .PARAMETER TrustClient
     Authentication for the function.
-    The value defaults to the script session object $VenafiSession created by New-VenafiSession.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
 
     .INPUTS
     Guid, IdentityId, Permission
@@ -79,12 +79,12 @@ function Set-VdcPermission {
     None
 
     .EXAMPLE
-    Set-VdcPermission -Guid '1234abcd-g6g6-h7h7-faaf-f50cd6610cba' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $TppPermObject
+    Set-VdcPermission -Guid '1234abcd-g6g6-h7h7-faaf-f50cd6610cba' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $VdcPermObject
 
     Permission a user/group on an object specified by guid
 
     .EXAMPLE
-    Set-VdcPermission -Path '\ved\policy\my folder' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $TppPermObject
+    Set-VdcPermission -Path '\ved\policy\my folder' -IdentityId 'AD+mydomain.com:azsxdcfvgbhnjmlk09877654321' -Permission $VdcPermObject
 
     Permission a user/group on an object specified by path
 
@@ -110,7 +110,7 @@ function Set-VdcPermission {
 
     .EXAMPLE
     $id = Find-VdcIdentity -Name 'brownstein' | Select-Object -ExpandProperty Id
-    Find-VdcObject -Path '\VED' -Recursive | Get-VdcPermission -IdentityId $id | Set-VdcPermission -Permission $TppPermObject -Force
+    Find-VdcObject -Path '\VED' -Recursive | Get-VdcPermission -IdentityId $id | Set-VdcPermission -Permission $VdcPermObject -Force
 
     Reset permissions for a specific user/group for all objects.  Note the use of -Force to overwrite existing permissions.
 
@@ -134,14 +134,13 @@ function Set-VdcPermission {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium', DefaultParameterSetName = 'PermissionObjectGuid')]
-    [Alias('Set-TppPermission')]
 
     param (
         [Parameter(Mandatory, ParameterSetName = 'PermissionObjectPath')]
         [Parameter(Mandatory, ParameterSetName = 'PermissionPath')]
         [ValidateNotNullOrEmpty()]
         [ValidateScript( {
-                if ( $_ | Test-TppDnPath ) {
+                if ( $_ | Test-VdcDnPath ) {
                     $true
                 }
                 else {
@@ -172,7 +171,7 @@ function Set-VdcPermission {
         [Parameter(Mandatory, ParameterSetName = 'PermissionObjectPath', ValueFromPipelineByPropertyName)]
         [Parameter(Mandatory, ParameterSetName = 'PermissionObjectGuid', ValueFromPipelineByPropertyName)]
         [Alias('ExplicitPermissions')]
-        [TppPermission] $Permission,
+        [VdcPermission] $Permission,
 
         [Parameter(ParameterSetName = 'PermissionPath')]
         [Parameter(ParameterSetName = 'PermissionGuid')]
@@ -227,11 +226,10 @@ function Set-VdcPermission {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VenafiSession
+        [TrustClient] $TrustClient
     )
 
     begin {
-        Test-VenafiSession $PSCmdlet.MyInvocation
 
     }
 
@@ -247,7 +245,7 @@ function Set-VdcPermission {
         }
 
         if ( $Path ) {
-            $thisGuid = $Path | ConvertTo-VdcObject | Select-Object -ExpandProperty Guid
+            $thisGuid = [VdcObject]::new($Path).Guid
         }
         else {
             $thisGuid = $Guid
@@ -279,7 +277,7 @@ function Set-VdcPermission {
             }
             else {
                 Write-Verbose 'Existing identity not found.  Only the permissions switches set will be true, all others will be false.'
-                $thisPerm = [TppPermission]::new()
+                $thisPerm = [VdcPermission]::new()
             }
 
             foreach ($k in $PSBoundParameters.Keys) {
@@ -294,7 +292,7 @@ function Set-VdcPermission {
         if ( $PSCmdlet.ShouldProcess($Path, "Set permission for $IdentityId") ) {
             try {
 
-                $response = Invoke-VenafiRestMethod @params
+                $response = Invoke-TrustRestMethod @params
                 switch ( $response.StatusCode ) {
 
                     { $_ -in 200, 201 } {
@@ -308,7 +306,7 @@ function Set-VdcPermission {
 
                             Write-Verbose "Existing user/group found and Force option provided, updating existing permissions"
                             $params.Method = 'Put'
-                            $response = Invoke-VenafiRestMethod @params
+                            $response = Invoke-TrustRestMethod @params
                             if ( $response.StatusCode -ne 200 ) {
                                 Write-Error ('Failed to update permission with error {0}' -f $response.Error)
                             }
