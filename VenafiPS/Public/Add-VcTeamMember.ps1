@@ -1,4 +1,4 @@
-function Add-TrustTeamMember {
+function Add-VcTeamMember {
     <#
     .SYNOPSIS
     Add members to a team
@@ -20,7 +20,7 @@ function Add-TrustTeamMember {
     Team
 
     .EXAMPLE
-    Add-TrustTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+    Add-VcTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 
     Add members to a Certificate Manager, SaaS team
 

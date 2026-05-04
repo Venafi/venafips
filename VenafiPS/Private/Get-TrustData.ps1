@@ -232,7 +232,7 @@ function Get-TrustData {
 
             'User' {
                 if ( -not $script:vcUser ) {
-                    $script:vcUser = Get-TrustUser -All | Sort-Object -Property username
+                    $script:vcUser = Get-VcUser -All | Sort-Object -Property username
                     $latest = $true
                 }
 
@@ -241,7 +241,7 @@ function Get-TrustData {
                 if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.userId, $_.username }
                     if ( -not $thisObject -and -not $latest ) {
-                        $script:vcUser = Get-TrustUser -All | Sort-Object -Property username
+                        $script:vcUser = Get-VcUser -All | Sort-Object -Property username
                         $thisObject = $script:vcTag | Where-Object { $InputObject -in $_.userId, $_.username }
                     }
                 }

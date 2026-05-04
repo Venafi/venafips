@@ -1,4 +1,4 @@
-function Set-TrustUser {
+function Set-VcUser {
     <#
     .SYNOPSIS
     Update an existing user

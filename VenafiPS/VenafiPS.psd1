@@ -69,7 +69,7 @@ PowerShellVersion = '5.1'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Add-TrustTeamMember', 'Add-TrustTeamOwner', 'Add-VdcAdaptableHash',
+FunctionsToExport = 'Add-VcTeamMember', 'Add-VcTeamOwner', 'Add-VdcAdaptableHash',
                'Add-VdcCertificateAssociation', 'Add-VdcEngineFolder',
                'Add-VdcTeamMember', 'Add-VdcTeamOwner', 'Convert-VdcObject',
                'Export-TrustCertificate',
@@ -81,7 +81,7 @@ FunctionsToExport = 'Add-TrustTeamMember', 'Add-TrustTeamOwner', 'Add-VdcAdaptab
                'Find-VdcVaultId', 'Get-VcApplication', 'Get-TrustCertificate',
                'Get-TrustConnector', 'Get-TrustIssuingTemplate', 'Get-TrustMachine',
                'Get-TrustMachineIdentity', 'Get-TrustSatellite', 'Get-TrustTag', 'Get-TrustTeam',
-               'Get-TrustUser', 'Get-TrustWebhook', 'Get-VdcAttribute', 'Get-VdcCertificate',
+               'Get-VcUser', 'Get-TrustWebhook', 'Get-VdcAttribute', 'Get-VdcCertificate',
                'Get-VdcClassAttribute', 'Get-VdcCredential', 'Get-VdcCustomField',
                'Get-VdcEngineFolder', 'Get-VdcIdentity', 'Get-VdcIdentityAttribute',
                'Get-VdcObject', 'Get-VdcPermission', 'Get-VdcSystemStatus',
@@ -112,7 +112,7 @@ FunctionsToExport = 'Add-TrustTeamMember', 'Add-TrustTeamOwner', 'Add-VdcAdaptab
                'Set-TrustCertificateRequest', 'Get-TrustCertificateRequest',
                'Get-TrustCloudProvider', 'Get-TrustCloudKeystore', 'New-TrustCloudKeystore',
                'Remove-TrustCloudKeystore', 'New-TrustCloudProvider',
-               'Remove-TrustCloudProvider', 'Set-TrustUser', 'Export-TrustReport',
+               'Remove-TrustCloudProvider', 'Set-VcUser', 'Export-TrustReport',
                'Get-TrustCertificateAuthority', 'Set-TrustIssuingTemplate',
                'New-VdcCredential', 'Set-TrustMachine', 'Set-TrustMachineIdentity'
 
@@ -184,7 +184,7 @@ PrivateData = @{
         ReleaseNotes = 'https://github.com/Venafi/VenafiPS/blob/main/CHANGELOG.md'
 
         # Prerelease string of this module
-        Prerelease = 'beta1'
+        Prerelease = 'beta2'
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false

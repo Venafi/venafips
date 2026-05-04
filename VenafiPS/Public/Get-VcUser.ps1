@@ -1,4 +1,4 @@
-function Get-TrustUser {
+function Get-VcUser {
     <#
     .SYNOPSIS
     Get user details
@@ -43,22 +43,22 @@ function Get-TrustUser {
         memberedTeams
 
     .EXAMPLE
-    Get-TrustUser -ID 9e9db8d6-234a-409c-8299-e3b81ce2f916
+    Get-VcUser -ID 9e9db8d6-234a-409c-8299-e3b81ce2f916
 
     Get user details from an id
 
     .EXAMPLE
-    Get-TrustUser -ID 'greg.brownstein@venafi.com'
+    Get-VcUser -ID 'greg.brownstein@venafi.com'
 
     Get user details from a username
 
     .EXAMPLE
-    Get-TrustUser -Me
+    Get-VcUser -Me
 
     Get user details for authenticated/current user
 
     .EXAMPLE
-    Get-TrustUser -All
+    Get-VcUser -All
 
     Get all users
 

@@ -1,4 +1,4 @@
-function Add-TrustTeamOwner {
+function Add-VcTeamOwner {
     <#
     .SYNOPSIS
     Add owners to a team
@@ -21,7 +21,7 @@ function Add-TrustTeamOwner {
     Team
 
     .EXAMPLE
-    Add-TrustTeamOwner -Team 'DevOps' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+    Add-VcTeamOwner -Team 'DevOps' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 
     Add owners
 
