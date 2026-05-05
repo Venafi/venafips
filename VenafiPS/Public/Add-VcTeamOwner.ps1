@@ -30,7 +30,6 @@ function Add-VcTeamOwner {
     #>
 
     [CmdletBinding()]
-    [Alias('Add-VcTeamOwner')]
     param (
 
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]

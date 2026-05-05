@@ -39,8 +39,6 @@ function Set-VcUser {
     #>
 
     [CmdletBinding()]
-    [Alias('Set-VcUser')]
-
     param (
 
         [Parameter(Mandatory, ValueFromPipelineByPropertyName)]

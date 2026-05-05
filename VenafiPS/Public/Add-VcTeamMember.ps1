@@ -27,7 +27,6 @@ function Add-VcTeamMember {
     #>
 
     [CmdletBinding()]
-    [Alias('Add-VcTeamMember')]
     param (
 
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
