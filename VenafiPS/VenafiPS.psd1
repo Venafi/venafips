@@ -151,7 +151,7 @@ AliasesToExport = @(
                'Remove-VcTeamMember', 'Remove-VcTeamOwner', 'Remove-VcWebhook',
                'Set-VcCertificate', 'Set-VcCertificateRequest',
                'Set-VcConnector', 'Set-VcIssuingTemplate', 'Set-VcMachine',
-               'Set-VcMachineIdentity', 'Set-VcTeam', 'Set-VcUser'
+               'Set-VcMachineIdentity', 'Set-VcTeam', 'Set-VcUser', 'Invoke-VenafiRestMethod'
            )
 
 # DSC resources to export from this module

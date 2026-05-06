@@ -39,14 +39,23 @@ function Invoke-TrustGraphQL {
         ErrorAction     = 'Stop'
     }
 
-    $Server = $TrustClient.Server
-    $auth = $TrustClient.ApiKey.GetNetworkCredential().password
+    if ( $TrustClient.Server -match 'strata' ) {
+        $Server = 'https://api.sase.paloaltonetworks.com/ngts'
+        $allHeaders = @{
+            'Authorization' = 'Bearer {0}' -f $TrustClient.AccessToken.GetNetworkCredential().password
+        }
+    }
+    else {
+        # VC
+        $Server = $TrustClient.Server
+        $allHeaders = @{
+            "tppl-api-key" = $TrustClient.ApiKey.GetNetworkCredential().password
+        }
+    }
+
     $SkipCertificateCheck = $TrustClient.SkipCertificateCheck
     $params.TimeoutSec = $TrustClient.TimeoutSec
 
-    $allHeaders = @{
-        "tppl-api-key" = $auth
-    }
 
     $params.Uri = "$Server/graphql"
 

@@ -60,7 +60,7 @@ function Invoke-TrustRestMethod {
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'Session')]
-
+    [Alias('Invoke-VenafiRestMethod')]
     param (
         [Parameter(ParameterSetName = 'Session')]
         [ValidateNotNullOrEmpty()]
