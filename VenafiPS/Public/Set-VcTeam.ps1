@@ -1,4 +1,4 @@
-function Set-TrustTeam {
+function Set-VcTeam {
     <#
     .SYNOPSIS
     Update an existing team
@@ -43,38 +43,37 @@ function Set-TrustTeam {
     PSCustomObject
 
     .EXAMPLE
-    Set-TrustTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter'
+    Set-VcTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter'
 
     Rename an existing team
 
     .EXAMPLE
-    Set-TrustTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Role 'PKI Admin'
+    Set-VcTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Role 'PKI Admin'
 
     Change the role for an existing team
 
     .EXAMPLE
-    Set-TrustTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'}
+    Set-VcTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'}
 
     Replace a teams user matching rules
 
     .EXAMPLE
-    Set-TrustTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'} -NoOverwrite
+    Set-VcTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'} -NoOverwrite
 
     Update a teams user matching rules, appending instead of overwriting
 
     .EXAMPLE
-    Set-TrustTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter' -PassThru
+    Set-VcTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter' -PassThru
 
     Rename an existing team and return the updated team object
 
     .EXAMPLE
-    Get-TrustTeam -All | Where-Object {$_.name -like '*shouldnt be sysadmin*'} | Set-TrustTeam -NewRole 'PKI Admin'
+    Get-VcTeam -All | Where-Object {$_.name -like '*shouldnt be sysadmin*'} | Set-VcTeam -NewRole 'PKI Admin'
 
     Update many teams
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'NoOverwrite')]
-    [Alias('Set-VcTeam')]
 
     param (
 
@@ -120,8 +119,8 @@ function Set-TrustTeam {
     begin {
 
         $params = @{
-            Method        = 'Patch'
-            Body          = @{}
+            Method = 'Patch'
+            Body   = @{}
         }
 
         if ( $Name ) {
@@ -156,7 +155,7 @@ function Set-TrustTeam {
         $response = Invoke-TrustRestMethod @params
 
         if ( $PassThru ) {
-            $response | ConvertTo-TrustTeam
+            $response | Select-Object -Property @{n = 'teamId'; e = { $_.id } }, * -ExcludeProperty id
         }
     }
 }

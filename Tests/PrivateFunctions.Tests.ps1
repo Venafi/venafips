@@ -584,50 +584,6 @@ KEYDATA
 }
 #endregion
 
-#region ConvertTo-TrustTeam
-Describe 'ConvertTo-TrustTeam' {
-    Context 'Basic property transformation' {
-        It 'should rename id to teamId' {
-            $input = [PSCustomObject]@{ id = 'team123'; name = 'TestTeam' }
-            $result = $input | ConvertTo-TrustTeam
-            $result.teamId | Should -Be 'team123'
-            $result.name | Should -Be 'TestTeam'
-        }
-
-        It 'should exclude original id property' {
-            $input = [PSCustomObject]@{ id = 'team456'; name = 'AnotherTeam' }
-            $result = $input | ConvertTo-TrustTeam
-            $result.PSObject.Properties.Name | Should -Not -Contain 'id'
-        }
-
-        It 'should preserve other properties' {
-            $input = [PSCustomObject]@{
-                id = 'team789'
-                name = 'TeamWithProps'
-                description = 'Test description'
-                role = 'Admin'
-            }
-            $result = $input | ConvertTo-TrustTeam
-            $result.teamId | Should -Be 'team789'
-            $result.name | Should -Be 'TeamWithProps'
-            $result.description | Should -Be 'Test description'
-            $result.role | Should -Be 'Admin'
-        }
-
-        It 'should handle multiple objects in pipeline' {
-            $input = @(
-                [PSCustomObject]@{ id = 'team1'; name = 'Team1' }
-                [PSCustomObject]@{ id = 'team2'; name = 'Team2' }
-            )
-            $result = $input | ConvertTo-TrustTeam
-            $result.Count | Should -Be 2
-            $result[0].teamId | Should -Be 'team1'
-            $result[1].teamId | Should -Be 'team2'
-        }
-    }
-}
-#endregion
-
 #region ConvertTo-VdcIdentity
 Describe 'ConvertTo-VdcIdentity' {
     Context 'Identity property mapping' {

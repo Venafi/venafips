@@ -32,7 +32,7 @@ function Set-VcUser {
     PSCustomObject
 
     .EXAMPLE
-    Set-TrustTeam -User 'greg.brownstein@cyberark.com' -Disable
+    Set-VcTeam -User 'greg.brownstein@cyberark.com' -Disable
 
     Disable a user account
 

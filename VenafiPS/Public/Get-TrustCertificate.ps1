@@ -167,7 +167,7 @@ function Get-TrustCertificate {
                         foreach ($thisOwner in $_.ownership.owningContainers.owningTeams) {
                             $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
                             if ( -not $thisOwnerDetail ) {
-                                $thisOwnerDetail = Get-TrustTeam -ID $thisOwner | Select-Object name, role, members,
+                                $thisOwnerDetail = Get-VcTeam -ID $thisOwner | Select-Object name, role, members,
                                 @{
                                     'n' = 'type'
                                     'e' = { 'TEAM' }

@@ -1,4 +1,4 @@
-function Remove-TrustTeamMember {
+function Remove-VcTeamMember {
     <#
     .SYNOPSIS
     Remove team member
@@ -7,7 +7,7 @@ function Remove-TrustTeamMember {
     Remove a team member from Certificate Manager, SaaS
 
     .PARAMETER ID
-    Team ID, this is the unique guid obtained from Get-TrustTeam.
+    Team ID, this is the unique guid obtained from Get-VcTeam.
 
     .PARAMETER Member
     1 or more members to remove from the team
@@ -21,12 +21,12 @@ function Remove-TrustTeamMember {
     ID
 
     .EXAMPLE
-    Remove-TrustTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+    Remove-VcTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 
     Remove members from a team
 
     .EXAMPLE
-    Remove-TrustTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f3' -Confirm:$false
+    Remove-VcTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f3' -Confirm:$false
 
     Remove members from a team with no confirmation prompting
 
@@ -35,7 +35,6 @@ function Remove-TrustTeamMember {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-VcTeamMember')]
 
     param (
 

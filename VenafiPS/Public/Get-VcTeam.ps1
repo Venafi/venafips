@@ -1,4 +1,4 @@
-function Get-TrustTeam {
+function Get-VcTeam {
     <#
     .SYNOPSIS
     Get team info
@@ -24,17 +24,17 @@ function Get-TrustTeam {
     PSCustomObject
 
     .EXAMPLE
-    Get-TrustTeam -Team 'MyTeam'
+    Get-VcTeam -Team 'MyTeam'
 
     Get info for a team by name
 
     .EXAMPLE
-    Get-TrustTeam -Team 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+    Get-VcTeam -Team 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
 
     Get info for a team by id
 
     .EXAMPLE
-    Get-TrustTeam -All
+    Get-VcTeam -All
 
     Get info for all teams
 
@@ -46,8 +46,6 @@ function Get-TrustTeam {
     #>
 
     [CmdletBinding()]
-    [Alias('Get-VcTeam')]
-
     param (
 
         [Parameter(Mandatory, ParameterSetName = 'ID', ValueFromPipelineByPropertyName, Position = 0)]
@@ -61,9 +59,6 @@ function Get-TrustTeam {
         [ValidateNotNullOrEmpty()]
         [TrustClient] $TrustClient
     )
-
-    begin {
-    }
 
     process {
 
@@ -82,12 +77,15 @@ function Get-TrustTeam {
             }
         }
 
-        if ( $response.PSObject.Properties.Name -contains 'teams' ) {
-            $response | Select-Object -ExpandProperty teams | ConvertTo-TrustTeam
+        $teams = if ( $response.PSObject.Properties.Name -contains 'teams' ) {
+            $response | Select-Object -ExpandProperty teams
         }
         else {
-            $response | ConvertTo-TrustTeam
+            $response
+        }
+
+        if ( $teams ) {
+            $teams | Select-Object -Property @{n = 'teamId'; e = { $_.id } }, * -ExcludeProperty id
         }
     }
 }
-

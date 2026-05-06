@@ -95,7 +95,7 @@ function Set-VcApplication {
 
         switch ($PSBoundParameters.Keys ) {
             'TeamOwner' {
-                $allTeams = Get-TrustTeam -All
+                $allTeams = Get-VcTeam -All
             }
             Default {}
         }

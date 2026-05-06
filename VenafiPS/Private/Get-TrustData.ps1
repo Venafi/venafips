@@ -83,7 +83,7 @@ function Get-TrustData {
                 }
                 'Team' {
                     if ( -not $script:vcTeam ) {
-                        $script:vcTeam = Get-TrustTeam -All | Sort-Object -Property name
+                        $script:vcTeam = Get-VcTeam -All | Sort-Object -Property name
                     }
                     $allObject = $script:vcTeam
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.teamId }

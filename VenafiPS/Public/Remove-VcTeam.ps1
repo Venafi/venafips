@@ -1,4 +1,4 @@
-function Remove-TrustTeam {
+function Remove-VcTeam {
     <#
     .SYNOPSIS
     Remove a team
@@ -22,16 +22,15 @@ function Remove-TrustTeam {
     ID
 
     .EXAMPLE
-    Remove-TrustTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+    Remove-VcTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
     Remove a team
 
     .EXAMPLE
-    Remove-TrustTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Confirm:$false
+    Remove-VcTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Confirm:$false
     Remove a team bypassing the confirmation prompt
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-VcTeam')]
 
     param (
 

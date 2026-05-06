@@ -1,4 +1,4 @@
-function New-TrustTeam {
+function New-VcTeam {
     <#
     .SYNOPSIS
     Create a new team
@@ -67,7 +67,6 @@ function New-TrustTeam {
     #>
 
     [CmdletBinding()]
-    [Alias('New-VcTeam')]
 
     param (
 
@@ -133,7 +132,7 @@ function New-TrustTeam {
         $response = Invoke-TrustRestMethod @params
 
         if ( $PassThru ) {
-            $response | Get-TrustTeam
+            Get-VcTeam -Team $response.id
         }
     }
 }

@@ -1,4 +1,4 @@
-function Remove-TrustTeamOwner {
+function Remove-VcTeamOwner {
     <#
     .SYNOPSIS
     Remove team owner
@@ -7,7 +7,7 @@ function Remove-TrustTeamOwner {
     Remove a team owner from Certificate Manager, SaaS
 
     .PARAMETER ID
-    Team ID, the unique guid obtained from Get-TrustTeam.
+    Team ID, the unique guid obtained from Get-VcTeam.
 
     .PARAMETER Owner
     1 or more owners to remove from the team
@@ -21,12 +21,12 @@ function Remove-TrustTeamOwner {
     ID
 
     .EXAMPLE
-    Remove-TrustTeamOwner -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+    Remove-VcTeamOwner -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 
     Remove owners from a team
 
     .EXAMPLE
-    Remove-TrustTeamOwner -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Owner 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f3' -Confirm:$false
+    Remove-VcTeamOwner -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Owner 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f3' -Confirm:$false
 
     Remove an owner from a team with no confirmation prompting
 
@@ -35,7 +35,6 @@ function Remove-TrustTeamOwner {
     #>
 
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
-    [Alias('Remove-VcTeamOwner')]
 
     param (
 
@@ -57,7 +56,7 @@ function Remove-TrustTeamOwner {
     process {
 
         # get team details and ensure at least 1 owner will remain
-        $thisTeam = Get-TrustTeam -ID $ID
+        $thisTeam = Get-VcTeam -ID $ID
         $ownerCompare = Compare-Object -ReferenceObject $thisTeam.owners -DifferenceObject $Owner
         if ( -not ($ownerCompare | Where-Object { $_.SideIndicator -eq '<=' }) ) {
             throw 'A team must have at least one owner and you are attempting to remove them all'
