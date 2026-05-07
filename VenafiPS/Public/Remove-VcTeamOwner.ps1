@@ -56,7 +56,7 @@ function Remove-VcTeamOwner {
     process {
 
         # get team details and ensure at least 1 owner will remain
-        $thisTeam = Get-VcTeam -ID $ID
+        $thisTeam = Get-VcTeam -Team $ID
         $ownerCompare = Compare-Object -ReferenceObject $thisTeam.owners -DifferenceObject $Owner
         if ( -not ($ownerCompare | Where-Object { $_.SideIndicator -eq '<=' }) ) {
             throw 'A team must have at least one owner and you are attempting to remove them all'

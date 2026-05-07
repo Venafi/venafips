@@ -78,7 +78,13 @@ function Get-TrustData {
                         $script:vcApplication = Get-VcApplication -All | Sort-Object -Property name
                     }
                     $allObject = $script:vcApplication
+                    if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.applicationId }
+                        if ( -not $thisObject -and -not $latest ) {
+                        $script:vcApplication = Get-VcApplication -All | Sort-Object -Property name
+                            $thisObject = $script:vcApplication | Where-Object { $InputObject -in $_.name, $_.applicationId }
+                        }
+                    }
                     break
                 }
                 'Team' {
@@ -86,7 +92,14 @@ function Get-TrustData {
                         $script:vcTeam = Get-VcTeam -All | Sort-Object -Property name
                     }
                     $allObject = $script:vcTeam
-                    $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.teamId }
+
+                    if ( $InputObject ) {
+                        $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.teamId }
+                        if ( -not $thisObject -and -not $latest ) {
+                            $script:vcTeam = Get-VcTeam -All | Sort-Object -Property name
+                            $thisObject = $script:vcTeam | Where-Object { $InputObject -in $_.name, $_.teamId }
+                        }
+                    }
                     break
                 }
             }

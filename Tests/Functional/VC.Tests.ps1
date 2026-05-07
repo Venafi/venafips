@@ -110,53 +110,61 @@ Describe 'VC Export Certificate' -Tags 'Functional', 'VC' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+# ── Team Lifecycle ────────────────────────────────────────────────────────────
+
+Describe 'VC Team Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-VcFunctionalSession
-        $script:testCertId = $null
+        $script:testTeamId = $null
+        # get the current user GUID to use as owner and member
+        $me = Get-VcUser -Me -TrustClient $script:vcSession
+        $script:myUserId = $me.userId
     }
 
-    It 'Should request a new certificate' {
-        if (-not $env:VENAFIPS_VC_ISSUING_TEMPLATE) {
-            Set-ItResult -Skipped -Because 'VENAFIPS_VC_ISSUING_TEMPLATE not set'
-            return
-        }
-
-        $testName = New-TestName -Prefix 'venafips-func'
-        $params = @{
-            CommonName       = "$testName.example.com"
-            IssuingTemplate  = $env:VENAFIPS_VC_ISSUING_TEMPLATE
-            TrustClient      = $script:vcSession
-        }
-
-        $result = New-TrustCertificate @params
-        $result | Should -Not -BeNullOrEmpty
-        $script:testCertId = $result.certificateId
+    It 'Should create a new team' {
+        $teamName = New-TestName -Prefix 'venafips-team'
+        $team = New-VcTeam -Name $teamName -Owner @($script:myUserId) -Member @($script:myUserId) -Role 'Resource Owner' -PassThru -TrustClient $script:vcSession
+        $team | Should -Not -BeNullOrEmpty
+        $script:testTeamId = $team.teamId
     }
 
-    It 'Should validate the test certificate' {
-        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Validate -TrustClient $script:vcSession } |
-            Should -Not -Throw
+    It 'Should get the created team' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        $team = Get-VcTeam -Team $script:testTeamId -TrustClient $script:vcSession
+        $team | Should -Not -BeNullOrEmpty
     }
 
-    It 'Should retire the test certificate' {
-        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Retire -TrustClient $script:vcSession } |
-            Should -Not -Throw
+    It 'Should update the team role' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        { Set-VcTeam -Team $script:testTeamId -Role 'Guest' -TrustClient $script:vcSession } | Should -Not -Throw
     }
 
-    It 'Should recover the retired certificate' {
-        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Recover -TrustClient $script:vcSession } |
-            Should -Not -Throw
+    It 'Should add a team member' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        # adding the same user again should be a no-op or succeed silently
+        { Add-VcTeamMember -Team $script:testTeamId -Member @($script:myUserId) -TrustClient $script:vcSession } | Should -Not -Throw
     }
 
-    It 'Should delete the test certificate' {
-        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Delete -TrustClient $script:vcSession -Confirm:$false } |
-            Should -Not -Throw
+    It 'Should remove a team member' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        { Remove-VcTeamMember -ID $script:testTeamId -Member @($script:myUserId) -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
+    }
+
+    It 'Should add a team owner' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        # adding the same user again should be a no-op or succeed silently
+        { Add-VcTeamOwner -Team $script:testTeamId -Owner @($script:myUserId) -TrustClient $script:vcSession } | Should -Not -Throw
+    }
+
+    It 'Should throw when removing the only team owner' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        { Remove-VcTeamOwner -ID $script:testTeamId -Owner @($script:myUserId) -TrustClient $script:vcSession -Confirm:$false } | Should -Throw
+    }
+
+    It 'Should delete the team' {
+        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
+        { Remove-VcTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
     }
 }
 
@@ -218,45 +226,86 @@ Describe 'VC Application Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$ski
     }
 }
 
-# ── Team Lifecycle ────────────────────────────────────────────────────────────
+# ── Certificate Lifecycle ─────────────────────────────────────────────────────
 
-Describe 'VC Team Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-VcFunctionalSession
+        $script:testCertId = $null
         $script:testTeamId = $null
-        # get the current user GUID to use as owner and member
+        $script:testAppId = $null
+
+        # create a temp team and application for certificate association
         $me = Get-VcUser -Me -TrustClient $script:vcSession
-        $script:myUserId = $me.userId
+        $teamName = New-TestName -Prefix 'venafips-certlife'
+        New-VcTeam -Name $teamName -Owner @($me.userId) -Member @($me.userId) -Role 'Resource Owner' -TrustClient $script:vcSession
+        $team = Get-VcTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
+        if ($team) {
+            $script:testTeamId = $team.teamId
+            $appName = New-TestName -Prefix 'venafips-certlife-app'
+            $app = New-VcApplication -Name $appName -Owner $script:testTeamId -IssuingTemplate $env:VENAFIPS_VC_ISSUING_TEMPLATE -PassThru -TrustClient $script:vcSession
+            $script:testAppId = $app.applicationId
+        }
     }
 
-    It 'Should create a new team' {
-        $teamName = New-TestName -Prefix 'venafips-team'
-        $team = New-VcTeam -Name $teamName -Owner @($script:myUserId) -Member @($script:myUserId) -Role 'Resource Owner' -PassThru -TrustClient $script:vcSession
-        $team | Should -Not -BeNullOrEmpty
-        $script:testTeamId = $team.teamId
+    It 'Should request a new certificate' {
+        if (-not $env:VENAFIPS_VC_ISSUING_TEMPLATE) {
+            Set-ItResult -Skipped -Because 'VENAFIPS_VC_ISSUING_TEMPLATE not set'
+            return
+        }
+
+        if (-not $script:testAppId) {
+            Set-ItResult -Skipped -Because 'Could not create test application'
+            return
+        }
+
+        $testName = New-TestName -Prefix 'venafips-func'
+        $params = @{
+            CommonName       = "$testName.example.com"
+            IssuingTemplate  = $env:VENAFIPS_VC_ISSUING_TEMPLATE
+            Application      = $script:testAppId
+            TrustClient      = $script:vcSession
+            PassThru         = $true
+            Wait             = $true
+        }
+
+        $result = New-TrustCertificate @params
+        $result | Should -Not -BeNullOrEmpty
+        $script:testCertId = $result.certificateId[0]
     }
 
-    It 'Should get the created team' {
-        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        $team = Get-VcTeam -Team $script:testTeamId -TrustClient $script:vcSession
-        $team | Should -Not -BeNullOrEmpty
+    It 'Should validate the test certificate' {
+        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Validate -TrustClient $script:vcSession -Confirm:$false } |
+            Should -Not -Throw
     }
 
-    It 'Should update the team role' {
-        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        { Set-VcTeam -Team $script:testTeamId -Role 'Guest' -TrustClient $script:vcSession } | Should -Not -Throw
+    It 'Should retire the test certificate' {
+        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Retire -TrustClient $script:vcSession -Confirm:$false } |
+            Should -Not -Throw
     }
 
-    It 'Should add a team member' {
-        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        # adding the same user again should be a no-op or succeed silently
-        { Add-VcTeamMember -Team $script:testTeamId -Member @($script:myUserId) -TrustClient $script:vcSession } | Should -Not -Throw
+    It 'Should recover the retired certificate' {
+        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Recover -TrustClient $script:vcSession -Confirm:$false } |
+            Should -Not -Throw
     }
 
-    It 'Should delete the team' {
-        if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        { Remove-VcTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
+    It 'Should delete the test certificate' {
+        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Delete -TrustClient $script:vcSession -Confirm:$false } |
+            Should -Not -Throw
+    }
+
+    AfterAll {
+        if ($script:testAppId) {
+            Remove-VcApplication -ID $script:testAppId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
+        if ($script:testTeamId) {
+            Remove-VcTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
     }
 }
 
@@ -582,6 +631,33 @@ Describe 'VC Users' -Tags 'Functional', 'VC' -Skip:$skipAll {
         $user.userId | Should -Be $me.userId
     }
 }
+
+# ── Set User ──────────────────────────────────────────────────────────────────
+
+# Describe 'VC Set User' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+
+#     BeforeAll {
+#         $script:vcSession = New-VcFunctionalSession
+#         $script:me = Get-VcUser -Me -TrustClient $script:vcSession
+#     }
+
+#     It 'Should update account type to API' {
+#         { Set-VcUser -User $script:me.userId -AccountType 'API' -TrustClient $script:vcSession } | Should -Not -Throw
+#     }
+
+#     It 'Should update account type back to WEB_UI' {
+#         { Set-VcUser -User $script:me.userId -AccountType 'WEB_UI' -TrustClient $script:vcSession } | Should -Not -Throw
+#     }
+
+#     It 'Should return updated user with -PassThru' {
+#         $updated = Set-VcUser -User $script:me.userId -AccountType 'API' -PassThru -TrustClient $script:vcSession
+#         $updated | Should -Not -BeNullOrEmpty
+#         $updated.userId | Should -Be $script:me.userId
+
+#         # restore
+#         Set-VcUser -User $script:me.userId -AccountType 'WEB_UI' -TrustClient $script:vcSession -ErrorAction SilentlyContinue
+#     }
+# }
 
 # ── Tags ──────────────────────────────────────────────────────────────────────
 
