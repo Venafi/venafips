@@ -3,14 +3,14 @@
   <img src="images/CyberArk_Logo_Horizontal_White_Tag-No-R.svg#only-dark" alt="CyberArk"/>
 </p>
 
-# VenafiPS - Automate your CyberArk Certificate Manager Self-Hosted and SaaS platforms!
+# VenafiPS - Automate your CyberArk Certificate Manager Self-Hosted/SaaS and Palo Alto NGTS platforms!
 
 [![CI](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml/badge.svg)](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml)
 [![Deployment](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/VenafiPS?style=plastic)](https://www.powershellgallery.com/packages/VenafiPS)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/VenafiPS?style=plastic)
 
-Welcome to VenafiPS (where the PS stands for PowerShell, not Professional Services :smiley:).  Here you will find a PowerShell module to automate CyberArk Certificate Manager Self-Hosted, formerly known as Venafi TLS Protect Datacenter (TLSPDC) and Trust Protection Platform, and Certificate Manager SaaS, formerly known as TLS Protect Cloud (TLSPC).  Please let us know how you are using this module and what we can do to make it better!  Ask questions or feel free to [submit an issue/enhancement](https://github.com/Venafi/VenafiPS/issues).
+Welcome to VenafiPS (where the PS stands for PowerShell, not Professional Services :smiley:).  Here you will find a PowerShell module to automate CyberArk Certificate Manager Self-Hosted, formerly known as Venafi TLS Protect Datacenter (TLSPDC)/Trust Protection Platform, and Certificate Manager SaaS, formerly known as TLS Protect Cloud (TLSPC) in addition to the new [NGTS platform](https://www.paloaltonetworks.com/network-security/next-gen-trust-security).  Please let us know how you are using this module and what we can do to make it better!  Ask questions or feel free to [submit an issue/enhancement](https://github.com/Venafi/VenafiPS/issues).
 
 ## Documentation
 
@@ -44,32 +44,36 @@ As some users are on Self-Hosted and others on SaaS, it was decided to not inclu
 
 ## Usage
 
-As the module supports both Self-Hosted and SaaS, you will note different names for the functions.  Functions with `-Vdc` are for Self-Hosted only, `-Vc` are for SaaS only, and `-Venafi` are for both.  You can easily see the available commands for each platform with
+As the module supports Certificate Manager Self-Hosted/SaaS and NGTS, you will note different names for the functions.  Functions with `-Vdc` are for Self-Hosted only, `-Vc` are for CMSaaS only, and `-Trust` are for both CMSaaS and NGTS.  You can easily see the available commands for each platform with
 ``` powershell
 Get-Command -Module VenafiPS -Name '*-Vdc*' # for Self-Hosted functions
-Get-Command -Module VenafiPS -Name '*-Vc*' # for SaaS functions
+Get-Command -Module VenafiPS -Name '*-Vc*' # for CMSaaS functions
+Get-Command -Module VenafiPS -Name '*-Trust*' # for CMSaaS/NGTS functions
 ```
 
 For Self-Hosted, [token based authentication](https://docs.venafi.com/Docs/current/TopNav/Content/SDK/AuthSDK/t-SDKa-Setup-OAuth.php) must be setup and configured.
 
-We want to create a Venafi session which will hold the details needed for future operations.  Start a new PowerShell prompt (even if you have one from the install-module step) and create a new VenafiPS session with:
+We want to create a Trust client which will hold the session details needed for future operations.  Start a new PowerShell prompt (even if you have one from the install-module step) and create a new Trust client with:
 
 ```powershell
 # username/password for Self-Hosted.  SaaS uses any value for username and your api key for the password
 $cred = Get-Credential
 
 # create a session for Self-Hosted
-New-VenafiSession -Server 'venafi.mycompany.com' -Credential $cred -ClientId 'MyApp' -Scope @{'certificate'='manage'}
+New-TrustClient -Server 'venafi.mycompany.com' -Credential $cred -ClientId 'MyApp' -Scope @{'certificate'='manage'}
 
-# create a session for SaaS (your API key can be found in your user profile -> preferences)
-New-VenafiSession -VcKey $cred
+# create a session for CMSaaS (your API key can be found in your user profile -> preferences)
+New-TrustClient -VcKey $apiKeyCred
+
+# create a session with NGTS
+New-TrustClient -NgtsCredential $ngtsCred
 ```
 
-The above will create a session variable named $VenafiSession which will be used by default in other functions.
+The above will create a session variable named `$TrustClient` which will be used by default in other functions.
 
 View the help on all the ways you can create a new Venafi session with
 ``` powershell
-help New-VenafiSession -full
+help New-TrustClient -full
 ```
 To utilize the SecretManagement vault functionality, ensure you [complete the setup below](https://github.com/Venafi/VenafiPS#tokenkey-secret-storage).
 
@@ -99,7 +103,7 @@ $cert | Read-VdcLog
 To perform many of the core certificate actions, we will use `Invoke-VdcCertificateAction`.  For example, to create a new session and renew a certificate, use the following:
 
 ```powershell
-New-VenafiSession -Server 'venafi.mycompany.com' -Credential $cred -ClientId 'MyApp' -Scope @{'certificate'='manage'}
+New-TrustClient -Server 'venafi.mycompany.com' -Credential $cred -ClientId 'MyApp' -Scope @{'certificate'='manage'}
 Invoke-VdcCertificateAction -CertificateId '\VED\Policy\My folder\app.mycompany.com' -Renew
 ```
 
@@ -118,13 +122,13 @@ This can be helpful to determine the difference between what different users can
 $user2Cred = Get-Credential # specify credentials for a different/limited user
 
 # get a session as user2 and save the session in a variable
-$user2Session = New-VenafiSession -ServerUrl 'https://venafi.mycompany.com' -Credential $user2Cred -PassThru
+$user2Session = New-TrustClient -ServerUrl 'https://venafi.mycompany.com' -Credential $user2Cred -PassThru
 
 # get all objects in the Policy folder for the first user
 $all = Find-VdcObject -Path '\ved\policy' -Recursive
 
 # get all objects in the Policy folder for user2
-$all2 = Find-VdcObject -Path '\ved\policy' -Recursive -VenafiSession $user2Session
+$all2 = Find-VdcObject -Path '\ved\policy' -Recursive -TrustClient $user2Session
 
 Compare-Object -ReferenceObject $all -DifferenceObject $all2 -Property Path
 ```
@@ -135,7 +139,7 @@ Most of the same functionality from the above examples exist for SaaS as well.  
 
 ## Token/Key Secret Storage
 
-To securely store and retrieve secrets, VenafiPS has added support for the [PowerShell SecretManagement module](https://github.com/PowerShell/SecretManagement).  This can be used to store your access tokens, refresh tokens, or vaas key.  To use this feature, a vault will need to be created.  You can use [SecretStore](https://github.com/PowerShell/SecretStore) provided by the PowerShell team or any other vault type.  All of this functionality has been added to `New-VenafiSession`.
+To securely store and retrieve secrets, VenafiPS has added support for the [PowerShell SecretManagement module](https://github.com/PowerShell/SecretManagement).  This can be used to store your access tokens, refresh tokens, or vaas key.  To use this feature, a vault will need to be created.  You can use [SecretStore](https://github.com/PowerShell/SecretStore) provided by the PowerShell team or any other vault type.  All of this functionality has been added to `New-TrustClient`.
 
 To prepare your environment, execute the following:
 
@@ -143,9 +147,9 @@ To prepare your environment, execute the following:
 - `Install-Module Microsoft.PowerShell.SecretStore` or whichever vault you would like to use
 - `Register-SecretVault -Name VenafiPS -ModuleName Microsoft.PowerShell.SecretStore`.  If you are using a different vault type, replace the value for `-ModuleName`.
 - If using the vault Microsoft.PowerShell.SecretStore, execute `Set-SecretStoreConfiguration -Authentication None -Confirm:$false`.  Note, although the vault authentication is set to none, this just turns off the password required to access the vault, it does not mean your secrets are not encrypted.  This is required for automation purposes.  If using a different vault type, ensure you turn off any features which inhibit automation.
-- Check out the help for `New-VenafiSession` for the many ways you can store and retrieve secrets from the vault, but the easiest way to get started is:
-  - `New-VenafiSession -Server cmsh.company.com -Credential $myCred -ClientId MyApp -Scope $scope -VaultRefreshTokenName mytoken`.  This will create a new token based session and store the refresh token in the vault.  The server and clientid will be stored with the refresh token as metadata.  Scope does not need to be stored as it is inherent in the token.
-  - To create a new session going forward, `New-VenafiSession -VaultRefreshTokenName mytoken`.  This will retrieve the refresh token and associated metadata from the vault, retrieve a new access token based on that refresh token and create a new session.
+- Check out the help for `New-TrustClient` for the many ways you can store and retrieve secrets from the vault, but the easiest way to get started is:
+  - `New-TrustClient -Server cmsh.company.com -Credential $myCred -ClientId MyApp -Scope $scope -VaultRefreshTokenName mytoken`.  This will create a new token based session and store the refresh token in the vault.  The server and clientid will be stored with the refresh token as metadata.  Scope does not need to be stored as it is inherent in the token.
+  - To create a new session going forward, `New-TrustClient -VaultRefreshTokenName mytoken`.  This will retrieve the refresh token and associated metadata from the vault, retrieve a new access token based on that refresh token and create a new session.
 
 Note, extension vaults are registered to the current logged in user context, and will be available only to that user (unless also registered to other users).
 
