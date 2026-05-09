@@ -5,7 +5,7 @@
 #   2. Environment variables — a new session is created automatically
 #
 # Required env vars per platform (only needed when no session exists):
-#   VDC:  VENAFIPS_VDC_SERVER, VENAFIPS_VDC_USERNAME, VENAFIPS_VDC_PASSWORD, VENAFIPS_VDC_CLIENTID, VENAFIPS_VDC_SCOPE
+#   CM:  VENAFIPS_CM_SERVER, VENAFIPS_CM_USERNAME, VENAFIPS_CM_PASSWORD, VENAFIPS_CM_CLIENTID, VENAFIPS_CM_SCOPE
 #   VC:   VENAFIPS_VC_APIKEY (and optionally VENAFIPS_VC_REGION)
 #   NGTS: VENAFIPS_NGTS_USERNAME, VENAFIPS_NGTS_SECRET
 
@@ -62,17 +62,17 @@ function Skip-IfNoSession {
     return (Skip-IfMissingEnv -Required $RequiredEnvVars)
 }
 
-function New-VdcFunctionalSession {
-    $existing = Get-ExistingSession -Platform 'VDC'
+function New-CmFunctionalSession {
+    $existing = Get-ExistingSession -Platform 'CM'
     if ($existing) { return $existing }
 
     $cred = [System.Management.Automation.PSCredential]::new(
-        $env:VENAFIPS_VDC_USERNAME,
-        ($env:VENAFIPS_VDC_PASSWORD | ConvertTo-SecureString -AsPlainText -Force)
+        $env:VENAFIPS_CM_USERNAME,
+        ($env:VENAFIPS_CM_PASSWORD | ConvertTo-SecureString -AsPlainText -Force)
     )
-    $scope = $env:VENAFIPS_VDC_SCOPE | ConvertFrom-Json -AsHashtable
+    $scope = $env:VENAFIPS_CM_SCOPE | ConvertFrom-Json -AsHashtable
 
-    New-TrustClient -Server $env:VENAFIPS_VDC_SERVER -Credential $cred -ClientId $env:VENAFIPS_VDC_CLIENTID -Scope $scope -PassThru
+    New-TrustClient -Server $env:VENAFIPS_CM_SERVER -Credential $cred -ClientId $env:VENAFIPS_CM_CLIENTID -Scope $scope -PassThru
 }
 
 function New-VcFunctionalSession {

@@ -43,7 +43,7 @@
 
     # Valid platform + auth type combinations and their required properties
     static [hashtable] $AuthRules = @{
-        [TrustPlatform]::VDC  = @{
+        [TrustPlatform]::CM  = @{
             [TrustAuthType]::BearerToken = @('AccessToken', 'Server')
         }
         [TrustPlatform]::VC   = @{
@@ -78,10 +78,10 @@
         }
     }
 
-    # region VDC factory methods
-    static [TrustClient] NewVdcBearerToken([string]$server, [pscredential]$accessToken) {
+    # region CM factory methods
+    static [TrustClient] NewCmBearerToken([string]$server, [pscredential]$accessToken) {
         $client = [TrustClient]::new()
-        $client.Platform = [TrustPlatform]::VDC
+        $client.Platform = [TrustPlatform]::CM
         $client.Server = $server
         $client.AuthType = [TrustAuthType]::BearerToken
         $client.AccessToken = $accessToken
@@ -89,8 +89,8 @@
         return $client
     }
 
-    static [TrustClient] NewVdcBearerToken([string]$server, [TrustToken]$token) {
-        $client = [TrustClient]::NewVdcBearerToken($server, $token.AccessToken)
+    static [TrustClient] NewCmBearerToken([string]$server, [TrustToken]$token) {
+        $client = [TrustClient]::NewCmBearerToken($server, $token.AccessToken)
         $client.AuthServer = $token.Server
         $client.RefreshToken = $token.RefreshToken
         $client.ClientId = $token.ClientId
@@ -155,7 +155,7 @@
 
     [bool] CanRefresh() {
         switch ($this.Platform) {
-            'VDC' {
+            'CM' {
                 if ($this.RefreshToken -and $this.AuthServer -and $this.ClientId) {
                     if ($this.RefreshExpires -gt [datetime]::MinValue) {
                         return $this.RefreshExpires -gt [DateTime]::UtcNow
@@ -198,7 +198,7 @@
         $this.Validate()
 
         switch ($this.Platform) {
-            'VDC' {
+            'CM' {
                 if (-not $this.AccessToken) {
                     throw 'No access token to revoke.'
                 }

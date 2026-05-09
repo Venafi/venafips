@@ -44,7 +44,7 @@ if (-not $args[0]) {
     # a wildcard for Register-ArgumentCompleter -CommandName doesn't work so we need to get the command names to register against
     $manifest = Import-PowerShellDataFile "$PSScriptRoot/VenafiPS.psd1"
     $vcCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Trust*' }
-    $vdcCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Vdc*' }
+    $cmCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Cm*' }
 
     # define the argument completer details
     # d = description, required
@@ -143,7 +143,7 @@ if (-not $args[0]) {
         Register-ArgumentCompleter -CommandName $vcCommands -ParameterName $_ -ScriptBlock $vcGenericArgCompleterSb
     }
 
-    $vdcPathArgCompleterSb = {
+    $cmPathArgCompleterSb = {
         param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
         if ( -not $wordToComplete ) {
@@ -152,12 +152,12 @@ if (-not $args[0]) {
         }
 
         # if the path starts with ' or ", that will come along for the ride so ensure we trim that first
-        $fullWord = $wordToComplete.Trim("`"'") | ConvertTo-VdcFullPath
+        $fullWord = $wordToComplete.Trim("`"'") | ConvertTo-CmFullPath
         $leaf = $fullWord.Split('\')[-1]
         $parent = $fullWord.Substring(0, $fullWord.LastIndexOf("\$leaf"))
 
         # get items in parent folder
-        $objs = Find-VdcObject -Path $parent
+        $objs = Find-CmObject -Path $parent
         $objs | Where-Object { $_.name -like "$leaf*" } | ForEach-Object {
             $itemText = if ( $_.TypeName -eq 'Policy' ) {
                 "'$($_.Path)\"
@@ -170,7 +170,7 @@ if (-not $args[0]) {
         }
     }
     'Path', 'CertificateAuthorityPath', 'CredentialPath', 'CertificatePath', 'ApplicationPath', 'EnginePath', 'CertificateLinkPath', 'NewPath' | ForEach-Object {
-        Register-ArgumentCompleter -CommandName $vdcCommands -ParameterName $_ -ScriptBlock $vdcPathArgCompleterSb
+        Register-ArgumentCompleter -CommandName $cmCommands -ParameterName $_ -ScriptBlock $cmPathArgCompleterSb
     }
 
     $vcLogArgCompleterSb = {
@@ -210,12 +210,12 @@ if (-not $args[0]) {
     Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventType' -ScriptBlock $vcLogArgCompleterSb
     Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventName' -ScriptBlock $vcLogArgCompleterSb
 
-    $vdcGenericArgCompleterSb = {
+    $cmGenericArgCompleterSb = {
         param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
         switch ($parameterName) {
             'Algorithm' {
-                Get-VdcData -Type Algorithm | Where-Object Name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
+                Get-CmData -Type Algorithm | Where-Object Name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
                     $alg = "'{0}'" -f $_.Name
                     [System.Management.Automation.CompletionResult]::new($alg, $alg, 'ParameterValue', $_.Description)
                 }
@@ -224,6 +224,6 @@ if (-not $args[0]) {
     }
 
     'Algorithm' | ForEach-Object {
-        Register-ArgumentCompleter -CommandName $vdcCommands -ParameterName $_ -ScriptBlock $vdcGenericArgCompleterSb
+        Register-ArgumentCompleter -CommandName $cmCommands -ParameterName $_ -ScriptBlock $cmGenericArgCompleterSb
     }
 }

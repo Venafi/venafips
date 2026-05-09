@@ -133,9 +133,9 @@ $all2 = Find-VdcObject -Path '\ved\policy' -Recursive -TrustClient $user2Session
 Compare-Object -ReferenceObject $all -DifferenceObject $all2 -Property Path
 ```
 
-## SaaS Examples
+## CMSaaS/NGTS Examples
 
-Most of the same functionality from the above examples exist for SaaS as well.  Simply replace `-Vdc` with `-Vc`.
+Most of the same functionality from the above examples exist for CMSaaS/NGTS as well.  Simply replace `-Vdc` with `-Vc`.
 
 ## Token/Key Secret Storage
 

@@ -4,7 +4,7 @@ function New-TrustConnector {
     Create a new connector
 
     .DESCRIPTION
-    Create a new machine, CA, TPP, or credential connector
+    Create a new machine, CA, CMSH, or credential connector
 
     .PARAMETER ManifestPath
     Path to an existing manifest.

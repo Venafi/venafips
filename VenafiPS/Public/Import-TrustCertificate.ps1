@@ -46,13 +46,13 @@ function Import-TrustCertificate {
     Import a certificate/key
 
     .EXAMPLE
-    Export-VdcCertificate -Path '\ved\policy\my.cert.com' -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-TrustCertificate -TrustClient $vaas_key
+    Export-CmCertificate -Path '\ved\policy\my.cert.com' -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-TrustCertificate -TrustClient $vaas_key
 
     Export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
     As $TrustClient can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.
 
     .EXAMPLE
-    Find-VdcCertificate -Path '\ved\policy\certs' -Recursive | Export-VdcCertificate -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-TrustCertificate -TrustClient $vaas_key
+    Find-CmCertificate -Path '\ved\policy\certs' -Recursive | Export-CmCertificate -Pkcs12 -PrivateKeyPassword 'myPassw0rd!' | Import-TrustCertificate -TrustClient $vaas_key
 
     Bulk export from Certificate Manager, Self-Hosted and import into Certificate Manager, SaaS.
     As $TrustClient can only point to one platform at a time, in this case Certificate Manager, Self-Hosted, the session needs to be overridden for the import.

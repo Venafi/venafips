@@ -125,7 +125,7 @@ function Invoke-TrustRestMethod {
         $expectedPlatform = switch -Regex ($callingCmd) {
             '-Ngts' { 'NGTS' }
             '-Vc' { 'VC' }
-            '-Vdc' { 'VDC' }
+            '-Cm' { 'CM' }
             default { $null }
         }
         if ($expectedPlatform -and $expectedPlatform -ne $TrustClient.Platform) {
@@ -168,7 +168,7 @@ function Invoke-TrustRestMethod {
         $params.TimeoutSec = $TrustClient.TimeoutSec
     }
 
-    if ( $TrustClient.Platform -eq 'VDC' ) {
+    if ( $TrustClient.Platform -eq 'CM' ) {
         if ( $UseDefaultCredential.IsPresent ) {
             $params.Add('UseDefaultCredentials', $true)
         }
@@ -279,10 +279,10 @@ function Invoke-TrustRestMethod {
 
                 $permMsg = ''
 
-                # get scope details for tpp
-                if ( $TrustClient.Platform -eq 'VDC' ) {
+                # get scope details for cmsh
+                if ( $TrustClient.Platform -eq 'CM' ) {
                     $callingFunction = @(Get-PSCallStack)[1].InvocationInfo.MyCommand.Name
-                    $callingFunctionScope = ($script:functionConfig).$callingFunction.VdcTokenScope
+                    $callingFunctionScope = ($script:functionConfig).$callingFunction.CmTokenScope
                     if ( $callingFunctionScope ) { $permMsg += "$callingFunction requires a token scope of '$callingFunctionScope'." }
 
                     $rejectedScope = Select-String -InputObject $originalError.ErrorDetails.Message -Pattern 'Grant rejected scope ([^.]+)'
@@ -301,7 +301,7 @@ function Invoke-TrustRestMethod {
             }
 
             409 {
-                # 409 = item already exists.  some functions use this for a 'force' option, eg. Set-VdcPermission
+                # 409 = item already exists.  some functions use this for a 'force' option, eg. Set-CmPermission
                 # treat this as non error/exception if FullResponse provided
                 if ( $FullResponse ) {
                     $response = [pscustomobject] @{

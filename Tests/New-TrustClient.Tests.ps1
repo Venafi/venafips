@@ -52,11 +52,11 @@ Describe 'New-TrustClient Auth Model' -Tags 'Unit' {
 
     Context 'Certificate Manager, Self-Hosted token session' {
         BeforeEach {
-            Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
+            Mock -CommandName 'New-CmToken' -ModuleName $ModuleName -MockWith {
                 $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
                 $token.Server         = 'https://venafi.example.com'
-                $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-token')
-                $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh')
+                $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'cm-token')
+                $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'cm-refresh')
                 $token.Scope          = @{ certificate = 'manage' }
                 $token.Identity       = 'admin'
                 $token.TokenType      = 'Bearer'
@@ -65,16 +65,16 @@ Describe 'New-TrustClient Auth Model' -Tags 'Unit' {
                 $token.RefreshExpires = [DateTime]::UtcNow.AddHours(1)
                 $token
             }
-            Mock -CommandName 'Get-VdcCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
+            Mock -CommandName 'Get-CmCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
         }
 
-        It 'Should store OAuth material in Auth for VDC token sessions' {
+        It 'Should store OAuth material in Auth for CM token sessions' {
             $cred = New-TestCredential -UserName 'admin' -Password 'secret'
             $scope = @{ certificate = 'manage' }
 
             $sess = New-TrustClient -Server 'venafi.example.com' -Credential $cred -ClientId 'VenafiPS-MyApp' -Scope $scope -PassThru
 
-            $sess.Platform | Should -Be 'VDC'
+            $sess.Platform | Should -Be 'CM'
             $sess.AuthType | Should -Be 'BearerToken'
             $sess.AccessToken | Should -Not -BeNullOrEmpty
             $sess.RefreshToken | Should -Not -BeNullOrEmpty
@@ -107,9 +107,9 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
     }
 
     Context 'CanRefresh' {
-        It 'Should return true for VDC when refresh material exists' {
+        It 'Should return true for CM when refresh material exists' {
             $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
-            $sess.Platform = 'VDC'
+            $sess.Platform = 'CM'
             $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'refresh'
             $sess.AuthServer = 'https://venafi.example.com'
             $sess.ClientId = 'VenafiPS-MyApp'
@@ -128,8 +128,8 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
     }
 
     Context 'Refresh' {
-        It 'Should refresh VDC session via New-VdcToken and update Auth' {
-            Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
+        It 'Should refresh CM session via New-CmToken and update Auth' {
+            Mock -CommandName 'New-CmToken' -ModuleName $ModuleName -MockWith {
                 $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
                 $token.Server         = 'https://venafi.example.com'
                 $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'new-access')
@@ -142,7 +142,7 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
             }
 
             $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
-            $sess.Platform = 'VDC'
+            $sess.Platform = 'CM'
             $sess.AuthServer = 'https://venafi.example.com'
             $sess.ClientId = 'VenafiPS-MyApp'
             $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'old-refresh'
@@ -153,7 +153,7 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
             $sess.AccessToken | Should -Not -BeNullOrEmpty
             $sess.ClientId | Should -Be 'VenafiPS-MyApp'
             $sess.Expires | Should -BeGreaterThan ([DateTime]::UtcNow)
-            Should -Invoke -CommandName 'New-VdcToken' -ModuleName $ModuleName -Times 1
+            Should -Invoke -CommandName 'New-CmToken' -ModuleName $ModuleName -Times 1
         }
 
     }
@@ -166,12 +166,12 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
         Mock -CommandName 'Invoke-RestMethod' -ModuleName $ModuleName -MockWith { @{ ok = $true } }
     }
 
-    It 'Should refresh an explicitly provided expiring VDC session before request execution' {
-        Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
+    It 'Should refresh an explicitly provided expiring CM session before request execution' {
+        Mock -CommandName 'New-CmToken' -ModuleName $ModuleName -MockWith {
             $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
             $token.Server         = 'https://venafi.example.com'
-            $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'vdc-refreshed')
-            $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'vdc-refresh-new')
+            $token.AccessToken    = (New-TestCredential -UserName 'AccessToken' -Password 'cm-refreshed')
+            $token.RefreshToken   = (New-TestCredential -UserName 'RefreshToken' -Password 'cm-refresh-new')
             $token.Scope          = @{ certificate = 'manage' }
             $token.ClientId       = 'VenafiPS-MyApp'
             $token.Expires        = [DateTime]::UtcNow.AddMinutes(30)
@@ -180,7 +180,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
         }
 
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
-        $sess.Platform = 'VDC'
+        $sess.Platform = 'CM'
         $sess.Server = 'https://venafi.example.com'
         $sess.AuthType = 'BearerToken'
         $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'old'
@@ -192,7 +192,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
 
         $null = Invoke-TrustRestMethod -TrustClient $sess -UriRoot 'vedsdk' -UriLeaf 'Authorize/Verify' -Method Get
 
-        Should -Invoke -CommandName 'New-VdcToken' -ModuleName $ModuleName -Times 1
+        Should -Invoke -CommandName 'New-CmToken' -ModuleName $ModuleName -Times 1
         $sess.Expires | Should -BeGreaterThan ([DateTime]::UtcNow.AddMinutes(20))
     }
 
@@ -223,10 +223,10 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
     }
 
     It 'Should not refresh a non-expired session' {
-        Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName
+        Mock -CommandName 'New-CmToken' -ModuleName $ModuleName
 
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
-        $sess.Platform = 'VDC'
+        $sess.Platform = 'CM'
         $sess.Server = 'https://venafi.example.com'
         $sess.AuthType = 'BearerToken'
         $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'valid'
@@ -234,12 +234,12 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
 
         $null = Invoke-TrustRestMethod -TrustClient $sess -UriRoot 'vedsdk' -UriLeaf 'Certificates' -Method Get
 
-        Should -Invoke -CommandName 'New-VdcToken' -ModuleName $ModuleName -Times 0
+        Should -Invoke -CommandName 'New-CmToken' -ModuleName $ModuleName -Times 0
     }
 
     It 'Should throw when expired and cannot refresh' {
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
-        $sess.Platform = 'VDC'
+        $sess.Platform = 'CM'
         $sess.Server = 'https://venafi.example.com'
         $sess.AuthType = 'BearerToken'
         $sess.AccessToken = New-TestCredential -UserName 'AccessToken' -Password 'expired'
@@ -255,14 +255,14 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
 
     BeforeEach {
         Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
-        Mock -CommandName 'Get-VdcCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
+        Mock -CommandName 'Get-CmCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
     }
 
-    Context 'VDC AccessToken (existing token)' {
-        It 'Should create VDC session from an existing access token string' {
+    Context 'CM AccessToken (existing token)' {
+        It 'Should create CM session from an existing access token string' {
             $sess = New-TrustClient -Server 'venafi.example.com' -AccessToken 'my-token' -PassThru
 
-            $sess.Platform | Should -Be 'VDC'
+            $sess.Platform | Should -Be 'CM'
             $sess.AuthType | Should -Be 'BearerToken'
             $sess.AccessToken | Should -Not -BeNullOrEmpty
             $sess.Expires | Should -BeGreaterThan (Get-Date).ToUniversalTime()
@@ -285,9 +285,9 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
         }
     }
 
-    Context 'VDC RefreshToken' {
+    Context 'CM RefreshToken' {
         BeforeEach {
-            Mock -CommandName 'New-VdcToken' -ModuleName $ModuleName -MockWith {
+            Mock -CommandName 'New-CmToken' -ModuleName $ModuleName -MockWith {
                 $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
                 $token.Server       = 'https://venafi.example.com'
                 $token.AccessToken  = (New-TestCredential -UserName 'AccessToken' -Password 'refreshed-access')
@@ -299,13 +299,13 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
             }
         }
 
-        It 'Should create VDC session from a refresh token' {
+        It 'Should create CM session from a refresh token' {
             $sess = New-TrustClient -Server 'venafi.example.com' -RefreshToken 'old-refresh' -ClientId 'VenafiPS-MyApp' -PassThru
 
-            $sess.Platform | Should -Be 'VDC'
+            $sess.Platform | Should -Be 'CM'
             $sess.AuthType | Should -Be 'BearerToken'
             $sess.AccessToken | Should -Not -BeNullOrEmpty
-            Should -Invoke -CommandName 'New-VdcToken' -ModuleName $ModuleName -Times 1
+            Should -Invoke -CommandName 'New-CmToken' -ModuleName $ModuleName -Times 1
         }
     }
 
@@ -373,7 +373,7 @@ Describe 'TrustClient Validate' -Tags 'Unit' {
 
     It 'Should throw when AuthType is invalid for platform' {
         $client = & (Get-Module $ModuleName) { [TrustClient]::new() }
-        $client.Platform = 'VDC'
+        $client.Platform = 'CM'
         $client.AuthType = 'ApiKey'
 
         { $client.Validate() } | Should -Throw '*not a valid auth type*'
@@ -381,7 +381,7 @@ Describe 'TrustClient Validate' -Tags 'Unit' {
 
     It 'Should throw when required properties are missing' {
         $client = & (Get-Module $ModuleName) { [TrustClient]::new() }
-        $client.Platform = 'VDC'
+        $client.Platform = 'CM'
         $client.AuthType = 'BearerToken'
         # AccessToken and Server are required but not set
 
@@ -395,17 +395,17 @@ Describe 'TrustClient CanRefresh Negative Cases' -Tags 'Unit' {
         Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
     }
 
-    It 'Should return false for VDC without refresh material' {
+    It 'Should return false for CM without refresh material' {
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
-        $sess.Platform = 'VDC'
+        $sess.Platform = 'CM'
         # No RefreshToken, AuthServer, or ClientId
 
         $sess.CanRefresh() | Should -BeFalse
     }
 
-    It 'Should return false for VDC when RefreshExpires is in the past' {
+    It 'Should return false for CM when RefreshExpires is in the past' {
         $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
-        $sess.Platform = 'VDC'
+        $sess.Platform = 'CM'
         $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'refresh'
         $sess.AuthServer = 'https://venafi.example.com'
         $sess.ClientId = 'VenafiPS-MyApp'

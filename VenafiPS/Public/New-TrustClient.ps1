@@ -133,7 +133,7 @@ function New-TrustClient {
     Create token-based session using a client certificate
 
     .EXAMPLE
-    New-TrustClient -Server venafi.mycompany.com -AuthServer tppauth.mycompany.com -ClientId VenafiPS-MyApp -Credential $cred
+    New-TrustClient -Server venafi.mycompany.com -AuthServer cmsh_auth.mycompany.com -ClientId VenafiPS-MyApp -Credential $cred
 
     Create token-based session using oauth authentication where the vedauth and vedsdk are hosted on different servers
 
@@ -153,7 +153,7 @@ function New-TrustClient {
     Create session using a refresh token
 
     .EXAMPLE
-    New-TrustClient -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp -VaultRefreshTokenName VdcRefresh
+    New-TrustClient -Server venafi.mycompany.com -RefreshToken $refreshCred -ClientId VenafiPS-MyApp -VaultRefreshTokenName CmRefresh
 
     Create session using a refresh token and store the newly created refresh token in the vault
 
@@ -471,8 +471,8 @@ function New-TrustClient {
                 $params.State = $State
             }
 
-            $token = New-VdcToken @params -Verbose:$isVerbose
-            $newClient = [TrustClient]::NewVdcBearerToken($serverUrl, $token)
+            $token = New-CmToken @params -Verbose:$isVerbose
+            $newClient = [TrustClient]::NewCmBearerToken($serverUrl, $token)
             $newClient.TimeoutSec = $TimeoutSec
             $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
             if ($Credential) { $newClient.Credential = $Credential }
@@ -493,7 +493,7 @@ function New-TrustClient {
             elseif ($AccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $AccessToken) }
             else { throw 'Unsupported type for -AccessToken.  Provide either a String, SecureString, or PSCredential.' }
 
-            $newClient = [TrustClient]::NewVdcBearerToken($serverUrl, $accessTokenCred)
+            $newClient = [TrustClient]::NewCmBearerToken($serverUrl, $accessTokenCred)
             $newClient.TimeoutSec = $TimeoutSec
             $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
             $newClient.AuthServer = $authServerUrl
@@ -514,7 +514,7 @@ function New-TrustClient {
             $secretInfo = Get-SecretInfo -Name $VaultAccessTokenName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
 
             if ( $secretInfo.Metadata.Count -gt 0 ) {
-                $newClient = [TrustClient]::NewVdcBearerToken($secretInfo.Metadata.Server, $tokenSecret)
+                $newClient = [TrustClient]::NewCmBearerToken($secretInfo.Metadata.Server, $tokenSecret)
                 $newClient.AuthServer = $secretInfo.Metadata.AuthServer
                 $newClient.ClientId = $secretInfo.Metadata.ClientId
                 $newClient.Scope = $secretInfo.Metadata.Scope
@@ -538,8 +538,8 @@ function New-TrustClient {
             elseif ($RefreshToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('RefreshToken', $RefreshToken) }
             else { throw 'Unsupported type for -RefreshToken.  Provide either a String, SecureString, or PSCredential.' }
 
-            $newToken = New-VdcToken @params
-            $newClient = [TrustClient]::NewVdcBearerToken($serverUrl, $newToken)
+            $newToken = New-CmToken @params
+            $newClient = [TrustClient]::NewCmBearerToken($serverUrl, $newToken)
             $newClient.TimeoutSec = $TimeoutSec
             $newClient.SkipCertificateCheck = $SkipCertificateCheck.IsPresent
         }
@@ -566,8 +566,8 @@ function New-TrustClient {
 
             $params.RefreshToken = $tokenSecret
 
-            $newToken = New-VdcToken @params
-            $newClient = [TrustClient]::NewVdcBearerToken($newToken.Server, $newToken)
+            $newToken = New-CmToken @params
+            $newClient = [TrustClient]::NewCmBearerToken($newToken.Server, $newToken)
             $newClient.Scope = $secretInfo.Metadata.Scope | ConvertFrom-Json
             $newClient.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
             $newClient.TimeoutSec = $secretInfo.Metadata.TimeoutSec
@@ -657,10 +657,10 @@ function New-TrustClient {
     }
 
     # will fail if user is on an older version.  this isn't required so bypass on failure
-    # only applicable to tpp
-    if ( $newClient.Platform -eq 'VDC' ) {
+    # only applicable to cmsh
+    if ( $newClient.Platform -eq 'CM' ) {
         $newClient.PlatformData.Version = [Version]((Invoke-TrustRestMethod -UriLeaf 'SystemStatus/Version' -TrustClient $newClient -ErrorAction SilentlyContinue).Version)
-        $certFields = 'X509 Certificate', 'Device', 'Application Base' | Get-VdcCustomField -TrustClient $newClient -ErrorAction SilentlyContinue
+        $certFields = 'X509 Certificate', 'Device', 'Application Base' | Get-CmCustomField -TrustClient $newClient -ErrorAction SilentlyContinue
         # make sure we remove duplicates
         $newClient.PlatformData.CustomField = $certFields.Items | Sort-Object -Property Guid -Unique
     }

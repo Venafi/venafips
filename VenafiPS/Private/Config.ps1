@@ -56,212 +56,212 @@ $script:vaasFields = @(
 )
 
 $script:functionConfig = @{
-    'Add-VdcAdaptableHash'             = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'restricted=manage,delete'
+    'Add-CmAdaptableHash'             = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'restricted=manage,delete'
     }
-    'Add-VdcCertificateAssociation'    = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=manage'
+    'Add-CmCertificateAssociation'    = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=manage'
     }
-    'Add-VdcEngineFolder'              = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Add-CmEngineFolder'              = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Add-VdcTeamMember'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Add-CmTeamMember'                = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Add-VdcTeamOwner'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Add-CmTeamOwner'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Convert-VdcObject'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Convert-CmObject'                = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Export-VdcCertificate'            = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=manage'
+    'Export-CmCertificate'            = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=manage'
     }
-    'Find-VdcClient'                   = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'agent=$null'
+    'Find-CmClient'                   = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'agent=$null'
     }
-    'Find-VdcEngine'                   = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Find-CmEngine'                   = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Find-VdcIdentity'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Find-CmIdentity'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Find-VdcObject'                   = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Find-CmObject'                   = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Find-VdcVaultId'                  = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'restricted=$null'
+    'Find-CmVaultId'                  = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'restricted=$null'
     }
-    'Find-VdcCertificate'              = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=$null'
+    'Find-CmCertificate'              = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=$null'
     }
-    'Get-VdcAttribute'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Get-CmAttribute'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Get-VdcClassAttribute'            = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'any scope'
+    'Get-CmClassAttribute'            = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
     }
-    'Get-VdcCredential'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'security=manage'
+    'Get-CmCredential'                = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'security=manage'
     }
-    'Get-VdcCustomField'               = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'any scope'
+    'Get-CmCustomField'               = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
     }
-    'Get-VdcEngineFolder'              = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Get-CmEngineFolder'              = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Get-VdcIdentityAttribute'         = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Get-CmIdentityAttribute'         = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Get-VdcObject'                    = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'any scope'
+    'Get-CmObject'                    = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
     }
-    'Get-VdcPermission'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'security=$null'
+    'Get-CmPermission'                = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'security=$null'
     }
-    'Get-VdcSystemStatus'              = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'any scope'
+    'Get-CmSystemStatus'              = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
     }
-    'Get-VdcWorkflowTicket'            = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'any scope'
+    'Get-CmWorkflowTicket'            = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
     }
-    'Get-VdcCertificate'               = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=$null'
+    'Get-CmCertificate'               = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=$null'
     }
-    'Get-VdcIdentity'                  = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Get-CmIdentity'                  = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Get-VdcTeam'                      = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Get-CmTeam'                      = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Import-VdcCertificate'            = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=discover'
+    'Import-CmCertificate'            = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=discover'
     }
     'Import-TrustCertificate'             = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = ''
+        'CmVersion'    = ''
+        'CmTokenScope' = ''
     }
-    'Invoke-VdcCertificateAction'      = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=manage for Reset, Renew, Push, and Validate.  certificate=revoke for Revoke.  certificate=delete for Delete.'
+    'Invoke-CmCertificateAction'      = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=manage for Reset, Renew, Push, and Validate.  certificate=revoke for Revoke.  certificate=delete for Delete.'
     }
-    'Move-VdcObject'                   = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Move-CmObject'                   = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'New-VdcCapiApplication'           = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'New-CmCapiApplication'           = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'New-VdcCertificate'               = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=manage'
+    'New-CmCertificate'               = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=manage'
     }
-    'New-VdcCustomField'               = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'New-CmCustomField'               = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'New-VdcDevice'                    = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'New-CmDevice'                    = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'New-VdcObject'                    = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage.  If a certificate is provided as an attribute, certificate=manage as well.'
+    'New-CmObject'                    = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage.  If a certificate is provided as an attribute, certificate=manage as well.'
     }
-    'New-VdcPolicy'                    = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'New-CmPolicy'                    = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'New-VdcToken'                     = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'any scope'
+    'New-CmToken'                     = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
     }
-    'Remove-VdcCertificate'            = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=delete.  If using KeepAssociatedApps, configuration=$null,certificate=manage as well.'
+    'Remove-CmCertificate'            = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=delete.  If using KeepAssociatedApps, configuration=$null,certificate=manage as well.'
     }
-    'Remove-VdcCertificateAssociation' = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'certificate=manage.  If using -All, configuration=$null as well.'
+    'Remove-CmCertificateAssociation' = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'certificate=manage.  If using -All, configuration=$null as well.'
     }
-    'Remove-VdcClient'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'agent=delete'
+    'Remove-CmClient'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'agent=delete'
     }
-    'Remove-VdcEngineFolder'           = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=delete'
+    'Remove-CmEngineFolder'           = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=delete'
     }
-    'Remove-VdcObject'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=delete'
+    'Remove-CmObject'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=delete'
     }
-    'Remove-VdcPermission'             = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'security=delete'
+    'Remove-CmPermission'             = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'security=delete'
     }
-    'Rename-VdcObject'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Rename-CmObject'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Revoke-VdcGrant'                  = @{
-        'VdcVersion'    = '22.3'
-        'VdcTokenScope' = 'admin=delete'
+    'Revoke-CmGrant'                  = @{
+        'CmVersion'    = '22.3'
+        'CmTokenScope' = 'admin=delete'
     }
-    'Set-VdcAttribute'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=manage'
+    'Set-CmAttribute'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=manage'
     }
-    'Set-VdcCredential'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'security=manage'
+    'Set-CmCredential'                = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'security=manage'
     }
-    'Set-VdcPermission'                = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'security=manage'
+    'Set-CmPermission'                = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'security=manage'
     }
-    'Set-VdcWorkflowTicketStatus'      = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'approve with any scope'
+    'Set-CmWorkflowTicketStatus'      = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'approve with any scope'
     }
-    'Test-VdcIdentity'                 = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Test-CmIdentity'                 = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Test-VdcObject'                   = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'configuration=$null'
+    'Test-CmObject'                   = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'configuration=$null'
     }
-    'Write-VdcLog'                     = @{
-        'VdcVersion'    = ''
-        'VdcTokenScope' = 'any scope'
+    'Write-CmLog'                     = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
     }
 }

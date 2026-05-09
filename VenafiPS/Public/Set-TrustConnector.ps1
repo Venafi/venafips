@@ -4,7 +4,7 @@ function Set-TrustConnector {
     Update an existing connector
 
     .DESCRIPTION
-    Update a new machine, CA, TPP, or credential connector.
+    Update a new machine, CA, CMSH, or credential connector.
     You can either update the manifest or disable/reenable it.
 
     .PARAMETER ManifestPath

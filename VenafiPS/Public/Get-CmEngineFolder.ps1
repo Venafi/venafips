@@ -1,0 +1,123 @@
+function Get-CmEngineFolder {
+    <#
+    .SYNOPSIS
+    Get Certificate Manager, Self-Hosted folder/engine assignments
+
+    .DESCRIPTION
+    When the input is a policy folder, retrieves an array of assigned Certificate Manager, Self-Hosted processing engines.
+    When the input is a Certificate Manager, Self-Hosted engine, retrieves an array of assigned policy folders.
+    If there are no matching assignments, nothing will be returned.
+
+    .PARAMETER ID
+    The full DN path or Guid to a Certificate Manager, Self-Hosted processing engine or policy folder.
+
+    .PARAMETER All
+    Get all engine/folder assignments
+
+    .PARAMETER TrustClient
+    Authentication for the function.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
+
+    .INPUTS
+    ID
+
+    .OUTPUTS
+    PSCustomObject
+
+    .EXAMPLE
+    Get-CmEngineFolder -Path '\VED\Engines\MYVENSERVER'
+
+    Get an array of policy folders assigned to the Certificate Manager, Self-Hosted processing engine 'MYVENSERVER'.
+
+    .EXAMPLE
+    Get-CmEngineFolder -Path '\VED\Policy\Certificates\Web Team'
+
+    Get an array of Certificate Manager, Self-Hosted processing engines assigned to the policy folder '\VED\Policy\Certificates\Web Team'.
+
+    .EXAMPLE
+    [guid]'866e1d59-d5d2-482a-b9e6-7bb657e0f416' | Get-CmEngineFolder
+
+    When the GUID is assigned to a Certificate Manager, Self-Hosted processing engine, returns an array of assigned policy folders.
+    When the GUID is assigned to a policy folder, returns an array of assigned Certificate Manager, Self-Hosted processing engines.
+    Otherwise nothing will be returned.
+
+    .LINK
+    https://venafi.github.io/VenafiPS/functions/Get-CmEngineFolder/
+
+    .LINK
+    https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Get-CmEngineFolder.ps1
+
+    .LINK
+    https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-GET-ProcessingEngines-Engine-eguid.php
+
+    .LINK
+    https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-GET-ProcessingEngines-Folder-fguid.php
+    #>
+    [Alias('Get-VdcEngineFolder')]
+    [CmdletBinding(DefaultParameterSetName = 'ID')]
+
+    param (
+        [Parameter(Mandatory, ParameterSetName = 'ID', ValueFromPipelineByPropertyName, Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [Alias('EngineGuid', 'Guid', 'EnginePath', 'Path')]
+        [String] $ID,
+
+        [Parameter(ParameterSetName = 'All', Mandatory)]
+        [switch] $All,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [TrustClient] $TrustClient
+    )
+
+    begin {
+    }
+
+    process {
+
+        if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
+            Invoke-TrustRestMethod -UriLeaf 'ProcessingEngines/' | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue | Get-CmEngineFolder
+        } else {
+
+            if ( [guid]::TryParse($ID, $([ref][guid]::Empty)) ) {
+                $thisObject = Get-CmObject -Guid $ID
+            } else {
+                $thisObject = Get-CmObject -Path $ID
+            }
+
+            $thisObjectGuid = '{{{0}}}' -f $thisObject.Guid
+
+            if ( $thisObject.TypeName -eq 'Venafi Platform' ) {
+
+                # engine
+
+                $response = Invoke-TrustRestMethod -UriLeaf "ProcessingEngines/Engine/$thisObjectGuid" | Select-Object -ExpandProperty Folders -ErrorAction SilentlyContinue
+
+                $response | Where-Object { $_.FolderGuid -ne $thisObjectGuid } | Select-Object FolderName,
+                @{ 'n' = 'FolderPath'; 'e' = { $_.FolderDN } },
+                @{ 'n' = 'FolderGuid'; 'e' = { $_.FolderGuid.Trim('{}') } },
+                @{ 'n' = 'EngineName'; 'e' = { $thisObject.Name } },
+                @{ 'n' = 'EnginePath'; 'e' = { $thisObject.Path } },
+                @{ 'n' = 'EngineGuid'; 'e' = { $thisObject.Guid } }
+
+            } elseif ( $thisObject.TypeName -eq 'Policy' ) {
+
+                # policy folder
+
+                $response = Invoke-TrustRestMethod -UriLeaf "ProcessingEngines/Folder/$thisObjectGuid" | Select-Object -ExpandProperty Engines -ErrorAction SilentlyContinue
+
+                $response | Select-Object EngineName,
+                @{ 'n' = 'EnginePath'; 'e' = { $_.EngineDN } },
+                @{ 'n' = 'EngineGuid'; 'e' = { $_.EngineGuid.Trim('{}') } },
+                @{ 'n' = 'FolderName'; 'e' = { $thisObject.Name } },
+                @{ 'n' = 'FolderPath'; 'e' = { $thisObject.Path } },
+                @{ 'n' = 'FolderGuid'; 'e' = { $thisObject.Guid } }
+
+            } else {
+                throw ('Unsupported object type, {0}' -f $thisObject.TypeName)
+            }
+        }
+    }
+}
+
+

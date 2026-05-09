@@ -199,50 +199,50 @@ Describe "ConvertTo-UtcIso8601" -Tags 'Unit' {
 }
 #endregion
 
-#region ConvertTo-VdcFullPath Tests
-Describe "ConvertTo-VdcFullPath" -Tags 'Unit' {
+#region ConvertTo-CmFullPath Tests
+Describe "ConvertTo-CmFullPath" -Tags 'Unit' {
 
     Context "Path Conversion" {
         It "Should add VED\Policy prefix to relative paths" {
-            $result = ConvertTo-VdcFullPath -Path 'Certificates\Web'
+            $result = ConvertTo-CmFullPath -Path 'Certificates\Web'
             $result | Should -Be '\VED\Policy\Certificates\Web'
         }
 
         It "Should preserve paths that already start with \VED" {
-            $result = ConvertTo-VdcFullPath -Path '\VED\Policy\Certificates\Web'
+            $result = ConvertTo-CmFullPath -Path '\VED\Policy\Certificates\Web'
             $result | Should -Be '\VED\Policy\Certificates\Web'
         }
 
         It "Should handle paths with mixed case VED" {
-            $result = ConvertTo-VdcFullPath -Path '\ved\policy\Certificates\Web'
+            $result = ConvertTo-CmFullPath -Path '\ved\policy\Certificates\Web'
             $result | Should -Be '\ved\policy\Certificates\Web'
         }
 
         It "Should remove trailing backslash" {
-            $result = ConvertTo-VdcFullPath -Path 'Certificates\Web\'
+            $result = ConvertTo-CmFullPath -Path 'Certificates\Web\'
             $result | Should -Be '\VED\Policy\Certificates\Web'
         }
 
         It "Should handle single folder name" {
-            $result = ConvertTo-VdcFullPath -Path 'Certificates'
+            $result = ConvertTo-CmFullPath -Path 'Certificates'
             $result | Should -Be '\VED\Policy\Certificates'
         }
 
         It "Should handle deep nested paths" {
-            $result = ConvertTo-VdcFullPath -Path 'Level1\Level2\Level3\Level4'
+            $result = ConvertTo-CmFullPath -Path 'Level1\Level2\Level3\Level4'
             $result | Should -Be '\VED\Policy\Level1\Level2\Level3\Level4'
         }
     }
 
     Context "Pipeline Support" {
         It "Should accept path from pipeline" {
-            $result = 'Certificates\Web' | ConvertTo-VdcFullPath
+            $result = 'Certificates\Web' | ConvertTo-CmFullPath
             $result | Should -Be '\VED\Policy\Certificates\Web'
         }
 
         It "Should process multiple paths from pipeline" {
             $paths = @('Certs\Web', 'Certs\Mail', 'Certs\VPN')
-            $results = $paths | ConvertTo-VdcFullPath
+            $results = $paths | ConvertTo-CmFullPath
             $results | Should -HaveCount 3
             $results[0] | Should -Be '\VED\Policy\Certs\Web'
             $results[1] | Should -Be '\VED\Policy\Certs\Mail'
@@ -252,135 +252,135 @@ Describe "ConvertTo-VdcFullPath" -Tags 'Unit' {
 
     Context "Edge Cases" {
         It "Should handle paths with spaces" {
-            $result = ConvertTo-VdcFullPath -Path 'My Certificates\Web Server'
+            $result = ConvertTo-CmFullPath -Path 'My Certificates\Web Server'
             $result | Should -Be '\VED\Policy\My Certificates\Web Server'
         }
 
         It "Should handle paths with special characters" {
-            $result = ConvertTo-VdcFullPath -Path 'Certs-2024\Web_Server'
+            $result = ConvertTo-CmFullPath -Path 'Certs-2024\Web_Server'
             $result | Should -Be '\VED\Policy\Certs-2024\Web_Server'
         }
 
         It "Should handle root VED\Policy path" {
-            $result = ConvertTo-VdcFullPath -Path '\VED\Policy'
+            $result = ConvertTo-CmFullPath -Path '\VED\Policy'
             $result | Should -Be '\VED\Policy'
         }
 
         It "Should handle VED path without Policy" {
-            $result = ConvertTo-VdcFullPath -Path '\VED\Other\Path'
+            $result = ConvertTo-CmFullPath -Path '\VED\Other\Path'
             $result | Should -Be '\VED\Other\Path'
         }
     }
 }
 #endregion
 
-#region Test-VdcIdentityFormat Tests
-Describe "Test-VdcIdentityFormat" -Tags 'Unit' {
+#region Test-CmIdentityFormat Tests
+Describe "Test-CmIdentityFormat" -Tags 'Unit' {
 
     Context "Name Format Validation" {
         It "Should validate AD+ prefixed name" {
-            $result = Test-VdcIdentityFormat -ID 'AD+domain:user' -Format Name
+            $result = Test-CmIdentityFormat -ID 'AD+domain:user' -Format Name
             $result | Should -BeTrue
         }
 
         It "Should validate LDAP+ prefixed name" {
-            $result = Test-VdcIdentityFormat -ID 'LDAP+domain:user' -Format Name
+            $result = Test-CmIdentityFormat -ID 'LDAP+domain:user' -Format Name
             $result | Should -BeTrue
         }
 
         It "Should validate local: prefixed name" {
-            $result = Test-VdcIdentityFormat -ID 'local:admin' -Format Name
+            $result = Test-CmIdentityFormat -ID 'local:admin' -Format Name
             $result | Should -BeTrue
         }
 
         It "Should be case-insensitive for prefix" {
-            $result = Test-VdcIdentityFormat -ID 'ad+domain:user' -Format Name
+            $result = Test-CmIdentityFormat -ID 'ad+domain:user' -Format Name
             $result | Should -BeTrue
         }
     }
 
     Context "Universal Format Validation" {
         It "Should validate AD+ with GUID" {
-            $result = Test-VdcIdentityFormat -ID 'AD+domain:{12345678-1234-1234-1234-123456789012}' -Format Universal
+            $result = Test-CmIdentityFormat -ID 'AD+domain:{12345678-1234-1234-1234-123456789012}' -Format Universal
             $result | Should -BeTrue
         }
 
         It "Should validate local: with GUID" {
-            $result = Test-VdcIdentityFormat -ID 'local:{12345678-1234-1234-1234-123456789012}' -Format Universal
+            $result = Test-CmIdentityFormat -ID 'local:{12345678-1234-1234-1234-123456789012}' -Format Universal
             $result | Should -BeTrue
         }
 
         It "Should validate GUID without braces" {
-            $result = Test-VdcIdentityFormat -ID 'AD+domain:12345678-1234-1234-1234-123456789012' -Format Universal
+            $result = Test-CmIdentityFormat -ID 'AD+domain:12345678-1234-1234-1234-123456789012' -Format Universal
             $result | Should -BeTrue
         }
     }
 
     Context "Domain Format Validation" {
         It "Should validate domain identity with name" {
-            $result = Test-VdcIdentityFormat -ID 'AD+mydomain:user' -Format Domain
+            $result = Test-CmIdentityFormat -ID 'AD+mydomain:user' -Format Domain
             $result | Should -BeTrue
         }
 
         It "Should validate domain identity with GUID" {
-            $result = Test-VdcIdentityFormat -ID 'AD+domain:{12345678-1234-1234-1234-123456789012}' -Format Domain
+            $result = Test-CmIdentityFormat -ID 'AD+domain:{12345678-1234-1234-1234-123456789012}' -Format Domain
             $result | Should -BeTrue
         }
 
         It "Should reject local identity when checking Domain" {
-            $result = Test-VdcIdentityFormat -ID 'local:admin' -Format Domain
+            $result = Test-CmIdentityFormat -ID 'local:admin' -Format Domain
             $result | Should -BeFalse
         }
     }
 
     Context "Local Format Validation" {
         It "Should validate local identity with name" {
-            $result = Test-VdcIdentityFormat -ID 'local:admin' -Format Local
+            $result = Test-CmIdentityFormat -ID 'local:admin' -Format Local
             $result | Should -BeTrue
         }
 
         It "Should validate local identity with GUID" {
-            $result = Test-VdcIdentityFormat -ID 'local:{12345678-1234-1234-1234-123456789012}' -Format Local
+            $result = Test-CmIdentityFormat -ID 'local:{12345678-1234-1234-1234-123456789012}' -Format Local
             $result | Should -BeTrue
         }
 
         It "Should reject domain identity when checking Local" {
-            $result = Test-VdcIdentityFormat -ID 'AD+domain:user' -Format Local
+            $result = Test-CmIdentityFormat -ID 'AD+domain:user' -Format Local
             $result | Should -BeFalse
         }
     }
 
     Context "Default Format (Any)" {
         It "Should accept AD+ name without explicit format" {
-            $result = Test-VdcIdentityFormat -ID 'AD+domain:user'
+            $result = Test-CmIdentityFormat -ID 'AD+domain:user'
             $result | Should -BeTrue
         }
 
         It "Should accept local name without explicit format" {
-            $result = Test-VdcIdentityFormat -ID 'local:admin'
+            $result = Test-CmIdentityFormat -ID 'local:admin'
             $result | Should -BeTrue
         }
 
         It "Should accept GUID formats without explicit format" {
-            $result = Test-VdcIdentityFormat -ID 'AD+domain:{12345678-1234-1234-1234-123456789012}'
+            $result = Test-CmIdentityFormat -ID 'AD+domain:{12345678-1234-1234-1234-123456789012}'
             $result | Should -BeTrue
         }
 
         It "Should reject invalid format" {
-            $result = Test-VdcIdentityFormat -ID 'invalidformat'
+            $result = Test-CmIdentityFormat -ID 'invalidformat'
             $result | Should -BeFalse
         }
     }
 
     Context "Pipeline Support" {
         It "Should accept identity from pipeline" {
-            $result = 'AD+domain:user' | Test-VdcIdentityFormat -Format Name
+            $result = 'AD+domain:user' | Test-CmIdentityFormat -Format Name
             $result | Should -BeTrue
         }
 
         It "Should process multiple identities from pipeline" {
             $identities = @('AD+domain:user', 'local:admin')
-            $results = $identities | Test-VdcIdentityFormat -Format Name
+            $results = $identities | Test-CmIdentityFormat -Format Name
             $results | Should -HaveCount 2
             $results[0] | Should -BeTrue
             $results[1] | Should -BeTrue
@@ -584,8 +584,8 @@ KEYDATA
 }
 #endregion
 
-#region ConvertTo-VdcIdentity
-Describe 'ConvertTo-VdcIdentity' {
+#region ConvertTo-CmIdentity
+Describe 'ConvertTo-CmIdentity' {
     Context 'Identity property mapping' {
         It 'should map Name property' {
             $input = [PSCustomObject]@{
@@ -595,7 +595,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 PrefixedName = 'local:TestUser'
                 Type = 1
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.Name | Should -Be 'TestUser'
         }
 
@@ -607,7 +607,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 PrefixedName = 'local:TestUser'
                 Type = 1
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.ID | Should -Be 'local:67890'
         }
 
@@ -619,7 +619,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 PrefixedName = 'local:TestUser'
                 Type = 1
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.Path | Should -Be '\VED\Identity\TestUser'
         }
 
@@ -631,7 +631,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 PrefixedName = 'local:TestUser'
                 Type = 1
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.FullName | Should -Be 'local:TestUser'
         }
 
@@ -643,7 +643,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 PrefixedName = 'local:TestUser'
                 Type = 1
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.IsGroup | Should -Be $false
         }
 
@@ -655,7 +655,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 PrefixedName = 'local:TestGroup'
                 Type = 2
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.IsGroup | Should -Be $true
         }
 
@@ -667,7 +667,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 PrefixedName = 'local:TestUser'
                 Type = 1
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.PSObject.Properties.Name | Should -Not -Contain 'PrefixedUniversal'
             $result.PSObject.Properties.Name | Should -Not -Contain 'Type'
             $result.PSObject.Properties.Name | Should -Not -Contain 'PrefixedName'
@@ -683,7 +683,7 @@ Describe 'ConvertTo-VdcIdentity' {
                 Email = 'test@example.com'
                 CustomProp = 'CustomValue'
             }
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.Email | Should -Be 'test@example.com'
             $result.CustomProp | Should -Be 'CustomValue'
         }
@@ -705,7 +705,7 @@ Describe 'ConvertTo-VdcIdentity' {
                     Type = 2
                 }
             )
-            $result = $input | ConvertTo-VdcIdentity
+            $result = $input | ConvertTo-CmIdentity
             $result.Count | Should -Be 2
             $result[0].Name | Should -Be 'User1'
             $result[0].IsGroup | Should -Be $false
@@ -992,35 +992,35 @@ Describe 'Initialize-PSSodium' -Tags 'Unit' {
 }
 #endregion
 
-Describe "Test-VdcDnPath" -Tags 'Unit' {
+Describe "Test-CmDnPath" -Tags 'Unit' {
 
     Context "Valid DN Paths" {
         It "Should accept valid path with \VED\Policy" {
-            '\VED\Policy\Certificates' | Test-VdcDnPath | Should -Be $true
+            '\VED\Policy\Certificates' | Test-CmDnPath | Should -Be $true
         }
 
         It "Should accept valid path with \\VED\\Policy (double backslash)" {
-            '\\VED\\Policy\\Certificates' | Test-VdcDnPath | Should -Be $true
+            '\\VED\\Policy\\Certificates' | Test-CmDnPath | Should -Be $true
         }
 
         It "Should accept root path \VED" {
-            '\VED' | Test-VdcDnPath | Should -Be $true
+            '\VED' | Test-CmDnPath | Should -Be $true
         }
 
         It "Should accept root path \\VED\\" {
-            '\\VED\\' | Test-VdcDnPath | Should -Be $true
+            '\\VED\\' | Test-CmDnPath | Should -Be $true
         }
 
         It "Should accept path with multiple levels" {
-            '\VED\Policy\Level1\Level2\Level3' | Test-VdcDnPath | Should -Be $true
+            '\VED\Policy\Level1\Level2\Level3' | Test-CmDnPath | Should -Be $true
         }
 
         It "Should be case-insensitive" {
-            '\ved\policy\test' | Test-VdcDnPath | Should -Be $true
+            '\ved\policy\test' | Test-CmDnPath | Should -Be $true
         }
 
         It "Should accept VED with different casing" {
-            '\VeD\Policy\Test' | Test-VdcDnPath | Should -Be $true
+            '\VeD\Policy\Test' | Test-CmDnPath | Should -Be $true
         }
     }
 
@@ -1028,37 +1028,37 @@ Describe "Test-VdcDnPath" -Tags 'Unit' {
         It "Should reject empty string" {
             # Empty string validation happens in parameter validation
             # Testing the logic directly with non-empty invalid string
-            'invalid' | Test-VdcDnPath | Should -Be $false
+            'invalid' | Test-CmDnPath | Should -Be $false
         }
 
         It "Should reject path without \VED prefix" {
-            '\Policy\Certificates' | Test-VdcDnPath | Should -Be $false
+            '\Policy\Certificates' | Test-CmDnPath | Should -Be $false
         }
 
         It "Should reject path with VED but no backslash" {
-            'VED\Policy\Certificates' | Test-VdcDnPath | Should -Be $false
+            'VED\Policy\Certificates' | Test-CmDnPath | Should -Be $false
         }
 
         It "Should reject completely invalid path" {
-            'C:\Windows\System32' | Test-VdcDnPath | Should -Be $false
+            'C:\Windows\System32' | Test-CmDnPath | Should -Be $false
         }
 
         It "Should reject path with wrong separator" {
-            '/VED/Policy/Test' | Test-VdcDnPath | Should -Be $false
+            '/VED/Policy/Test' | Test-CmDnPath | Should -Be $false
         }
     }
 
     Context "AllowRoot Parameter" {
         It "Should reject root path when AllowRoot is false" {
-            '\VED' | Test-VdcDnPath -AllowRoot $false | Should -Be $false
+            '\VED' | Test-CmDnPath -AllowRoot $false | Should -Be $false
         }
 
         It "Should accept non-root path when AllowRoot is false" {
-            '\VED\Policy\Test' | Test-VdcDnPath -AllowRoot $false | Should -Be $true
+            '\VED\Policy\Test' | Test-CmDnPath -AllowRoot $false | Should -Be $true
         }
 
         It "Should accept root path when AllowRoot is true (default)" {
-            '\VED' | Test-VdcDnPath -AllowRoot $true | Should -Be $true
+            '\VED' | Test-CmDnPath -AllowRoot $true | Should -Be $true
         }
     }
 }

@@ -1,5 +1,5 @@
-- Add `Find-VcMachineIdentity -Machine` and `-Certificate` to easily filter by those attributes
-- Update `Get-VcCertificate` to automatically look for a trusted CA certificate when certificate is not found.  Also allow an array of certificate IDs to be piped in.  These 2 combined allow you to pipe certificateId from New-VcCertificate and get certificate objects for the entire chain.
-- Add `Invoke-VcCertificateAction -Provision -MachineIdentity` to provision to a specific machine identity in addition to all machine identities associated with a certificate
-- Add `Set-VcMachine` to update machine attributes including name, associated vsatellite, and connection details.  Use with `-PassThru` and pipe directly to `Invoke-VcWorkflow -Workflow 'Test'` to validate the new settings.
-- Add `Set-VcMachineIdentity` to update machine identity attributes including associated certificate and binding/keystore details.  Use with `-PassThru` and pipe directly to `Invoke-VcCertificationAction -Provision` to provision.
+- v7 release including support for NGTS!
+- Add `New-TrustClient -NgtsCredential` to create a NGTS session.  The TSG in the username will be used by default, use `-Tsg` to override.
+- VenafiSession psobject changed to TrustClient class adding auto-refresh for token based sessions
+- -Vc functions are CMSaaS specific, -Trust are for CMSaaS/NGTS.  Aliases are available for most/all functions.
+-

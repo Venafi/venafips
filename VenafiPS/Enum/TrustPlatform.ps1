@@ -1,6 +1,6 @@
 ﻿enum TrustPlatform {
     None
-    VDC
+    CM
     VC
     NGTS
 }

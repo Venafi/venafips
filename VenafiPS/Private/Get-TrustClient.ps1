@@ -24,8 +24,8 @@ function Get-TrustClient {
             $script:TrustClient
             Write-Debug 'Using script session'
         }
-        # elseif ( $env:VDC_TOKEN ) {
-        #     $env:VDC_TOKEN
+        # elseif ( $env:CM_TOKEN ) {
+        #     $env:CM_TOKEN
         #     Write-Debug 'Using Certificate Manager, Self-Hosted token environment variable'
         # }
         # elseif ( $env:VC_KEY ) {
@@ -44,8 +44,8 @@ function Get-TrustClient {
             { $_ -match '-Vc' } {
                 'VC'
             }
-            { $_ -match '-Vdc' } {
-                'VDC'
+            { $_ -match '-Cm' } {
+                'CM'
             }
             Default {
             # we don't know the platform, eg. -Venafi functions.  this won't happen often

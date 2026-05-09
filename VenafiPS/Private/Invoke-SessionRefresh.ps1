@@ -16,14 +16,14 @@
         [TrustClient] $Session
     )
 
-    $newToken = if ($Session.Platform -eq 'VDC') {
+    $newToken = if ($Session.Platform -eq 'CM') {
         $refreshParams = @{
             AuthServer           = $Session.AuthServer
             RefreshToken         = $Session.RefreshToken
             ClientId             = $Session.ClientId
             SkipCertificateCheck = $Session.SkipCertificateCheck
         }
-        New-VdcToken @refreshParams -ErrorAction Stop
+        New-CmToken @refreshParams -ErrorAction Stop
     }
     elseif ($Session.Platform -eq 'NGTS') {
         $ngtsParams = @{

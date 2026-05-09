@@ -3,14 +3,14 @@ function Get-TrustData {
     <#
     .SYNOPSIS
         Helper function to get data from Venafi
-        Although the name is 'vc', it is currently used for vc and vdc.  This is a todo.
+        Although the name is 'vc', it is currently used for vc and cm.  This is a todo.
     #>
 
 
     [CmdletBinding(DefaultParameterSetName = 'All')]
     # at some point we'll have types that overlap between products
-    # use this alias to differentiate between vc and vdc
-    [Alias('Get-VdcData')]
+    # use this alias to differentiate between vc and cm
+    [Alias('Get-CmData')]
 
     param (
         [parameter(Mandatory, ValueFromPipeline, ParameterSetName = 'ID', Position = '0')]
@@ -43,8 +43,8 @@ function Get-TrustData {
 
     begin {
         $idNameQuery = 'query MyQuery {{ {0} {{ nodes {{ id name }} }} }}'
-        $platform = if ( $MyInvocation.InvocationName -eq 'Get-VdcData' ) {
-            'vdc'
+        $platform = if ( $MyInvocation.InvocationName -eq 'Get-CmData' ) {
+            'cm'
         }
         else {
             'vc'
@@ -326,22 +326,22 @@ function Get-TrustData {
             }
 
             'Algorithm' {
-                if ( -not $script:vdcAlgorithm ) {
-                    $script:vdcAlgorithm = Invoke-TrustRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
+                if ( -not $script:cmAlgorithm ) {
+                    $script:cmAlgorithm = Invoke-TrustRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
                         Select-Object -ExpandProperty Selectors |
                         Select-Object -Property @{'n' = 'AlgorithmId'; 'e' = { $_.PkixParameterSetOid } }, @{'n' = 'Name'; 'e' = { $_.Algorithm } }, * -ExcludeProperty PkixParameterSetOid, Algorithm
                     $latest = $true
                 }
 
-                $allObject = $script:vdcAlgorithm
+                $allObject = $script:cmAlgorithm
 
                 if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.Name, $_.AlgorithmId }
                     if ( -not $thisObject -and -not $latest ) {
-                        $script:vdcAlgorithm = Invoke-TrustRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
+                        $script:cmAlgorithm = Invoke-TrustRestMethod -UriLeaf 'algorithmselector/getglobalalgorithms' -Method Post -Body @{} |
                             Select-Object -ExpandProperty Selectors |
                             Select-Object -Property @{'n' = 'AlgorithmId'; 'e' = { $_.PkixParameterSetOid } }, @{'n' = 'Name'; 'e' = { $_.Algorithm } }, * -ExcludeProperty PkixParameterSetOid, Algorithm
-                        $thisObject = $script:vdcAlgorithm | Where-Object { $InputObject -in $_.Name, $_.AlgorithmId }
+                        $thisObject = $script:cmAlgorithm | Where-Object { $InputObject -in $_.Name, $_.AlgorithmId }
                     }
                 }
                 break
