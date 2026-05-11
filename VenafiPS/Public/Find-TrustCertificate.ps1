@@ -334,7 +334,7 @@ function Find-TrustCertificate {
                 foreach ( $thisOwner in $_.ownership.owningContainers.owningUsers ) {
                     $thisOwnerDetail = $appOwners | Where-Object id -eq $thisOwner
                     if ( -not $thisOwnerDetail ) {
-                        $thisOwnerDetail = Get-TrustIdentity -ID $thisOwner | Select-Object firstName, lastName, emailAddress,
+                        $thisOwnerDetail = Get-CmsUser -ID $thisOwner | Select-Object firstName, lastName, emailAddress,
                         @{
                             'n' = 'status'
                             'e' = { $_.userStatus }

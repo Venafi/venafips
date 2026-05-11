@@ -66,7 +66,7 @@ function Get-CmsUser {
     https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=account-service#/Users/users_getByUsername
     #>
 
-        [Alias('Get-VcUser')]
+    [Alias('Get-VcUser')]
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = "Parameter is used")]
 

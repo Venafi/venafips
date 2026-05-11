@@ -11,11 +11,11 @@ function New-CmsTeam {
 
     .PARAMETER Owner
     1 or more owners for the team.
-    Provide the unique guid obtained from Get-TrustIdentity.
+    Provide the unique guid obtained from Get-CmsUser.
 
     .PARAMETER Member
     1 or more members for the team.
-    Provide the unique guid obtained from Get-TrustIdentity.
+    Provide the unique guid obtained from Get-CmsUser.
 
     .PARAMETER Role
     Team role, either 'System Admin', 'PKI Admin', 'Resource Owner' or 'Guest'

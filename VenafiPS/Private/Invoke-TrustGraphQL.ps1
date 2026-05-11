@@ -40,13 +40,14 @@ function Invoke-TrustGraphQL {
     }
 
     if ( $TrustClient.Server -match 'strata' ) {
+        # NGTS
         $Server = 'https://api.sase.paloaltonetworks.com/ngts'
         $allHeaders = @{
             'Authorization' = 'Bearer {0}' -f $TrustClient.AccessToken.GetNetworkCredential().password
         }
     }
     else {
-        # VC
+        # CMSaaS
         $Server = $TrustClient.Server
         $allHeaders = @{
             "tppl-api-key" = $TrustClient.ApiKey.GetNetworkCredential().password

@@ -109,7 +109,7 @@ function New-CmsApplication {
                 @{ 'ownerId' = $teamId; 'ownerType' = 'TEAM' }
             }
             else {
-                $user = Get-TrustIdentity -ID $thisOwner -ErrorAction SilentlyContinue
+                $user = Get-CmsUser -ID $thisOwner -ErrorAction SilentlyContinue
                 if ( $user ) {
                     @{ 'ownerId' = $user.userId; 'ownerType' = 'USER' }
                 }

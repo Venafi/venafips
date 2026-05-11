@@ -11,7 +11,7 @@ function Remove-CmsTeamMember {
 
     .PARAMETER Member
     1 or more members to remove from the team
-    This is the unique guid obtained from Get-TrustIdentity.
+    This is the unique guid obtained from Get-CmsUser.
 
     .PARAMETER TrustClient
     Authentication for the function.

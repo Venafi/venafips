@@ -1,7 +1,7 @@
 function Get-CmsTeam {
     <#
     .SYNOPSIS
-    Get team info
+    Get team info from Certificate Manager, SaaS
 
     .DESCRIPTION
     Get info on teams including members and owners.

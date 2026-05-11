@@ -11,7 +11,7 @@ function Remove-CmsTeamOwner {
 
     .PARAMETER Owner
     1 or more owners to remove from the team
-    This is the unique guid obtained from Get-TrustIdentity.
+    This is the unique guid obtained from Get-CmsUser.
 
     .PARAMETER TrustClient
     Authentication for the function.

@@ -134,8 +134,8 @@ AliasesToExport = @(
                'Get-VcCloudKeystore', 'Get-VcCloudProvider',
                'Get-VcConnector', 'Get-VcIssuingTemplate', 'Get-VcMachine',
                'Get-VcMachineIdentity', 'Get-VcSatellite', 'Get-VcSatelliteWorker',
-               'Get-VcTag', 'Get-VcIdentity',
-               'Get-TrustIdentity', 'Get-VcWebhook',
+               'Get-VcTag',
+                'Get-VcWebhook',
                'Import-VcCertificate',
                'Invoke-VcCertificateAction', 'Invoke-VcWorkflow',
                'New-VcCertificate',
@@ -151,14 +151,14 @@ AliasesToExport = @(
                'Set-VcCertificate', 'Set-VcCertificateRequest',
                'Set-VcConnector', 'Set-VcIssuingTemplate', 'Set-VcMachine',
                'Set-VcMachineIdentity', 'Invoke-VenafiRestMethod',
-               # Backward-compat aliases: Vc → Cms
+               # Backward-compat aliases: Vc -> Cms
                'Add-VcTeamMember', 'Add-VcTeamOwner',
                'Get-VcApplication', 'Get-VcTeam', 'Get-VcUser',
                'New-VcApplication', 'New-VcTeam',
                'Remove-VcApplication', 'Remove-VcTeam',
                'Remove-VcTeamMember', 'Remove-VcTeamOwner',
                'Set-VcApplication', 'Set-VcTeam', 'Set-VcUser',
-               # Backward-compat aliases: Vdc → Cm
+               # Backward-compat aliases: Vdc -> Cm
                'Add-VdcAdaptableHash', 'Add-VdcCertificateAssociation', 'Add-VdcEngineFolder',
                'Add-VdcTeamMember', 'Add-VdcTeamOwner', 'Convert-VdcObject',
                'Export-VdcCertificate', 'Export-VdcVaultObject',
@@ -196,7 +196,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Venafi','SSL','TLS','API','devsecops','powershell'
+        Tags = 'Venafi','SSL','TLS','API','devsecops','powershell','Strata Cloud Manager','NGTS'
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/Venafi/VenafiPS/blob/main/LICENSE'
@@ -211,7 +211,7 @@ PrivateData = @{
         ReleaseNotes = 'https://github.com/Venafi/VenafiPS/blob/main/CHANGELOG.md'
 
         # Prerelease string of this module
-        Prerelease = 'beta2'
+        Prerelease = ''
 
         # Flag to indicate whether the module requires explicit user acceptance for install/update/save
         # RequireLicenseAcceptance = $false
