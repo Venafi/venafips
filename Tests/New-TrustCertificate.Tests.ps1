@@ -60,7 +60,6 @@
 Describe "New-TrustCertificate" -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Application' } -MockWith { $mockApp } -ModuleName $ModuleName
         Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'IssuingTemplate' } -MockWith { $mockTemplate } -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockCertRequestResponse } -ModuleName $ModuleName
     }
@@ -68,28 +67,35 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
     Context "Basic certificate request with ASK" {
 
         It "Should call the certificate request API" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Method -eq 'Post' -and $UriLeaf -eq 'certificaterequests'
             }
         }
 
         It "Should not return output without PassThru" {
-            $result = New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            $result = New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
             $result | Should -BeNullOrEmpty
         }
 
         It "Should set isVaaSGenerated to true for ASK" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.isVaaSGenerated -eq $true
             }
         }
 
         It "Should include common name in csrAttributes" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.commonName -eq 'app.mycert.com'
+            }
+        }
+
+        It "Should not include applicationId when Application is not provided" {
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                -not $Body.ContainsKey('applicationId')
             }
         }
     }
@@ -98,7 +104,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
 
         It "Should set isVaaSGenerated to false for CSR" {
             $csr = "-----BEGIN CERTIFICATE REQUEST-----`nMIICYzCCAUsCAQAwHj`n-----END CERTIFICATE REQUEST-----"
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -Csr $csr -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -Csr $csr -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.isVaaSGenerated -eq $false -and $Body.certificateSigningRequest -eq $csr
             }
@@ -108,42 +114,42 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
     Context "Optional subject fields" {
 
         It "Should include Organization when provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Organization 'MyOrg' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Organization 'MyOrg' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.organization -eq 'MyOrg'
             }
         }
 
         It "Should use template default for Organization when not provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.organization -eq 'DefaultOrg'
             }
         }
 
         It "Should include OrganizationalUnit when provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -OrganizationalUnit 'IT', 'Dev' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -OrganizationalUnit 'IT', 'Dev' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.organizationalUnits.Count -eq 2
             }
         }
 
         It "Should include City when provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -City 'Newton' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -City 'Newton' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.locality -eq 'Newton'
             }
         }
 
         It "Should include State when provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -State 'MA' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -State 'MA' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.state -eq 'MA'
             }
         }
 
         It "Should include Country when provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Country 'US' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Country 'US' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.country -eq 'US'
             }
@@ -153,7 +159,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
     Context "Key parameters" {
 
         It "Should set RSA key type when KeySize provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -KeySize 4096 -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -KeySize 4096 -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.keyTypeParameters.keyType -eq 'RSA' -and
                 $Body.csrAttributes.keyTypeParameters.keyLength -eq 4096
@@ -161,7 +167,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
         }
 
         It "Should set EC key type when KeyCurve provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -KeyCurve 'P256' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -KeyCurve 'P256' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.keyTypeParameters.keyType -eq 'EC' -and
                 $Body.csrAttributes.keyTypeParameters.keyCurve -eq 'P256'
@@ -172,28 +178,28 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
     Context "SAN entries" {
 
         It "Should include DNS SANs" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanDns 'www.mycert.com', 'api.mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanDns 'www.mycert.com', 'api.mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.subjectAlternativeNamesByType.dnsNames.Count -eq 2
             }
         }
 
         It "Should include IP SANs" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanIP '1.2.3.4' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanIP '1.2.3.4' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.subjectAlternativeNamesByType.ipAddresses[0] -eq '1.2.3.4'
             }
         }
 
         It "Should include URI SANs" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanUri 'https://app.mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanUri 'https://app.mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.subjectAlternativeNamesByType.uniformResourceIdentifiers[0] -eq 'https://app.mycert.com'
             }
         }
 
         It "Should include Email SANs" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanEmail 'admin@mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -SanEmail 'admin@mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.csrAttributes.subjectAlternativeNamesByType.rfc822Names[0] -eq 'admin@mycert.com'
             }
@@ -203,42 +209,33 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
     Context "Tags" {
 
         It "Should include tags when provided" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Tag 'env:prod', 'team:infra' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Tag 'env:prod', 'team:infra' -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.tags.Count -eq 2
             }
         }
     }
 
-    Context "Application with single template" {
+    Context "With Application" {
 
-        It "Should auto-select the only template when IssuingTemplate is not provided" {
-            New-TrustCertificate -Application 'MyApp' -CommonName 'app.mycert.com' -Confirm:$false
-            Should -Invoke -CommandName 'Get-TrustData' -Times 1 -ModuleName $ModuleName -ParameterFilter {
-                $Type -eq 'IssuingTemplate' -and $InputObject -eq $templateId
+        BeforeEach {
+            Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Application' } -MockWith { $mockApp } -ModuleName $ModuleName
+            $mockTrustClient = & (Get-Module VenafiPS) { Get-TrustClient }
+        }
+
+        It "Should include applicationId when Application is provided" {
+            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -TrustClient $mockTrustClient -Confirm:$false
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $Body.applicationId -eq $appId
             }
         }
-    }
 
-    Context "Application with multiple templates" {
-
-        It "Should throw when IssuingTemplate is not provided and app has multiple templates" {
-            Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Application' } -MockWith {
-                [pscustomobject]@{
-                    applicationId   = $appId
-                    name            = 'MyApp'
-                    issuingTemplate = @(
-                        [pscustomobject]@{ name = 'Template1'; issuingTemplateId = 'id1' },
-                        [pscustomobject]@{ name = 'Template2'; issuingTemplateId = 'id2' }
-                    )
-                }
-            } -ModuleName $ModuleName
-
-            { New-TrustCertificate -Application 'MyApp' -CommonName 'app.mycert.com' -Confirm:$false } | Should -Throw '*IssuingTemplate is required*'
+        It "Should resolve application by name" {
+            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -TrustClient $mockTrustClient -Confirm:$false
+            Should -Invoke -CommandName 'Get-TrustData' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $Type -eq 'Application' -and $InputObject -eq 'MyApp'
+            }
         }
-    }
-
-    Context "Application with no templates" {
 
         It "Should throw when application has no templates" {
             Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Application' } -MockWith {
@@ -249,22 +246,32 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
                 }
             } -ModuleName $ModuleName
 
-            { New-TrustCertificate -Application 'MyApp' -CommonName 'app.mycert.com' -Confirm:$false } | Should -Throw '*No templates associated*'
+            { New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -TrustClient $mockTrustClient -Confirm:$false } | Should -Throw '*No templates associated*'
         }
     }
 
-    Context "Template name as alias" {
+    Context "Without Application" {
 
-        It "Should resolve template by alias name from application" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
-            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName
+        It "Should resolve template directly without Application" {
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            Should -Invoke -CommandName 'Get-TrustData' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $Type -eq 'IssuingTemplate' -and $InputObject -eq 'MSCA - 1 year'
+            }
+        }
+
+        It "Should not resolve Application when not provided" {
+            Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Application' } -ModuleName $ModuleName
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            Should -Invoke -CommandName 'Get-TrustData' -Times 0 -ModuleName $ModuleName -ParameterFilter {
+                $Type -eq 'Application'
+            }
         }
     }
 
     Context "PassThru" {
 
         It "Should return certificate request details with PassThru" {
-            $result = New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru -Confirm:$false
+            $result = New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru -Confirm:$false
             $result | Should -Not -BeNullOrEmpty
             $result.certificateRequestId | Should -Be $certRequestId
         }
@@ -273,13 +280,13 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockCertRequestIssuedResponse } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificate' -MockWith { $mockCertificate } -ModuleName $ModuleName
 
-            $result = New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru -Confirm:$false
+            $result = New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru -Confirm:$false
             $result.certificate | Should -Not -BeNullOrEmpty
             $result.certificate.certificateId | Should -Be $certId
         }
 
         It "Should not include certificate when certificateIds is empty" {
-            $result = New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru -Confirm:$false
+            $result = New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -PassThru -Confirm:$false
             $result.certificate | Should -BeNullOrEmpty
         }
     }
@@ -290,7 +297,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockCertRequestIssuedResponse } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
 
@@ -305,7 +312,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
 
@@ -320,7 +327,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
 
@@ -335,7 +342,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
 
@@ -350,7 +357,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
 
@@ -365,7 +372,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
 
@@ -380,7 +387,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
             } -ModuleName $ModuleName
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
     }
@@ -396,7 +403,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
                 }
             } -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 1 -ModuleName $ModuleName
         }
 
@@ -418,7 +425,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
                 }
             } -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 1 -ModuleName $ModuleName
         }
 
@@ -439,7 +446,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
                 }
             } -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 1 -ModuleName $ModuleName
         }
 
@@ -464,7 +471,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
                 }
             } -ModuleName $ModuleName
 
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 2 -ModuleName $ModuleName
         }
     }
@@ -492,7 +499,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
 
             Mock -CommandName 'Get-TrustCertificate' -MockWith { $mockCertificate } -ModuleName $ModuleName
 
-            $result = New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -PassThru -Confirm:$false
+            $result = New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -PassThru -Confirm:$false
             $result | Should -Not -BeNullOrEmpty
             $result.certificate | Should -Not -BeNullOrEmpty
             $result.certificate.certificateId | Should -Be $certId
@@ -515,7 +522,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
                 }
             } -ModuleName $ModuleName
 
-            $result = New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -PassThru -Confirm:$false
+            $result = New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Wait -PassThru -Confirm:$false
             $result | Should -Not -BeNullOrEmpty
             $result.certificate | Should -BeNullOrEmpty
         }
@@ -525,7 +532,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
 
         It "Should not call Get-TrustCertificateRequest when Wait is not specified" {
             Mock -CommandName 'Get-TrustCertificateRequest' -ModuleName $ModuleName
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false
             Should -Invoke -CommandName 'Get-TrustCertificateRequest' -Times 0 -ModuleName $ModuleName
         }
     }
@@ -534,7 +541,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
 
         It "Should write error when API call fails" {
             Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { throw 'API error' } -ModuleName $ModuleName
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false -ErrorVariable err -ErrorAction SilentlyContinue
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -Confirm:$false -ErrorVariable err -ErrorAction SilentlyContinue
             $err | Should -Not -BeNullOrEmpty
         }
     }
@@ -542,7 +549,7 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
     Context "ValidUntil" {
 
         It "Should set validity period from ValidUntil" {
-            New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -ValidUntil (Get-Date).AddDays(90) -Confirm:$false
+            New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -ValidUntil (Get-Date).AddDays(90) -Confirm:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.validityPeriod -match '^P\d+DT\d+H$'
             }
