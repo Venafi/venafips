@@ -7,7 +7,7 @@ BeforeAll {
     . $PSScriptRoot/FunctionalCommon.ps1
 }
 
-Describe 'VC Connection' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Connection' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     It 'Should create a session with API key' {
         $sess = New-CmsFunctionalSession
@@ -30,7 +30,7 @@ Describe 'VC Connection' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Find Certificates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Find Certificates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -71,7 +71,7 @@ Describe 'VC Find Certificates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Get Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Get Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -87,7 +87,7 @@ Describe 'VC Get Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Export Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Export Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -112,7 +112,7 @@ Describe 'VC Export Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Team Lifecycle ────────────────────────────────────────────────────────────
 
-Describe 'VC Team Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
+Describe 'CMSaaS Team Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -170,7 +170,7 @@ Describe 'VC Team Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
 # ── Application Lifecycle ─────────────────────────────────────────────────────
 
-Describe 'VC Application Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
+Describe 'CMSaaS Application Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -228,7 +228,7 @@ Describe 'VC Application Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$sk
 
 # ── Certificate Lifecycle ─────────────────────────────────────────────────────
 
-Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
+Describe 'CMSaaS Certificate Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -243,15 +243,22 @@ Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$sk
         $team = Get-CmsTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
         if ($team) {
             $script:testTeamId = $team.teamId
-            $appName = New-TestName -Prefix 'venafips-certlife-app'
-            $app = New-CmsApplication -Name $appName -Owner $script:testTeamId -IssuingTemplate $env:VENAFIPS_CMS_ISSUING_TEMPLATE -PassThru -TrustClient $script:vcSession
-            $script:testAppId = $app.applicationId
+            if ($env:VENAFIPS_CMS_ISSUING_TEMPLATE) {
+                $appName = New-TestName -Prefix 'venafips-certlife-app'
+                $app = New-CmsApplication -Name $appName -Owner $script:testTeamId -IssuingTemplate $env:VENAFIPS_CMS_ISSUING_TEMPLATE -PassThru -TrustClient $script:vcSession
+                $script:testAppId = $app.applicationId
+            }
         }
     }
 
     It 'Should request a new certificate' {
         if (-not $env:VENAFIPS_CMS_ISSUING_TEMPLATE) {
             Set-ItResult -Skipped -Because 'VENAFIPS_CMS_ISSUING_TEMPLATE not set'
+            return
+        }
+
+        if (-not $env:VENAFIPS_CMS_DOMAIN) {
+            Set-ItResult -Skipped -Because 'VENAFIPS_CMS_DOMAIN not set'
             return
         }
 
@@ -262,7 +269,7 @@ Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$sk
 
         $testName = New-TestName -Prefix 'venafips-func'
         $params = @{
-            CommonName       = "$testName.example.com"
+            CommonName       = "$testName.$env:VENAFIPS_CMS_DOMAIN"
             IssuingTemplate  = $env:VENAFIPS_CMS_ISSUING_TEMPLATE
             Application      = $script:testAppId
             TrustClient      = $script:vcSession
@@ -311,7 +318,7 @@ Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$sk
 
 # ── Webhook Lifecycle ─────────────────────────────────────────────────────────
 
-Describe 'VC Webhook Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
+Describe 'CMSaaS Webhook Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -348,7 +355,7 @@ Describe 'VC Webhook Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAl
 
 # ── Certificate Tag/Application Assignment ────────────────────────────────────
 
-Describe 'VC Set Certificate' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
+Describe 'CMSaaS Set Certificate' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -398,7 +405,7 @@ Describe 'VC Set Certificate' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll 
 
 # ── Issuing Templates & CAs ──────────────────────────────────────────────────
 
-Describe 'VC Issuing Templates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Issuing Templates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -419,7 +426,7 @@ Describe 'VC Issuing Templates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Certificate Authorities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Certificate Authorities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -441,7 +448,7 @@ Describe 'VC Certificate Authorities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Machines ──────────────────────────────────────────────────────────────────
 
-Describe 'VC Find Machines' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Find Machines' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -463,7 +470,7 @@ Describe 'VC Find Machines' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Get Machine' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Get Machine' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -487,7 +494,7 @@ Describe 'VC Get Machine' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Machine Identities ───────────────────────────────────────────────────────
 
-Describe 'VC Machine Identities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Machine Identities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -512,7 +519,7 @@ Describe 'VC Machine Identities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Applications ──────────────────────────────────────────────────────────────
 
-Describe 'VC Applications' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Applications' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -543,7 +550,7 @@ Describe 'VC Applications' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Certificate Requests ──────────────────────────────────────────────────────
 
-Describe 'VC Certificate Requests' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Certificate Requests' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -568,7 +575,7 @@ Describe 'VC Certificate Requests' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Certificate Instances ─────────────────────────────────────────────────────
 
-Describe 'VC Certificate Instances' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Certificate Instances' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -584,7 +591,7 @@ Describe 'VC Certificate Instances' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Teams ─────────────────────────────────────────────────────────────────────
 
-Describe 'VC Teams' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Teams' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -607,7 +614,7 @@ Describe 'VC Teams' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Users ─────────────────────────────────────────────────────────────────────
 
-Describe 'VC Users' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Users' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -634,7 +641,7 @@ Describe 'VC Users' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Set User ──────────────────────────────────────────────────────────────────
 
-# Describe 'VC Set User' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
+# Describe 'CMSaaS Set User' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
 #     BeforeAll {
 #         $script:vcSession = New-CmsFunctionalSession
@@ -661,7 +668,7 @@ Describe 'VC Users' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Tags ──────────────────────────────────────────────────────────────────────
 
-Describe 'VC Tags' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Tags' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -676,7 +683,7 @@ Describe 'VC Tags' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Connectors ────────────────────────────────────────────────────────────────
 
-Describe 'VC Connectors' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Connectors' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -699,7 +706,7 @@ Describe 'VC Connectors' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Webhooks ──────────────────────────────────────────────────────────────────
 
-Describe 'VC Webhooks' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Webhooks' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -712,7 +719,7 @@ Describe 'VC Webhooks' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Satellites ────────────────────────────────────────────────────────────────
 
-Describe 'VC Satellites' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Satellites' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -733,7 +740,7 @@ Describe 'VC Satellites' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Cloud Keystores & Providers ───────────────────────────────────────────────
 
-Describe 'VC Cloud Providers' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Cloud Providers' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -752,7 +759,7 @@ Describe 'VC Cloud Providers' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Cloud Keystores' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Cloud Keystores' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -765,7 +772,7 @@ Describe 'VC Cloud Keystores' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
 # ── Logs ──────────────────────────────────────────────────────────────────────
 
-Describe 'VC Activity Log' -Tags 'Functional', 'CMS' -Skip:$skipAll {
+Describe 'CMSaaS Activity Log' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
         $script:vcSession = New-CmsFunctionalSession
@@ -777,8 +784,6 @@ Describe 'VC Activity Log' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 
     It 'Should filter critical log entries' {
-        $logs = Find-TrustLog -Critical -First 5 -TrustClient $script:vcSession
-        # may be empty — just verify it does not throw
         { Find-TrustLog -Critical -First 5 -TrustClient $script:vcSession } | Should -Not -Throw
     }
 }

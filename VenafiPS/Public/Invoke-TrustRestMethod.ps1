@@ -120,31 +120,6 @@ function Invoke-TrustRestMethod {
 
         if ( -not $TrustClient ) { $TrustClient = Get-TrustClient }
 
-        # When a TrustClient is explicitly provided, validate the platform matches the calling function
-        $callingCmd = @(Get-PSCallStack)[1].Command
-        $expectedPlatform = switch -Regex ($callingCmd) {
-            '-Trust' { 'TRUST'; break }
-            '-Ngts' { 'NGTS'; break }
-            '-Cms' { 'CMS'; break }
-            '-Cm' { 'CM'; break }
-            default { $null }
-        }
-
-        if ( $expectedPlatform ) {
-            if ( $expectedPlatform -eq 'TRUST' ) {
-                if ( $TrustClient.Platform -notin @('CMS', 'NGTS') ) {
-                    # -Trust is for CMS and NGTS so this is a special case where we want to allow either platform
-                    # this should only occur for CM
-                    throw "You are attempting to call a $expectedPlatform function with a $($TrustClient.Platform) session.  Please provide the correct session or call New-TrustClient for the target platform."
-                }
-            }
-            else {
-                if ( $TrustClient.Platform -ne $expectedPlatform ) {
-                    throw "You are attempting to call a $expectedPlatform function with a $($TrustClient.Platform) session.  Please provide the correct session or call New-TrustClient for the target platform."
-                }
-            }
-        }
-
         # Get-TrustClient auto-refreshes script/nested sessions.
         # For explicitly provided class sessions, ensure we also refresh when expiring soon.
         if ($PSBoundParameters.ContainsKey('TrustClient')) {

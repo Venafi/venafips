@@ -65,7 +65,7 @@ New-TrustClient -Server 'venafi.mycompany.com' -Credential $cred -ClientId 'MyAp
 # create a session for CMSaaS (your API key can be found in your user profile -> preferences)
 New-TrustClient -VcKey $apiKeyCred
 
-# create a session with NGTS
+# create a session with NGTS, requires a service account with the appropriate roles
 New-TrustClient -NgtsCredential $ngtsCred
 ```
 
