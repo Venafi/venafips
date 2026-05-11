@@ -1,4 +1,4 @@
-function Set-VcTeam {
+function Set-CmsTeam {
     <#
     .SYNOPSIS
     Update an existing team
@@ -43,36 +43,37 @@ function Set-VcTeam {
     PSCustomObject
 
     .EXAMPLE
-    Set-VcTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter'
+    Set-CmsTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter'
 
     Rename an existing team
 
     .EXAMPLE
-    Set-VcTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Role 'PKI Admin'
+    Set-CmsTeam -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Role 'PKI Admin'
 
     Change the role for an existing team
 
     .EXAMPLE
-    Set-VcTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'}
+    Set-CmsTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'}
 
     Replace a teams user matching rules
 
     .EXAMPLE
-    Set-VcTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'} -NoOverwrite
+    Set-CmsTeam -ID 'MyTeam' -UserMatchingRule @{'ClaimName'='MyClaim';'Operator'='equals';'ClaimValue'='matchme'} -NoOverwrite
 
     Update a teams user matching rules, appending instead of overwriting
 
     .EXAMPLE
-    Set-VcTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter' -PassThru
+    Set-CmsTeam -ID 'MyTeam' -Name 'ThisTeamIsBetter' -PassThru
 
     Rename an existing team and return the updated team object
 
     .EXAMPLE
-    Get-VcTeam -All | Where-Object {$_.name -like '*shouldnt be sysadmin*'} | Set-VcTeam -NewRole 'PKI Admin'
+    Get-CmsTeam -All | Where-Object {$_.name -like '*shouldnt be sysadmin*'} | Set-CmsTeam -NewRole 'PKI Admin'
 
     Update many teams
     #>
 
+        [Alias('Set-VcTeam')]
     [CmdletBinding(DefaultParameterSetName = 'NoOverwrite')]
 
     param (

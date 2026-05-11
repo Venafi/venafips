@@ -1,4 +1,4 @@
-function Add-VcTeamOwner {
+function Add-CmsTeamOwner {
     <#
     .SYNOPSIS
     Add owners to a team
@@ -21,7 +21,7 @@ function Add-VcTeamOwner {
     Team
 
     .EXAMPLE
-    Add-VcTeamOwner -Team 'DevOps' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+    Add-CmsTeamOwner -Team 'DevOps' -Owner @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 
     Add owners
 
@@ -29,6 +29,7 @@ function Add-VcTeamOwner {
     https://api.venafi.cloud/webjars/swagger-ui/index.html#/Teams/addOwner
     #>
 
+        [Alias('Add-VcTeamOwner')]
     [CmdletBinding()]
     param (
 

@@ -3,7 +3,7 @@
 
 Mock -CommandName 'Get-TrustClient' -MockWith {
     $tc = & (Get-Module VenafiPS) ([scriptblock]::Create('[TrustClient]::new()'))
-    $tc.Platform = 'VC'
+    $tc.Platform = 'CMS'
     $tc.Server = 'https://api.venafi.cloud'
     $tc.TimeoutSec = 0
     $tc.SkipCertificateCheck = $false

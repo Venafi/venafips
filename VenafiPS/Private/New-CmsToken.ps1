@@ -1,4 +1,4 @@
-function New-VcToken {
+function New-CmsToken {
     <#
     .SYNOPSIS
     Get a new access token
@@ -15,7 +15,7 @@ function New-VcToken {
     JSON web token with access to the configured service account
 
     .EXAMPLE
-    New-VcToken -Endpoint 'https://api.venafi.cloud/v1/oauth2/v2.0/2222c771-61f3-11ec-8a47-490a1e43c222/token' -Jwt $Jwt
+    New-CmsToken -Endpoint 'https://api.venafi.cloud/v1/oauth2/v2.0/2222c771-61f3-11ec-8a47-490a1e43c222/token' -Jwt $Jwt
 
     Get a new token with OAuth
 
@@ -26,6 +26,7 @@ function New-VcToken {
     TrustToken
     #>
 
+        [Alias('New-VcToken')]
     [CmdletBinding(DefaultParameterSetName = 'ScriptSession')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting to a secure string, its already plaintext')]
     [OutputType([TrustToken])]

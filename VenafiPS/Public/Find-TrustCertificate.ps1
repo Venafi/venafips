@@ -314,7 +314,7 @@ function Find-TrustCertificate {
                 foreach ($thisAppId in $_.applicationIds) {
                     $thisApp = $apps | Where-Object applicationId -eq $thisAppId
                     if ( -not $thisApp ) {
-                        $thisApp = Get-VcApplication -ID $thisAppId | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
+                        $thisApp = Get-CmsApplication -ID $thisAppId | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
                         $apps.Add($thisApp)
                     }
                     $thisApp
@@ -361,7 +361,7 @@ function Find-TrustCertificate {
                 foreach ($thisOwner in $_.ownership.owningContainers.owningTeams) {
                     $thisOwnerDetail = $appOwners | Where-Object id -eq $thisOwner
                     if ( -not $thisOwnerDetail ) {
-                        $thisOwnerDetail = Get-VcTeam -Team $thisOwner | Select-Object name, role, members,
+                        $thisOwnerDetail = Get-CmsTeam -Team $thisOwner | Select-Object name, role, members,
                         @{
                             'n' = 'type'
                             'e' = { 'TEAM' }

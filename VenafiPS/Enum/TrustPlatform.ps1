@@ -1,6 +1,6 @@
 ﻿enum TrustPlatform {
     None
     CM
-    VC
+    CMS
     NGTS
 }

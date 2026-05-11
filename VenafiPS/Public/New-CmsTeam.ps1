@@ -1,4 +1,4 @@
-function New-VcTeam {
+function New-CmsTeam {
     <#
     .SYNOPSIS
     Create a new team
@@ -66,6 +66,7 @@ function New-VcTeam {
     https://docs.venafi.cloud/vcs-platform/creating-new-teams/
     #>
 
+        [Alias('New-VcTeam')]
     [CmdletBinding()]
 
     param (
@@ -132,7 +133,7 @@ function New-VcTeam {
         $response = Invoke-TrustRestMethod @params
 
         if ( $PassThru ) {
-            Get-VcTeam -Team $response.id
+            Get-CmsTeam -Team $response.id
         }
     }
 }

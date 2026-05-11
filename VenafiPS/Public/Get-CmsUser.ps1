@@ -1,4 +1,4 @@
-function Get-VcUser {
+function Get-CmsUser {
     <#
     .SYNOPSIS
     Get user details
@@ -43,22 +43,22 @@ function Get-VcUser {
         memberedTeams
 
     .EXAMPLE
-    Get-VcUser -ID 9e9db8d6-234a-409c-8299-e3b81ce2f916
+    Get-CmsUser -ID 9e9db8d6-234a-409c-8299-e3b81ce2f916
 
     Get user details from an id
 
     .EXAMPLE
-    Get-VcUser -ID 'greg.brownstein@venafi.com'
+    Get-CmsUser -ID 'greg.brownstein@venafi.com'
 
     Get user details from a username
 
     .EXAMPLE
-    Get-VcUser -Me
+    Get-CmsUser -Me
 
     Get user details for authenticated/current user
 
     .EXAMPLE
-    Get-VcUser -All
+    Get-CmsUser -All
 
     Get all users
 
@@ -66,6 +66,7 @@ function Get-VcUser {
     https://api.venafi.cloud/webjars/swagger-ui/index.html?urls.primaryName=account-service#/Users/users_getByUsername
     #>
 
+        [Alias('Get-VcUser')]
     [CmdletBinding(DefaultParameterSetName = 'Id')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', '', Justification = "Parameter is used")]
 

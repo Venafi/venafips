@@ -1,39 +1,39 @@
 ﻿BeforeDiscovery {
     . $PSScriptRoot/FunctionalCommon.ps1
-    $skipAll = Skip-IfNoSession -Platform 'VC' -RequiredEnvVars @('VENAFIPS_VC_APIKEY')
+    $skipAll = Skip-IfNoSession -Platform 'CMS' -RequiredEnvVars @('VENAFIPS_CMS_APIKEY')
 }
 
 BeforeAll {
     . $PSScriptRoot/FunctionalCommon.ps1
 }
 
-Describe 'VC Connection' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Connection' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     It 'Should create a session with API key' {
-        $sess = New-VcFunctionalSession
+        $sess = New-CmsFunctionalSession
         $sess | Should -Not -BeNullOrEmpty
-        $sess.Platform | Should -Be 'VC'
+        $sess.Platform | Should -Be 'CMS'
         $sess.AuthType | Should -Be 'ApiKey'
         $sess.Server | Should -Not -BeNullOrEmpty
     }
 
     It 'Should set module-scoped session' {
-        if (-not $env:VENAFIPS_VC_APIKEY) {
-            Set-ItResult -Skipped -Because 'VENAFIPS_VC_APIKEY not set (using existing session)'
+        if (-not $env:VENAFIPS_CMS_APIKEY) {
+            Set-ItResult -Skipped -Because 'VENAFIPS_CMS_APIKEY not set (using existing session)'
             return
         }
-        $region = if ($env:VENAFIPS_VC_REGION) { $env:VENAFIPS_VC_REGION } else { 'us' }
-        New-TrustClient -VcKey $env:VENAFIPS_VC_APIKEY -VcRegion $region
+        $region = if ($env:VENAFIPS_CMS_REGION) { $env:VENAFIPS_CMS_REGION } else { 'us' }
+        New-TrustClient -CmsKey $env:VENAFIPS_CMS_APIKEY -CmsRegion $region
         $moduleClient = InModuleScope 'VenafiPS' { $Script:TrustClient }
         $moduleClient | Should -Not -BeNullOrEmpty
-        $moduleClient.Platform | Should -Be 'VC'
+        $moduleClient.Platform | Should -Be 'CMS'
     }
 }
 
-Describe 'VC Find Certificates' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Find Certificates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should find certificates with -First' {
@@ -71,10 +71,10 @@ Describe 'VC Find Certificates' -Tags 'Functional', 'VC' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Get Certificate' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Get Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:sampleCert = Find-TrustCertificate -First 1 -TrustClient $script:vcSession
     }
 
@@ -87,10 +87,10 @@ Describe 'VC Get Certificate' -Tags 'Functional', 'VC' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Export Certificate' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Export Certificate' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:sampleCert = Find-TrustCertificate -First 1 -TrustClient $script:vcSession
         $script:exportDir = Join-Path ([System.IO.Path]::GetTempPath()) 'VenafiPS-Functional'
         if (-not (Test-Path $script:exportDir)) { New-Item -Path $script:exportDir -ItemType Directory | Out-Null }
@@ -112,91 +112,91 @@ Describe 'VC Export Certificate' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Team Lifecycle ────────────────────────────────────────────────────────────
 
-Describe 'VC Team Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+Describe 'VC Team Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:testTeamId = $null
         # get the current user GUID to use as owner and member
-        $me = Get-VcUser -Me -TrustClient $script:vcSession
+        $me = Get-CmsUser -Me -TrustClient $script:vcSession
         $script:myUserId = $me.userId
     }
 
     It 'Should create a new team' {
         $teamName = New-TestName -Prefix 'venafips-team'
-        $team = New-VcTeam -Name $teamName -Owner @($script:myUserId) -Member @($script:myUserId) -Role 'Resource Owner' -PassThru -TrustClient $script:vcSession
+        $team = New-CmsTeam -Name $teamName -Owner @($script:myUserId) -Member @($script:myUserId) -Role 'Resource Owner' -PassThru -TrustClient $script:vcSession
         $team | Should -Not -BeNullOrEmpty
         $script:testTeamId = $team.teamId
     }
 
     It 'Should get the created team' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        $team = Get-VcTeam -Team $script:testTeamId -TrustClient $script:vcSession
+        $team = Get-CmsTeam -Team $script:testTeamId -TrustClient $script:vcSession
         $team | Should -Not -BeNullOrEmpty
     }
 
     It 'Should update the team role' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        { Set-VcTeam -Team $script:testTeamId -Role 'Guest' -TrustClient $script:vcSession } | Should -Not -Throw
+        { Set-CmsTeam -Team $script:testTeamId -Role 'Guest' -TrustClient $script:vcSession } | Should -Not -Throw
     }
 
     It 'Should add a team member' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
         # adding the same user again should be a no-op or succeed silently
-        { Add-VcTeamMember -Team $script:testTeamId -Member @($script:myUserId) -TrustClient $script:vcSession } | Should -Not -Throw
+        { Add-CmsTeamMember -Team $script:testTeamId -Member @($script:myUserId) -TrustClient $script:vcSession } | Should -Not -Throw
     }
 
     It 'Should remove a team member' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        { Remove-VcTeamMember -ID $script:testTeamId -Member @($script:myUserId) -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
+        { Remove-CmsTeamMember -ID $script:testTeamId -Member @($script:myUserId) -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
     }
 
     It 'Should add a team owner' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
         # adding the same user again should be a no-op or succeed silently
-        { Add-VcTeamOwner -Team $script:testTeamId -Owner @($script:myUserId) -TrustClient $script:vcSession } | Should -Not -Throw
+        { Add-CmsTeamOwner -Team $script:testTeamId -Owner @($script:myUserId) -TrustClient $script:vcSession } | Should -Not -Throw
     }
 
     It 'Should throw when removing the only team owner' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        { Remove-VcTeamOwner -ID $script:testTeamId -Owner @($script:myUserId) -TrustClient $script:vcSession -Confirm:$false } | Should -Throw
+        { Remove-CmsTeamOwner -ID $script:testTeamId -Owner @($script:myUserId) -TrustClient $script:vcSession -Confirm:$false } | Should -Throw
     }
 
     It 'Should delete the team' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'No test team created'; return }
-        { Remove-VcTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
+        { Remove-CmsTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
     }
 }
 
 # ── Application Lifecycle ─────────────────────────────────────────────────────
 
-Describe 'VC Application Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+Describe 'VC Application Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:testAppId = $null
         $script:testAppName = $null
         $script:testTeamId = $null
 
         # create a temp team to own the application (Owner must be a team, not a user)
-        $me = Get-VcUser -Me -TrustClient $script:vcSession
+        $me = Get-CmsUser -Me -TrustClient $script:vcSession
         $teamName = New-TestName -Prefix 'venafips-appowner'
-        New-VcTeam -Name $teamName -Owner @($me.userId) -Member @($me.userId) -Role 'Resource Owner' -TrustClient $script:vcSession
-        $team = Get-VcTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
+        New-CmsTeam -Name $teamName -Owner @($me.userId) -Member @($me.userId) -Role 'Resource Owner' -TrustClient $script:vcSession
+        $team = Get-CmsTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
         if ($team) { $script:testTeamId = $team.teamId }
     }
 
     It 'Should create a new application' {
         if (-not $script:testTeamId) { Set-ItResult -Skipped -Because 'Could not create owner team'; return }
         $script:testAppName = New-TestName -Prefix 'venafips-app'
-        $result = New-VcApplication -Name $script:testAppName -Owner $script:testTeamId -PassThru -TrustClient $script:vcSession
+        $result = New-CmsApplication -Name $script:testAppName -Owner $script:testTeamId -PassThru -TrustClient $script:vcSession
         $result | Should -Not -BeNullOrEmpty
         $script:testAppId = $result.applicationId
     }
 
     It 'Should get the created application' {
         if (-not $script:testAppId) { Set-ItResult -Skipped -Because 'No test application created'; return }
-        $app = Get-VcApplication -Application $script:testAppId -TrustClient $script:vcSession
+        $app = Get-CmsApplication -Application $script:testAppId -TrustClient $script:vcSession
         $app | Should -Not -BeNullOrEmpty
         $app.name | Should -Be $script:testAppName
     }
@@ -204,54 +204,54 @@ Describe 'VC Application Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$ski
     It 'Should update the application name' {
         if (-not $script:testAppId) { Set-ItResult -Skipped -Because 'No test application created'; return }
         $newName = New-TestName -Prefix 'venafips-app-upd'
-        { Set-VcApplication -Application $script:testAppId -Name $newName -TrustClient $script:vcSession } | Should -Not -Throw
+        { Set-CmsApplication -Application $script:testAppId -Name $newName -TrustClient $script:vcSession } | Should -Not -Throw
         $script:testAppName = $newName
     }
 
     It 'Should verify the name was updated' {
         if (-not $script:testAppId) { Set-ItResult -Skipped -Because 'No test application created'; return }
-        $app = Get-VcApplication -Application $script:testAppId -TrustClient $script:vcSession
+        $app = Get-CmsApplication -Application $script:testAppId -TrustClient $script:vcSession
         $app.name | Should -Be $script:testAppName
     }
 
     It 'Should delete the application' {
         if (-not $script:testAppId) { Set-ItResult -Skipped -Because 'No test application created'; return }
-        { Remove-VcApplication -ID $script:testAppId -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
+        { Remove-CmsApplication -ID $script:testAppId -TrustClient $script:vcSession -Confirm:$false } | Should -Not -Throw
     }
 
     AfterAll {
         if ($script:testTeamId) {
-            Remove-VcTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+            Remove-CmsTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
         }
     }
 }
 
 # ── Certificate Lifecycle ─────────────────────────────────────────────────────
 
-Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:testCertId = $null
         $script:testTeamId = $null
         $script:testAppId = $null
 
         # create a temp team and application for certificate association
-        $me = Get-VcUser -Me -TrustClient $script:vcSession
+        $me = Get-CmsUser -Me -TrustClient $script:vcSession
         $teamName = New-TestName -Prefix 'venafips-certlife'
-        New-VcTeam -Name $teamName -Owner @($me.userId) -Member @($me.userId) -Role 'Resource Owner' -TrustClient $script:vcSession
-        $team = Get-VcTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
+        New-CmsTeam -Name $teamName -Owner @($me.userId) -Member @($me.userId) -Role 'Resource Owner' -TrustClient $script:vcSession
+        $team = Get-CmsTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
         if ($team) {
             $script:testTeamId = $team.teamId
             $appName = New-TestName -Prefix 'venafips-certlife-app'
-            $app = New-VcApplication -Name $appName -Owner $script:testTeamId -IssuingTemplate $env:VENAFIPS_VC_ISSUING_TEMPLATE -PassThru -TrustClient $script:vcSession
+            $app = New-CmsApplication -Name $appName -Owner $script:testTeamId -IssuingTemplate $env:VENAFIPS_CMS_ISSUING_TEMPLATE -PassThru -TrustClient $script:vcSession
             $script:testAppId = $app.applicationId
         }
     }
 
     It 'Should request a new certificate' {
-        if (-not $env:VENAFIPS_VC_ISSUING_TEMPLATE) {
-            Set-ItResult -Skipped -Because 'VENAFIPS_VC_ISSUING_TEMPLATE not set'
+        if (-not $env:VENAFIPS_CMS_ISSUING_TEMPLATE) {
+            Set-ItResult -Skipped -Because 'VENAFIPS_CMS_ISSUING_TEMPLATE not set'
             return
         }
 
@@ -263,7 +263,7 @@ Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$ski
         $testName = New-TestName -Prefix 'venafips-func'
         $params = @{
             CommonName       = "$testName.example.com"
-            IssuingTemplate  = $env:VENAFIPS_VC_ISSUING_TEMPLATE
+            IssuingTemplate  = $env:VENAFIPS_CMS_ISSUING_TEMPLATE
             Application      = $script:testAppId
             TrustClient      = $script:vcSession
             PassThru         = $true
@@ -301,26 +301,26 @@ Describe 'VC Certificate Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$ski
 
     AfterAll {
         if ($script:testAppId) {
-            Remove-VcApplication -ID $script:testAppId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+            Remove-CmsApplication -ID $script:testAppId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
         }
         if ($script:testTeamId) {
-            Remove-VcTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+            Remove-CmsTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
         }
     }
 }
 
 # ── Webhook Lifecycle ─────────────────────────────────────────────────────────
 
-Describe 'VC Webhook Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+Describe 'VC Webhook Lifecycle' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:testWebhookId = $null
     }
 
     It 'Should create a new webhook' {
-        if (-not $env:VENAFIPS_VC_WEBHOOK_URL) {
-            Set-ItResult -Skipped -Because 'VENAFIPS_VC_WEBHOOK_URL not set'
+        if (-not $env:VENAFIPS_CMS_WEBHOOK_URL) {
+            Set-ItResult -Skipped -Because 'VENAFIPS_CMS_WEBHOOK_URL not set'
             return
         }
         $webhookName = New-TestName -Prefix 'venafips-hook'
@@ -329,7 +329,7 @@ Describe 'VC Webhook Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll
         $eventType = $activityTypes.readablename | Select-Object -First 1
         if (-not $eventType) { Set-ItResult -Skipped -Because 'No activity types available'; return }
 
-        $result = New-TrustWebhook -Name $webhookName -Url $env:VENAFIPS_VC_WEBHOOK_URL -EventType $eventType -PassThru -TrustClient $script:vcSession
+        $result = New-TrustWebhook -Name $webhookName -Url $env:VENAFIPS_CMS_WEBHOOK_URL -EventType $eventType -PassThru -TrustClient $script:vcSession
         $result | Should -Not -BeNullOrEmpty
         $script:testWebhookId = $result.webhookId
     }
@@ -348,10 +348,10 @@ Describe 'VC Webhook Lifecycle' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll
 
 # ── Certificate Tag/Application Assignment ────────────────────────────────────
 
-Describe 'VC Set Certificate' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+Describe 'VC Set Certificate' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:sampleCert = Find-TrustCertificate -First 1 -TrustClient $script:vcSession
         $script:testAppId = $null
         $script:testTeamId = $null
@@ -361,15 +361,15 @@ Describe 'VC Set Certificate' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
         if (-not $script:sampleCert) { Set-ItResult -Skipped -Because 'No sample certificate found'; return }
 
         # create a temp team, then a temp app owned by that team
-        $me = Get-VcUser -Me -TrustClient $script:vcSession
+        $me = Get-CmsUser -Me -TrustClient $script:vcSession
         $teamName = New-TestName -Prefix 'venafips-setcert'
-        New-VcTeam -Name $teamName -Owner @($me.userId) -Member @($me.userId) -Role 'Resource Owner' -TrustClient $script:vcSession
-        $team = Get-VcTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
+        New-CmsTeam -Name $teamName -Owner @($me.userId) -Member @($me.userId) -Role 'Resource Owner' -TrustClient $script:vcSession
+        $team = Get-CmsTeam -All -TrustClient $script:vcSession | Where-Object { $_.name -eq $teamName }
         if (-not $team) { Set-ItResult -Skipped -Because 'Could not create owner team'; return }
         $script:testTeamId = $team.teamId
 
         $appName = New-TestName -Prefix 'venafips-assign'
-        $app = New-VcApplication -Name $appName -Owner $script:testTeamId -PassThru -TrustClient $script:vcSession
+        $app = New-CmsApplication -Name $appName -Owner $script:testTeamId -PassThru -TrustClient $script:vcSession
         $script:testAppId = $app.applicationId
 
         $certId = @($script:sampleCert)[0].certificateId
@@ -388,20 +388,20 @@ Describe 'VC Set Certificate' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
 
     AfterAll {
         if ($script:testAppId) {
-            Remove-VcApplication -ID $script:testAppId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+            Remove-CmsApplication -ID $script:testAppId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
         }
         if ($script:testTeamId) {
-            Remove-VcTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+            Remove-CmsTeam -ID $script:testTeamId -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
         }
     }
 }
 
 # ── Issuing Templates & CAs ──────────────────────────────────────────────────
 
-Describe 'VC Issuing Templates' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Issuing Templates' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all issuing templates' {
@@ -419,10 +419,10 @@ Describe 'VC Issuing Templates' -Tags 'Functional', 'VC' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Certificate Authorities' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Certificate Authorities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all certificate authorities' {
@@ -441,10 +441,10 @@ Describe 'VC Certificate Authorities' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Machines ──────────────────────────────────────────────────────────────────
 
-Describe 'VC Find Machines' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Find Machines' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should find machines with -First' {
@@ -463,10 +463,10 @@ Describe 'VC Find Machines' -Tags 'Functional', 'VC' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Get Machine' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Get Machine' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:sampleMachine = Find-TrustMachine -First 1 -TrustClient $script:vcSession
     }
 
@@ -487,10 +487,10 @@ Describe 'VC Get Machine' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Machine Identities ───────────────────────────────────────────────────────
 
-Describe 'VC Machine Identities' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Machine Identities' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
         $script:sampleMI = Find-TrustMachineIdentity -First 1 -TrustClient $script:vcSession
     }
 
@@ -512,41 +512,41 @@ Describe 'VC Machine Identities' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Applications ──────────────────────────────────────────────────────────────
 
-Describe 'VC Applications' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Applications' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all applications' {
-        $apps = Get-VcApplication -All -TrustClient $script:vcSession
+        $apps = Get-CmsApplication -All -TrustClient $script:vcSession
         $apps | Should -Not -BeNullOrEmpty
     }
 
     It 'Should get a single application by ID' {
-        $all = Get-VcApplication -All -TrustClient $script:vcSession
+        $all = Get-CmsApplication -All -TrustClient $script:vcSession
         if (-not $all) { Set-ItResult -Skipped -Because 'No applications found'; return }
         $first = @($all)[0]
-        $single = Get-VcApplication -Application $first.applicationId -TrustClient $script:vcSession
+        $single = Get-CmsApplication -Application $first.applicationId -TrustClient $script:vcSession
         $single | Should -Not -BeNullOrEmpty
         $single.applicationId | Should -Be $first.applicationId
     }
 
     It 'Should include config details with -IncludeConfig' {
-        $all = Get-VcApplication -All -TrustClient $script:vcSession
+        $all = Get-CmsApplication -All -TrustClient $script:vcSession
         if (-not $all) { Set-ItResult -Skipped -Because 'No applications found'; return }
         $first = @($all)[0]
-        $app = Get-VcApplication -Application $first.applicationId -IncludeConfig -TrustClient $script:vcSession
+        $app = Get-CmsApplication -Application $first.applicationId -IncludeConfig -TrustClient $script:vcSession
         $app | Should -Not -BeNullOrEmpty
     }
 }
 
 # ── Certificate Requests ──────────────────────────────────────────────────────
 
-Describe 'VC Certificate Requests' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Certificate Requests' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should find certificate requests with -First' {
@@ -568,10 +568,10 @@ Describe 'VC Certificate Requests' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Certificate Instances ─────────────────────────────────────────────────────
 
-Describe 'VC Certificate Instances' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Certificate Instances' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should find certificate instances with -First' {
@@ -584,22 +584,22 @@ Describe 'VC Certificate Instances' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Teams ─────────────────────────────────────────────────────────────────────
 
-Describe 'VC Teams' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Teams' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all teams' {
-        $teams = Get-VcTeam -All -TrustClient $script:vcSession
+        $teams = Get-CmsTeam -All -TrustClient $script:vcSession
         $teams | Should -Not -BeNullOrEmpty
     }
 
     It 'Should get a single team by ID' {
-        $all = Get-VcTeam -All -TrustClient $script:vcSession
+        $all = Get-CmsTeam -All -TrustClient $script:vcSession
         if (-not $all) { Set-ItResult -Skipped -Because 'No teams found'; return }
         $first = @($all)[0]
-        $single = Get-VcTeam -Team $first.teamId -TrustClient $script:vcSession
+        $single = Get-CmsTeam -Team $first.teamId -TrustClient $script:vcSession
         $single | Should -Not -BeNullOrEmpty
         $single.teamId | Should -Be $first.teamId
     }
@@ -607,26 +607,26 @@ Describe 'VC Teams' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Users ─────────────────────────────────────────────────────────────────────
 
-Describe 'VC Users' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Users' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should get the current user with -Me' {
-        $me = Get-VcUser -Me -TrustClient $script:vcSession
+        $me = Get-CmsUser -Me -TrustClient $script:vcSession
         $me | Should -Not -BeNullOrEmpty
         $me.userId | Should -Not -BeNullOrEmpty
     }
 
     It 'Should list all users' {
-        $users = Get-VcUser -All -TrustClient $script:vcSession
+        $users = Get-CmsUser -All -TrustClient $script:vcSession
         $users | Should -Not -BeNullOrEmpty
     }
 
     It 'Should get a user by ID' {
-        $me = Get-VcUser -Me -TrustClient $script:vcSession
-        $user = Get-VcUser -User $me.userId -TrustClient $script:vcSession
+        $me = Get-CmsUser -Me -TrustClient $script:vcSession
+        $user = Get-CmsUser -User $me.userId -TrustClient $script:vcSession
         $user | Should -Not -BeNullOrEmpty
         $user.userId | Should -Be $me.userId
     }
@@ -634,37 +634,37 @@ Describe 'VC Users' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Set User ──────────────────────────────────────────────────────────────────
 
-# Describe 'VC Set User' -Tags 'Functional', 'VC', 'Write' -Skip:$skipAll {
+# Describe 'VC Set User' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
 
 #     BeforeAll {
-#         $script:vcSession = New-VcFunctionalSession
-#         $script:me = Get-VcUser -Me -TrustClient $script:vcSession
+#         $script:vcSession = New-CmsFunctionalSession
+#         $script:me = Get-CmsUser -Me -TrustClient $script:vcSession
 #     }
 
 #     It 'Should update account type to API' {
-#         { Set-VcUser -User $script:me.userId -AccountType 'API' -TrustClient $script:vcSession } | Should -Not -Throw
+#         { Set-CmsUser -User $script:me.userId -AccountType 'API' -TrustClient $script:vcSession } | Should -Not -Throw
 #     }
 
 #     It 'Should update account type back to WEB_UI' {
-#         { Set-VcUser -User $script:me.userId -AccountType 'WEB_UI' -TrustClient $script:vcSession } | Should -Not -Throw
+#         { Set-CmsUser -User $script:me.userId -AccountType 'WEB_UI' -TrustClient $script:vcSession } | Should -Not -Throw
 #     }
 
 #     It 'Should return updated user with -PassThru' {
-#         $updated = Set-VcUser -User $script:me.userId -AccountType 'API' -PassThru -TrustClient $script:vcSession
+#         $updated = Set-CmsUser -User $script:me.userId -AccountType 'API' -PassThru -TrustClient $script:vcSession
 #         $updated | Should -Not -BeNullOrEmpty
 #         $updated.userId | Should -Be $script:me.userId
 
 #         # restore
-#         Set-VcUser -User $script:me.userId -AccountType 'WEB_UI' -TrustClient $script:vcSession -ErrorAction SilentlyContinue
+#         Set-CmsUser -User $script:me.userId -AccountType 'WEB_UI' -TrustClient $script:vcSession -ErrorAction SilentlyContinue
 #     }
 # }
 
 # ── Tags ──────────────────────────────────────────────────────────────────────
 
-Describe 'VC Tags' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Tags' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all tags' {
@@ -676,10 +676,10 @@ Describe 'VC Tags' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Connectors ────────────────────────────────────────────────────────────────
 
-Describe 'VC Connectors' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Connectors' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all connectors' {
@@ -699,10 +699,10 @@ Describe 'VC Connectors' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Webhooks ──────────────────────────────────────────────────────────────────
 
-Describe 'VC Webhooks' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Webhooks' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all webhooks' {
@@ -712,10 +712,10 @@ Describe 'VC Webhooks' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Satellites ────────────────────────────────────────────────────────────────
 
-Describe 'VC Satellites' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Satellites' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all satellites' {
@@ -733,10 +733,10 @@ Describe 'VC Satellites' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Cloud Keystores & Providers ───────────────────────────────────────────────
 
-Describe 'VC Cloud Providers' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Cloud Providers' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all cloud providers' {
@@ -752,10 +752,10 @@ Describe 'VC Cloud Providers' -Tags 'Functional', 'VC' -Skip:$skipAll {
     }
 }
 
-Describe 'VC Cloud Keystores' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Cloud Keystores' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should list all cloud keystores' {
@@ -765,10 +765,10 @@ Describe 'VC Cloud Keystores' -Tags 'Functional', 'VC' -Skip:$skipAll {
 
 # ── Logs ──────────────────────────────────────────────────────────────────────
 
-Describe 'VC Activity Log' -Tags 'Functional', 'VC' -Skip:$skipAll {
+Describe 'VC Activity Log' -Tags 'Functional', 'CMS' -Skip:$skipAll {
 
     BeforeAll {
-        $script:vcSession = New-VcFunctionalSession
+        $script:vcSession = New-CmsFunctionalSession
     }
 
     It 'Should find recent log entries' {

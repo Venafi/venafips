@@ -72,27 +72,27 @@ function New-TrustClient {
     Obtain a new access token from the refresh token.
     Requires an existing module scoped $TrustClient.
 
-    .PARAMETER VcKey
+    .PARAMETER CmsKey
     Api key from your Certificate Manager, SaaS instance.  The api key can be found under your user profile->preferences.
     You can either provide a String, SecureString, or PSCredential.
     If providing a credential, the username is not used.
 
-    .PARAMETER VcAccessToken
+    .PARAMETER CmsAccessToken
     Provide an existing access token to create a Certificate Manager, SaaS session.
     You can either provide a String, SecureString, or PSCredential.
     If providing a credential, the username is not used.
 
-    .PARAMETER VcRegion
+    .PARAMETER CmsRegion
     Certificate Manager, SaaS region to connect to.  Values include 'us', 'eu', 'au', 'uk', 'sg', 'ca'.  Defaults to 'us'.
     If your region is not included, you can provide the full server base URL and it will be used instead of the built-in regions.
 
-    .PARAMETER VcEndpoint
+    .PARAMETER CmsEndpoint
     Token Endpoint URL as shown on the service account details page.
 
-    .PARAMETER VaultVcKeyName
+    .PARAMETER VaultCmsKeyName
     Name of the SecretManagement vault entry for the Certificate Manager, SaaS key.
-    First time use requires it to be provided with -VcKey to populate the vault.
-    With subsequent uses, it can be provided standalone and the key will be retrieved without the need for -VcKey.
+    First time use requires it to be provided with -CmsKey to populate the vault.
+    With subsequent uses, it can be provided standalone and the key will be retrieved without the need for -CmsKey.
     The server associated with the region will be saved and restored when this parameter is used on subsequent use.
 
     .PARAMETER NgtsCredential
@@ -158,17 +158,17 @@ function New-TrustClient {
     Create session using a refresh token and store the newly created refresh token in the vault
 
     .EXAMPLE
-    New-TrustClient -VcKey $cred
+    New-TrustClient -CmsKey $cred
 
     Create session against Certificate Manager, SaaS
 
     .EXAMPLE
-    New-TrustClient -VcKey $cred -VcRegion 'eu'
+    New-TrustClient -CmsKey $cred -CmsRegion 'eu'
 
     Create session against Certificate Manager, SaaS in EU region
 
     .EXAMPLE
-    New-TrustClient -VaultVcKeyName vaas-key
+    New-TrustClient -VaultCmsKeyName vaas-key
 
     Create session against Certificate Manager, SaaS with a key stored in a vault
 
@@ -283,7 +283,7 @@ function New-TrustClient {
         [psobject] $RefreshToken,
 
         [Parameter(Mandatory, ParameterSetName = 'TokenJwt')]
-        [Parameter(Mandatory, ParameterSetName = 'VcToken')]
+        [Parameter(Mandatory, ParameterSetName = 'CmsToken')]
         [string] $Jwt,
 
         [Parameter(Mandatory, ParameterSetName = 'TokenCertificate')]
@@ -327,31 +327,36 @@ function New-TrustClient {
         )]
         [string] $AuthServer,
 
-        [Parameter(Mandatory, ParameterSetName = 'Vc')]
-        [psobject] $VcKey,
+        [Parameter(Mandatory, ParameterSetName = 'Cms')]
+        [Alias('VcKey')]
+        [psobject] $CmsKey,
 
-        [Parameter(ParameterSetName = 'Vc')]
-        [Parameter(ParameterSetName = 'VcAccessToken')]
+        [Parameter(ParameterSetName = 'Cms')]
+        [Parameter(ParameterSetName = 'CmsAccessToken')]
         [ValidateScript(
             {
-                if ( $_ -notin ($script:VcRegions).Keys ) {
-                    Write-Warning ('{0} is not a built-in known region which includes {1}.  Continuing with user-provided region.' -f $_, (($script:VcRegions).Keys -join ','))
+                if ( $_ -notin ($script:CmsRegions).Keys ) {
+                    Write-Warning ('{0} is not a built-in known region which includes {1}.  Continuing with user-provided region.' -f $_, (($script:CmsRegions).Keys -join ','))
                 }
                 $true
             }
         )]
-        [string] $VcRegion = 'us',
+        [Alias('VcRegion')]
+        [string] $CmsRegion = 'us',
 
-        [Parameter(Mandatory, ParameterSetName = 'VcAccessToken')]
+        [Parameter(Mandatory, ParameterSetName = 'CmsAccessToken')]
         [ValidateNotNullOrEmpty()]
-        [psobject] $VcAccessToken,
+        [Alias('VcAccessToken')]
+        [psobject] $CmsAccessToken,
 
-        [Parameter(Mandatory, ParameterSetName = 'VcToken')]
-        [string] $VcEndpoint,
+        [Parameter(Mandatory, ParameterSetName = 'CmsToken')]
+        [Alias('VcEndpoint')]
+        [string] $CmsEndpoint,
 
-        [Parameter(ParameterSetName = 'Vc')]
-        [Parameter(Mandatory, ParameterSetName = 'VaultVcKey')]
-        [string] $VaultVcKeyName,
+        [Parameter(ParameterSetName = 'Cms')]
+        [Parameter(Mandatory, ParameterSetName = 'VaultCmsKey')]
+        [Alias('VaultVcKeyName')]
+        [string] $VaultCmsKeyName,
 
         [Parameter(ParameterSetName = 'Ngts', Mandatory)]
         [ValidateScript(
@@ -478,12 +483,12 @@ function New-TrustClient {
             if ($Credential) { $newClient.Credential = $Credential }
         }
 
-        'VcToken' {
+        'CmsToken' {
             # access token via service account for Certificate Manager, SaaS
-            $systemUri = [System.Uri]::new($VcEndpoint)
-            $vcServer = 'https://{0}' -f $systemUri.Host
-            $token = New-VcToken -Endpoint $VcEndpoint -Jwt $Jwt -Verbose:$isVerbose
-            $newClient = [TrustClient]::NewVcBearerToken($vcServer, $token)
+            $systemUri = [System.Uri]::new($CmsEndpoint)
+            $cmsServer = 'https://{0}' -f $systemUri.Host
+            $token = New-CmsToken -Endpoint $CmsEndpoint -Jwt $Jwt -Verbose:$isVerbose
+            $newClient = [TrustClient]::NewCmsBearerToken($cmsServer, $token)
             $newClient.TimeoutSec = $TimeoutSec
         }
 
@@ -573,60 +578,60 @@ function New-TrustClient {
             $newClient.TimeoutSec = $secretInfo.Metadata.TimeoutSec
         }
 
-        'Vc' {
-            $vcServer = if ( $VcRegion -in ($script:VcRegions).Keys ) {
-                ($script:VcRegions).$VcRegion
+        'Cms' {
+            $cmsServer = if ( $CmsRegion -in ($script:CmsRegions).Keys ) {
+                ($script:CmsRegions).$CmsRegion
             }
             else {
-                $VcRegion
+                $CmsRegion
             }
-            $key = if ( $VcKey -is [string] ) { New-Object System.Management.Automation.PSCredential('VcKey', ($VcKey | ConvertTo-SecureString -AsPlainText -Force)) }
-            elseif ($VcKey -is [pscredential]) { $VcKey }
-            elseif ($VcKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('VcKey', $VcKey) }
-            else { throw 'Unsupported type for -VcKey.  Provide either a String, SecureString, or PSCredential.' }
-            $newClient = [TrustClient]::NewVcApiKey($vcServer, $key)
+            $key = if ( $CmsKey -is [string] ) { New-Object System.Management.Automation.PSCredential('CmsKey', ($CmsKey | ConvertTo-SecureString -AsPlainText -Force)) }
+            elseif ($CmsKey -is [pscredential]) { $CmsKey }
+            elseif ($CmsKey -is [securestring]) { New-Object System.Management.Automation.PSCredential('CmsKey', $CmsKey) }
+            else { throw 'Unsupported type for -CmsKey.  Provide either a String, SecureString, or PSCredential.' }
+            $newClient = [TrustClient]::NewCmsApiKey($cmsServer, $key)
             $newClient.TimeoutSec = $TimeoutSec
 
-            if ( $VaultVcKeyName ) {
+            if ( $VaultCmsKeyName ) {
                 $metadata = @{
                     Server     = $newClient.Server
                     TimeoutSec = [int]$newClient.TimeoutSec
                 }
-                Set-Secret -Name $VaultVcKeyName -Secret $newClient.ApiKey -Vault 'VenafiPS' -Metadata $metadata
+                Set-Secret -Name $VaultCmsKeyName -Secret $newClient.ApiKey -Vault 'VenafiPS' -Metadata $metadata
             }
         }
 
-        'VcAccessToken' {
-            $vcServer = if ( $VcRegion -in ($script:VcRegions).Keys ) {
-                ($script:VcRegions).$VcRegion
+        'CmsAccessToken' {
+            $cmsServer = if ( $CmsRegion -in ($script:CmsRegions).Keys ) {
+                ($script:CmsRegions).$CmsRegion
             }
             else {
-                $VcRegion
+                $CmsRegion
             }
 
-            $vcAccessTokenCred = if ( $VcAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($VcAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
-            elseif ($VcAccessToken -is [pscredential]) { $VcAccessToken }
-            elseif ($VcAccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $VcAccessToken) }
-            else { throw 'Unsupported type for -VcAccessToken.  Provide either a String, SecureString, or PSCredential.' }
-            $newClient = [TrustClient]::NewVcBearerToken($vcServer, $vcAccessTokenCred)
+            $cmsAccessTokenCred = if ( $CmsAccessToken -is [string] ) { New-Object System.Management.Automation.PSCredential('AccessToken', ($CmsAccessToken | ConvertTo-SecureString -AsPlainText -Force)) }
+            elseif ($CmsAccessToken -is [pscredential]) { $CmsAccessToken }
+            elseif ($CmsAccessToken -is [securestring]) { New-Object System.Management.Automation.PSCredential('AccessToken', $CmsAccessToken) }
+            else { throw 'Unsupported type for -CmsAccessToken.  Provide either a String, SecureString, or PSCredential.' }
+            $newClient = [TrustClient]::NewCmsBearerToken($cmsServer, $cmsAccessTokenCred)
             $newClient.TimeoutSec = $TimeoutSec
             $newClient.Expires = (Get-Date).AddMonths(12)
         }
 
-        'VaultVcKey' {
-            $keySecret = Get-Secret -Name $VaultVcKeyName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
+        'VaultCmsKey' {
+            $keySecret = Get-Secret -Name $VaultCmsKeyName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
             if ( -not $keySecret ) {
-                throw "'$VaultVcKeyName' secret not found in vault VenafiPS."
+                throw "'$VaultCmsKeyName' secret not found in vault VenafiPS."
             }
 
-            $secretInfo = Get-SecretInfo -Name $VaultVcKeyName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
+            $secretInfo = Get-SecretInfo -Name $VaultCmsKeyName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
 
             if ( $secretInfo.Metadata.Count -gt 0 ) {
-                $newClient = [TrustClient]::NewVcApiKey($secretInfo.Metadata.Server, $keySecret)
+                $newClient = [TrustClient]::NewCmsApiKey($secretInfo.Metadata.Server, $keySecret)
                 $newClient.TimeoutSec = $TimeoutSec
             }
             else {
-                throw 'Server metadata not found.  Execute New-TrustClient -VcKey $key -VaultVcKeyName $secretName and attempt the operation again.'
+                throw 'Server metadata not found.  Execute New-TrustClient -CmsKey $key -VaultCmsKeyName $secretName and attempt the operation again.'
             }
         }
 

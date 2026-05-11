@@ -1,4 +1,4 @@
-function Get-VcApplication {
+function Get-CmsApplication {
     <#
     .SYNOPSIS
     Get application info
@@ -24,7 +24,7 @@ function Get-VcApplication {
     ID
 
     .EXAMPLE
-    Get-VcApplication -Application 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+    Get-CmsApplication -Application 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
 
     applicationId              : 96fc9310-67ec-11eb-a8a7-794fe75a8e6f
     issuingTemplate            : @{Name=MyTemplate; id=7fb6af20-b22e-11ea-9a24-930fb5d2b247}
@@ -46,17 +46,18 @@ function Get-VcApplication {
     Get a single object by ID
 
     .EXAMPLE
-    Get-VcApplication -Application 'My Awesome App'
+    Get-CmsApplication -Application 'My Awesome App'
 
     Get a single object by name.  The name is case sensitive.
 
     .EXAMPLE
-    Get-VcApplication -All
+    Get-CmsApplication -All
 
     Get all applications
 
     #>
 
+        [Alias('Get-VcApplication')]
     [CmdletBinding(DefaultParameterSetName = 'ID')]
 
     param (

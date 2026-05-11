@@ -1,4 +1,4 @@
-function Add-VcTeamMember {
+function Add-CmsTeamMember {
     <#
     .SYNOPSIS
     Add members to a team
@@ -20,12 +20,13 @@ function Add-VcTeamMember {
     Team
 
     .EXAMPLE
-    Add-VcTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+    Add-CmsTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 
     Add members to a Certificate Manager, SaaS team
 
     #>
 
+        [Alias('Add-VcTeamMember')]
     [CmdletBinding()]
     param (
 

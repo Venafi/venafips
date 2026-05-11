@@ -46,7 +46,7 @@
         [TrustPlatform]::CM  = @{
             [TrustAuthType]::BearerToken = @('AccessToken', 'Server')
         }
-        [TrustPlatform]::VC   = @{
+        [TrustPlatform]::CMS   = @{
             [TrustAuthType]::BearerToken = @('AccessToken', 'Server')
             [TrustAuthType]::ApiKey      = @('ApiKey', 'Server')
         }
@@ -103,9 +103,9 @@
     # endregion
 
     # region VC factory methods
-    static [TrustClient] NewVcBearerToken([string]$server, [pscredential]$accessToken) {
+    static [TrustClient] NewCmsBearerToken([string]$server, [pscredential]$accessToken) {
         $client = [TrustClient]::new()
-        $client.Platform = [TrustPlatform]::VC
+        $client.Platform = [TrustPlatform]::CMS
         $client.Server = $server
         $client.AuthType = [TrustAuthType]::BearerToken
         $client.AccessToken = $accessToken
@@ -113,8 +113,8 @@
         return $client
     }
 
-    static [TrustClient] NewVcBearerToken([string]$server, [TrustToken]$token) {
-        $client = [TrustClient]::NewVcBearerToken($server, $token.AccessToken)
+    static [TrustClient] NewCmsBearerToken([string]$server, [TrustToken]$token) {
+        $client = [TrustClient]::NewCmsBearerToken($server, $token.AccessToken)
         $client.AuthServer = $token.Server
         $client.Scope = $token.Scope
         $client.Expires = $token.Expires
@@ -122,9 +122,9 @@
         return $client
     }
 
-    static [TrustClient] NewVcApiKey([string]$server, [pscredential]$apiKey) {
+    static [TrustClient] NewCmsApiKey([string]$server, [pscredential]$apiKey) {
         $client = [TrustClient]::new()
-        $client.Platform = [TrustPlatform]::VC
+        $client.Platform = [TrustPlatform]::CMS
         $client.Server = $server
         $client.AuthType = [TrustAuthType]::ApiKey
         $client.ApiKey = $apiKey
@@ -165,7 +165,7 @@
                 return $false
             }
 
-            'VC' {
+            'CMS' {
                 if ($this.AuthType -eq 'BearerToken' -and $this.Credential) {
                     return $true
                 }
@@ -205,7 +205,7 @@
                 Invoke-TrustRestMethod -TrustClient $this -Method Get -UriRoot 'vedauth' -UriLeaf 'Revoke/Token'
                 break
             }
-            'VC' {
+            'CMS' {
                 throw 'Token revocation is not supported for Certificate Manager, SaaS.'
             }
             'NGTS' {

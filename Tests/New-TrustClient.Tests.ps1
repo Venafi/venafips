@@ -27,10 +27,10 @@ Describe 'New-TrustClient Auth Model' -Tags 'Unit' {
         It 'Should populate Auth as ApiKey' {
             $apiKey = New-TestCredential -UserName 'VcKey' -Password '9655b66c-8e5e-4b2b-b43e-edfa33b70e5f'
 
-            $sess = New-TrustClient -VcKey $apiKey -PassThru
+            $sess = New-TrustClient -CmsKey $apiKey -PassThru
 
             $sess.GetType().Name | Should -Be 'TrustClient'
-            $sess.Platform | Should -Be 'VC'
+            $sess.Platform | Should -Be 'CMS'
             $sess.AuthType | Should -Be 'ApiKey'
             $sess.ApiKey | Should -Not -BeNullOrEmpty
             $sess.AccessToken | Should -BeNullOrEmpty
@@ -41,9 +41,9 @@ Describe 'New-TrustClient Auth Model' -Tags 'Unit' {
         It 'Should populate Auth as BearerToken' {
             $access = New-TestCredential -UserName 'AccessToken' -Password 'dummy-token'
 
-            $sess = New-TrustClient -VcAccessToken $access -PassThru
+            $sess = New-TrustClient -CmsAccessToken $access -PassThru
 
-            $sess.Platform | Should -Be 'VC'
+            $sess.Platform | Should -Be 'CMS'
             $sess.AuthType | Should -Be 'BearerToken'
             $sess.AccessToken | Should -Not -BeNullOrEmpty
             $sess.Expires | Should -BeGreaterThan (Get-Date).ToUniversalTime()
@@ -92,14 +92,14 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
 
     Context 'IsExpired' {
         It 'Should return true when token expires within 60 seconds' {
-            $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+            $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
             $sess.Expires = [DateTime]::UtcNow.AddSeconds(45)
 
             $sess.IsExpired() | Should -BeTrue
         }
 
         It 'Should return false when token expires beyond 60 seconds' {
-            $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+            $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
             $sess.Expires = [DateTime]::UtcNow.AddMinutes(5)
 
             $sess.IsExpired() | Should -BeFalse
@@ -108,7 +108,7 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
 
     Context 'CanRefresh' {
         It 'Should return true for CM when refresh material exists' {
-            $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+            $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
             $sess.Platform = 'CM'
             $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'refresh'
             $sess.AuthServer = 'https://venafi.example.com'
@@ -119,7 +119,7 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
         }
 
         It 'Should return true for NGTS when credential exists' {
-            $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+            $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
             $sess.Platform = 'NGTS'
             $sess.Credential = New-TestCredential -UserName 'svc' -Password 'secret'
 
@@ -141,7 +141,7 @@ Describe 'TrustClient Refresh Logic' -Tags 'Unit' {
                 $token
             }
 
-            $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+            $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
             $sess.Platform = 'CM'
             $sess.AuthServer = 'https://venafi.example.com'
             $sess.ClientId = 'VenafiPS-MyApp'
@@ -179,7 +179,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
             $token
         }
 
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'CM'
         $sess.Server = 'https://venafi.example.com'
         $sess.AuthType = 'BearerToken'
@@ -197,7 +197,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
     }
 
     It 'Should use v1 as the default UriRoot for NGTS sessions' {
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'NGTS'
         $sess.Server = 'https://api.strata.paloaltonetworks.com'
         $sess.AuthType = 'BearerToken'
@@ -213,7 +213,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
     }
 
     It 'Should send ApiKey header for VC key sessions' {
-        $sess = New-TrustClient -VcKey (New-TestCredential -UserName 'VcKey' -Password 'my-api-key') -PassThru
+        $sess = New-TrustClient -CmsKey (New-TestCredential -UserName 'VcKey' -Password 'my-api-key') -PassThru
 
         $null = Invoke-TrustRestMethod -TrustClient $sess -UriLeaf 'useraccounts' -Method Get
 
@@ -225,7 +225,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
     It 'Should not refresh a non-expired session' {
         Mock -CommandName 'New-CmToken' -ModuleName $ModuleName
 
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'CM'
         $sess.Server = 'https://venafi.example.com'
         $sess.AuthType = 'BearerToken'
@@ -238,7 +238,7 @@ Describe 'Invoke-TrustRestMethod Auth Refresh Integration' -Tags 'Unit' {
     }
 
     It 'Should throw when expired and cannot refresh' {
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'CM'
         $sess.Server = 'https://venafi.example.com'
         $sess.AuthType = 'BearerToken'
@@ -344,9 +344,9 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
 
     Context 'VC string key' {
         It 'Should accept a plain string for VcKey' {
-            $sess = New-TrustClient -VcKey 'my-api-key-string' -PassThru
+            $sess = New-TrustClient -CmsKey 'my-api-key-string' -PassThru
 
-            $sess.Platform | Should -Be 'VC'
+            $sess.Platform | Should -Be 'CMS'
             $sess.AuthType | Should -Be 'ApiKey'
             $sess.ApiKey.GetNetworkCredential().Password | Should -Be 'my-api-key-string'
         }
@@ -354,9 +354,9 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
 
     Context 'VC access token string' {
         It 'Should accept a plain string for VcAccessToken' {
-            $sess = New-TrustClient -VcAccessToken 'vc-bearer-string' -PassThru
+            $sess = New-TrustClient -CmsAccessToken 'vc-bearer-string' -PassThru
 
-            $sess.Platform | Should -Be 'VC'
+            $sess.Platform | Should -Be 'CMS'
             $sess.AuthType | Should -Be 'BearerToken'
             $sess.AccessToken.GetNetworkCredential().Password | Should -Be 'vc-bearer-string'
         }
@@ -396,7 +396,7 @@ Describe 'TrustClient CanRefresh Negative Cases' -Tags 'Unit' {
     }
 
     It 'Should return false for CM without refresh material' {
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'CM'
         # No RefreshToken, AuthServer, or ClientId
 
@@ -404,7 +404,7 @@ Describe 'TrustClient CanRefresh Negative Cases' -Tags 'Unit' {
     }
 
     It 'Should return false for CM when RefreshExpires is in the past' {
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'CM'
         $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'refresh'
         $sess.AuthServer = 'https://venafi.example.com'
@@ -415,13 +415,13 @@ Describe 'TrustClient CanRefresh Negative Cases' -Tags 'Unit' {
     }
 
     It 'Should return false for VC ApiKey sessions' {
-        $sess = New-TrustClient -VcKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
+        $sess = New-TrustClient -CmsKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
 
         $sess.CanRefresh() | Should -BeFalse
     }
 
     It 'Should return false for NGTS without credential' {
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'NGTS'
         $sess.Credential = $null
 
@@ -436,7 +436,7 @@ Describe 'TrustClient IsExpired Edge Cases' -Tags 'Unit' {
     }
 
     It 'Should return false when Expires is MinValue (never set)' {
-        $sess = New-TrustClient -VcKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
+        $sess = New-TrustClient -CmsKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
         # ApiKey sessions have Expires at MinValue
 
         $sess.IsExpired() | Should -BeFalse
@@ -459,7 +459,7 @@ Describe 'NGTS Session Refresh' -Tags 'Unit' {
             $token
         }
 
-        $sess = New-TrustClient -VcAccessToken 'dummy' -PassThru
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
         $sess.Platform = 'NGTS'
         $sess.Server = 'https://api.strata.paloaltonetworks.com'
         $sess.AuthType = 'BearerToken'

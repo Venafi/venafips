@@ -1,4 +1,4 @@
-﻿$script:VcRegions = @{
+﻿$script:CmsRegions = @{
     'us' = 'https://api.venafi.cloud'
     'eu' = 'https://api.eu.venafi.cloud'
     'au' = 'https://api.au.venafi.cloud'

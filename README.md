@@ -10,7 +10,7 @@
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/VenafiPS?style=plastic)](https://www.powershellgallery.com/packages/VenafiPS)
 ![PowerShell Gallery](https://img.shields.io/powershellgallery/dt/VenafiPS?style=plastic)
 
-Welcome to VenafiPS (where the PS stands for PowerShell, not Professional Services :smiley:).  Here you will find a PowerShell module to automate CyberArk Certificate Manager Self-Hosted, formerly known as Venafi TLS Protect Datacenter (TLSPDC)/Trust Protection Platform, and Certificate Manager SaaS, formerly known as TLS Protect Cloud (TLSPC) in addition to the new [NGTS platform](https://www.paloaltonetworks.com/network-security/next-gen-trust-security).  Please let us know how you are using this module and what we can do to make it better!  Ask questions or feel free to [submit an issue/enhancement](https://github.com/Venafi/VenafiPS/issues).
+Welcome to VenafiPS (where the PS stands for PowerShell, not Professional Services :smiley:).  Here you will find a PowerShell module to automate CyberArk Certificate Manager Self-Hosted (CMSH), formerly known as Venafi TLS Protect Datacenter (TLSPDC)/Trust Protection Platform, Certificate Manager SaaS (CMSaaS), formerly known as TLS Protect Cloud (TLSPC) in addition to the new [NGTS platform](https://www.paloaltonetworks.com/network-security/next-gen-trust-security).  Please let us know how you are using this module and what we can do to make it better!  Ask questions or feel free to [submit an issue/enhancement](https://github.com/Venafi/VenafiPS/issues).
 
 ## Documentation
 
@@ -44,10 +44,10 @@ As some users are on Self-Hosted and others on SaaS, it was decided to not inclu
 
 ## Usage
 
-As the module supports Certificate Manager Self-Hosted/SaaS and NGTS, you will note different names for the functions.  Functions with `-Vdc` are for Self-Hosted only, `-Vc` are for CMSaaS only, and `-Trust` are for both CMSaaS and NGTS.  You can easily see the available commands for each platform with
+As the module supports Certificate Manager Self-Hosted/SaaS and NGTS, you will note different names for the functions.  Functions with `-Cm` are for CMSH only, `-Cms` are for CMSaaS only, and `-Trust` are for both CMSaaS and NGTS.  You can easily see the available commands for each platform with
 ``` powershell
-Get-Command -Module VenafiPS -Name '*-Vdc*' # for Self-Hosted functions
-Get-Command -Module VenafiPS -Name '*-Vc*' # for CMSaaS functions
+Get-Command -Module VenafiPS -Name '*-Cm*' # for CMSH functions
+Get-Command -Module VenafiPS -Name '*-Cms*' # for CMSaaS functions
 Get-Command -Module VenafiPS -Name '*-Trust*' # for CMSaaS/NGTS functions
 ```
 

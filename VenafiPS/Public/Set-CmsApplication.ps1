@@ -1,4 +1,4 @@
-function Set-VcApplication {
+function Set-CmsApplication {
     <#
     .SYNOPSIS
     Update an existing application
@@ -36,26 +36,27 @@ function Set-VcApplication {
     PSCustomObject
 
     .EXAMPLE
-    Set-VcApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Name 'ThisAppNameIsBetter'
+    Set-CmsApplication -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Name 'ThisAppNameIsBetter'
 
     Rename an existing application
 
     .EXAMPLE
-    Set-VcApplication -ID 'MyApp' -TeamOwner 'GreatTeam'
+    Set-CmsApplication -ID 'MyApp' -TeamOwner 'GreatTeam'
 
     Change the owner to this team
 
     .EXAMPLE
-    Set-VcApplication -ID 'MyApp' -TeamOwner 'GreatTeam' -NoOverwrite
+    Set-CmsApplication -ID 'MyApp' -TeamOwner 'GreatTeam' -NoOverwrite
 
     Append this team to the list of owners
 
     .EXAMPLE
-    Set-VcApplication -ID 'MyApp' -IssuingTemplate 'Template1', 'Template2'
+    Set-CmsApplication -ID 'MyApp' -IssuingTemplate 'Template1', 'Template2'
 
     Update the templates associated with application.  This will overwrite any existing templates configured.
     #>
 
+        [Alias('Set-VcApplication')]
     [CmdletBinding(SupportsShouldProcess)]
 
     param (
@@ -95,7 +96,7 @@ function Set-VcApplication {
 
         switch ($PSBoundParameters.Keys ) {
             'TeamOwner' {
-                $allTeams = Get-VcTeam -All
+                $allTeams = Get-CmsTeam -All
             }
             Default {}
         }
@@ -103,7 +104,7 @@ function Set-VcApplication {
 
     process {
 
-        $thisApp = Get-VcApplication -Application $Application
+        $thisApp = Get-CmsApplication -Application $Application
 
         if ( -not $thisApp ) {
             # process the next one in the pipeline if we don't have a valid ID this time

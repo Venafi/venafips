@@ -127,7 +127,7 @@ function Get-TrustCertificate {
                 'n' = 'application'
                 'e' = {
                     if ( $_.applicationIds ) {
-                        $_.applicationIds | Get-VcApplication | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
+                        $_.applicationIds | Get-CmsApplication | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
                     }
                 }
             },
@@ -167,7 +167,7 @@ function Get-TrustCertificate {
                         foreach ($thisOwner in $_.ownership.owningContainers.owningTeams) {
                             $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
                             if ( -not $thisOwnerDetail ) {
-                                $thisOwnerDetail = Get-VcTeam -Team $thisOwner | Select-Object name, role, members,
+                                $thisOwnerDetail = Get-CmsTeam -Team $thisOwner | Select-Object name, role, members,
                                 @{
                                     'n' = 'type'
                                     'e' = { 'TEAM' }

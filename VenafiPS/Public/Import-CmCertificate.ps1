@@ -76,7 +76,7 @@ function Import-CmCertificate {
     Import a certificate from data instead of a path
 
     .EXAMPLE
-    New-TrustClient -VcKey <api_key>
+    New-TrustClient -CmsKey <api_key>
     $sess = New-TrustClient -Server venafi.mycompany.com -Credential $cred -ClientId VenafiPS-MyApp -Scope @{'certificate'='manage'} -PassThru
     Find-TrustCertificate -VersionType CURRENT | Export-TrustCertificate -PrivateKeyPassword 'myPassword!' -PKCS12 | Import-CmCertificate -PolicyPath 'certificates' -TrustClient $sess
 

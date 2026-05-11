@@ -75,13 +75,13 @@ function Get-TrustData {
             switch ($Type) {
                 'Application' {
                     if ( -not $script:vcApplication ) {
-                        $script:vcApplication = Get-VcApplication -All | Sort-Object -Property name
+                        $script:vcApplication = Get-CmsApplication -All | Sort-Object -Property name
                     }
                     $allObject = $script:vcApplication
                     if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.applicationId }
                         if ( -not $thisObject -and -not $latest ) {
-                        $script:vcApplication = Get-VcApplication -All | Sort-Object -Property name
+                        $script:vcApplication = Get-CmsApplication -All | Sort-Object -Property name
                             $thisObject = $script:vcApplication | Where-Object { $InputObject -in $_.name, $_.applicationId }
                         }
                     }
@@ -89,14 +89,14 @@ function Get-TrustData {
                 }
                 'Team' {
                     if ( -not $script:vcTeam ) {
-                        $script:vcTeam = Get-VcTeam -All | Sort-Object -Property name
+                        $script:vcTeam = Get-CmsTeam -All | Sort-Object -Property name
                     }
                     $allObject = $script:vcTeam
 
                     if ( $InputObject ) {
                         $thisObject = $allObject | Where-Object { $InputObject -in $_.name, $_.teamId }
                         if ( -not $thisObject -and -not $latest ) {
-                            $script:vcTeam = Get-VcTeam -All | Sort-Object -Property name
+                            $script:vcTeam = Get-CmsTeam -All | Sort-Object -Property name
                             $thisObject = $script:vcTeam | Where-Object { $InputObject -in $_.name, $_.teamId }
                         }
                     }
@@ -245,7 +245,7 @@ function Get-TrustData {
 
             'User' {
                 if ( -not $script:vcUser ) {
-                    $script:vcUser = Get-VcUser -All | Sort-Object -Property username
+                    $script:vcUser = Get-CmsUser -All | Sort-Object -Property username
                     $latest = $true
                 }
 
@@ -254,7 +254,7 @@ function Get-TrustData {
                 if ( $InputObject ) {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.userId, $_.username }
                     if ( -not $thisObject -and -not $latest ) {
-                        $script:vcUser = Get-VcUser -All | Sort-Object -Property username
+                        $script:vcUser = Get-CmsUser -All | Sort-Object -Property username
                         $thisObject = $script:vcTag | Where-Object { $InputObject -in $_.userId, $_.username }
                     }
                 }

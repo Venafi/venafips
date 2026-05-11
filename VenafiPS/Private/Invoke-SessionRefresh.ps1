@@ -34,7 +34,7 @@
         }
         New-NgtsToken @ngtsParams -ErrorAction Stop
     }
-    elseif ($Session.Platform -eq 'VC') {
+    elseif ($Session.Platform -eq 'CMS') {
         throw 'Automatic token refresh is not available for VC platform'
     }
     else {

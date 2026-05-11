@@ -1,4 +1,4 @@
-function Set-VcUser {
+function Set-CmsUser {
     <#
     .SYNOPSIS
     Update an existing user
@@ -32,12 +32,13 @@ function Set-VcUser {
     PSCustomObject
 
     .EXAMPLE
-    Set-VcTeam -User 'greg.brownstein@cyberark.com' -Disable
+    Set-CmsTeam -User 'greg.brownstein@cyberark.com' -Disable
 
     Disable a user account
 
     #>
 
+        [Alias('Set-VcUser')]
     [CmdletBinding()]
     param (
 

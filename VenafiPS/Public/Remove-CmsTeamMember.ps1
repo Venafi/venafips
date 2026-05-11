@@ -1,4 +1,4 @@
-function Remove-VcTeamMember {
+function Remove-CmsTeamMember {
     <#
     .SYNOPSIS
     Remove team member
@@ -7,7 +7,7 @@ function Remove-VcTeamMember {
     Remove a team member from Certificate Manager, SaaS
 
     .PARAMETER ID
-    Team ID, this is the unique guid obtained from Get-VcTeam.
+    Team ID, this is the unique guid obtained from Get-CmsTeam.
 
     .PARAMETER Member
     1 or more members to remove from the team
@@ -21,12 +21,12 @@ function Remove-VcTeamMember {
     ID
 
     .EXAMPLE
-    Remove-VcTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
+    Remove-CmsTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member @('ca7ff555-88d2-4bfc-9efa-2630ac44c1f3', 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f4')
 
     Remove members from a team
 
     .EXAMPLE
-    Remove-VcTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f3' -Confirm:$false
+    Remove-CmsTeamMember -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Member 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f3' -Confirm:$false
 
     Remove members from a team with no confirmation prompting
 
@@ -34,6 +34,7 @@ function Remove-VcTeamMember {
     https://api.venafi.cloud/webjars/swagger-ui/index.html#/Teams/removeMember
     #>
 
+        [Alias('Remove-VcTeamMember')]
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
 
     param (

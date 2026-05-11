@@ -43,13 +43,13 @@ if (-not $args[0]) {
 
     # a wildcard for Register-ArgumentCompleter -CommandName doesn't work so we need to get the command names to register against
     $manifest = Import-PowerShellDataFile "$PSScriptRoot/VenafiPS.psd1"
-    $vcCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Trust*' }
+    $cmsCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Trust*' }
     $cmCommands = $manifest.FunctionsToExport | Where-Object { $_ -like '*-Cm*' }
 
     # define the argument completer details
     # d = description, required
     # l = lookup, required if lookup value is different than 'name'
-    $vcCompletions = @{
+    $cmsCompletions = @{
         'CloudKeystore'   = @{
             'd' = { 'type: {0}, provider: {1}' -f $_.type, $_.cloudProvider.name }
         }
@@ -88,7 +88,7 @@ if (-not $args[0]) {
         }
     }
 
-    $vcGenericArgCompleterSb = {
+    $cmsGenericArgCompleterSb = {
         param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
         # $objectType = $parameterName
@@ -97,8 +97,8 @@ if (-not $args[0]) {
 
         }
 
-        $lookup = if ($vcCompletions.$parameterName.l) {
-            $vcCompletions.$parameterName.l
+        $lookup = if ($cmsCompletions.$parameterName.l) {
+            $cmsCompletions.$parameterName.l
         }
         else {
             'name'
@@ -107,13 +107,13 @@ if (-not $args[0]) {
         switch ($parameterName) {
 
             'MachineType' {
-                if ( -not $script:vcMachineType ) {
-                    $script:vcMachineType = Invoke-TrustRestMethod -UriLeaf 'plugins?pluginTypes=MACHINE' |
+                if ( -not $script:cmsMachineType ) {
+                    $script:cmsMachineType = Invoke-TrustRestMethod -UriLeaf 'plugins?pluginTypes=MACHINE' |
                         Select-Object -ExpandProperty plugins |
                         Select-Object -Property @{'n' = 'machineTypeId'; 'e' = { $_.Id } }, * -ExcludeProperty id |
                         Sort-Object -Property name
                 }
-                $script:vcMachineType | Where-Object name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
+                $script:cmsMachineType | Where-Object name -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
                     $itemText = "'{0}'" -f $_.name
                     $itemDescription = 'supports: {0}' -f ($_.workTypes -join ', ')
 
@@ -129,18 +129,18 @@ if (-not $args[0]) {
             }
 
             default {
-                # catch all for $vcCompletions
+                # catch all for $cmsCompletions
                 Get-TrustData -Type $parameterName | Where-Object $lookup -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
                     $itemText = "'{0}'" -f $_.$lookup
-                    $itemDescription = & $vcCompletions.$parameterName.d
+                    $itemDescription = & $cmsCompletions.$parameterName.d
                     [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
                 }
             }
         }
     }
 
-    'MachineType', 'Certificate' + $vcCompletions.Keys | ForEach-Object {
-        Register-ArgumentCompleter -CommandName $vcCommands -ParameterName $_ -ScriptBlock $vcGenericArgCompleterSb
+    'MachineType', 'Certificate' + $cmsCompletions.Keys | ForEach-Object {
+        Register-ArgumentCompleter -CommandName $cmsCommands -ParameterName $_ -ScriptBlock $cmsGenericArgCompleterSb
     }
 
     $cmPathArgCompleterSb = {
@@ -173,18 +173,18 @@ if (-not $args[0]) {
         Register-ArgumentCompleter -CommandName $cmCommands -ParameterName $_ -ScriptBlock $cmPathArgCompleterSb
     }
 
-    $vcLogArgCompleterSb = {
+    $cmsLogArgCompleterSb = {
         param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
-        if ( -not $script:vcActivityType ) {
-            $script:vcActivityType = Invoke-TrustRestMethod -UriLeaf 'activitytypes' |
+        if ( -not $script:cmsActivityType ) {
+            $script:cmsActivityType = Invoke-TrustRestMethod -UriLeaf 'activitytypes' |
                 Select-Object -Property @{'n' = 'type'; 'e' = { $_.key } }, @{'n' = 'name'; 'e' = { $_.values.key } } -ExcludeProperty readableName |
                 Sort-Object -Property type
         }
 
         switch ($parameterName) {
             'EventType' {
-                $script:vcActivityType | Where-Object type -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
+                $script:cmsActivityType | Where-Object type -like ('{0}*' -f $wordToComplete.Trim("'")) | ForEach-Object {
                     $itemText = "'{0}'" -f $_.type
                     $itemDescription = 'activity names: {0}' -f ($_.name -join ', ')
                     [System.Management.Automation.CompletionResult]::new($itemText, $itemText, 'ParameterValue', $itemDescription)
@@ -195,10 +195,10 @@ if (-not $args[0]) {
                 # If Type is provided, filter names for that type only
                 if ($fakeBoundParameters.ContainsKey('EventType')) {
                     $typeValue = $fakeBoundParameters['EventType'].Trim("'")
-                    $names = $script:vcActivityType | Where-Object { $_.type -eq $typeValue } | Select-Object -ExpandProperty name
+                    $names = $script:cmsActivityType | Where-Object { $_.type -eq $typeValue } | Select-Object -ExpandProperty name
                 }
                 else {
-                    $names = $script:vcActivityType | Select-Object -ExpandProperty name
+                    $names = $script:cmsActivityType | Select-Object -ExpandProperty name
                 }
                 $names | Where-Object { $_ -like ('{0}*' -f $wordToComplete.Trim("'")) } | ForEach-Object {
                     $itemText = "'{0}'" -f $_
@@ -207,8 +207,8 @@ if (-not $args[0]) {
             }
         }
     }
-    Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventType' -ScriptBlock $vcLogArgCompleterSb
-    Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventName' -ScriptBlock $vcLogArgCompleterSb
+    Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventType' -ScriptBlock $cmsLogArgCompleterSb
+    Register-ArgumentCompleter -CommandName 'Find-TrustLog', 'New-TrustWebhook' -ParameterName 'EventName' -ScriptBlock $cmsLogArgCompleterSb
 
     $cmGenericArgCompleterSb = {
         param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)

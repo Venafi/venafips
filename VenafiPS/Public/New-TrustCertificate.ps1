@@ -7,14 +7,14 @@ function New-TrustCertificate {
     Create certificate request from automated secure keypair details or CSR
 
     .PARAMETER Application
-    Application name or id to associate this certificate with.
+    Application name or id to associate this certificate with, only applicable to CMSaaS, not NGTS.
     Tab completion is supported.
 
     .PARAMETER IssuingTemplate
     Issuing template id, name, or alias.
-    The template must be associated with the provided Application.
-    If the application has only one template, this parameter is optional.
     Tab completion is supported.
+
+    For CMSaaS, the template must be associated with the provided -Application.
 
     .PARAMETER CommonName
     Common name (CN).  Required if not providing a CSR.
@@ -99,6 +99,11 @@ function New-TrustCertificate {
     Create certificate
 
     .EXAMPLE
+    New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com'
+
+    Create certificate with NGTS
+
+    .EXAMPLE
     New-TrustCertificate -Application 'ff23962b-661c-4a83-964b-d86855f1bb93' -IssuingTemplate '2e4a0355-70bf-4ffc-919f-fcfcd4d15e84' -CommonName 'app.mycert.com'
 
     Create certificate bypassing application and template name resolution, needed for token based authentication which does not have access to these APIs.
@@ -158,11 +163,11 @@ function New-TrustCertificate {
         [ValidateNotNullOrEmpty()]
         [string] $Csr,
 
-        [Parameter(Mandatory)]
+        [Parameter()]
         [ValidateNotNullOrEmpty()]
         [String] $Application,
 
-        [Parameter()]
+        [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String] $IssuingTemplate,
 
@@ -251,14 +256,13 @@ function New-TrustCertificate {
 
         # if Application or IssuingTemplate are names or aliases, resolve to IDs
         # bypass for GUIDs to support token based auth which cannot access these APIs
-        if ( -not ((Test-IsGuid($Application)) -and (Test-IsGuid($IssuingTemplate)) ) ) {
-            $thisApp = Get-TrustData -Type Application -InputObject $Application -Object -FailOnNotFound
+        if ( $Application ) {
+            if ( $TrustClient.Platform -eq 'CMS' ) {
+                $thisApp = Get-TrustData -Type Application -InputObject $Application -Object -FailOnNotFound
+                if ( $thisApp.issuingTemplate.Count -eq 0 ) {
+                    throw 'No templates associated with this application'
+                }
 
-            if ( $thisApp.issuingTemplate.Count -eq 0 ) {
-                throw 'No templates associated with this application'
-            }
-
-            if ( -not $IssuingTemplate ) {
                 # issuing template not provided, see if the app has one
                 switch ($thisApp.issuingTemplate.Count) {
                     1 {
@@ -273,17 +277,12 @@ function New-TrustCertificate {
                 }
             }
             else {
-                # template provided, check if name or alias or id
-                if ( $IssuingTemplate -in $thisApp.issuingTemplate.name ) {
-                    # name is an alias, get template
-                    $templateId = $thisApp.issuingTemplate | Where-Object { $_.name -eq $IssuingTemplate } | Select-Object -ExpandProperty issuingTemplateId
-                    $thisTemplate = Get-TrustData -Type IssuingTemplate -InputObject $templateId -Object
-                }
-                else {
-                    # lookup provided value, name or id
-                    $thisTemplate = Get-TrustData -Type IssuingTemplate -InputObject $IssuingTemplate -Object -FailOnNotFound
-                }
+                Write-Warning 'NGTS does not support Applications, so the Application parameter is being ignored'
             }
+        }
+
+        if ( $IssuingTemplate -and -not $thisTemplate ) {
+            $thisTemplate = Get-TrustData -Type IssuingTemplate -InputObject $IssuingTemplate -Object -FailOnNotFound
         }
 
         if ( $ValidUntil ) {
@@ -309,11 +308,15 @@ function New-TrustCertificate {
             UriLeaf = 'certificaterequests'
             Body    = @{
                 isVaaSGenerated              = $PSCmdlet.ParameterSetName -eq 'ASK'
-                applicationId                = $thisApp.applicationId
                 certificateIssuingTemplateId = $thisTemplate.issuingTemplateId
                 validityPeriod               = $validity
                 reuseCSR                     = $false
             }
+        }
+
+        if ( $thisApp ) {
+            # CMSaaS only
+            $params.Body.applicationId = $thisApp.applicationId
         }
 
         switch ($PSCmdlet.ParameterSetName) {

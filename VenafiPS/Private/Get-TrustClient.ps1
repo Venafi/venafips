@@ -42,7 +42,7 @@ function Get-TrustClient {
                 'NGTS'
             }
             { $_ -match '-Vc' } {
-                'VC'
+                'CMS'
             }
             { $_ -match '-Cm' } {
                 'CM'

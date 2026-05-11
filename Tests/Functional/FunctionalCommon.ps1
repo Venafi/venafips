@@ -1,12 +1,12 @@
 ﻿# Functional test bootstrap
 # Sessions can come from two sources (checked in order):
 #   1. An existing module-scoped session created before running tests
-#      (e.g. New-TrustClient -VcKey ... in your shell, then Invoke-Pester)
+#      (e.g. New-TrustClient -CmsKey ... in your shell, then Invoke-Pester)
 #   2. Environment variables — a new session is created automatically
 #
 # Required env vars per platform (only needed when no session exists):
 #   CM:  VENAFIPS_CM_SERVER, VENAFIPS_CM_USERNAME, VENAFIPS_CM_PASSWORD, VENAFIPS_CM_CLIENTID, VENAFIPS_CM_SCOPE
-#   VC:   VENAFIPS_VC_APIKEY (and optionally VENAFIPS_VC_REGION)
+#   VC:   VENAFIPS_CMS_APIKEY (and optionally VENAFIPS_CMS_REGION)
 #   NGTS: VENAFIPS_NGTS_USERNAME, VENAFIPS_NGTS_SECRET
 
 $ModuleName = 'VenafiPS'
@@ -75,12 +75,12 @@ function New-CmFunctionalSession {
     New-TrustClient -Server $env:VENAFIPS_CM_SERVER -Credential $cred -ClientId $env:VENAFIPS_CM_CLIENTID -Scope $scope -PassThru
 }
 
-function New-VcFunctionalSession {
-    $existing = Get-ExistingSession -Platform 'VC'
+function New-CmsFunctionalSession {
+    $existing = Get-ExistingSession -Platform 'CMS'
     if ($existing) { return $existing }
 
-    $region = if ($env:VENAFIPS_VC_REGION) { $env:VENAFIPS_VC_REGION } else { 'us' }
-    New-TrustClient -VcKey $env:VENAFIPS_VC_APIKEY -VcRegion $region -PassThru
+    $region = if ($env:VENAFIPS_CMS_REGION) { $env:VENAFIPS_CMS_REGION } else { 'us' }
+    New-TrustClient -CmsKey $env:VENAFIPS_CMS_APIKEY -CmsRegion $region -PassThru
 }
 
 function New-NgtsFunctionalSession {

@@ -124,7 +124,7 @@ function Invoke-TrustRestMethod {
         $callingCmd = @(Get-PSCallStack)[1].Command
         $expectedPlatform = switch -Regex ($callingCmd) {
             '-Ngts' { 'NGTS' }
-            '-Vc' { 'VC' }
+            '-Vc' { 'CMS' }
             '-Cm' { 'CM' }
             default { $null }
         }
