@@ -321,7 +321,15 @@ Describe 'NGTS Webhooks' -Tags 'Functional', 'NGTS' -Skip:$skipAll {
     }
 
     It 'Should list all webhooks' {
-        { Get-TrustWebhook -All -TrustClient $script:ngtsSession } | Should -Not -Throw
+        try {
+            Get-TrustWebhook -All -TrustClient $script:ngtsSession
+        } catch {
+            if ($_ -match 'Access denied') {
+                Set-ItResult -Skipped -Because 'Insufficient permissions for webhooks'
+                return
+            }
+            throw
+        }
     }
 }
 
@@ -408,6 +416,7 @@ Describe 'NGTS Certificate Lifecycle' -Tags 'Functional', 'NGTS', 'Write' -Skip:
     BeforeAll {
         $script:ngtsSession = New-NgtsFunctionalSession
         $script:testCertId = $null
+        $script:testTagName = $null
     }
 
     It 'Should request a new certificate' {
@@ -415,41 +424,60 @@ Describe 'NGTS Certificate Lifecycle' -Tags 'Functional', 'NGTS', 'Write' -Skip:
             Set-ItResult -Skipped -Because 'VENAFIPS_NGTS_ISSUING_TEMPLATE not set'
             return
         }
+        if (-not $env:VENAFIPS_NGTS_DOMAIN) {
+            Set-ItResult -Skipped -Because 'VENAFIPS_NGTS_DOMAIN not set'
+            return
+        }
 
         $testName = New-TestName -Prefix 'venafips-ngts'
         $params = @{
-            CommonName      = "$testName.example.com"
+            CommonName      = "$testName.$env:VENAFIPS_NGTS_DOMAIN"
             IssuingTemplate = $env:VENAFIPS_NGTS_ISSUING_TEMPLATE
             TrustClient     = $script:ngtsSession
+            PassThru        = $true
+            Wait            = $true
         }
 
         $result = New-TrustCertificate @params
         $result | Should -Not -BeNullOrEmpty
-        $script:testCertId = $result.certificateId
+        $script:testCertId = $result.certificateId[0]
     }
 
     It 'Should validate the test certificate' {
         if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Validate -TrustClient $script:ngtsSession } |
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Validate -Confirm:$false -TrustClient $script:ngtsSession } |
             Should -Not -Throw
     }
 
     It 'Should retire the test certificate' {
         if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Retire -TrustClient $script:ngtsSession } |
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Retire -Confirm:$false -TrustClient $script:ngtsSession } |
             Should -Not -Throw
     }
 
     It 'Should recover the retired certificate' {
         if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Recover -TrustClient $script:ngtsSession } |
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Recover -Confirm:$false -TrustClient $script:ngtsSession } |
             Should -Not -Throw
+    }
+
+    It 'Should assign a tag to the test certificate' {
+        if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
+        $script:testTagName = "venafips-test-$(New-Guid)"
+        Invoke-TrustRestMethod -Method 'Post' -UriLeaf 'tags' -Body @{ name = $script:testTagName } -TrustClient $script:ngtsSession
+        { Set-TrustCertificate -Certificate $script:testCertId -Tag $script:testTagName -NoOverwrite -TrustClient $script:ngtsSession } | Should -Not -Throw
     }
 
     It 'Should delete the test certificate' {
         if (-not $script:testCertId) { Set-ItResult -Skipped -Because 'No test certificate created'; return }
-        { Invoke-TrustCertificateAction -ID $script:testCertId -Delete -TrustClient $script:ngtsSession -Confirm:$false } |
+        { Invoke-TrustCertificateAction -ID $script:testCertId -Delete -Confirm:$false -TrustClient $script:ngtsSession } |
             Should -Not -Throw
+    }
+
+    AfterAll {
+        if ($script:testTagName) {
+            Remove-TrustTag -ID $script:testTagName -TrustClient $script:ngtsSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
     }
 }
 
@@ -486,26 +514,6 @@ Describe 'NGTS Webhook Lifecycle' -Tags 'Functional', 'NGTS', 'Write' -Skip:$ski
     It 'Should delete the webhook' {
         if (-not $script:testWebhookId) { Set-ItResult -Skipped -Because 'No test webhook created'; return }
         { Remove-TrustWebhook -ID $script:testWebhookId -TrustClient $script:ngtsSession -Confirm:$false } | Should -Not -Throw
-    }
-}
-
-# ── Set Certificate (Tag Assignment) ─────────────────────────────────────────
-
-Describe 'NGTS Set Certificate' -Tags 'Functional', 'NGTS', 'Write' -Skip:$skipAll {
-
-    BeforeAll {
-        $script:ngtsSession = New-NgtsFunctionalSession
-        $script:sampleCert = Find-TrustCertificate -First 1 -TrustClient $script:ngtsSession
-    }
-
-    It 'Should assign a tag to a certificate' {
-        if (-not $script:sampleCert) { Set-ItResult -Skipped -Because 'No sample certificate found'; return }
-        $tags = Get-TrustTag -All -TrustClient $script:ngtsSession
-        if (-not $tags) { Set-ItResult -Skipped -Because 'No tags in environment'; return }
-        $tagName = @($tags)[0].tagId
-        if (-not $tagName) { Set-ItResult -Skipped -Because 'Tag has no ID'; return }
-        $certId = @($script:sampleCert)[0].certificateId
-        { Set-TrustCertificate -Certificate $certId -Tag $tagName -NoOverwrite -TrustClient $script:ngtsSession } | Should -Not -Throw
     }
 }
 
@@ -575,22 +583,30 @@ Describe 'NGTS Import Certificate' -Tags 'Functional', 'NGTS', 'Write' -Skip:$sk
         $script:tempCertDir = Join-Path ([System.IO.Path]::GetTempPath()) 'VenafiPS-NGTS-Import'
         if (-not (Test-Path $script:tempCertDir)) { New-Item -Path $script:tempCertDir -ItemType Directory | Out-Null }
 
-        # generate a self-signed cert for import testing
-        $script:tempCertPath = Join-Path $script:tempCertDir 'test-import.pem'
-        $selfSigned = New-SelfSignedCertificate -DnsName 'venafips-ngts-import.example.com' -CertStoreLocation 'Cert:\CurrentUser\My' -NotAfter (Get-Date).AddDays(30)
-        $certBytes = $selfSigned.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Cert)
-        $pemContent = "-----BEGIN CERTIFICATE-----`n" + [Convert]::ToBase64String($certBytes, 'InsertLineBreaks') + "`n-----END CERTIFICATE-----"
-        Set-Content -Path $script:tempCertPath -Value $pemContent
-        # clean up from cert store
-        Remove-Item "Cert:\CurrentUser\My\$($selfSigned.Thumbprint)" -ErrorAction SilentlyContinue
+        # create a test certificate, export it, then import it (cross-platform)
+        $script:tempCertPath = $null
+        $script:importTestCertId = $null
+        if ($env:VENAFIPS_NGTS_ISSUING_TEMPLATE) {
+            $testName = New-TestName -Prefix 'venafips-ngts-imp'
+            $result = New-TrustCertificate -CommonName "$testName.example.com" `
+                -IssuingTemplate $env:VENAFIPS_NGTS_ISSUING_TEMPLATE `
+                -TrustClient $script:ngtsSession -ErrorAction SilentlyContinue
+            if ($result) {
+                $script:importTestCertId = $result.certificateId
+                $script:tempCertPath = Export-TrustCertificate -ID $script:importTestCertId -OutPath $script:tempCertDir -TrustClient $script:ngtsSession
+            }
+        }
     }
 
     It 'Should import a certificate from file' {
-        if (-not (Test-Path $script:tempCertPath)) { Set-ItResult -Skipped -Because 'Could not generate test certificate'; return }
+        if (-not $script:tempCertPath -or -not (Test-Path $script:tempCertPath)) { Set-ItResult -Skipped -Because 'Could not create/export a certificate for import testing'; return }
         { Import-TrustCertificate -Path $script:tempCertPath -TrustClient $script:ngtsSession } | Should -Not -Throw
     }
 
     AfterAll {
+        if ($script:importTestCertId) {
+            Invoke-TrustCertificateAction -ID $script:importTestCertId -Delete -TrustClient $script:ngtsSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
         if (Test-Path $script:tempCertDir) {
             Remove-Item -Path $script:tempCertDir -Recurse -Force -ErrorAction SilentlyContinue
         }
@@ -782,18 +798,23 @@ Describe 'NGTS Machine Identity Lifecycle' -Tags 'Functional', 'NGTS', 'Write' -
     BeforeAll {
         $script:ngtsSession = New-NgtsFunctionalSession
         $script:sampleMI = Find-TrustMachineIdentity -First 1 -TrustClient $script:ngtsSession
+        # Convert binding from PSCustomObject to hashtable for Set-TrustMachineIdentity
+        if ($script:sampleMI.binding) {
+            $script:bindingHash = @{}
+            $script:sampleMI.binding.PSObject.Properties | ForEach-Object { $script:bindingHash[$_.Name] = $_.Value }
+        }
     }
 
     It 'Should update a machine identity binding' {
         if (-not $script:sampleMI) { Set-ItResult -Skipped -Because 'No machine identities in environment'; return }
         $id = @($script:sampleMI)[0].machineIdentityId
-        { Set-TrustMachineIdentity -MachineIdentity $id -Binding @{} -TrustClient $script:ngtsSession } | Should -Not -Throw
+        { Set-TrustMachineIdentity -MachineIdentity $id -Binding $script:bindingHash -TrustClient $script:ngtsSession } | Should -Not -Throw
     }
 
     It 'Should return updated machine identity with -PassThru' {
         if (-not $script:sampleMI) { Set-ItResult -Skipped -Because 'No machine identities in environment'; return }
         $id = @($script:sampleMI)[0].machineIdentityId
-        $updated = Set-TrustMachineIdentity -MachineIdentity $id -Binding @{} -PassThru -TrustClient $script:ngtsSession
+        $updated = Set-TrustMachineIdentity -MachineIdentity $id -Binding $script:bindingHash -PassThru -TrustClient $script:ngtsSession
         $updated | Should -Not -BeNullOrEmpty
         $updated.machineIdentityId | Should -Be $id
     }
@@ -934,10 +955,10 @@ Describe 'NGTS Remove Tag' -Tags 'Functional', 'NGTS', 'Write' -Skip:$skipAll {
     }
 
     It 'Should remove a tag' {
-        if (-not $env:VENAFIPS_NGTS_REMOVABLE_TAG) {
-            Set-ItResult -Skipped -Because 'VENAFIPS_NGTS_REMOVABLE_TAG not set'
+        if (-not $script:testTagName) {
+            Set-ItResult -Skipped -Because 'No temp tag was created'
             return
         }
-        { Remove-TrustTag -ID $env:VENAFIPS_NGTS_REMOVABLE_TAG -TrustClient $script:ngtsSession -Confirm:$false } | Should -Not -Throw
+        { Remove-TrustTag -ID $script:testTagName -TrustClient $script:ngtsSession -Confirm:$false } | Should -Not -Throw
     }
 }
