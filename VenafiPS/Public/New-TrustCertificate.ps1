@@ -38,7 +38,9 @@ function New-TrustCertificate {
     CSR in PKCS#10 format which conforms to the rules of the issuing template
 
     .PARAMETER SanDns
-    One or more subject alternative name dns entries
+    One or more subject alternative name dns entries.
+    Defaults to the common name if not provided.
+    The default can be overridden by providing $null or an empty array to use no SANs, or by providing specific values.
 
     .PARAMETER SanIP
     One or more subject alternative name ip address entries
@@ -101,7 +103,7 @@ function New-TrustCertificate {
     .EXAMPLE
     New-TrustCertificate -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com'
 
-    Create certificate with NGTS
+    Create certificate with NGTS, no Application needed
 
     .EXAMPLE
     New-TrustCertificate -Application 'ff23962b-661c-4a83-964b-d86855f1bb93' -IssuingTemplate '2e4a0355-70bf-4ffc-919f-fcfcd4d15e84' -CommonName 'app.mycert.com'
@@ -204,7 +206,7 @@ function New-TrustCertificate {
         # [string] $Certificate,
 
         [Parameter()]
-        [ValidateNotNullOrEmpty()]
+        [AllowNull()]
         [String[]] $SanDns,
 
         [Parameter(ParameterSetName = 'ASK')]
@@ -322,8 +324,10 @@ function New-TrustCertificate {
         switch ($PSCmdlet.ParameterSetName) {
             'ASK' {
                 $params.Body.csrAttributes = @{
-                    commonName = $CommonName
+                    commonName                    = $CommonName
+                    subjectAlternativeNamesByType = @{}
                 }
+
                 $target = $CommonName
 
                 if ( $PSBoundParameters.ContainsKey('Organization') ) {
@@ -387,12 +391,17 @@ function New-TrustCertificate {
                     }
                 }
 
-                if ( $SanDns -or $SanEmail -or $SanIP -or $SanUri ) {
-                    $params.Body.csrAttributes.subjectAlternativeNamesByType = @{}
-                }
-
                 if ( $PSBoundParameters.ContainsKey('SanDns') ) {
-                    $params.Body.csrAttributes.subjectAlternativeNamesByType.dnsNames = @($SanDns)
+                    if ( $SanDns ) {
+                        $params.Body.csrAttributes.subjectAlternativeNamesByType.dnsNames = @($SanDns)
+                    }
+                    else {
+                        # if the parameter was provided but is empty, we need to set dnsNames to an empty array to overwrite any default SANs from the template
+                        $params.Body.csrAttributes.subjectAlternativeNamesByType.dnsNames = @()
+                    }
+                }
+                else {
+                    $params.Body.csrAttributes.subjectAlternativeNamesByType.dnsNames = @($CommonName)
                 }
 
                 if ( $PSBoundParameters.ContainsKey('SanEmail') ) {
