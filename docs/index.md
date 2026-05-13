@@ -1,7 +1,11 @@
-<p align="center">
+<!-- <p align="center">
   <img src="images/idira_RGB_logo_Lockup_Positive.svg#only-light" alt="Idira by Palo Alto Networks"/>
   <img src="images/idira_RGB_logo_Lockup_Negative.svg#only-dark" alt="Idira by Palo Alto Networks"/>
-</p>
+</p> -->
+<picture>
+  <source srcset="images/idira_RGB_logo_Lockup_Negative.svg" media="(prefers-color-scheme: dark)">
+  <img src="images/idira_RGB_logo_Lockup_Positive.svg" alt="Idira by Palo Alto Networks">
+</picture>
 
 # Automate your Palo Alto Networks NGTS and CyberArk Certificate Manager Self-Hosted/SaaS platforms!
 

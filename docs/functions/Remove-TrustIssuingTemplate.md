@@ -1,0 +1,137 @@
+# Remove-TrustIssuingTemplate
+
+## SYNOPSIS
+Remove a issuing template
+
+## SYNTAX
+
+```
+Remove-TrustIssuingTemplate [-ID] <String> [[-ThrottleLimit] <Int32>] [[-TrustClient] <TrustClient>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+## DESCRIPTION
+Remove a issuing template from Certificate Manager, SaaS
+
+## EXAMPLES
+
+### EXAMPLE 1
+```
+Remove-TrustIssuingTemplate -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+Remove a issuing template
+```
+
+### EXAMPLE 2
+```
+Remove-TrustIssuingTemplate -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Confirm:$false
+Remove a issuing template bypassing the confirmation prompt
+```
+
+## PARAMETERS
+
+### -ID
+Issuing template ID, this is the guid/uuid
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: issuingTemplateId
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ThrottleLimit
+Limit the number of threads when running in parallel; the default is 100.
+Setting the value to 1 will disable multithreading.
+On PS v5 the ThreadJob module is required. 
+If not found, multithreading will be disabled.
+
+```yaml
+Type: Int32
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 2
+Default value: 100
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -TrustClient
+Authentication for the function.
+The value defaults to the script session object $TrustClient created by New-TrustClient.
+
+```yaml
+Type: TrustClient
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: (Get-TrustClient)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{ Fill ProgressAction Description }}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### ID
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS
