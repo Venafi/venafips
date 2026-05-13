@@ -1,6 +1,6 @@
 <p align="center">
-  <img src="images/CyberArk_Logo_Horizontal_Navy_Tag-No-R.svg#only-light" alt="CyberArk"/>
-  <img src="images/CyberArk_Logo_Horizontal_White_Tag-No-R.svg#only-dark" alt="CyberArk"/>
+  <img src="images/idira_RGB_logo_Lockup_Positive.svg#only-light" alt="Idira by Palo Alto Networks"/>
+  <img src="images/idira_RGB_logo_Lockup_Negative.svg#only-dark" alt="Idira by Palo Alto Networks"/>
 </p>
 
 # VenafiPS - Automate your CyberArk Certificate Manager Self-Hosted/SaaS and Palo Alto NGTS platforms!
@@ -47,7 +47,7 @@ As some users are on Self-Hosted and others on SaaS, it was decided to not inclu
 As the module supports Certificate Manager Self-Hosted/SaaS and NGTS, you will note different names for the functions.  Functions with `-Cm` are for CMSH only, `-Cms` are for CMSaaS only, and `-Trust` are for both CMSaaS and NGTS.  You can easily see the available commands for each platform with
 ``` powershell
 Get-Command -Module VenafiPS -Name '*-Cm*' # for CMSH functions
-Get-Command -Module VenafiPS -Name '*-Cms*' # for CMSaaS functions
+Get-Command -Module VenafiPS -Name '*-Cms*' # for CMSaaS only functions
 Get-Command -Module VenafiPS -Name '*-Trust*' # for CMSaaS/NGTS functions
 ```
 
@@ -63,7 +63,7 @@ $cred = Get-Credential
 New-TrustClient -Server 'venafi.mycompany.com' -Credential $cred -ClientId 'MyApp' -Scope @{'certificate'='manage'}
 
 # create a session for CMSaaS (your API key can be found in your user profile -> preferences)
-New-TrustClient -VcKey $apiKeyCred
+New-TrustClient -CmsKey $apiKeyCred
 
 # create a session with NGTS, requires a service account with the appropriate roles
 New-TrustClient -NgtsCredential $ngtsCred
@@ -135,7 +135,7 @@ Compare-Object -ReferenceObject $all -DifferenceObject $all2 -Property Path
 
 ## CMSaaS/NGTS Examples
 
-Most of the same functionality from the above examples exist for CMSaaS/NGTS as well.  Simply replace `-Vdc` with `-Vc`.
+Most of the same functionality from the above examples exist for CMSaaS/NGTS as well.  Simply replace `-Cm` with `-Trust`.
 
 ## Token/Key Secret Storage
 
