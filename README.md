@@ -4,7 +4,7 @@
 </p> -->
 <picture>
   <source srcset="images/idira_RGB_logo_Lockup_Negative.svg" media="(prefers-color-scheme: dark)">
-  <img src="images/idira_RGB_logo_Lockup_Positive.svg">
+  <img src="images/idira_RGB_logo_Lockup_Positive.svg" alt="Idira by Palo Alto Networks">
 </picture>
 
 # Automate your Palo Alto Networks NGTS and CyberArk Certificate Manager Self-Hosted/SaaS platforms!

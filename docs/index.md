@@ -3,7 +3,7 @@
   <img src="images/idira_RGB_logo_Lockup_Negative.svg#only-dark" alt="Idira by Palo Alto Networks"/>
 </p>
 
-# VenafiPS - Automate your CyberArk Certificate Manager Self-Hosted/SaaS and Palo Alto NGTS platforms!
+# Automate your Palo Alto Networks NGTS and CyberArk Certificate Manager Self-Hosted/SaaS platforms!
 
 [![CI](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml/badge.svg)](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml)
 [![Deployment](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml)

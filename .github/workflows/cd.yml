@@ -60,28 +60,33 @@ jobs:
           $YMLtext = Get-Content "${{ github.workspace }}/header-mkdocs.yml"
           $YMLText += "  - Functions:"
 
-          $vdcFunctions = $vcFunctions = @()
+          $cmFunctions = $cmsFunctions = $trustFunctions = @()
 
           $md | foreach-object {
             $functionName = $_.Name -replace '\.md', ''
             $newEntry = "    - {0}: functions/{1}" -f $functionName, $_.Name
             $newEntry
 
-            if ( $functionName -match '-Venafi' ) {
+            if ( $functionName -in 'New-TrustClient', 'Invoke-TrustRestMethod' ) {
                 $YMLText += $newEntry
             }
-            elseif ( $functionName -match '-Vdc' ) {
-                $vdcFunctions += "  $newEntry"
+            elseif ( $functionName -match '-Trust' ) {
+                $trustFunctions += "  $newEntry"
+            }
+            elseif ( $functionName -match '-Cms' ) {
+                $cmsFunctions += "  $newEntry"
             }
             else {
-                $vcFunctions += "  $newEntry"
+                $cmFunctions += "  $newEntry"
             }
           }
 
-          $YMLText += "    - Self-Hosted:"
-          $vdcFunctions | ForEach { $YMLText += $_ }
-          $YMLText += "    - SaaS:"
-          $vcFunctions | ForEach { $YMLText += $_ }
+          $YMLText += "    - Certificate Manager Self-Hosted:"
+          $cmFunctions | ForEach { $YMLText += $_ }
+          $YMLText += "    - NGTS/Certificate Manager SaaS:"
+          $trustFunctions | ForEach { $YMLText += $_ }
+          $YMLText += "    - Certificate Manager SaaS only:"
+          $cmsFunctions | ForEach { $YMLText += $_ }
 
           $YMLtext | Set-Content -Path '${{ github.workspace }}/mkdocs.yml'
 
