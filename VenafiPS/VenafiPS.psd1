@@ -196,7 +196,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = 'Venafi','SSL','TLS','API','devsecops','powershell','Strata Cloud Manager','NGTS'
+        Tags = 'Venafi','SSL','TLS','API','devsecops','powershell','Strata Cloud Manager','NGTS','CyberArk'
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/Venafi/VenafiPS/blob/main/LICENSE'
@@ -205,7 +205,7 @@ PrivateData = @{
         ProjectUri = 'https://github.com/Venafi/VenafiPS'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/Venafi/VenafiPS/main/images/venafi_logo.png'
+        IconUri = 'https://raw.githubusercontent.com/Venafi/VenafiPS/main/images/idira_RGB_logo_Icon_Color.png'
 
         # ReleaseNotes of this module
         ReleaseNotes = 'https://github.com/Venafi/VenafiPS/blob/main/CHANGELOG.md'
