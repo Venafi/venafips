@@ -7,7 +7,7 @@
   <img src="images/idira_RGB_logo_Lockup_Positive.svg">
 </picture>
 
-# VenafiPS - Automate your Palo Alto Networks NGTS and CyberArk Certificate Manager Self-Hosted/SaaS platforms!
+# Automate your Palo Alto Networks NGTS and CyberArk Certificate Manager Self-Hosted/SaaS platforms!
 
 [![CI](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml/badge.svg)](https://github.com/Venafi/VenafiPS/actions/workflows/ci.yml)
 [![Deployment](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml/badge.svg?branch=main)](https://github.com/Venafi/VenafiPS/actions/workflows/cd.yml)
