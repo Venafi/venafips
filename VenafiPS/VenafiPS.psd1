@@ -30,7 +30,7 @@ CompanyName = 'CyberArk'
 Copyright = '(c) Venafi, Inc. and CyberArk Software Ltd. ("CyberArk")'
 
 # Description of the functionality provided by this module
-Description = 'Automate your CyberArk Certificate Manager Self-Hosted/SaaS and NGTS platforms!'
+Description = 'Automate your CyberArk Certificate Manager Self-Hosted/SaaS and Palo Alto Networks NGTS platforms!'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
