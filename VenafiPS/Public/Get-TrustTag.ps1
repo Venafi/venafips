@@ -1,0 +1,116 @@
+function Get-TrustTag {
+    <#
+    .SYNOPSIS
+    Get tag names and values
+
+    .DESCRIPTION
+    Get 1 or all tags.
+    Tag values will be provided.
+
+    .PARAMETER Tag
+    Tag name or name:value pair to get.
+    If a value is provided, the tag must have that value to be returned.
+
+    .PARAMETER All
+    Get all tags
+
+    .PARAMETER TrustClient
+    Authentication for the function.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
+
+    .INPUTS
+    Name
+
+    .EXAMPLE
+    Get-TrustTag -Tag 'MyTag'
+
+    Get a single tag
+
+    .EXAMPLE
+    Get-TrustTag -Tag 'MyTag:MyValue'
+
+    Get a single tag only if it has the specified value
+
+    .EXAMPLE
+    Get-TrustTag -All
+
+    Get all tags
+
+    #>
+
+    [CmdletBinding()]
+    [Alias('Get-VcTag')]
+
+    param (
+
+        [Parameter(Mandatory, ParameterSetName = 'ID', ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('Name')]
+        [string] $Tag,
+
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [switch] $All,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [TrustClient] $TrustClient
+    )
+
+    begin {
+    }
+
+    process {
+
+        if ( $PSCmdlet.ParameterSetName -eq 'All' ) {
+            $allTags = Invoke-TrustRestMethod -UriLeaf 'tags' | Select-Object -ExpandProperty tags
+            $allValues = Invoke-TrustRestMethod -UriLeaf 'tags/values' | Select-Object -ExpandProperty values
+
+            $allTags | Select-Object @{'n' = 'tagId'; 'e' = { $_.key } },
+            @{
+                'n' = 'value'
+                'e' = {
+                    $thisId = $_.id
+                    $thisTagValues = $allValues | Where-Object tagId -eq $thisId
+                    if ( $thisTagValues ) {
+                        @($thisTagValues.value)
+                    }
+                    else {
+                        $null
+                    }
+                }
+            }
+        }
+        else {
+            if ($Tag.Contains(':')) {
+                $requestName, $requestValue = $Tag.Split(':', 2)
+            }
+            else {
+                $requestName = $Tag
+            }
+
+            $thisTag = Invoke-TrustRestMethod -UriLeaf "tags/$requestName"
+            $thisTagValues = Invoke-TrustRestMethod -UriLeaf "tags/$requestName/values" | Select-Object -ExpandProperty values
+
+            if ( $thisTag ) {
+
+                if ( $requestValue ) {
+                    if ( $thisTagValues ) {
+                        if ( -not ( $requestValue -in $thisTagValues.value ) ) {
+                            Write-Verbose "The tag '$requestName' exists but does not have a value of '$requestValue'"
+                            return
+                        }
+                    }
+                    else {
+                        Write-Verbose "The tag '$requestName' was found but does not have any values"
+                        return
+                    }
+                }
+
+                return @{
+                    $thisTag.key = $thisTagValues.value
+                }
+            }
+        }
+    }
+}
+
+

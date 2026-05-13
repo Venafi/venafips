@@ -1,0 +1,130 @@
+function Remove-CmCertificate {
+    <#
+    .SYNOPSIS
+    Remove a certificate
+
+    .DESCRIPTION
+    Removes a Certificate object, all associated objects including pending workflow tickets, and the corresponding Secret Store vault information.
+    You must either be a Master Admin or have Delete permission to the objects and have certificate:delete token scope.
+    Run this in parallel with PowerShell v7+ when you have a large number to process.
+
+    .PARAMETER Path
+    Path to the certificate to remove
+
+    .PARAMETER KeepAssociatedApps
+    Provide this switch to remove associations prior to certificate removal
+
+    .PARAMETER ThrottleLimit
+    Limit the number of threads when running in parallel; the default is 100.
+    Setting the value to 1 will disable multithreading.
+    On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
+
+
+    .PARAMETER TrustClient
+    Authentication for the function.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
+
+    .INPUTS
+    Path
+
+    .OUTPUTS
+    None
+
+    .EXAMPLE
+    $cert | Remove-CmCertificate
+    Remove a certificate via pipeline
+
+    .EXAMPLE
+    Remove-CmCertificate -Path '\ved\policy\my cert'
+    Remove a certificate and any associated app
+
+    .EXAMPLE
+    Remove-CmCertificate -Path '\ved\policy\my cert' -KeepAssociatedApps
+    Remove a certificate and first remove all associations, keeping the apps
+
+    .LINK
+    https://venafi.github.io/VenafiPS/functions/Remove-CmCertificate/
+
+    .LINK
+    https://github.com/Venafi/VenafiPS/blob/main/VenafiPS/Public/Remove-CmCertificate.ps1
+
+    .LINK
+    https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-DELETE-Certificates-Guid.php
+
+    #>
+
+    [Alias('Remove-VdcCertificate')]
+    [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
+
+    param (
+
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateScript( {
+                if ( $_ | Test-CmDnPath ) {
+                    $true
+                }
+                else {
+                    throw "'$_' is not a valid path"
+                }
+            })]
+        [Alias('DN', 'CertificateDN')]
+        [String] $Path,
+
+        [Parameter()]
+        [switch] $KeepAssociatedApps,
+
+        [Parameter()]
+        [int32] $ThrottleLimit = 100,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [TrustClient] $TrustClient = (Get-TrustClient)
+    )
+
+    begin {
+        $allCerts = [System.Collections.Generic.List[string]]::new()
+
+        # use in shouldprocess messaging below
+        $appsMessage = if ($KeepAssociatedApps) { 'but keep associated apps' } else { 'and associated apps' }
+    }
+
+    process {
+        if ( $PSCmdlet.ShouldProcess($Path, "Remove certificate $appsMessage") ) {
+            $allCerts.Add($Path)
+        }
+    }
+
+    end {
+
+        $parallelParams = @{
+            InputObject   = $allCerts
+            ThrottleLimit = $ThrottleLimit
+            ProgressTitle = 'Deleting certificates'
+            TrustClient = $TrustClient
+            ScriptBlock   = {
+
+                try {
+                    $guid = [CmObject]::new($PSItem).Guid
+                }
+                catch {
+                    Write-Error "'$PSItem' is not a valid path"
+                    return
+                }
+
+                if ($using:KeepAssociatedApps) {
+                    $associatedApps = ($PSItem | Get-CmAttribute -Attribute "Consumers").Consumers
+                    if ( $associatedApps ) {
+                        Remove-CmCertificateAssociation -Path $PSItem -ApplicationPath $associatedApps -Confirm:$false
+                    }
+                }
+
+                $null = Invoke-TrustRestMethod -Method Delete -UriLeaf "Certificates/$guid"
+            }
+        }
+
+        Invoke-TrustParallel @parallelParams
+    }
+}
+
+

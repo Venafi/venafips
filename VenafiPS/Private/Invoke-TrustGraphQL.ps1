@@ -1,0 +1,135 @@
+function Invoke-TrustGraphQL {
+    <#
+    .SYNOPSIS
+    Execute a GraphQL query against the Venafi Cloud API
+
+    #>
+
+    [CmdletBinding()]
+
+    param (
+        [Parameter(Mandatory)]
+        [string] $Query,
+
+        [Parameter()]
+        [hashtable] $Variables,
+
+        [Parameter()]
+        [hashtable] $Header,
+
+        [Parameter()]
+        [switch] $FullResponse,
+
+        [Parameter()]
+        [Int32] $TimeoutSec = 0,
+
+        [Parameter()]
+        [switch] $SkipCertificateCheck,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [TrustClient] $TrustClient = (Get-TrustClient)
+    )
+
+    $params = @{
+        Method          = 'Post'
+        ContentType     = 'application/json'
+        UseBasicParsing = $true
+        TimeoutSec      = $TimeoutSec
+        ErrorAction     = 'Stop'
+    }
+
+    if ( $TrustClient.Server -match 'strata' ) {
+        # NGTS
+        $Server = 'https://api.sase.paloaltonetworks.com/ngts'
+        $allHeaders = @{
+            'Authorization' = 'Bearer {0}' -f $TrustClient.AccessToken.GetNetworkCredential().password
+        }
+    }
+    else {
+        # CMSaaS
+        $Server = $TrustClient.Server
+        $allHeaders = @{
+            "tppl-api-key" = $TrustClient.ApiKey.GetNetworkCredential().password
+        }
+    }
+
+    $SkipCertificateCheck = $TrustClient.SkipCertificateCheck
+    $params.TimeoutSec = $TrustClient.TimeoutSec
+
+
+    $params.Uri = "$Server/graphql"
+
+    # append any headers passed in
+    if ( $Header ) { $allHeaders += $Header }
+    # if there are any headers, add to the rest payload
+    # in the case of inital authentication, eg, there won't be any
+    if ( $allHeaders ) { $params.Headers = $allHeaders }
+
+    $body = @{'query' = ($Query -replace "`r`n|`n", " ").Trim() }
+    if ( $Variables ) {
+        $body['variables'] = $Variables
+    }
+    $params.Body = (ConvertTo-Json $body -Depth 20 -Compress)
+    $params.ContentType = "application/json; charset=utf-8"
+
+    if ( $preJsonBody ) {
+        $paramsToWrite = $params.Clone()
+        $paramsToWrite.Body = $preJsonBody
+        $paramsToWrite | Write-VerboseWithSecret
+    }
+    else {
+        $params | Write-VerboseWithSecret
+    }
+
+    if ( $SkipCertificateCheck -or $env:VENAFIPS_SKIP_CERT_CHECK -eq '1' ) {
+        if ( $PSVersionTable.PSVersion.Major -lt 6 ) {
+            if ( [System.Net.ServicePointManager]::CertificatePolicy.GetType().FullName -ne 'TrustAllCertsPolicy' ) {
+                add-type @"
+                using System.Net;
+                using System.Security.Cryptography.X509Certificates;
+                public class TrustAllCertsPolicy : ICertificatePolicy {
+                    public bool CheckValidationResult(ServicePoint srvPoint, X509Certificate certificate, WebRequest request, int certificateProblem) {
+                        return true;
+                    }
+                }
+"@
+                [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
+            }
+        }
+        else {
+            $params.Add('SkipCertificateCheck', $true)
+        }
+    }
+
+    $oldProgressPreference = $ProgressPreference
+    $ProgressPreference = 'SilentlyContinue'
+
+    try {
+        $verboseOutput = $($response = Invoke-WebRequest @params) 4>&1
+        $verboseOutput.Message | Write-VerboseWithSecret
+
+        if ( $FullResponse ) {
+            $response
+        }
+        else {
+            if ( $response.Content ) {
+                try {
+                    $content = $response.Content | ConvertFrom-Json
+                }
+                catch {
+                    throw ('Invalid JSON response {0}' -f $response.Content)
+                }
+
+                if ( $content.errors ) {
+                    throw $content.errors.message
+                }
+
+                $content.data
+            }
+        }
+    }
+    finally {
+        $ProgressPreference = $oldProgressPreference
+    }
+}

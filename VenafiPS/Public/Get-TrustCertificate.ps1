@@ -1,0 +1,198 @@
+function Get-TrustCertificate {
+    <#
+    .SYNOPSIS
+    Get certificate information
+
+    .DESCRIPTION
+    Get certificate information, either all available to the api key provided or by id or zone.
+
+    .PARAMETER Certificate
+    Certificate identifier, the ID or certificate name.
+
+    .PARAMETER All
+    Retrieve all certificates
+
+    .PARAMETER OwnerDetail
+    Retrieve extended application owner info
+
+    .PARAMETER TrustClient
+    Authentication for the function.
+    The value defaults to the script session object $TrustClient created by New-TrustClient.
+
+    .INPUTS
+    ID
+
+    .OUTPUTS
+    PSCustomObject
+
+    .EXAMPLE
+    Get-CmCertificate -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2'
+
+    Get certificate info for a specific cert
+
+    .EXAMPLE
+    Get-CmCertificate -All
+
+    Get certificate info for all certs
+    #>
+
+    [CmdletBinding(DefaultParameterSetName = 'Id')]
+    [Alias('Get-VcCertificate')]
+
+    param (
+
+        [Parameter(ParameterSetName = 'Id', Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('certificateId', 'certificateIds')]
+        [string[]] $Certificate,
+
+        [Parameter(Mandatory, ParameterSetName = 'All')]
+        [Switch] $All,
+
+        [Parameter()]
+        [switch] $OwnerDetail,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [TrustClient] $TrustClient
+    )
+
+    begin {
+        $appOwners = [System.Collections.Generic.List[object]]::new()
+    }
+
+    process {
+
+        if ( $All ) {
+            return (Find-TrustCertificate -OwnerDetail:$OwnerDetail)
+        }
+
+        foreach ( $thisCert in $Certificate ) {
+
+            $params = @{
+                UriRoot = 'outagedetection/v1'
+                UriLeaf = "certificates/"
+            }
+
+            if ( Test-IsGuid($thisCert) ) {
+                $params.UriLeaf += $thisCert
+            }
+            else {
+                $findParams = @{
+                    Filter      = @('certificateName', 'eq', $thisCert)
+                    OwnerDetail = $OwnerDetail
+                }
+                return (Find-TrustCertificate @findParams | Get-TrustCertificate)
+            }
+
+            $params.UriLeaf += "?ownershipTree=true"
+
+            try {
+                $response = Invoke-TrustRestMethod @params
+            }
+            catch {
+                $originalError = $_
+
+                try {
+                    Write-Verbose "Initial request failed with error: $($_.ErrorDetails.Message). Attempting to determine if certificate is a trusted CA certificate."
+
+                    $message = $_.ErrorDetails.Message | ConvertFrom-Json
+                    if ( $message.errors.code -and $message.errors.code -eq 10051 ) {
+                        # check if the certificate is a trusted ca certificate, as those are accessed via a different endpoint
+                        $trustedCaCerts = Invoke-TrustRestMethod -UriLeaf 'trustedcacertificates' | Select-Object -ExpandProperty certificates
+                        $response = $trustedCaCerts | Where-Object { $thisCert -in $_.id, $_.subjectCN[0] }
+                    }
+                    else {
+                        throw $originalError
+                    }
+                }
+                catch {
+                    throw $originalError
+                }
+            }
+
+            if ( $response.PSObject.Properties.Name -contains 'certificates' ) {
+                $certs = $response | Select-Object -ExpandProperty certificates
+            }
+            else {
+                $certs = $response
+            }
+
+            $certs | Select-Object @{
+                'n' = 'certificateId'
+                'e' = {
+                    $_.Id
+                }
+            },
+            @{
+                'n' = 'application'
+                'e' = {
+                    if ( $_.applicationIds ) {
+                        $_.applicationIds | Get-CmsApplication | Select-Object -Property * -ExcludeProperty ownerIdsAndTypes, ownership
+                    }
+                }
+            },
+            @{
+                'n' = 'owner'
+                'e' = {
+                    if ( $OwnerDetail ) {
+
+                        # this scriptblock requires ?ownershipTree=true be part of the url
+                        foreach ( $thisOwner in $_.ownership.owningContainers.owningUsers ) {
+                            $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
+                            if ( -not $thisOwnerDetail ) {
+                                $thisOwnerDetail = Get-CmsUser -ID $thisOwner | Select-Object firstName, lastName, emailAddress,
+                                @{
+                                    'n' = 'status'
+                                    'e' = { $_.userStatus }
+                                },
+                                @{
+                                    'n' = 'role'
+                                    'e' = { $_.systemRoles }
+                                },
+                                @{
+                                    'n' = 'type'
+                                    'e' = { 'USER' }
+                                },
+                                @{
+                                    'n' = 'userId'
+                                    'e' = { $_.id }
+                                }
+
+                                $appOwners.Add($thisOwnerDetail)
+
+                            }
+                            $thisOwnerDetail
+                        }
+
+                        foreach ($thisOwner in $_.ownership.owningContainers.owningTeams) {
+                            $thisOwnerDetail = $appOwners | Where-Object { $_.id -eq $thisOwner }
+                            if ( -not $thisOwnerDetail ) {
+                                $thisOwnerDetail = Get-CmsTeam -Team $thisOwner | Select-Object name, role, members,
+                                @{
+                                    'n' = 'type'
+                                    'e' = { 'TEAM' }
+                                },
+                                @{
+                                    'n' = 'teamId'
+                                    'e' = { $_.id }
+                                }
+
+                                $appOwners.Add($thisOwnerDetail)
+                            }
+                            $thisOwnerDetail
+                        }
+                    }
+                    else {
+                        $_.ownership.owningContainers | Select-Object owningUsers, owningTeams
+                    }
+                }
+            },
+            @{
+                'n' = 'instance'
+                'e' = { $_.instances }
+            },
+            * -ExcludeProperty Id, applicationIds, instances, totalInstanceCount, ownership
+
+        } # end foreach
+    }
+}
