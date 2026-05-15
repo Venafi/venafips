@@ -144,7 +144,6 @@ function Get-TrustCloudProvider {
                     host
                     accessToken
                     clientToken
-                    tokenExpiration
                     }
                 '
 
