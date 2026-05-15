@@ -129,6 +129,7 @@ function Set-TrustCloudProvider {
     param (
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
+        [Alias('cloudProviderId')]
         [string] $CloudProvider,
 
         [Parameter()]
@@ -372,7 +373,7 @@ function Set-TrustCloudProvider {
                 name            = $existingProvider.name
                 teamId          = $existingProvider.team.teamId
                 type            = $providerType
-                authorizedTeams = $existingProvider.authorizedTeam
+                authorizedTeams = $existingProvider.authorizedTeam.teamId
             }
         }
 
