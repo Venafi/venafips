@@ -41,7 +41,7 @@ function Set-TrustCloudProvider {
     .PARAMETER ClientSecret
     Client secret credential. Accepts a string or SecureString.
     Only valid for Akamai and Azure providers.
-    Required when updating any Akamai or Azure configuration settings.
+    Required when updating any Akamai or Azure connection settings.
 
     .PARAMETER ApplicationID
     Active Directory Application (client) ID. Must be a valid GUID.
@@ -120,7 +120,8 @@ function Set-TrustCloudProvider {
     .EXAMPLE
     Set-TrustCloudProvider -CloudProvider 'MyAkamai' -Name 'RenamedProvider' -OwnerTeam 'NewTeam'
 
-    Rename a provider and change the owning team
+    Rename a provider and change the owning team.
+    ClientSecret not required since connection settings are not being updated.
 
     #>
 
