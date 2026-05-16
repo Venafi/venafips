@@ -5,7 +5,7 @@ function Set-TrustCloudProvider {
 
     .DESCRIPTION
     Update an existing cloud provider for Akamai, AWS, Azure, or GCP.
-    Only the parameters you provide will be updated; all other settings are preserved.
+    Only the parameters you provide will be updated; all other settings are preserved (except for ClientSecret, see parameter description).
     The provider type is determined automatically from the existing provider.
 
     .PARAMETER CloudProvider
