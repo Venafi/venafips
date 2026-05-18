@@ -207,6 +207,7 @@ nav:
       - Remove-TrustWebhook: functions/Remove-TrustWebhook.md
       - Set-TrustCertificate: functions/Set-TrustCertificate.md
       - Set-TrustCertificateRequest: functions/Set-TrustCertificateRequest.md
+      - Set-TrustCloudProvider: functions/Set-TrustCloudProvider.md
       - Set-TrustConnector: functions/Set-TrustConnector.md
       - Set-TrustIssuingTemplate: functions/Set-TrustIssuingTemplate.md
       - Set-TrustMachine: functions/Set-TrustMachine.md
