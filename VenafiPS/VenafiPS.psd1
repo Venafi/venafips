@@ -187,16 +187,16 @@ PrivateData = @{
         Tags = 'Venafi','SSL','TLS','API','devsecops','powershell','Strata Cloud Manager','NGTS','CyberArk'
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/Venafi/VenafiPS/blob/main/LICENSE'
+        LicenseUri = 'https://github.com/Venafi/venafips/blob/main/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'https://github.com/Venafi/VenafiPS'
+        ProjectUri = 'https://github.com/Venafi/venafips'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://raw.githubusercontent.com/Venafi/VenafiPS/main/images/idira_RGB_logo_Icon_Color.png'
+        IconUri = 'https://raw.githubusercontent.com/Venafi/venafips/main/images/logo.png'
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'https://github.com/Venafi/VenafiPS/blob/main/CHANGELOG.md'
+        ReleaseNotes = 'https://github.com/Venafi/venafips/blob/main/CHANGELOG.md'
 
         # Prerelease string of this module
         # Prerelease = ''
@@ -212,7 +212,7 @@ PrivateData = @{
  } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-HelpInfoURI = 'https://venafi.github.io/VenafiPS'
+HelpInfoURI = 'https://venafi.github.io/venafips'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
