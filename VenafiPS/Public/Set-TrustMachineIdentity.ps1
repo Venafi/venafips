@@ -143,18 +143,7 @@ function Set-TrustMachineIdentity {
 
                 # get existing binding details and update with provided values as opposed to requiring the whole object be provided
                 if ( $thisMI.binding ) {
-                    $thisMI.binding.PSObject.Properties | ForEach-Object {
-                        if ( $_.Value -is [System.Management.Automation.PSCustomObject] ) {
-                            $nested = @{}
-                            $_.Value.PSObject.Properties | ForEach-Object {
-                                $nested[$_.Name] = $_.Value
-                            }
-                            $currentBinding[$_.Name] = $nested
-                        }
-                        else {
-                            $currentBinding[$_.Name] = $_.Value
-                        }
-                    }
+                    $currentBinding = $thisMI.binding | ConvertTo-Hashtable -Recurse
                 }
 
                 foreach ( $key in $Binding.Keys ) {
@@ -177,18 +166,7 @@ function Set-TrustMachineIdentity {
 
                 # get existing keystore details and update with provided values as opposed to requiring the whole object be provided
                 if ( $thisMI.keystore ) {
-                    $thisMI.keystore.PSObject.Properties | ForEach-Object {
-                        if ( $_.Value -is [System.Management.Automation.PSCustomObject] ) {
-                            $nested = @{}
-                            $_.Value.PSObject.Properties | ForEach-Object {
-                                $nested[$_.Name] = $_.Value
-                            }
-                            $currentKeystore[$_.Name] = $nested
-                        }
-                        else {
-                            $currentKeystore[$_.Name] = $_.Value
-                        }
-                    }
+                    $currentKeystore = $thisMI.keystore | ConvertTo-Hashtable -Recurse
                 }
 
                 foreach ( $key in $Keystore.Keys ) {

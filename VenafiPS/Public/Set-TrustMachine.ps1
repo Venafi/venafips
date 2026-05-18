@@ -126,18 +126,7 @@ function Set-TrustMachine {
 
                 # get existing connection details and update with provided values as opposed to requiring the whole object be provided
                 if ( $thisMachine.connectionDetails ) {
-                    $thisMachine.connectionDetails.PSObject.Properties | ForEach-Object {
-                        if ( $_.Value -is [System.Management.Automation.PSCustomObject] ) {
-                            $nested = @{}
-                            $_.Value.PSObject.Properties | ForEach-Object {
-                                $nested[$_.Name] = $_.Value
-                            }
-                            $currentDetail[$_.Name] = $nested
-                        }
-                        else {
-                            $currentDetail[$_.Name] = $_.Value
-                        }
-                    }
+                    $currentDetail = $thisMachine.connectionDetails | ConvertTo-Hashtable -Recurse
                 }
 
                 foreach ( $key in $ConnectionDetail.Keys ) {
