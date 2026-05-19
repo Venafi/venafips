@@ -1,3 +1,6 @@
+## 7.0.2
+- Add `Set-TrustCloudProvider` to update generic provider settings and specific connection settings for Akamai, GCM, AWS, and Azure providers
+
 ## 7.0.1
 - Add `Set-TrustCloudProvider` to update generic provider settings and specific connection settings for Akamai, GCM, AWS, and Azure providers
 
@@ -940,6 +943,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
