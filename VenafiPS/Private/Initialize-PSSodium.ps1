@@ -15,10 +15,10 @@ function Initialize-PSSodium {
 
     if ( -not $module ) {
         if ( $Force ) {
-            Install-Module -Name PSSodium -Repository PSGallery -Force -RequiredVersion $script:pssodiumVersion
+            $module = Install-Module -Name PSSodium -Repository PSGallery -Force -RequiredVersion $script:pssodiumVersion -PassThru
 
             # validate hash
-            $modulePath = $module.ModuleBase
+            $modulePath = $module.InstalledLocation
 
             $script:pssodiumHash | ForEach-Object {
                 $fullPath = Join-Path $modulePath $_.Path
