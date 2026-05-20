@@ -11,12 +11,28 @@ function Initialize-PSSodium {
     }
 
     # Check if the module is installed
-    if ( -not (Get-Module PSSodium -ListAvailable) ) {
+    $module = Get-Module PSSodium -ListAvailable | Where-Object { $_.Version -eq '0.4.2' }
+
+    if ( -not $module ) {
         if ( $Force ) {
-            Install-Module -Name PSSodium -Force -RequiredVersion '0.4.2'
+            Install-Module -Name PSSodium -Repository PSGallery -Force -RequiredVersion '0.4.2'
+
+            # validate hash
+            $modulePath = $module.ModuleBase
+
+            $script:pssodiumHash | ForEach-Object {
+                $fullPath = Join-Path $modulePath $_.Path
+                $CurrentHash = (Get-FileHash $fullPath -Algorithm SHA256).Hash
+                if ($CurrentHash -ne $_.Hash) {
+                    throw "PSSodium file tampered with: $fullPath"
+                }
+                else {
+                    Write-Verbose "PSSodium file validated: $fullPath"
+                }
+            }
         }
         else {
-            throw 'The PSSodium module is not installed.  Add -Force for the module to be automatically installed or install from the PowerShell Gallery.'
+            throw 'The PSSodium module is not installed.  Add -Force for the module to be automatically installed or install v0.4.2 from the PowerShell Gallery.'
         }
     }
 

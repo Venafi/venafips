@@ -34,7 +34,7 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module PSScriptAnalyzer -ErrorAction Stop
+          Install-Module -Name PSScriptAnalyzer -Repository PSGallery -ErrorAction Stop
       - name: Lint with PSScriptAnalyzer
         shell: pwsh
         run: |
@@ -68,8 +68,8 @@ jobs:
       - name: Run Pester tests (pwsh)
         run: |
           Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSVersion.Minor
-          Set-PSRepository psgallery -InstallationPolicy trusted
-          Install-Module -Name Pester -confirm:$false -Force
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -Repository PSGallery -Confirm:$false -Force
           import-module Pester
           $config = [PesterConfiguration]::Default
           $config.Run.Path = '${{ github.workspace }}/Tests'
@@ -92,8 +92,8 @@ jobs:
     - name: Run Pester tests (PowerShell)
       run: |
         Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSVersion.Minor
-        Set-PSRepository psgallery -InstallationPolicy trusted
-        Install-Module -Name Pester -Confirm:$false -Force
+        Set-PSRepository PSGallery -InstallationPolicy Trusted
+        Install-Module -Name Pester -Repository PSGallery -Confirm:$false -Force
         import-module Pester
         $config = [PesterConfiguration]::Default
         $config.Run.Path = '${{ github.workspace }}/Tests'
