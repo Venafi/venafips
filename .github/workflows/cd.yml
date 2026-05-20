@@ -42,7 +42,7 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module -Name platyPS -Repository PSGallery -ErrorAction Stop
+          Install-Module -Name platyPS -Repository PSGallery -RequiredVersion 0.14.2 -ErrorAction Stop
 
       - name: Update docs
         shell: pwsh
