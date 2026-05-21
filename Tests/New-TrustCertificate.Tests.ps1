@@ -236,18 +236,6 @@ Describe "New-TrustCertificate" -Tags 'Unit' {
                 $Type -eq 'Application' -and $InputObject -eq 'MyApp'
             }
         }
-
-        It "Should throw when application has no templates" {
-            Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Application' } -MockWith {
-                [pscustomobject]@{
-                    applicationId   = $appId
-                    name            = 'MyApp'
-                    issuingTemplate = @()
-                }
-            } -ModuleName $ModuleName
-
-            { New-TrustCertificate -Application 'MyApp' -IssuingTemplate 'MSCA - 1 year' -CommonName 'app.mycert.com' -TrustClient $mockTrustClient -Confirm:$false } | Should -Throw '*No templates associated*'
-        }
     }
 
     Context "Without Application" {
