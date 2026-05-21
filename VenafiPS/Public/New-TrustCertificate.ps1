@@ -8,7 +8,7 @@ function New-TrustCertificate {
 
     .PARAMETER Application
     Application name or id to associate this certificate with, only applicable to CMSaaS, not NGTS.
-    Tab completion is supported.
+    If providing the name, it is case sensitive and must be an exact match.  Tab completion is supported.
 
     .PARAMETER IssuingTemplate
     Issuing template id, name, or alias.
@@ -250,42 +250,23 @@ function New-TrustCertificate {
 
         [Parameter()]
         [ValidateNotNullOrEmpty()]
-        [TrustClient] $TrustClient
+        [TrustClient] $TrustClient = (Get-TrustClient)
     )
 
     begin {
-
 
         # if Application or IssuingTemplate are names or aliases, resolve to IDs
         # bypass for GUIDs to support token based auth which cannot access these APIs
         if ( $Application ) {
             if ( $TrustClient.Platform -eq 'CMS' ) {
                 $thisApp = Get-TrustData -Type Application -InputObject $Application -Object -FailOnNotFound
-                if ( $thisApp.issuingTemplate.Count -eq 0 ) {
-                    throw 'No templates associated with this application'
-                }
-
-                # issuing template not provided, see if the app has one
-                switch ($thisApp.issuingTemplate.Count) {
-                    1 {
-                        # there is only one template, use it
-                        $thisTemplate = Get-TrustData -Type IssuingTemplate -InputObject $thisApp.issuingTemplate[0].issuingTemplateId -Object
-                        break
-                    }
-
-                    Default {
-                        throw 'IssuingTemplate is required when the application has more than 1 template associated'
-                    }
-                }
             }
             else {
-                Write-Warning 'NGTS does not support Applications, so the Application parameter is being ignored'
+                Write-Warning 'NGTS does not support Applications. The Application parameter is being ignored'
             }
         }
 
-        if ( $IssuingTemplate -and -not $thisTemplate ) {
-            $thisTemplate = Get-TrustData -Type IssuingTemplate -InputObject $IssuingTemplate -Object -FailOnNotFound
-        }
+        $thisTemplate = Get-TrustData -Type IssuingTemplate -InputObject $IssuingTemplate -Object -FailOnNotFound
 
         if ( $ValidUntil ) {
             $span = New-TimeSpan -Start (Get-Date) -End $ValidUntil
