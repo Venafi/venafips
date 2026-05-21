@@ -35,7 +35,9 @@
         New-NgtsToken @ngtsParams -ErrorAction Stop
     }
     elseif ($Session.Platform -eq 'CMS') {
-        throw 'Automatic token refresh is not available for VC platform'
+        if ( $Session.AuthType -eq 'ApiKey' ) {
+            Update-CmsApiKey -TrustClient $Session -ErrorAction Stop
+        }
     }
     else {
         throw "Unknown platform $($Session.Platform) for token refresh"
@@ -43,6 +45,7 @@
 
     $Session.AccessToken = $newToken.AccessToken
     $Session.Scope = $newToken.Scope
+    $Session.ApiKey = $newToken.ApiKey
     $Session.Expires = $newToken.Expires
     if ($newToken.RefreshToken) { $Session.RefreshToken = $newToken.RefreshToken }
     if ($newToken.RefreshExpires -gt [datetime]::MinValue) { $Session.RefreshExpires = $newToken.RefreshExpires }

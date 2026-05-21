@@ -43,10 +43,10 @@
 
     # Valid platform + auth type combinations and their required properties
     static [hashtable] $AuthRules = @{
-        [TrustPlatform]::CM  = @{
+        [TrustPlatform]::CM   = @{
             [TrustAuthType]::BearerToken = @('AccessToken', 'Server')
         }
-        [TrustPlatform]::CMS   = @{
+        [TrustPlatform]::CMS  = @{
             [TrustAuthType]::BearerToken = @('AccessToken', 'Server')
             [TrustAuthType]::ApiKey      = @('ApiKey', 'Server')
         }
@@ -128,6 +128,24 @@
         $client.Server = $server
         $client.AuthType = [TrustAuthType]::ApiKey
         $client.ApiKey = $apiKey
+
+        try {
+            # only have api key at this point, go get the expiry
+            $existingKeys = Invoke-TrustRestMethod -TrustClient $client -Method Get -UriLeaf 'apikeys' | Select-Object -ExpandProperty apiKeys
+            $thisKey = $existingKeys | Where-Object key -eq $apiKey.GetNetworkCredential().Password
+            $client.Expires = if ($thisKey.validityEndDate) {
+                [datetime]::Parse($thisKey.validityEndDate)
+            }
+            else {
+                [datetime]::MaxValue
+            }
+        }
+        catch {
+            # if for any reason the apikeys endpoint isn't available, just set expiry to max value and let it error later when it's used if the key is invalid
+            Write-Warning "Could not retrieve API key expiry date, setting to max value"
+            $client.Expires = [datetime]::MaxValue
+        }
+
         $client.Validate()
         return $client
     }
@@ -166,7 +184,7 @@
             }
 
             'CMS' {
-                if ($this.AuthType -eq 'BearerToken' -and $this.Credential) {
+                if (($this.AuthType -eq 'BearerToken' -and $this.Credential) -or ($this.AuthType -eq 'ApiKey' -and $this.ApiKey)) {
                     return $true
                 }
                 return $false
@@ -206,7 +224,9 @@
                 break
             }
             'CMS' {
-                throw 'Token revocation is not supported for Certificate Manager, SaaS.'
+                if (-not $this.ApiKey) {
+                    throw 'No API key to revoke.'
+                }
             }
             'NGTS' {
                 Write-Warning 'Token revocation is not currently supported for NGTS/SCM.  Clearing tokens locally, but this session may still be valid until the access token expires.'
