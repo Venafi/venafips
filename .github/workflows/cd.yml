@@ -42,7 +42,7 @@ jobs:
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module platyPS -ErrorAction Stop
+          Install-Module -Name platyPS -Repository PSGallery -RequiredVersion 0.14.2 -ErrorAction Stop
 
       - name: Update docs
         shell: pwsh
@@ -100,6 +100,6 @@ jobs:
           git push
 
       - name: Deploy docs
-        uses: mhausenblas/mkdocs-deploy-gh-pages@master
+        uses: mhausenblas/mkdocs-deploy-gh-pages@d77dd03172e96abbcdb081d8c948224762033653
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

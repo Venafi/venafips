@@ -29,12 +29,12 @@ jobs:
           pwd
           (gci | select -exp name) -join ', '
 
-      - uses: actions/checkout@main
+      - uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # main
       - name: Install PSScriptAnalyzer module
         shell: pwsh
         run: |
           Set-PSRepository PSGallery -InstallationPolicy Trusted
-          Install-Module PSScriptAnalyzer -ErrorAction Stop
+          Install-Module -Name PSScriptAnalyzer -Repository PSGallery -RequiredVersion 1.25.0 -Confirm:$false -Force -ErrorAction Stop
       - name: Lint with PSScriptAnalyzer
         shell: pwsh
         run: |
@@ -53,7 +53,7 @@ jobs:
             }
           }
       - name: Upload test results
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # main
         with:
           name: pssa-results
           path: ${{ github.workspace }}/pssa.json
@@ -64,12 +64,12 @@ jobs:
           platform: [ubuntu-latest, macos-latest, windows-latest]
       runs-on: ${{ matrix.platform }}
       steps:
-      - uses: actions/checkout@main
+      - uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # main
       - name: Run Pester tests (pwsh)
         run: |
           Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSVersion.Minor
-          Set-PSRepository psgallery -InstallationPolicy trusted
-          Install-Module -Name Pester -confirm:$false -Force
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module -Name Pester -Repository PSGallery -RequiredVersion 5.7.1 -Confirm:$false -Force -ErrorAction Stop
           import-module Pester
           $config = [PesterConfiguration]::Default
           $config.Run.Path = '${{ github.workspace }}/Tests'
@@ -79,7 +79,7 @@ jobs:
           Invoke-Pester -Configuration $config
         shell: pwsh
       - name: Upload test results
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # main
         if: always()
         with:
           name: Powershell (v7) Pester Test Results ${{ matrix.platform }}
@@ -88,12 +88,12 @@ jobs:
   test-posh:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@main
+    - uses: actions/checkout@900f2210b1d28bbbd0bd22d17926b9e224e8f231 # main
     - name: Run Pester tests (PowerShell)
       run: |
         Write-host $PSVersionTable.PSVersion.Major $PSVersionTable.PSVersion.Minor
-        Set-PSRepository psgallery -InstallationPolicy trusted
-        Install-Module -Name Pester -Confirm:$false -Force
+        Set-PSRepository PSGallery -InstallationPolicy Trusted
+        Install-Module -Name Pester -Repository PSGallery -RequiredVersion 5.7.1 -Confirm:$false -Force -ErrorAction Stop
         import-module Pester
         $config = [PesterConfiguration]::Default
         $config.Run.Path = '${{ github.workspace }}/Tests'
@@ -104,7 +104,7 @@ jobs:
         if ($Error[0].Fullyqualifiederrorid -eq 'PesterAssertionFailed') {exit 1}
       shell: powershell
     - name: Upload test results
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # main
       if: always()
       with:
         name: Windows Powershell (v5) Pester Test Results
