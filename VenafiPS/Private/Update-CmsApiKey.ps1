@@ -31,6 +31,7 @@ function Update-CmsApiKey {
     Hashtable with ApiKey (PSCredential) and Expires (datetime)
     #>
 
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting to a secure string, its already plaintext')]
     param (
         [Parameter()]
         [switch] $KeepInactiveKey,
