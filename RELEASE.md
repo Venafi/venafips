@@ -1,1 +1,6 @@
-- Add `Set-TrustCloudProvider` to update generic provider settings and specific connection settings for Akamai, GCM, AWS, and Azure providers
+- Fix `New-TrustCertificate` missing TrustClient, [#397](https://github.com/Venafi/VenafiPS/issues/397).  Thanks @andreaalloway2 for submitting!
+- CMSaaS api key management:
+  - Add support to New-TrustClient -RefreshSession. The inactive key will be deleted and the active key will be refreshed. Validity, in days, for the new key will be the same as existing.
+  - Auto-refresh is supported for api key expiration
+  - $TrustClient.Expires is now accurate for api keys
+  - Thanks @afoker for submitting the request
