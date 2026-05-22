@@ -133,6 +133,7 @@ Accept wildcard characters: False
 
 ### -Application
 Application name or id to associate this certificate with, only applicable to CMSaaS, not NGTS.
+If providing the name, it is case sensitive and must be an exact match. 
 Tab completion is supported.
 
 ```yaml
@@ -431,7 +432,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: None
+Default value: (Get-TrustClient)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -615,7 +615,7 @@ Type: SwitchParameter
 Parameter Sets: RefreshSession
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: False
 Accept pipeline input: False

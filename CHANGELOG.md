@@ -1,3 +1,12 @@
+## 7.0.3
+- Fix `New-TrustCertificate` missing TrustClient, [#397](https://github.com/Venafi/VenafiPS/issues/397).  Thanks @andreaalloway2 for submitting!
+- CMSaaS api key management:
+  - Add support to New-TrustClient -RefreshSession. The inactive key will be deleted and the active key will be refreshed. Validity, in days, for the new key will be the same as existing.
+  - Auto-refresh is supported for api key expiration
+  - $TrustClient.Expires is now accurate for api keys
+  - Thanks @afoker for submitting the request
+
+
 ## 7.0.2
 - Add `Set-TrustCloudProvider` to update generic provider settings and specific connection settings for Akamai, GCM, AWS, and Azure providers
 
@@ -943,6 +952,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
