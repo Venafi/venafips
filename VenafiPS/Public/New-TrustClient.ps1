@@ -375,7 +375,7 @@ function New-TrustClient {
         [ValidateRange(1000000000, 9999999999)]
         [long] $Tsg,
 
-        [Parameter(ParameterSetName = 'RefreshSession')]
+        [Parameter(Mandatory, ParameterSetName = 'RefreshSession')]
         [switch] $RefreshSession,
 
         [Parameter()]
@@ -436,20 +436,34 @@ function New-TrustClient {
             }
 
             $client = $script:TrustClient
+            switch ($client.Platform ) {
+                'CM' {
+                    # not really needed since refresh happens automatically now, but leaving here in case there are any edge cases where the old refresh token functionality is still needed
+                    if ( -not $client.AuthServer -or -not $client.RefreshToken -or -not $client.ClientId ) {
+                        throw 'In order to refresh an existing session, it must have a Server, RefreshToken, and ClientId.'
+                    }
 
-            if ( -not $client.AuthServer -or -not $client.RefreshToken -or -not $client.ClientId ) {
-                throw 'In order to refresh an existing session, it must have a Server, RefreshToken, and ClientId.'
+                    $refreshParams = @{
+                        Server               = $client.AuthServer
+                        RefreshToken         = $client.RefreshToken
+                        ClientId             = $client.ClientId
+                        SkipCertificateCheck = $client.SkipCertificateCheck
+                    }
+
+                    New-TrustClient @refreshParams
+                    return
+                }
+
+                'CMS' {
+                    if ( $client.AuthType -ne 'ApiKey' ) {
+                        throw 'Session refresh is only supported for CMS sessions authenticated with an API key.'
+                    }
+                    Invoke-SessionRefresh -Session $client
+                    return
+                }
+                Default {}
             }
 
-            $refreshParams = @{
-                Server               = $client.AuthServer
-                RefreshToken         = $client.RefreshToken
-                ClientId             = $client.ClientId
-                SkipCertificateCheck = $client.SkipCertificateCheck
-            }
-
-            New-TrustClient @refreshParams
-            return
         }
 
         { $_ -in 'TokenOAuth', 'TokenIntegrated', 'TokenCertificate', 'TokenJwt' } {

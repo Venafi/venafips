@@ -414,10 +414,10 @@ Describe 'TrustClient CanRefresh Negative Cases' -Tags 'Unit' {
         $sess.CanRefresh() | Should -BeFalse
     }
 
-    It 'Should return false for VC ApiKey sessions' {
+    It 'Should return true for CMS ApiKey sessions' {
         $sess = New-TrustClient -CmsKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
 
-        $sess.CanRefresh() | Should -BeFalse
+        $sess.CanRefresh() | Should -BeTrue
     }
 
     It 'Should return false for NGTS without credential' {
@@ -435,9 +435,9 @@ Describe 'TrustClient IsExpired Edge Cases' -Tags 'Unit' {
         Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
     }
 
-    It 'Should return false when Expires is MinValue (never set)' {
+    It 'Should return false when Expires is MaxValue (no expiry set)' {
         $sess = New-TrustClient -CmsKey (New-TestCredential -UserName 'VcKey' -Password 'key') -PassThru
-        # ApiKey sessions have Expires at MinValue
+        # ApiKey sessions have Expires set to MaxValue when no validityEndDate exists
 
         $sess.IsExpired() | Should -BeFalse
     }
@@ -473,5 +473,42 @@ Describe 'NGTS Session Refresh' -Tags 'Unit' {
         $sess.AccessToken.GetNetworkCredential().Password | Should -Be 'ngts-refreshed'
         $sess.Expires | Should -BeGreaterThan ([DateTime]::UtcNow)
         Should -Invoke -CommandName 'New-NgtsToken' -ModuleName $ModuleName -Times 1
+    }
+}
+
+Describe 'CMS ApiKey Session Refresh' -Tags 'Unit' {
+
+    BeforeEach {
+        Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
+    }
+
+    It 'Should refresh CMS ApiKey session via Update-CmsApiKey and update ApiKey' {
+        Mock -CommandName 'Update-CmsApiKey' -ModuleName $ModuleName -MockWith {
+            @{
+                ApiKey  = (New-TestCredential -UserName 'ApiKey' -Password 'rotated-key-value')
+                Expires = [DateTime]::UtcNow.AddDays(90)
+            }
+        }
+
+        $sess = New-TrustClient -CmsKey (New-TestCredential -UserName 'VcKey' -Password 'old-key') -PassThru
+        $sess.Expires = [DateTime]::UtcNow.AddSeconds(10)
+
+        & (Get-Module $ModuleName) { Invoke-SessionRefresh -Session $args[0] } $sess
+
+        $sess.ApiKey.GetNetworkCredential().Password | Should -Be 'rotated-key-value'
+        $sess.Expires | Should -BeGreaterThan ([DateTime]::UtcNow)
+        Should -Invoke -CommandName 'Update-CmsApiKey' -ModuleName $ModuleName -Times 1
+    }
+
+    It 'Should not refresh a non-expired CMS ApiKey session' {
+        Mock -CommandName 'Update-CmsApiKey' -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-RestMethod' -ModuleName $ModuleName -MockWith { @{ ok = $true } }
+
+        $sess = New-TrustClient -CmsKey (New-TestCredential -UserName 'VcKey' -Password 'valid-key') -PassThru
+        $sess.Expires = [DateTime]::UtcNow.AddDays(30)
+
+        $null = Invoke-TrustRestMethod -TrustClient $sess -UriLeaf 'useraccounts' -Method Get
+
+        Should -Invoke -CommandName 'Update-CmsApiKey' -ModuleName $ModuleName -Times 0
     }
 }
