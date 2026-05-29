@@ -245,7 +245,7 @@ function Import-TrustCertificate {
         if ( $allCerts.Count -gt 0 ) {
             # process all certs with keys
 
-            Write-Debug ($allCerts | ConvertTo-Json)
+            Write-Debug ('Processing {0} certificate(s) with private keys' -f $allCerts.Count)
             $importList = [System.Collections.Generic.List[hashtable]]::new()
 
             if ( -not $pkPassString ) {
@@ -339,7 +339,7 @@ function Import-TrustCertificate {
         if ( $allNoKeyCerts.Count -gt 0 ) {
             # process all certs without keys
 
-            Write-Debug ($allNoKeyCerts | ConvertTo-Json)
+            Write-Debug ('Processing {0} certificate(s) without private keys' -f $allNoKeyCerts.Count)
             $importList = [System.Collections.Generic.List[hashtable]]::new()
             $bl = -not ($env:VC_ENABLE_BLOCKLIST -eq 'true')
 

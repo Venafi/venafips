@@ -207,11 +207,11 @@ function Invoke-TrustRestMethod {
         $paramsToWrite = $params.Clone()
         $paramsToWrite.Body = $preJsonBody
         $paramsToWrite | Write-VerboseWithSecret
-        Write-Debug -Message ($paramsToWrite | ConvertTo-Json -Depth 10)
+        $paramsToWrite | Write-DebugWithSecret
     }
     else {
         $params | Write-VerboseWithSecret
-        Write-Debug -Message ($params | ConvertTo-Json -Depth 10)
+        $params | Write-DebugWithSecret
     }
 
     # ConvertTo-Json, used in Write-VerboseWithSecret, has an issue with certificates
@@ -250,7 +250,7 @@ function Invoke-TrustRestMethod {
         else {
             $response = Invoke-RestMethod @params -ErrorAction Stop
         }
-        try { if ($DebugPreference -eq 'Continue') { $response | ConvertTo-Json -Depth 10 | Write-Debug } } catch {}
+        try { if ($DebugPreference -eq 'Continue') { $response | Write-DebugWithSecret } } catch {}
         $verboseOutput = $response 4>&1
         $verboseOutput.Message | Write-VerboseWithSecret
     }
