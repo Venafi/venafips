@@ -220,7 +220,11 @@ function Export-TrustCertificate {
                 # pkcs12 is a byte array of a pfx file so its easy to handle
                 if ( $using:pset -eq 'PKCS12' ) {
                     if ( $using:OutPath ) {
-                        $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath ('{0}.pfx' -f $thisCert.certificateName)
+                        $safeName = [IO.Path]::GetFileName($thisCert.certificateName)
+                        if ([string]::IsNullOrEmpty($safeName) -or $safeName -ne $thisCert.certificateName) {
+                            throw "Invalid certificate name: path traversal detected in '$($thisCert.certificateName)'"
+                        }
+                        $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath ('{0}.pfx' -f $safeName)
                         [IO.File]::WriteAllBytes($dest, $innerResponse.Content)
                         $out | Add-Member @{'outPath' = $dest }
                     }
@@ -267,7 +271,11 @@ function Export-TrustCertificate {
                         }
                         else {
                             # copy files from zip to final desination since they are already in pem format
-                            $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath $thisCert.certificateName
+                            $safeName = [IO.Path]::GetFileName($thisCert.certificateName)
+                            if ([string]::IsNullOrEmpty($safeName) -or $safeName -ne $thisCert.certificateName) {
+                                throw "Invalid certificate name: path traversal detected in '$($thisCert.certificateName)'"
+                            }
+                            $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath $safeName
                             $null = New-Item -Path $dest -ItemType Directory -Force
                             $unzipFiles | Copy-Item -Destination $dest -Force
                             $out | Add-Member @{'outPath' = $dest }
@@ -336,7 +344,11 @@ function Export-TrustCertificate {
 
                 if ( $certificateData ) {
                     if ( $using:OutPath ) {
-                        $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath $thisCert.certificateName
+                        $safeName = [IO.Path]::GetFileName($thisCert.certificateName)
+                        if ([string]::IsNullOrEmpty($safeName) -or $safeName -ne $thisCert.certificateName) {
+                            throw "Invalid certificate name: path traversal detected in '$($thisCert.certificateName)'"
+                        }
+                        $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath $safeName
                         $null = New-Item -Path $dest -ItemType Directory -Force
                         $outFile = Join-Path -Path $dest -ChildPath ('{0}.{1}' -f $PSItem, $params.Body.format)
                         try {
