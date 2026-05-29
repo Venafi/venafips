@@ -220,6 +220,7 @@ function Invoke-TrustRestMethod {
         $params.Add('Certificate', $Certificate)
     }
 
+    $originalCertificatePolicy = $null
     if ( $SkipCertificateCheck -or $env:VENAFIPS_SKIP_CERT_CHECK -eq '1' ) {
         if ( $PSVersionTable.PSVersion.Major -lt 6 ) {
             if ( [System.Net.ServicePointManager]::CertificatePolicy.GetType().FullName -ne 'TrustAllCertsPolicy' ) {
@@ -232,6 +233,7 @@ function Invoke-TrustRestMethod {
                     }
                 }
 "@
+                $originalCertificatePolicy = [System.Net.ServicePointManager]::CertificatePolicy
                 [System.Net.ServicePointManager]::CertificatePolicy = New-Object TrustAllCertsPolicy
             }
         }
@@ -316,6 +318,9 @@ function Invoke-TrustRestMethod {
     }
     finally {
         $ProgressPreference = $oldProgressPreference
+        if ( $null -ne $originalCertificatePolicy ) {
+            [System.Net.ServicePointManager]::CertificatePolicy = $originalCertificatePolicy
+        }
     }
 
     $response
