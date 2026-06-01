@@ -291,15 +291,19 @@ function New-TrustMachine {
                     }, * -ExcludeProperty id
                 }
                 else {
+                    # give the platform a few seconds to process the new machine before testing connection, current bug in platform
+                    Start-Sleep -Seconds 5
+
                     $workflowResponse = Invoke-TrustWorkflow -ID $response.id -Workflow 'Test'
-                    $response | Select-Object @{
-                        'n' = 'machineId'
-                        'e' = { $_.id }
-                    },
+
+                    # now that we've tested, the status might have changed, so get the latest data for the machine to return
+                    $response = Get-TrustMachine -Machine $response.id
+
+                    $response | Select-Object *,
                     @{
                         'n' = 'testConnection'
                         'e' = { $workflowResponse | Select-Object Success, Error, WorkflowID }
-                    }, * -ExcludeProperty id
+                    }
                 }
             }
         }
