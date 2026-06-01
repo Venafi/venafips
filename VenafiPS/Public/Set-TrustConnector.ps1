@@ -33,22 +33,17 @@ function Set-TrustConnector {
     Update an existing connector with the same name as in the manifest
 
     .EXAMPLE
-    Set-TrustConnector -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -ManifestPath '/tmp/manifest_v2.json'
-
-    Update an existing connector utilizing a specific connector ID
-
-    .EXAMPLE
-    Set-TrustConnector -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable
+    Set-TrustConnector -Connector 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable
 
     Disable a connector
 
     .EXAMPLE
-    Get-TrustConnector -ID 'My connector' | Set-TrustConnector -Disable
+    Set-TrustConnector -Connector 'My connector' -Disable
 
     Disable a connector by name
 
     .EXAMPLE
-    Set-TrustConnector -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable:$false
+    Set-TrustConnector -Connector 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable:$false
 
     Reenable a disabled connector
 
@@ -70,18 +65,9 @@ function Set-TrustConnector {
         )]
         [string] $ManifestPath,
 
-        [Parameter(ParameterSetName = 'Manifest', ValueFromPipelineByPropertyName)]
         [Parameter(ParameterSetName = 'Disable', Mandatory, ValueFromPipelineByPropertyName)]
         [Alias('connectorId')]
-        [ValidateScript(
-            {
-                if ( -not (Test-IsGuid -InputObject $_ ) ) {
-                    throw "$_ is not a valid connector id format"
-                }
-                $true
-            }
-        )]
-        [string] $ID,
+        [string] $Connector,
 
         [Parameter(ParameterSetName = 'Disable', Mandatory)]
         [switch] $Disable,
@@ -96,27 +82,34 @@ function Set-TrustConnector {
 
     process {
 
+        # get the connector id if provided
+        $connectorId = if ( $PSBoundParameters.ContainsKey('Connector') ) {
+            if ( Test-IsGuid($Connector) ) {
+                $Connector
+            }
+            else {
+                $thisConnector = Get-TrustConnector -Connector $Connector
+                if ( -not $thisConnector ) {
+                    throw ('A connector with the name ''{0}'' was not found' -f $Connector)
+                }
+                $thisConnector.connectorId
+            }
+        }
+
         switch ($PSCmdLet.ParameterSetName) {
             'Manifest' {
                 $manifestObject = Get-Content -Path $ManifestPath -Raw | ConvertFrom-Json
                 $manifest = if ( $manifestObject.manifest ) {
                     $manifestObject.manifest
-                } else {
+                }
+                else {
                     $manifestObject
                 }
 
-                # if connector is provided, update that specific one
-                # if not, use the name from the manifest to find the existing connector id
-
-                if ( $ID ) {
-                    $connectorId = $ID
-                }
-                else {
-                    $thisConnector = Get-TrustConnector -ID $manifest.name
-                    if ( -not $thisConnector ) {
-                        throw ('An existing connector with the name {0} was not found' -f $manifest.name)
-                    }
-                    $connectorId = $thisConnector.connectorId
+                # get connector details from manifest name
+                $thisConnector = Get-TrustConnector -Connector $manifest.name
+                if ( -not $thisConnector ) {
+                    throw ('An existing connector with the name ''{0}'' was not found' -f $manifest.name)
                 }
 
                 # ensure deployment is provided which is not needed during simulator testing
@@ -126,7 +119,7 @@ function Set-TrustConnector {
 
                 $params = @{
                     Method  = 'Patch'
-                    UriLeaf = "plugins/$connectorId"
+                    UriLeaf = 'plugins/{0}' -f $thisConnector.connectorId
                     Body    = @{
                         manifest = $manifest
                     }
@@ -140,12 +133,12 @@ function Set-TrustConnector {
             'Disable' {
 
                 if ( $Disable ) {
-                    if ( $PSCmdlet.ShouldProcess($ID, "Disable connector") ) {
-                        $null = Invoke-TrustRestMethod -Method 'Post' -UriLeaf "plugins/$ID/disablements"
+                    if ( $PSCmdlet.ShouldProcess($connectorId, "Disable connector") ) {
+                        $null = Invoke-TrustRestMethod -Method 'Post' -UriLeaf "plugins/$connectorId/disablements"
                     }
                 }
                 else {
-                    $null = Invoke-TrustRestMethod -Method 'Delete' -UriLeaf "plugins/$ID/disablements"
+                    $null = Invoke-TrustRestMethod -Method 'Delete' -UriLeaf "plugins/$connectorId/disablements"
                 }
             }
         }
