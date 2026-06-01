@@ -12,10 +12,8 @@ function Set-TrustConnector {
     Ensure the manifest has the deployment element which is not needed when testing in the simulator.
     See https://github.com/Venafi/vmware-avi-connector?tab=readme-ov-file#manifest for details.
 
-    .PARAMETER ID
-    Connector ID to update.
-    If not provided, the ID will be looked up by the name in the manifest provided by ManifestPath.
-    Note that if both ManifestPath and ID are provided and the name in the manifest is different than the one associated with ID, the name will be changed.
+    .PARAMETER Connector
+    Connector ID or name to disable.
 
     .PARAMETER Disable
     Disable or reenable a connector
