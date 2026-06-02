@@ -391,7 +391,12 @@ function Export-CmCertificate {
                         $out = $out | Select-Object -Property * -ExcludeProperty CertificateData
 
                         # write the file with the filename provided
-                        $outFile = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath ($innerResponse.FileName.Trim('"'))
+                        $serverFileName = $innerResponse.FileName.Trim('"')
+                        $safeFileName = [IO.Path]::GetFileName($serverFileName)
+                        if ( -not $safeFileName -or $safeFileName -ne $serverFileName ) {
+                            throw ('Server returned an unsafe FileName: {0}' -f $serverFileName)
+                        }
+                        $outFile = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath $safeFileName
                         $bytes = [Convert]::FromBase64String($innerResponse.CertificateData)
                         [IO.File]::WriteAllBytes($outFile, $bytes)
 
