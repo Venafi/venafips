@@ -255,7 +255,7 @@ function Get-TrustData {
                     $thisObject = $allObject | Where-Object { $InputObject -in $_.userId, $_.username }
                     if ( -not $thisObject -and -not $latest ) {
                         $script:vcUser = Get-CmsUser -All | Sort-Object -Property username
-                        $thisObject = $script:vcTag | Where-Object { $InputObject -in $_.userId, $_.username }
+                        $thisObject = $script:vcUser | Where-Object { $InputObject -in $_.userId, $_.username }
                     }
                 }
                 break
@@ -285,7 +285,7 @@ function Get-TrustData {
 
             'MachineIdentity' {
                 if ( $InputObject ) {
-                    $thisObject = Get-TrustMachineIdentity -MachineIdentity $InputObject
+                    $thisObject = Get-TrustMachineIdentity -ID $InputObject
                 }
                 else {
                     $allObject = Find-TrustMachineIdentity

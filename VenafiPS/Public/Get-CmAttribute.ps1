@@ -393,7 +393,7 @@ function Get-CmAttribute {
             }
         }
 
-        $attribValues = Invoke-TrustParallel @parallelParams
+        $attribValues = @(Invoke-TrustParallel @parallelParams)
 
         # caller just wants this one value
         if ( $AsValue -and $attribValues.count -eq 1 ) {

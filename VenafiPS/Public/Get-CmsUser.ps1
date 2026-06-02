@@ -43,12 +43,12 @@ function Get-CmsUser {
         memberedTeams
 
     .EXAMPLE
-    Get-CmsUser -ID 9e9db8d6-234a-409c-8299-e3b81ce2f916
+    Get-CmsUser -User 9e9db8d6-234a-409c-8299-e3b81ce2f916
 
     Get user details from an id
 
     .EXAMPLE
-    Get-CmsUser -ID 'greg.brownstein@venafi.com'
+    Get-CmsUser -User 'greg.brownstein@venafi.com'
 
     Get user details from a username
 
