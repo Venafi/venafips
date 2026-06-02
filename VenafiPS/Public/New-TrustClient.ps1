@@ -538,6 +538,9 @@ function New-TrustClient {
                 $newClient.ClientId = $secretInfo.Metadata.ClientId
                 $newClient.Scope = $secretInfo.Metadata.Scope
                 $newClient.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
+                if ( $newClient.SkipCertificateCheck ) {
+                    Write-Warning 'SkipCertificateCheck was restored from vault metadata; TLS server certificate validation is DISABLED for this session.'
+                }
                 $newClient.TimeoutSec = $secretInfo.Metadata.TimeoutSec
             }
             else {
@@ -589,6 +592,9 @@ function New-TrustClient {
             $newClient = [TrustClient]::NewCmBearerToken($newToken.Server, $newToken)
             $newClient.Scope = $secretInfo.Metadata.Scope | ConvertFrom-Json
             $newClient.SkipCertificateCheck = [bool] $secretInfo.Metadata.SkipCertificateCheck
+            if ( $newClient.SkipCertificateCheck ) {
+                Write-Warning 'SkipCertificateCheck was restored from vault metadata; TLS server certificate validation is DISABLED for this session.'
+            }
             $newClient.TimeoutSec = $secretInfo.Metadata.TimeoutSec
         }
 
