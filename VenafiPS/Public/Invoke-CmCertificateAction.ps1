@@ -254,8 +254,21 @@ function Invoke-CmCertificateAction {
                         $null = Invoke-TrustRestMethod @params -FullResponse
                     }
                     catch {
+                        $errorMessage = $_
+                        if ( $_.ErrorDetails.Message ) {
+                            $errorMessage = $_.ErrorDetails.Message
+                            try {
+                                $errorDetails = $_.ErrorDetails.Message | ConvertFrom-Json
+                                if ( $errorDetails.Error ) {
+                                    $errorMessage = $errorDetails.Error
+                                }
+                            }
+                            catch {
+                                # Ignore any errors while trying to get the exception message
+                            }
+                        }
                         $returnObject.Success = $false
-                        $returnObject.Error = $_
+                        $returnObject.Error = $errorMessage
                     }
                 }
 
