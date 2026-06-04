@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/powershell:lts-alpine-3.14
+FROM mcr.microsoft.com/powershell:lts-7.4-alpine-3.20
 
 RUN pwsh -Command 'Set-PSRepository PSGallery -InstallationPolicy Trusted; Install-Module VenafiPS -ErrorAction Stop'
 
