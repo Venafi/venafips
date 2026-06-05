@@ -1,0 +1,172 @@
+
+/*/ LIGHT theme /*/
+:root,
+[data-md-color-scheme="default"] {
+    --mini-card-bg-color:var(--primary-background);
+    --mini-card-fg-color:var(--primary-80);
+    --mini-card-border-color:var(--primary-20);
+}
+/*/ DARK theme /*/
+:root,
+[data-md-color-scheme="slate"] {
+    --mini-card-bg-color:var(--secondary-background);
+    --mini-card-fg-color:var(--primary-80);
+    --mini-card-border-color:var(--primary-60);
+}
+
+.mini-card-container>p {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-gap: .5rem;
+    align-items: center;
+}
+
+.mini-card-container object {
+    pointer-events: none;
+    height: 2rem;
+    width: auto;
+}
+
+.mini-card-container h2 {
+    grid-column: span 12;
+}
+
+.md-typeset p a.mini-card{
+    padding: .7rem 0.7rem 0.7rem 2.5rem;
+    border-radius: 4px;
+    color: var(--primary-80);
+    color: var(--mini-card-fg-color);
+    transition: all .2s ease-out;
+    border: 1px solid var(--mini-card-border-color);
+    text-decoration: none !important;
+    background-repeat: no-repeat;
+    background-position: .3rem center;
+    background-size: 1.7rem;
+    background-color:var(--mini-card-bg-color);
+}
+
+.mini-card-2 {
+    grid-column: span 6;
+}
+
+.mini-card-3 {
+    grid-column: span 4;
+}
+
+.mini-card-4 {
+    grid-column: span 3;
+}
+
+@media screen and (max-width:44.9375em) {
+    .mini-card-2,
+    .mini-card-3,
+    .mini-card-4 {
+        grid-column: span 12;
+    }
+}
+
+.mini-card:hover {
+
+    box-shadow: var(--box-shadow);
+    text-decoration: none !important;
+    transition: all .3s ease-in-out;
+}
+
+#logo-ztpki {
+    background-image: url(../images/logos/Venafi_ProductICON_ZTPKI_f.svg);
+}
+
+#logo-digicert {
+    background-image: url(../images/logos/DigiCert.svg);
+}
+
+#logo-entrust {
+    background-image: url(../images/logos/Entrust.svg);
+}
+
+#logo-globalsign {
+    background-image: url(../images/logos/GlobalSign.svg);
+}
+
+#logo-letsencrypt {
+    background-image: url(../images/logos/LetsEncrypt.svg);
+}
+
+#logo-microsoft {
+    background-image: url(../images/logos/microsoft.svg);
+}
+
+#logo-acme {
+    background-image: url(../images/logos/220px-ACME-protocol-icon.png);
+    background-size: 45px;
+}
+#logo-paloalto {
+    background-image: url(../images/logos/palo-alto.png);
+    background-size: 45px;
+}
+#logo-f5 {
+    background-image: url(../images/logos/f5.jpg);
+    background-size: 45px;
+   
+}
+#logo-citrix {
+    background-image: url(../images/logos/citrix.png);
+    background-size: 45px; 
+}
+#logo-imperva {
+    background-image: url(../images/logos/imperva.jpg);
+    background-size: 45px;
+    
+}
+#logo-vmware {
+    background-image: url(../images/logos/vmware.png);
+    background-size: 45px
+}
+#logo-kemp {
+    background-image: url(../images/logos/kemp.png);
+    background-size: 45px
+}
+#logo-a10 {
+    background-image: url(../images/logos/a10.png);
+    background-size: 55px;
+}
+#logo-cloudflare {
+    background-image: url(../images/logos/cloudflare.png);
+    background-size: 50px;
+}
+#logo-cyberark {
+    background-image: url(../images/logos/cyberark.png);
+    background-size: 35px;
+}
+#logo-hashicorp{
+    background-image: url(../images/logos/hashicorp.svg);
+    background-size: 35px;
+}
+#logo-azure {
+    background-image: url(../images/logos/azure.png);
+    background-size: 35px;
+}
+#logo-aws {
+    background-image: url(../images/logos/aws.png);
+    background-size: 40px;
+}
+#logo-google {
+    background-image: url(../images/logos/google.png);
+    background-size: 40px;
+}
+#logo-ejbca {
+    background-image: url(../images/logos/EJBCA.svg);
+    background-size:35px;
+}
+#logo-sectigo {
+    background-image: url(../images/logos/sectigo.svg);
+    background-size:25px;
+}
+#logo-pagerduty {
+    background-image: url(../images/logos/icon-pagerduty.png);
+    background-size:35px;
+}
+#logo-zoom {
+    background-image: url(../images/logos/icon-zoom-team-chat.png);
+    background-size:35px;
+}
