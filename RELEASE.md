@@ -1,6 +1,4 @@
-- Fix `New-TrustCertificate` missing TrustClient, [#397](https://github.com/Venafi/VenafiPS/issues/397).  Thanks @andreaalloway2 for submitting!
-- CMSaaS api key management:
-  - Add support to New-TrustClient -RefreshSession. The inactive key will be deleted and the active key will be refreshed. Validity, in days, for the new key will be the same as existing.
-  - Auto-refresh is supported for api key expiration
-  - $TrustClient.Expires is now accurate for api keys
-  - Thanks @afoker for submitting the request
+- Fix error when using `Get-CmAttribute -AsValue` on PS 5.1 and the full object was returned instead of just the value
+- Add workaround for API bug and `New-TrustMachine` returned a false positive when validating immediately after creation
+- Fix parameter issue with `Set-TrustConnector`
+- CI/CD/security fixes
