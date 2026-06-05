@@ -1,3 +1,10 @@
+## 7.0.4
+- Fix error when using `Get-CmAttribute -AsValue` on PS 5.1 and the full object was returned instead of just the value
+- Add workaround for API bug and `New-TrustMachine` returned a false positive when validating immediately after creation
+- Fix parameter issue with `Set-TrustConnector`
+- CI/CD/security fixes
+
+
 ## 7.0.3
 - Fix `New-TrustCertificate` missing TrustClient, [#397](https://github.com/Venafi/VenafiPS/issues/397).  Thanks @andreaalloway2 for submitting!
 - CMSaaS api key management:
@@ -952,6 +959,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

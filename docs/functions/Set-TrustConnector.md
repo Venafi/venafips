@@ -7,14 +7,14 @@ Update an existing connector
 
 ### Manifest (Default)
 ```
-Set-TrustConnector -ManifestPath <String> [-ID <String>] [-TrustClient <TrustClient>]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Set-TrustConnector -ManifestPath <String> [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Disable
 ```
-Set-TrustConnector -ID <String> [-Disable] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Set-TrustConnector -Connector <String> [-Disable] [-TrustClient <TrustClient>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,28 +32,21 @@ Update an existing connector with the same name as in the manifest
 
 ### EXAMPLE 2
 ```
-Set-TrustConnector -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -ManifestPath '/tmp/manifest_v2.json'
-```
-
-Update an existing connector utilizing a specific connector ID
-
-### EXAMPLE 3
-```
-Set-TrustConnector -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable
+Set-TrustConnector -Connector 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable
 ```
 
 Disable a connector
 
-### EXAMPLE 4
+### EXAMPLE 3
 ```
-Get-TrustConnector -ID 'My connector' | Set-TrustConnector -Disable
+Set-TrustConnector -Connector 'My connector' -Disable
 ```
 
 Disable a connector by name
 
-### EXAMPLE 5
+### EXAMPLE 4
 ```
-Set-TrustConnector -ID 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable:$false
+Set-TrustConnector -Connector 'ca7ff555-88d2-4bfc-9efa-2630ac44c1f2' -Disable:$false
 ```
 
 Reenable a disabled connector
@@ -77,22 +70,8 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ID
-Connector ID to update.
-If not provided, the ID will be looked up by the name in the manifest provided by ManifestPath.
-Note that if both ManifestPath and ID are provided and the name in the manifest is different than the one associated with ID, the name will be changed.
-
-```yaml
-Type: String
-Parameter Sets: Manifest
-Aliases: connectorId
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName)
-Accept wildcard characters: False
-```
+### -Connector
+Connector ID or name to disable.
 
 ```yaml
 Type: String
