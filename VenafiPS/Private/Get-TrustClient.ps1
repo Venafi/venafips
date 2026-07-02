@@ -41,14 +41,14 @@ function Get-TrustClient {
             { $_ -match '-Ngts' } {
                 'NGTS'
             }
-            { $_ -match '-Vc' } {
+            { $_ -match '-Cms' } {
                 'CMS'
             }
             { $_ -match '-Cm' } {
                 'CM'
             }
             Default {
-            # we don't know the platform, eg. -Venafi functions.  this won't happen often
+                # we don't know the platform, eg. -Trust functions
                 $null
             }
         }
@@ -60,27 +60,27 @@ function Get-TrustClient {
             throw "You are attemping to call a $Platform function with an invalid session"
         }
 
-            # Check token expiration and auto-refresh if possible
-            if ($sess.Expires -and $sess.Expires -gt [datetime]::MinValue) {
-                $secondsRemaining = [math]::Round((($sess.Expires.ToUniversalTime()) - [DateTime]::UtcNow).TotalSeconds, 0)
-                Write-Verbose ("Access token expires in {0} seconds" -f $secondsRemaining)
-            }
+        # Check token expiration and auto-refresh if possible
+        if ($sess.Expires -and $sess.Expires -gt [datetime]::MinValue) {
+            $secondsRemaining = [math]::Round((($sess.Expires.ToUniversalTime()) - [DateTime]::UtcNow).TotalSeconds, 0)
+            Write-Verbose ("Access token expires in {0} seconds" -f $secondsRemaining)
+        }
 
-            if ($sess.IsExpired()) {
-                Write-Verbose 'Access token is expired or nearing expiration'
-                if ($sess.CanRefresh()) {
-                    Write-Verbose 'Automatically refreshing access token'
-                    try {
-                        Invoke-SessionRefresh -Session $sess
-                    }
-                    catch {
-                        throw "Failed to auto-refresh token: $($_.Exception.Message)"
-                    }
+        if ($sess.IsExpired()) {
+            Write-Verbose 'Access token is expired or nearing expiration'
+            if ($sess.CanRefresh()) {
+                Write-Verbose 'Automatically refreshing access token'
+                try {
+                    Invoke-SessionRefresh -Session $sess
                 }
-                else {
-                    throw 'Access token has expired and cannot be automatically refreshed. Please authenticate again with New-TrustClient.'
+                catch {
+                    throw "Failed to auto-refresh token: $($_.Exception.Message)"
                 }
             }
+            else {
+                throw 'Access token has expired and cannot be automatically refreshed. Please authenticate again with New-TrustClient.'
+            }
+        }
 
         $sess
     }
