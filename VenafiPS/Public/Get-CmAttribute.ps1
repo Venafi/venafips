@@ -63,10 +63,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Get-CmAttribute -Path '\VED\Policy\certificates\test.gdb.com' -Attribute 'State'
 
-    Name      : test.gdb.com
     Path      : \VED\Policy\Certificates\test.gdb.com
-    TypeName  : X509 Server Certificate
-    Guid      : b7a7221b-e038-41d9-9d49-d7f45c1ca128
     Attribute : {@{Name=State; PolicyPath=\VED\Policy\Certificates; Locked=False; Value=UT; Overridden=False}}
     State     : UT
 
@@ -75,10 +72,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Get-CmAttribute -Path '\VED\Policy\certificates\test.gdb.com' -Attribute 'State', 'Driver Name'
 
-    Name        : test.gdb.com
     Path        : \VED\Policy\Certificates\test.gdb.com
-    TypeName    : X509 Server Certificate
-    Guid        : b7a7221b-e038-41d9-9d49-d7f45c1ca128
     Attribute   : {@{Name=State; PolicyPath=\VED\Policy\Certificates; Locked=False; Value=UT; Overridden=False}, @{Name=Driver
                 Name; PolicyPath=; Locked=False; Value=appx509certificate; Overridden=False}}
     State       : UT
@@ -89,10 +83,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Get-CmAttribute -Path '\VED\Policy\certificates\test.gdb.com' -Attribute 'ServiceNow Assignment Group'
 
-    Name                        : test.gdb.com
     Path                        : \VED\Policy\Certificates\test.gdb.com
-    TypeName                    : X509 Server Certificate
-    Guid                        : b7a7221b-e038-41d9-9d49-d7f45c1ca128
     Attribute                   : {@{CustomFieldGuid={7f214dec-9878-495f-a96c-57291f0d42da}; Name=ServiceNow Assignment Group;
                                 PolicyPath=; Locked=False; Value=Venafi Management; Overridden=False}}
     ServiceNow Assignment Group : Venafi Management
@@ -103,10 +94,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Get-CmAttribute -Path '\VED\Policy\mydevice\myapp' -Attribute 'Certificate' -NoLookup
 
-    Name                        : myapp
     Path                        : \VED\Policy\mydevice\myapp
-    TypeName                    : Adaptable App
-    Guid                        : b7a7221b-e038-41d9-9d49-d7f45c1ca128
     Attribute                   : {@{Name=Certificate; PolicyPath=; Value=\VED\Policy\mycert; Locked=False; Overridden=False}}
     Certificate                 : \VED\Policy\mycert
 
@@ -115,10 +103,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Get-CmAttribute -Path '\VED\Policy\certificates\test.gdb.com' -All
 
-    Name                                  : test.gdb.com
     Path                                  : \VED\Policy\Certificates\test.gdb.com
-    TypeName                              : X509 Server Certificate
-    Guid                                  : b7a7221b-e038-41d9-9d49-d7f45c1ca128
     Attribute                             : {@{CustomFieldGuid={7f214dec-9878-495f-a96c-57291f0d42da}; Name=ServiceNow
                                             Assignment Group; PolicyPath=; Locked=False; Value=Venafi Management;
                                             Overridden=False}…}
@@ -136,10 +121,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Get-CmAttribute -Path 'Certificates' -Class 'X509 Certificate' -Attribute 'State'
 
-    Name      : Certificates
     Path      : \VED\Policy\Certificates
-    TypeName  : Policy
-    Guid      : a91fc152-a9fb-4b49-a7ca-7014b14d73eb
     Attribute : {@{Name=State; PolicyPath=\VED\Policy\Certificates; Locked=False; Value=UT}}
     ClassName : X509 Certificate
     State     : UT
@@ -150,10 +132,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Get-CmAttribute -Path '\VED\Policy\certificates' -Class 'X509 Certificate' -All
 
-    Name                                  : Certificates
     Path                                  : \VED\Policy\Certificates
-    TypeName                              : Policy
-    Guid                                  : a91fc152-a9fb-4b49-a7ca-7014b14d73eb
     Attribute                             : {@{CustomFieldGuid={7f214dec-9878-495f-a96c-57291f0d42da}; Name=ServiceNow
                                             Assignment Group; PolicyPath=; Locked=False; Value=}…}
     ClassName                             : X509 Certificate
@@ -171,10 +150,7 @@ function Get-CmAttribute {
     .EXAMPLE
     Find-CmCertificate | Get-CmAttribute -Attribute Contact,'Managed By','Want Renewal' -ThrottleLimit 50
 
-    Name         : mycert
     Path         : \VED\Policy\mycert
-    TypeName     : X509 Server Certificate
-    Guid         : 1dc31664-a9f3-407c-8bf3-1e388e90a114
     Attribute    : {@{Name=Contact; PolicyPath=\VED\Policy; Value=local:{ab2a2e32-b412-4466-b5b5-484478a99bf4}; Locked=False; Overridden=False}, @{Name=Managed By; PolicyPath=\VED\Policy;
                 Value=Aperture; Locked=True; Overridden=False}, @{Name=Want Renewal; PolicyPath=\VED\Policy; Value=0; Locked=True; Overridden=False}}
     Contact      : local:{ab2a2e32-b412-4466-b5b5-484478a99bf4}
