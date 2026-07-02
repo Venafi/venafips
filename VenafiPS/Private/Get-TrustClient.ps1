@@ -38,14 +38,14 @@ function Get-TrustClient {
 
         # find out the platform from the calling function
         $platform = switch ($stack[1].Command) {
-            { $_ -match '-Ngts' } {
-                'NGTS'
+            { $_ -cmatch '-Ngts' } {
+                'NGTS'; break
             }
-            { $_ -match '-Cms' } {
-                'CMS'
+            { $_ -cmatch '-Cms' } {
+                'CMS'; break
             }
-            { $_ -match '-Cm' } {
-                'CM'
+            { $_ -cmatch '-Cm' } {
+                'CM'; break
             }
             Default {
                 # we don't know the platform, eg. -Trust functions
