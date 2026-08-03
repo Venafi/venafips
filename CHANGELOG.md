@@ -1,3 +1,7 @@
+## 7.0.5
+- Fix `Set-CmAttribute` not honoring $null for all attribute types
+
+
 ## 7.0.4
 - Fix error when using `Get-CmAttribute -AsValue` on PS 5.1 and the full object was returned instead of just the value
 - Add workaround for API bug and `New-TrustMachine` returned a false positive when validating immediately after creation
@@ -959,6 +963,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
