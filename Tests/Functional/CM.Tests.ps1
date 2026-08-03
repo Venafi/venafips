@@ -124,6 +124,130 @@ Describe 'CM Get/Set Attribute' -Tags 'Functional', 'CM' -Skip:$skipAll {
     }
 }
 
+# ── Clear Attribute with $null (#410) ────────────────────────────────────────
+
+Describe 'CM Set Attribute - Clear with $null' -Tags 'Functional', 'CM', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:cmSession = New-CmFunctionalSession
+        $script:policyPath = if ($env:VENAFIPS_CM_POLICY_PATH) { $env:VENAFIPS_CM_POLICY_PATH } else { '\VED\Policy\Functional Testing' }
+        $script:clearAttrFolder = "$($script:policyPath)\ClearAttributeTest"
+        $script:clearAttrDevicePath = "$($script:clearAttrFolder)\ClearAttributeTestDevice"
+
+        # ensure policy folders exist
+        $exists = Test-CmObject -Path $script:policyPath -ExistOnly -TrustClient $script:cmSession
+        if (-not $exists) { New-CmPolicy -Path $script:policyPath -TrustClient $script:cmSession }
+        $exists2 = Test-CmObject -Path $script:clearAttrFolder -ExistOnly -TrustClient $script:cmSession
+        if (-not $exists2) { New-CmPolicy -Path $script:clearAttrFolder -TrustClient $script:cmSession }
+
+        # a Device object hosts the Device-class custom field used below
+        $script:clearAttrDeviceCreated = $false
+        $deviceExists = Test-CmObject -Path $script:clearAttrDevicePath -ExistOnly -TrustClient $script:cmSession
+        if (-not $deviceExists) {
+            $deviceResult = New-CmDevice -Path $script:clearAttrDevicePath -Hostname '10.0.0.101' -PassThru -TrustClient $script:cmSession -ErrorAction SilentlyContinue
+            if ($deviceResult) { $script:clearAttrDeviceCreated = $true }
+        }
+        else {
+            $script:clearAttrDeviceCreated = $true
+        }
+
+        $script:clearAttrCfName = "VenafiPS-ClearAttr-$(Get-Random -Maximum 9999)"
+        $script:clearAttrCfCreated = $false
+        $cfResult = New-CmCustomField -Name $script:clearAttrCfName -Label $script:clearAttrCfName -Class @('Device') -Type 'String' -PassThru -TrustClient $script:cmSession -ErrorAction SilentlyContinue
+        if ($cfResult) {
+            $script:clearAttrCfCreated = $true
+            # the session's custom field cache is populated once at session creation (New-TrustClient);
+            # refresh it so Set-CmAttribute/Get-CmAttribute recognize the field just created
+            $script:cmSession.PlatformData.CustomField = @($script:cmSession.PlatformData.CustomField) + $cfResult
+        }
+    }
+
+    Context 'Base (built-in) attribute' {
+
+        It 'Should set a base attribute value' {
+            { Set-CmAttribute -Path $script:clearAttrFolder -Attribute @{ 'Description' = 'VenafiPS clear-attribute test' } -TrustClient $script:cmSession -Confirm:$false } |
+                Should -Not -Throw
+            $attr = Get-CmAttribute -Path $script:clearAttrFolder -Attribute 'Description' -TrustClient $script:cmSession
+            $attr.Description | Should -Be 'VenafiPS clear-attribute test'
+        }
+
+        It 'Should clear the base attribute with $null without throwing' {
+            # this previously failed for integer-typed attributes via config/Write with "Value must be an integer" (#410)
+            { Set-CmAttribute -Path $script:clearAttrFolder -Attribute @{ 'Description' = $null } -TrustClient $script:cmSession -Confirm:$false } |
+                Should -Not -Throw
+        }
+
+        It 'Should no longer return the cleared value' {
+            $attr = Get-CmAttribute -Path $script:clearAttrFolder -Attribute 'Description' -TrustClient $script:cmSession
+            $attr.Description | Should -Not -Be 'VenafiPS clear-attribute test'
+        }
+    }
+
+    Context 'Integer-typed policy attribute' {
+
+        BeforeAll {
+            $script:notificationDisabledSettable = $false
+        }
+
+        It 'Should set an integer-typed policy attribute value without throwing' {
+            { Set-CmAttribute -Path $script:clearAttrFolder -Class 'X509 Certificate' -Attribute @{ 'Notification Disabled' = '1' } -TrustClient $script:cmSession -Confirm:$false } |
+                Should -Not -Throw
+            $attr = Get-CmAttribute -Path $script:clearAttrFolder -Class 'X509 Certificate' -Attribute 'Notification Disabled' -TrustClient $script:cmSession
+            if ($attr.'Notification Disabled' -ne '1') {
+                Set-ItResult -Skipped -Because 'value did not change — an ancestor policy likely locks this attribute in this environment'
+                return
+            }
+            $script:notificationDisabledSettable = $true
+        }
+
+        It 'Should clear the policy attribute with $null without throwing' {
+            # this is the exact regression from #410 — clearing an integer-typed attribute previously
+            # sent an empty string through config/WritePolicy and errored with "Value must be an integer"
+            { Set-CmAttribute -Path $script:clearAttrFolder -Class 'X509 Certificate' -Attribute @{ 'Notification Disabled' = $null } -TrustClient $script:cmSession -Confirm:$false } |
+                Should -Not -Throw
+        }
+
+        It 'Should no longer report the overridden value' {
+            if (-not $script:notificationDisabledSettable) { Set-ItResult -Skipped -Because 'attribute could not be set in the prior test'; return }
+            $attr = Get-CmAttribute -Path $script:clearAttrFolder -Class 'X509 Certificate' -Attribute 'Notification Disabled' -TrustClient $script:cmSession
+            $attr.'Notification Disabled' | Should -Not -Be '1'
+        }
+    }
+
+    Context 'Custom field' {
+
+        It 'Should set a custom field value' {
+            if (-not $script:clearAttrCfCreated -or -not $script:clearAttrDeviceCreated) { Set-ItResult -Skipped -Because 'Could not create test custom field or device'; return }
+            { Set-CmAttribute -Path $script:clearAttrDevicePath -Attribute @{ $script:clearAttrCfName = 'custom value' } -TrustClient $script:cmSession -Confirm:$false } |
+                Should -Not -Throw
+            $attr = Get-CmAttribute -Path $script:clearAttrDevicePath -Attribute $script:clearAttrCfName -TrustClient $script:cmSession
+            $attr.$script:clearAttrCfName | Should -Be 'custom value'
+        }
+
+        It 'Should clear the custom field with $null without throwing' {
+            if (-not $script:clearAttrCfCreated -or -not $script:clearAttrDeviceCreated) { Set-ItResult -Skipped -Because 'Could not create test custom field or device'; return }
+            { Set-CmAttribute -Path $script:clearAttrDevicePath -Attribute @{ $script:clearAttrCfName = $null } -TrustClient $script:cmSession -Confirm:$false } |
+                Should -Not -Throw
+        }
+
+        It 'Should no longer return the cleared custom field value' {
+            if (-not $script:clearAttrCfCreated -or -not $script:clearAttrDeviceCreated) { Set-ItResult -Skipped -Because 'Could not create test custom field or device'; return }
+            $attr = Get-CmAttribute -Path $script:clearAttrDevicePath -Attribute $script:clearAttrCfName -TrustClient $script:cmSession
+            $attr.$script:clearAttrCfName | Should -Not -Be 'custom value'
+        }
+    }
+
+    AfterAll {
+        # remove our subtree explicitly rather than relying solely on the final sweep in 'CM Write Test Cleanup'
+        if (Test-CmObject -Path $script:clearAttrFolder -ExistOnly -TrustClient $script:cmSession) {
+            Remove-CmObject -Path $script:clearAttrFolder -Recursive -TrustClient $script:cmSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
+        # the custom field definition is a global schema object with no removal API in this module,
+        # so it is intentionally left behind — each run uses a randomized name (VenafiPS-ClearAttr-<n>)
+        # so it won't collide with the next run.
+    }
+}
+
 Describe 'CM Export Certificate' -Tags 'Functional', 'CM' -Skip:$skipAll {
 
     BeforeAll {
@@ -684,6 +808,12 @@ Describe 'CM Credentials' -Tags 'Functional', 'CM' -Skip:$skipAll {
         $cred = Get-CmCredential -Path $script:credPath -TrustClient $script:cmSession
         $cred | Should -Not -BeNullOrEmpty
     }
+
+    AfterAll {
+        if ($script:createdCred -and (Test-CmObject -Path $script:credPath -ExistOnly -TrustClient $script:cmSession)) {
+            Remove-CmObject -Path $script:credPath -TrustClient $script:cmSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
+    }
 }
 
 # ── Team Lifecycle ─────────────────────────────────────────────────────────────
@@ -811,6 +941,12 @@ Describe 'CM Credential Lifecycle' -Tags 'Functional', 'CM', 'Write' -Skip:$skip
         $exists = Test-CmObject -Path $script:credPath -ExistOnly -TrustClient $script:cmSession
         $exists | Should -BeTrue
     }
+
+    AfterAll {
+        if ($script:createdCred -and (Test-CmObject -Path $script:credPath -ExistOnly -TrustClient $script:cmSession)) {
+            Remove-CmObject -Path $script:credPath -TrustClient $script:cmSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
+    }
 }
 
 # ── Device & CAPI Application ────────────────────────────────────────────────
@@ -847,6 +983,13 @@ Describe 'CM Device & CAPI Application' -Tags 'Functional', 'CM', 'Write' -Skip:
         if (-not $script:appPath) { Set-ItResult -Skipped -Because 'No application created'; return }
         $exists = Test-CmObject -Path $script:appPath -ExistOnly -TrustClient $script:cmSession
         $exists | Should -BeTrue
+    }
+
+    AfterAll {
+        # removing the device recursively also removes the CAPI application created under it
+        if ($script:createdDevice -and (Test-CmObject -Path $script:devicePath -ExistOnly -TrustClient $script:cmSession)) {
+            Remove-CmObject -Path $script:devicePath -Recursive -TrustClient $script:cmSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
     }
 }
 
@@ -904,6 +1047,14 @@ Describe 'CM Certificate Association' -Tags 'Functional', 'CM', 'Write' -Skip:$s
         if (-not $script:testCertPath -or -not $script:appPath) { Set-ItResult -Skipped -Because 'No cert or app available'; return }
         { Remove-CmCertificateAssociation -Path $script:testCertPath -ApplicationPath @($script:appPath) -TrustClient $script:cmSession -Confirm:$false } | Should -Not -Throw
     }
+
+    AfterAll {
+        # the certificate lives under $script:policyPath with a unique name and is swept by the final
+        # cleanup; the device (fixed name) is not, so remove it (and the CAPI app under it) explicitly
+        if (Test-CmObject -Path $script:devicePath -ExistOnly -TrustClient $script:cmSession) {
+            Remove-CmObject -Path $script:devicePath -Recursive -TrustClient $script:cmSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
+    }
 }
 
 # ── Policy Lifecycle ──────────────────────────────────────────────────────────
@@ -935,6 +1086,12 @@ Describe 'CM Policy Lifecycle' -Tags 'Functional', 'CM', 'Write' -Skip:$skipAll 
         $result = New-CmPolicy -Path $nestedPath -Force -PassThru -TrustClient $script:cmSession
         $result | Should -Not -BeNullOrEmpty
         Test-CmObject -Path $nestedPath -ExistOnly -TrustClient $script:cmSession | Should -BeTrue
+    }
+
+    AfterAll {
+        if (Test-CmObject -Path $script:testPolicyPath -ExistOnly -TrustClient $script:cmSession) {
+            Remove-CmObject -Path $script:testPolicyPath -Recursive -TrustClient $script:cmSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
     }
 }
 

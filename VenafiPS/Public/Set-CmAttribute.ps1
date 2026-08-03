@@ -104,6 +104,12 @@ function Set-CmAttribute {
 
     .LINK
     https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-writepolicy.php
+
+    .LINK
+    https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-clearattribute.php
+
+    .LINK
+    https://docs.venafi.com/Docs/current/TopNav/Content/SDK/WebSDK/r-SDK-POST-Config-clearpolicyattribute.php
     #>
 
     [Alias('Set-VdcAttribute')]
@@ -152,13 +158,15 @@ function Set-CmAttribute {
         }
 
         $baseFields = @()
+        $baseFieldsToClear = @()
         $customFields = @()
 
         $Attribute.GetEnumerator() | ForEach-Object {
 
             $thisKey = $_.Key
+            $thisIsNull = ($null -eq $_.Value)
 
-            if ($null -ne $_.Value) {
+            if ( -not $thisIsNull ) {
                 if ( $_.Value.GetType().BaseType.Name -eq 'Array' ) {
                     $thisValue = @($_.Value)
                 }
@@ -167,17 +175,15 @@ function Set-CmAttribute {
                 }
             }
             else {
-                # cannot add 'null', only overwrite to blank out the value
-                $NoOverwrite = $false
                 $thisValue = $_.Value
-                $BypassValidation = $true
             }
+            $thisBypassValidation = $BypassValidation -or $thisIsNull
             $customFieldError = $null
 
             $customField = $TrustClient.PlatformData.CustomField | Where-Object { $_.Label -eq $thisKey -or $_.Guid -eq $thisKey }
             if ( $customField ) {
                 Write-Verbose ('found custom field {0} - {1}' -f $customField.DN, $customField | ConvertTo-Json)
-                if ( -not $BypassValidation ) {
+                if ( -not $thisBypassValidation ) {
                     switch ( $customField.Type.ToString() ) {
                         '1' {
                             # string
@@ -227,10 +233,14 @@ function Set-CmAttribute {
                 }
             }
             else {
-                $baseFields += @{
-                    Name  = $thisKey
-                    Value = if ($null -eq $thisValue) { '' } else { $thisValue }
-                    # Value = if ($null -eq $thisValue) { , @() } else { , @($thisValue) }
+                if ( $thisIsNull ) {
+                    $baseFieldsToClear += $thisKey
+                }
+                else {
+                    $baseFields += @{
+                        Name  = $thisKey
+                        Value = $thisValue
+                    }
                 }
             }
         }
@@ -306,6 +316,29 @@ function Set-CmAttribute {
                     if ( $response.Result -ne 1 ) {
                         Write-Error $response.Error
                     }
+                }
+            }
+        }
+
+        if ( $baseFieldsToClear.Count -gt 0 ) {
+
+            $params.UriLeaf = if ( $PSBoundParameters.ContainsKey('Class') ) { 'config/ClearPolicyAttribute' } else { 'config/ClearAttribute' }
+
+            foreach ( $fieldName in $baseFieldsToClear ) {
+
+                $params.Body = @{
+                    ObjectDN      = $Path
+                    AttributeName = $fieldName
+                }
+
+                if ( $PSBoundParameters.ContainsKey('Class') ) {
+                    $params.Body.Class = $Class
+                }
+
+                $response = Invoke-TrustRestMethod @params
+
+                if ( $response.Result -ne 1 ) {
+                    Write-Error $response.Error
                 }
             }
         }
