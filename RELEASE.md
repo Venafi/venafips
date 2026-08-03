@@ -1,4 +1,1 @@
-- Fix error when using `Get-CmAttribute -AsValue` on PS 5.1 and the full object was returned instead of just the value
-- Add workaround for API bug and `New-TrustMachine` returned a false positive when validating immediately after creation
-- Fix parameter issue with `Set-TrustConnector`
-- CI/CD/security fixes
+- Fix `Set-CmAttribute` not honoring $null for all attribute types
