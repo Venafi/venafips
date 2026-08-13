@@ -1,1 +1,1 @@
-- Fix `Set-CmAttribute` not honoring $null for all attribute types
+- Replace `New-TrustMachineIis` with `New-TrustMachineMicrosoft` to support IIS, Windows (PowerShell), and SQL machine types

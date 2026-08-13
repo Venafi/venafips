@@ -91,7 +91,7 @@ FunctionsToExport = 'Add-CmsTeamMember', 'Add-CmsTeamOwner', 'Add-CmAdaptableHas
                'Invoke-CmCertificateAction', 'Invoke-TrustRestMethod',
                'Move-CmObject', 'New-CmsApplication', 'New-TrustCertificate',
                'New-TrustConnector', 'New-TrustMachine',
-               'New-TrustMachineCommonKeystore', 'New-TrustMachineIis',
+               'New-TrustMachineCommonKeystore', 'New-TrustMachineMicrosoft',
                'New-CmsTeam', 'New-TrustWebhook', 'New-CmCapiApplication',
                'New-CmCertificate', 'New-CmCustomField', 'New-CmDevice',
                'New-CmObject', 'New-CmPolicy', 'New-CmTeam', 'New-TrustClient',
