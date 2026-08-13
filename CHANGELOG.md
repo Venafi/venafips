@@ -1,3 +1,6 @@
+## 7.0.6
+- Replace `New-TrustMachineIis` with `New-TrustMachineMicrosoft` to support IIS, Windows (PowerShell), and SQL machine types
+
 ## 7.0.5
 - Fix `Set-CmAttribute` not honoring $null for all attribute types
 
@@ -963,6 +966,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

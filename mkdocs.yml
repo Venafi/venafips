@@ -193,7 +193,7 @@ nav:
       - New-TrustConnector: functions/New-TrustConnector.md
       - New-TrustMachine: functions/New-TrustMachine.md
       - New-TrustMachineCommonKeystore: functions/New-TrustMachineCommonKeystore.md
-      - New-TrustMachineIis: functions/New-TrustMachineIis.md
+      - New-TrustMachineMicrosoft: functions/New-TrustMachineMicrosoft.md
       - New-TrustWebhook: functions/New-TrustWebhook.md
       - Remove-TrustCertificate: functions/Remove-TrustCertificate.md
       - Remove-TrustCloudKeystore: functions/Remove-TrustCloudKeystore.md

@@ -1,28 +1,29 @@
-# New-TrustMachineIis
+# New-TrustMachineMicrosoft
 
 ## SYNOPSIS
-Create a new IIS machine
+Create a new IIS, Windows PowerShell, or SQL machine
 
 ## SYNTAX
 
 ### WinrmBasic (Default)
 ```
-New-TrustMachineIis -Name <String> [-VSatellite <String>] -Owner <String> [-Hostname <String>]
- -Credential <PSObject> [-Tag <String[]>] [-Status <String>] [-Port <Int32>] [-UseTls] [-SkipCertificateCheck]
- [-NoVerify] [-ThrottleLimit <Int32>] [-PassThru] [-Force] [-TrustClient <TrustClient>]
+New-TrustMachineMicrosoft [-MachineType <String>] -Name <String> [-VSatellite <String>] -Owner <String>
+ [-Hostname <String>] -Credential <PSObject> [-Tag <String[]>] [-Status <String>] [-Port <Int32>] [-UseTls]
+ [-SkipCertificateCheck] [-NoVerify] [-ThrottleLimit <Int32>] [-PassThru] [-Force] [-TrustClient <TrustClient>]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### WinrmKerberos
 ```
-New-TrustMachineIis -Name <String> [-VSatellite <String>] -Owner <String> [-Hostname <String>]
- -Credential <PSObject> [-Tag <String[]>] [-Status <String>] [-Port <Int32>] [-UseTls] [-SkipCertificateCheck]
- -DomainName <String> -KeyDistributionCenter <String> -SPN <String> [-NoVerify] [-ThrottleLimit <Int32>]
- [-PassThru] [-Force] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+New-TrustMachineMicrosoft [-MachineType <String>] -Name <String> [-VSatellite <String>] -Owner <String>
+ [-Hostname <String>] -Credential <PSObject> [-Tag <String[]>] [-Status <String>] [-Port <Int32>] [-UseTls]
+ [-SkipCertificateCheck] -DomainName <String> -KeyDistributionCenter <String> -SPN <String> [-NoVerify]
+ [-ThrottleLimit <Int32>] [-PassThru] [-Force] [-TrustClient <TrustClient>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Create a new IIS machine with either basic or kerberos authentication.
+Create a new IIS, Windows PowerShell, or SQL machine with either basic or kerberos authentication.
 By default, the machine details will be verified by performing a test connection; this can be turned off with -NoVerify.
 Creation will occur in parallel and PowerShell v7+ is required.
 
@@ -31,6 +32,7 @@ Creation will occur in parallel and PowerShell v7+ is required.
 ### EXAMPLE 1
 ```
 $params = @{
+    MachineType = 'IIS'
     Name = 'iis1'
     Owner = 'MyTeam'
     Hostname = 'iis1.company.com'
@@ -58,6 +60,23 @@ owningTeamId     : 59920180-a3e2-11ec-8dcd-3fcbf84c7da7
 Create a new machine with Kerberos authentication
 
 ## PARAMETERS
+
+### -MachineType
+Type of machine to create. 
+Valid values are 'IIS', 'PowerShell', or 'SQL'. 
+The default is 'IIS'.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: IIS
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Name
 Machine name
