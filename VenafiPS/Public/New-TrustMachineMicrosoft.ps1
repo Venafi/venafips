@@ -1,12 +1,15 @@
-function New-TrustMachineIis {
+function New-TrustMachineMicrosoft {
     <#
     .SYNOPSIS
-    Create a new IIS machine
+    Create a new IIS, Windows PowerShell, or SQL machine
 
     .DESCRIPTION
-    Create a new IIS machine with either basic or kerberos authentication.
+    Create a new IIS, Windows PowerShell, or SQL machine with either basic or kerberos authentication.
     By default, the machine details will be verified by performing a test connection; this can be turned off with -NoVerify.
     Creation will occur in parallel and PowerShell v7+ is required.
+
+    .PARAMETER MachineType
+    Type of machine to create.  Valid values are 'IIS', 'PowerShell', or 'SQL'.  The default is 'IIS'.
 
     .PARAMETER Name
     Machine name
@@ -75,6 +78,7 @@ function New-TrustMachineIis {
 
     .EXAMPLE
     $params = @{
+        MachineType = 'IIS'
         Name = 'iis1'
         Owner = 'MyTeam'
         Hostname = 'iis1.company.com'
@@ -108,9 +112,15 @@ function New-TrustMachineIis {
 
     [CmdletBinding(DefaultParameterSetName = 'WinrmBasic')]
     [Alias('New-VcMachineIis')]
+    [Alias('New-TrustMachineIis')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseSingularNouns', '', Justification = 'IIS is not plural')]
 
     param (
+
+        [Parameter()]
+        [ValidateSet('IIS', 'PowerShell', 'SQL')]
+        [string] $MachineType = 'IIS',
+
         [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
         [ValidateNotNullOrEmpty()]
         [string] $Name,
@@ -173,7 +183,13 @@ function New-TrustMachineIis {
 
 
         $allMachines = [System.Collections.Generic.List[pscustomobject]]::new()
-        $machineTypeId = Get-TrustData -InputObject 'Microsoft IIS' -Type 'Plugin'
+
+        $machineTypeFull = switch ($MachineType) {
+            'IIS'        { 'Microsoft IIS' }
+            'PowerShell' { 'Microsoft Windows (PowerShell)' }
+            'SQL'        { 'Microsoft SQL Server' }
+        }
+        $machineTypeId = Get-TrustData -InputObject $machineTypeFull -Type 'Plugin'
 
         Initialize-PSSodium -Force:$Force
     }
