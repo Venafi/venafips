@@ -3,9 +3,17 @@ BeforeAll {
 
     $testFullPath = '\VED\Policy'
 
+    # Find-CmCertificate reads this header differently depending on engine:
+    # PS 5.1 (Windows PowerShell) casts the value directly, PS 6+ indexes into it as an array.
+    # Match both real-world shapes so the mock doesn't throw on either engine.
     $mockResponse = [pscustomobject]@{
         content = '{"Certificates":[]}'
-        Headers = @{ 'X-Record-Count' = @('0') }
+        Headers = if ($PSVersionTable.PSVersion.Major -lt 6) {
+            @{ 'X-Record-Count' = '0' }
+        }
+        else {
+            @{ 'X-Record-Count' = @('0') }
+        }
     }
 }
 
