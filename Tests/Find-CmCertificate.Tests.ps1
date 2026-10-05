@@ -16,7 +16,7 @@ Describe 'Find-CmCertificate' -Tags 'Unit' {
         Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $mockResponse } -ModuleName $ModuleName
     }
 
-    Context '-IsExpired and -ExpireBefore/-ExpireAfter conflict' {
+    Context 'Conflicting combinations (new validation)' {
 
         It 'Should throw when -IsExpired and -ExpireBefore are both provided' {
             { Find-CmCertificate -IsExpired -ExpireBefore (Get-Date) } |
@@ -32,6 +32,9 @@ Describe 'Find-CmCertificate' -Tags 'Unit' {
             { Find-CmCertificate -IsExpired -ExpireBefore (Get-Date) } | Should -Throw
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 0 -ModuleName $ModuleName
         }
+    }
+
+    Context 'Non-conflicting combinations (must remain unaffected by the fix)' {
 
         It 'Should not throw when only -IsExpired is provided' {
             { Find-CmCertificate -IsExpired } | Should -Not -Throw
@@ -53,6 +56,14 @@ Describe 'Find-CmCertificate' -Tags 'Unit' {
             { Find-CmCertificate -ExpireAfter (Get-Date).AddDays(-30) -ExpireBefore (Get-Date) } | Should -Not -Throw
         }
 
+        It 'Should not throw for the cross combination -IsExpired and -ExpireAfter (different filter keys)' {
+            { Find-CmCertificate -IsExpired -ExpireAfter (Get-Date).AddDays(-30) } | Should -Not -Throw
+        }
+
+        It 'Should not throw for the cross combination -IsExpired:$false and -ExpireBefore (different filter keys)' {
+            { Find-CmCertificate -IsExpired:$false -ExpireBefore (Get-Date) } | Should -Not -Throw
+        }
+
         It 'Should set both ValidToGreater and ValidToLess for a date range query' {
             Find-CmCertificate -ExpireAfter (Get-Date).AddDays(-30) -ExpireBefore (Get-Date)
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
@@ -71,6 +82,13 @@ Describe 'Find-CmCertificate' -Tags 'Unit' {
             Find-CmCertificate -IsExpired:$false
             Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $Body.ContainsKey('ValidToGreater') -and -not $Body.ContainsKey('ValidToLess')
+            }
+        }
+
+        It 'Should set both ValidToLess (from IsExpired) and ValidToGreater (from ExpireAfter) for the cross combination' {
+            Find-CmCertificate -IsExpired -ExpireAfter (Get-Date).AddDays(-30)
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $Body.ContainsKey('ValidToGreater') -and $Body.ContainsKey('ValidToLess')
             }
         }
     }
