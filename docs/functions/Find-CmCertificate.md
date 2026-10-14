@@ -503,6 +503,7 @@ Accept wildcard characters: False
 
 ### -ExpireAfter
 Find certificates that expire after a certain date.
+Cannot be combined with -IsExpired:$false; both set the same underlying filter.
 
 ```yaml
 Type: DateTime
@@ -518,6 +519,7 @@ Accept wildcard characters: False
 
 ### -ExpireBefore
 Find certificates that expire before a certain date.
+Cannot be combined with -IsExpired; both set the same underlying filter.
 
 ```yaml
 Type: DateTime
@@ -592,7 +594,9 @@ Accept wildcard characters: False
 ```
 
 ### -IsExpired
-Only include expired certificates
+Only include expired certificates.
+-IsExpired is equivalent to -ExpireBefore (Get-Date) and cannot be combined with -ExpireBefore.
+-IsExpired:$false is equivalent to -ExpireAfter (Get-Date) and cannot be combined with -ExpireAfter.
 
 ```yaml
 Type: SwitchParameter
