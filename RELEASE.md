@@ -1,1 +1,1 @@
-- Fix `Find-CmCertificate` throwing a confusing error when combining `-IsExpired`/`-IsExpired:$false` with the conflicting `-ExpireBefore`/`-ExpireAfter` parameter, [#418](https://github.com/Venafi/VenafiPS/issues/418).  Thanks @mstsbe for reporting!
+- Fix `Find-CmCertificate` throwing a confusing error when combining `-IsExpired`/`-IsExpired:$false` with the conflicting `-ExpireBefore`/`-ExpireAfter` parameter, [#418](https://github.com/Venafi/VenafiPS/issues/418).  Thanks @mstsbe and @CedricConday!
