@@ -1,0 +1,30 @@
+name: Release Notes Check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  check-release-notes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check RELEASE.md updated
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          if gh pr view "$PR_NUMBER" --repo "$REPO" --json labels --jq '.labels[].name' | grep -qx 'skip-release-notes'; then
+            echo "skip-release-notes label present; skipping check"
+            exit 0
+          fi
+
+          CHANGED_FILES=$(gh pr diff "$PR_NUMBER" --repo "$REPO" --name-only)
+          if echo "$CHANGED_FILES" | grep -qx 'RELEASE.md'; then
+            echo "RELEASE.md was updated"
+            exit 0
+          fi
+
+          echo "::error::This PR doesn't update RELEASE.md. Overwrite it with a bullet describing this change (see existing lines for wording style -- backtick function/param names, link the issue, credit the reporter if external), or apply the 'skip-release-notes' label if this PR has no user-facing change (CI-only, test-only, internal tooling)."
+          exit 1
