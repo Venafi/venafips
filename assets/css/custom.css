@@ -1,0 +1,1285 @@
+
+b,
+strong {
+    font-weight:600;
+}
+
+i,
+em {
+    font-style: italic;
+}
+
+/* ---------------------------
+    FONTS
+  --------------------------- */
+
+:root {
+  --md-text-font: "PublicSans";
+  --md-code-font: "RobotoMono";
+
+  --md-text-font-family: var(--md-text-font);
+  --md-code-font-family: var(--md-code-font);
+}
+
+/* ---------------------------
+   LIGHT / DEFAULT SCHEME
+   --------------------------- */
+:root,
+[data-md-color-scheme="default"] {
+    /* Optional neutrals derived from primary-color variable */
+    --_text-default: var(--primary-color);
+    --_text-muted:  color-mix(in oklch, var(--primary-color), white 55%);
+
+    /* Primary & accent system */
+    --md-primary-fg-color:                 var(--primary-color);
+    --md-primary-fg-color--light:          var(--primary-80);
+    --md-primary-fg-color--dark:           var(--primary-40);
+
+    --md-accent-fg-color:                  var(--secondary-color);
+    --md-accent-fg-color--transparent:     color-mix(in srgb, var(--secondary-color) 16%, transparent);
+
+    /* Page foreground/background */
+    --md-default-bg-color:                 var(--primary-background);
+    --md-default-fg-color:                 var(--_text-default);
+    --md-default-fg-color--light:          color-mix(in oklch, var(--_text-default), white 30%);
+    --md-default-fg-color--lighter:        color-mix(in oklch, var(--_text-default), white 50%);
+    --md-default-fg-color--lightest:       color-mix(in oklch, var(--_text-default), white 70%);
+
+    /* Typography & links */
+    --md-typeset-color:                    var(--_text-default);
+    --md-typeset-a-color:                  var(--secondary-color);
+    --highlight-text-color: var(--third-color);
+    --heading-color: var(--primary-color);
+    --highlight-heading-bg-color: var(--md-code-bg-color);
+    --highlight-heading-fg-color: var(--primary-text);
+
+    --prereq-bg-color: var(--third-background);
+
+
+    /* Code */
+    --md-code-bg-color:                    var(--third-background);
+    --md-code-fg-color:                    var(--primary-color);       /* navy text */
+    --md-code-hl-color:                    var(--third-80);            /* chartreuse mark */
+
+    --code-inline-bg: var(--secondary-background);   /* inline code b/g */
+    --code-inline-fg: var(--primary-color);          /* inline code text */
+
+    --code-block-bg-color: var(--third-background);
+    --code-block-fg-color: var(--primary-color);
+
+
+    /* Tables */
+    --md-typeset-table-color:              var(--fifth-40); /* slate-tinted border */
+    --md-typeset-table-color--light:       var(--fifth-40); /* subtle header fill */
+
+    /* Header & footer (white like main site) */
+    --md-header-bg-color:                  var(--primary-background);
+    --md-header-fg-color:                  var(--primary-color);
+
+    --md-footer-bg-color:                  var(--secondary-background);
+    --md-footer-fg-color:                  var(--primary-color);
+
+    --footer-meta-bg-color:                var(--primary-background);
+    --footer-meta-fg-color:                var(--_text-muted);
+
+    /* Sidebar */
+    --md-sidebar-bg-color:                 var(--primary-background);
+    --md-sidebar-fg-color:                 var(--_text-default);
+    --sidebar-text-hover:   var(--second-color);
+    --sidebar-border-color: var(--third-color);
+    --sidebar-bg-hover: var(--third-background);
+    --sidebar-text-active: var(--second-color);
+
+    /* Top Nav */
+    --_top-nav-bg-color:                   var(--primary-background);
+    --_top-nav-fg-color:                   var(--primary-color);
+
+    /* Admonitions */
+    --md-admonition-fg-color:              var(--_text-default);
+    --md-admonition-bg-color:              var(--primary-background);
+
+    /* Elevation & radii */
+    --md-elevation-z1:                     0 1px 2px rgba(0,0,0,0.06);
+    --md-elevation-z2:                     0 4px 12px rgba(16,24,40,0.06);
+    --md-elevation-z3:                     0 12px 24px rgba(16,24,40,0.10);
+    --md-shadow-strength:                  1;
+    --box-shadow:                          0 0 15px 5px rgba(50,50,50,0.05);
+
+    --radius-sm:                           6px;
+    --radius-md:                           10px;
+    --radius-lg:                           14px;
+
+    --img-border:                          var(--fifth-80);
+
+    --search-border: 1px solid var(--fifth-40);
+    --search-bar-background: var(--primary-background);
+    --search-bar-input-text: var(--secondary-color);
+    --search-bar-placeholder-text: var(--fifth-color);
+    --search-bar-icons-color: var(--fifth-color);
+
+    --announcement-banner-bg: var(--fifth-color);
+    --announcement-banner-fg: var(--primary-background);
+    --announement-banner-link: var(--primary-background);
+    --announcement-banner-bold-color: var(--third-color);
+    --announcement-bar-icon-color: var(--fourth-40);
+
+    --slide-out-menu-header-bg: var(--primary-background);
+    --slide-out-menu-header-fg: var(--primary-text);
+
+    /* Site icons */
+    --external-link-color: var(--secondary-color);
+
+    /* Home Page Icons */
+    --icon-primary: var(--primary-color);
+    --icon-accent:var(--secondary-color);
+
+    --icon-rocket-body: var(--secondary-color);
+    --icon-rocket-fins:var(--primary-color);
+    --icon-rocket-flame:#ffaa00;
+
+    /* Home Page (Other) */
+    --featured-content-border: 1px solid var(--fourth-20);
+    --featured-content-bg: var(--primary-background);
+    --featured-content-fg: var(--primary-color);
+    --featured-content-fg-hover:var(--primary-80);
+    --featured-content-heading-color:var(--fifth-color);
+    --featured-content-hover-border:var(--third-color);
+    --featured-content-hover-bg-color:inherit;
+    --featured-content-hover-box-shadow: var(--box-shadow);
+
+    --getting-started-border-left-color:var(--fourth-20);
+    --getting-started-icon-color:var(--secondary-color);
+    --getting-started-bullet-color:var(--fourth-color);
+    --getting-started-link-color:var(--primary-color);
+    --getting-started-link-hover:var(--fifth-color);
+
+    --trailheads-bg-color:var(--secondary-background);
+    --trailheads-fg-color:var(--primary-color);
+    --trailheads-heading-color:var(--primary-color);
+
+}
+
+
+/* ---------------------------
+   DARK / SLATE SCHEME
+   --------------------------- */
+[data-md-color-scheme="slate"] {
+    --_text-default: var(--primary-background);
+    --_text-muted: color-mix(in oklch, var(--primary-background), black 55%);
+
+    /* Brand-aligned  DARK surfaces derived from primary color navy */
+    --_dark-bg:        color-mix(in oklch, var(--primary-color), black 10%); /* page */
+    --_dark-surface:   color-mix(in oklch, var(--primary-background), black 62%); /* cards/nav */
+    --_dark-surface-2: color-mix(in oklch, var(--primary-background), black 55%); /* table header, code */
+    --_text-default-d: color-mix(in oklch, white 90%, var(--primary-color) 10%);
+    --_text-muted-d:   color-mix(in oklch, white 70%, var(--primary-color) 30%);
+
+    /* Primary & accent system DARK */
+    --md-primary-fg-color:                 var(--primary-60);
+    --md-primary-fg-color--light:          var(--primary-80);
+    --md-primary-fg-color--dark:           var(--third-color);
+
+    --md-accent-fg-color:                  var(--secondary-color);
+    --md-accent-fg-color--transparent:     color-mix(in srgb, var(--secondary-color) 24%, transparent);
+
+    /* Page Foreground/background */
+    --md-default-bg-color:                 var(--_dark-bg);
+    --md-default-fg-color:                 var(--_text-default-d);
+    --md-default-fg-color--light:          color-mix(in oklch, var(--_text-default-d), black 25%);
+    --md-default-fg-color--lighter:        color-mix(in oklch, var(--_text-default-d), black 40%);
+    --md-default-fg-color--lightest:       color-mix(in oklch, var(--_text-default-d), black 55%);
+
+    /* Typography & links DARK */
+    --md-typeset-color:                    var(--_text-default-d);
+    --md-typeset-a-color:                  var(--secondary-60); /* brighter cyan on dark */
+    --highlight-text-color: var(--fourth-color);
+    --heading-color: var(--primary-background);
+    --highlight-heading-bg-color: var(--primary-80);
+    --highlight-heading-fg-color: var(--primary-background);
+
+    --prereq-bg-color: color-mix(in oklch, var(--primary-color), black 30%);
+
+    /* Code  DARK */
+    --md-code-bg-color:                    rgb(25, 25, 25);
+    --md-code-fg-color:                    var(--primary-color);
+    --md-code-hl-color:                    black; /* amethyst hint works on dark */
+
+    --code-inline-bg: var(--secondary-background) !important;   /* inline code b/g */
+    --code-inline-fg: white !important;          /* inline code text */
+
+    --code-block-bg-color: rgb(25,25,25);
+    --code-block-fg-color: var(--third-background);
+
+
+    /* Tables  DARK */
+    --md-typeset-table-color:     color-mix(in oklch, var(--_dark-surface), black 10%); /* table border */
+    --md-typeset-table-color--light:  color-mix(in oklch, var(--_dark-surface-2), black 60%); /* table head and hover */
+
+    /* Header & footer on dark follow the dark surface  DARK */
+    --md-header-bg-color:                  var(--_dark-bg);
+    --md-header-fg-color:                  var(--_text-default-d);
+
+    --md-footer-bg-color:                  var(--primary-80);
+    --md-footer-fg-color:                  var(--primary-background);
+
+    --footer-meta-bg-color:                black;
+    --footer-meta-fg-color:                var(--md-footer-fg-color);
+
+
+    /* Sidebar DARK */
+    --md-sidebar-bg-color:                 var(--_dark-bg);
+    --md-sidebar-fg-color:                 var(--_text-default-d);
+
+    --sidebar-text-hover:   var(--second-color);
+    --sidebar-border-color: var(--third-color);
+    --sidebar-bg-hover: var(--primary-80);
+    --sidebar-text-active: var(--second-color);
+
+    /* Top Nav DARK */
+    --_top-nav-bg-color:                   var(--fifth-60);
+    --_top-nav-fg-color:                   var(--primary-color);
+
+    /* Admonitions  DARK */
+    --md-admonition-fg-color:              var(--_text-default-d);
+    --md-admonition-bg-color:              transparent;
+
+    /* Elevation & radii DARK */
+    --md-elevation-z1:                     0 1px 2px rgba(0,0,0,0.35);
+    --md-elevation-z2:                     0 8px 18px rgba(0,0,0,0.45);
+    --md-elevation-z3:                     0 12px 28px rgba(0,0,0,0.55);
+    --md-shadow-strength:                  1;
+    --box-shadow:                          0 0 15px 5px rgba(0, 0, 0, 0.9);
+
+    --radius-sm:                           6px;
+    --radius-md:                           10px;
+    --radius-lg:                           14px;
+
+    --img-border:                          var(--fifth-60);
+
+    --search-border: 1px solid var(--fifth-20);
+    --search-bar-background: var(--primary-color);
+    --search-bar-input-text: var(--secondary-color);
+    --search-bar-placeholder-text: var(--fifth-color);
+    --search-bar-icons-color: var(--fifth-color);
+
+    --announcement-banner-bg: var(--primary-80);
+    --announcement-banner-fg: var(--primary-background);
+    --announement-banner-link: var(--primary-background);
+    --announcement-banner-bold-color: var(--third-color);
+    --announcement-bar-icon-color: var(--fourth-color);
+
+    /* Home Page Icons DARK */
+    --icon-primary: var(--secondary-color);
+    --icon-accent:var(--fourth-color);
+
+    --icon-rocket-body: var(--secondary-80);
+    --icon-rocket-fins:var(--fifth-color);
+    --icon-rocket-flame:#ffaa0097;
+
+    /* Site icons DARK */
+    --external-link-color: var(--fourth-color);
+
+    /* Home Page (Other) DARK */
+    --featured-content-border: 1px solid var(--primary-80);
+    --featured-content-bg: var(--primary-color);
+    --featured-content-fg: var(--primary-background);
+    --featured-content-fg-hover:var(--primary-40);
+    --featured-content-heading-color:var(--fifth-color);
+    --featured-content-hover-border:var(--primary-40);
+    --featured-content-hover-bg-color:inherit;
+    --featured-content-hover-box-shadow: var(--box-shadow);
+
+    --getting-started-border-left-color:var(--fourth-20);
+    --getting-started-icon-color:var(--secondary-color);
+    --getting-started-bullet-color:var(--fourth-color);
+    --getting-started-link-color:var(--primary-background);
+    --getting-started-link-hover:var(--fifth-color);
+
+    --trailheads-bg-color:var(--secondary-background);
+    --trailheads-fg-color:var(--primary-color);
+    --trailheads-heading-color:var(--primary-color);
+
+}
+
+/* ---------------------------
+    GLOBAL STYLES
+  --------------------------- */
+
+html{
+    scroll-behavior:smooth;
+}
+body{
+    font-weight:300;
+    font-size:16px;
+}
+
+svg.icon, svg.icon * {
+    pointer-events:none;
+}
+
+/* Links */
+.md-typeset a:hover {
+  color: var(--md-primary-fg-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+[data-md-color-scheme="slate"] .md-typeset a { /* links in dark mode */
+    color: var(--secondary-color);
+}
+
+[data-md-color-scheme="slate"] .md-typeset a:hover { /* hover on links in dark mode */
+    color: var(--secondary-60);
+}
+
+
+/* Header & footer elevation */
+.md-header { /*/ product name area /*/
+  background: var(--md-header-bg-color);
+  color: var(--md-header-fg-color);
+  border-bottom:1px solid var(--secondary-20);
+}
+
+.md-search__inner .md-search__form {
+    border: var(--search-border);
+    border-radius:20px;
+    background-color: var(--search-bar-background);
+    height:1.6rem;
+}
+.md-search__inner .md-search__form .md-search__input {
+    color:var(--search-bar-input-text);
+}
+.md-search__inner .md-search__form .md-search__input::placeholder {
+    color:var(--search-bar-placeholder-text);
+}
+.md-search__inner .md-search__icon.md-icon { /*/ matches search and link icon colors /*/
+    color:var(--search-bar-icons-color);
+}
+
+.md-banner {
+    background-color:var(--announcement-banner-bg);
+    color:var(--announcement-banner-fg);
+    text-align:center;
+}
+
+.md-typeset .md-banner a {
+    color:var(--announement-banner-link);
+    text-decoration:underline;
+    text-decoration-color:var(--announcement-banner-bold-color);
+}
+
+.md-banner b,
+.md-banner strong {
+    color:var(--announcement-banner-bold-color);
+}
+
+.md-banner .announcements .twemoji {
+    margin-right: .5rem;
+    vertical-align: text-bottom;
+}
+
+.md-banner .announcements .twemoji svg {
+    width: 1em;
+    height: 1em;
+    color:var(--announcement-bar-icon-color);
+ }
+
+.md-footer {
+  background: var(--md-footer-bg-color);
+  color: var(--md-footer-fg-color);
+  border-top: 1px solid
+    color-mix(in oklch, var(--md-footer-fg-color), transparent 88%);
+}
+
+.md-footer-meta { /* Material Theme uses an alpha layer to make the bottom links darker than the navigation section  */
+    /* Delete this style to restore that default style or modify this to replace the bottom section with a different color */
+    background-color: var(--footer-meta-bg-color);
+    color: var(--footer-meta-fg-color);
+    font-weight:100;
+}
+.md-footer-meta .md-footer-links {
+    font-size:.6rem;
+    line-height:.8rem;
+    padding:0;
+    margin:0;
+}
+.md-footer-meta p:first-of-type{
+    font-weight:700;
+    text-transform:uppercase;
+}
+.md-footer-meta p:last-of-type{
+    margin-bottom:15px;
+}
+
+.md-footer-meta p {
+    margin:0.25rem;
+    color:var(--footer-meta-fg-color);
+}
+
+.md-footer-meta * {
+    color:var(--footer-meta-fg-color) !important;
+
+}
+
+/* Sidebar */
+.md-sidebar,
+.md-sidebar__inner {
+  background: var(--md-sidebar-bg-color);
+  color: var(--md-sidebar-fg-color);
+}
+.md-nav {
+    font-size:0.8rem;
+}
+.md-nav__link {
+    background: var(--md-sidebar-bg-color);
+    color:var(--md-sidebar-fg-color);
+    font-weight:200;
+}
+.md-nav__link--active{
+    border-left:4px solid var(--sidebar-border-color);
+    margin-left:-10px;
+    padding-left:7px;
+
+    font-weight:300;
+    color:var(--sidebar-text-active) !important;
+}
+
+.md-nav__link:hover,
+.md-nav__link[for]:focus,
+.md-nav__link[for]:hover,
+.md-nav__link[href]:focus,
+.md-nav__link[href]:hover {
+    font-weight:350;
+    color:var(--sidebar-text-hover);
+    background-color:var(--sidebar-bg-hover);
+}
+
+/* Make the product names bold in the side menu */
+#__nav_3_label + nav > .md-nav__list > .md-nav__item > .md-nav__link {
+    font-weight:450;
+}
+
+/* Add margin bottom to the product sections in the side menu */
+.md-nav__item--section > nav > .md-nav__list > .md-nav__item.md-nav__item--nested{
+    margin-bottom: .9rem;
+}
+
+@media screen and (max-width: 76.2344em) {
+   .md-nav--primary .md-nav__title[for=__drawer],
+   .md-nav--primary .md-nav__title  {
+        background-color:var(--slide-out-menu-header-bg);
+        color:var(--slide-out-menu-header-fg);
+        border-bottom:3px solid var(--fourth-80);
+    }
+}
+
+/* Code */
+.md-typeset code {
+  background: var(--md-code-bg-color);
+  color: var(--md-code-fg-color);
+  border-radius: var(--radius-sm);
+  padding: 0.12em 0.35em;
+}
+.highlight .hll {
+    background-color: var(--md-code-hl-color);
+}
+.highlight span.filename{
+    background-color: var(--highlight-heading-bg-color);
+    color: var(--highlight-heading-fg-color);
+}
+
+/* Tables */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--md-typeset-table-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+  border-color: var(--md-typeset-table-color);
+}
+.md-typeset table:not([class]) thead th {
+  background: var(--md-typeset-table-color--light);
+}
+
+/* Admonitions */
+.md-typesetm.admonition,
+.md-typeset details {
+  background: var(--md-admonition-bg-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--md-elevation-z1);
+}
+
+/* Buttons */
+.md-typeset .md-button {
+  border-radius: var(--radius-md);
+  box-shadow: var(--md-elevation-z1);
+  display:inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.md-typeset .md-button--primary {
+  background: var(--md-primary-fg-color);
+  border: 1px solid color-mix(in oklch, var(--md-primary-fg-color), black 20%);
+}
+.md-typeset .md-button--primary:hover { filter: brightness(1.05); }
+
+/* Focus ring (accent-driven) */
+:root *:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--md-accent-fg-color), transparent 65%);
+  border-radius: inherit;
+}
+
+/* Softly rounded images */
+.md-typeset img { border-radius: var(--radius-sm); }
+
+/* Selection & mark colors */
+::selection { background: color-mix(in oklch, var(--md-primary-fg-color), transparent 80%); }
+.md-typeset mark { background: var(--md-code-hl-color); }
+
+/* Make Material’s code vars represent INLINE code by default */
+:root, [data-md-color-scheme="default"] {
+  --md-code-bg-color: var(--code-inline-bg);
+  --md-code-fg-color: var(--code-inline-fg);
+}
+[data-md-color-scheme="slate"] {
+  --md-code-bg-color: var(--code-inline-bg);
+  --md-code-fg-color: var(--code-inline-fg);
+}
+
+
+
+/* Keep inline code chip styling tidy */
+.md-typeset p code, .md-typeset p a code,
+.md-typeset li code, .md-typeset h2 code,
+.md-typeset td code, .md-typeset h1 code,
+.md-typeset h3 code {
+  background: transparent;
+  color: var(--code-inline-fg);
+  border-radius: var(--radius-sm);
+  padding: 0.12em 0.35em;
+  border: 1px solid var(--fifth-20);
+}
+.md-typeset pre > code {
+  display: block;
+  padding: 1rem 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--md-elevation-z1);
+}
+button + code {
+    min-height:2rem;
+    padding-top:.5rem;
+}
+
+.md-content .md-typeset .hightlight pre > code,
+.md-typeset .highlight,
+.md-typeset .highlight pre,
+.md-typeset code { /* Code blocks */
+    background-color: var(--code-block-bg-color);
+    color: var(--code-block-fg-color);
+    border-radius: var(--radius-lg);
+    border:none;
+
+}
+
+/* Optional: line highlight color for fenced blocks */
+.highlight .hll { background-color: var(--md-code-hl-color); }
+
+.md-tabs {
+    background: var(--_top-nav-bg-color);
+    color:var(--_top-nav-fg-color);
+}
+.md-tabs__item--active{
+    font-weight:500;
+}
+.md-banner .announcements{
+    margin:0;
+    border:0;
+    line-height:.9rem;
+    font-size:.7rem;
+    font-weight:200;
+}
+
+.md-content h1 a.headerlink{ /* disable hover icon for h1 block */
+    display:none;
+}
+.md-typeset h1 {
+    font-weight:300;
+    font-size:1.5rem;
+    line-height:1.1;
+    margin: 0 0 .5rem;
+    color:var(--heading-color);
+}
+.md-typeset h2 {
+    font-weight:200;
+    font-size:1.25rem;
+    color:var(--heading-color);
+}
+
+.highlightText {
+    position:relative;
+    z-index:0;
+}
+.highlightText::before {
+    content:'';
+    position:absolute;
+    left:-0.15em;
+    right:-0.05em;
+    top:0.7em;
+    height:0.45em;
+    background-color:var(--highlight-text-color);
+    z-index:-1;
+    border-radius: 60px 10px 50px 15px;
+}
+
+.prereqs,
+#prerequisites + ul {
+    background: var(--prereq-bg-color);
+    padding: .5rem .8rem 1.1rem .8rem;
+    border-radius: var(--radius-sm);
+    margin: 1rem 0;
+    font-size: .8rem;
+}
+.prereqs h2 {
+    margin-top: 0;
+}
+
+.prereqs ul li,
+#prerequisites + ul li{
+        margin-bottom: 0;
+        list-style-type: circle;
+}
+
+/*/ EXTERNAL LINK ICON /*/
+
+[data-md-component="main"] a[href^="http"]:not([href*="*.venafi.cloud"], [href*="docs.cyberark.com"], [href*="8000"], [href*="clouddocsdev"], [href*="staging"])::after,
+div.tx-hero a[href^="http"]:not([href*="*.venafi.cloud"], [href*="docs.cyberark.com"], [href*="8000"], [href*="clouddocsdev"], [href*="staging"])::after {
+  content: "";
+  width: .8em;
+  height: .8em;
+  margin-left: .2em;
+  display: inline-block;
+  background-color: var(--external-link-color, currentColor);
+  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='black' fill-rule='evenodd' d='M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z'/><path fill='black' fill-rule='evenodd' d='M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z'/></svg>");
+  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path fill='black' fill-rule='evenodd' d='M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z'/><path fill='black' fill-rule='evenodd' d='M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z'/></svg>");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+
+
+/*/ Reduce left margin when in admonitions /*/
+[data-md-component="main"] div.admonition a[href^="http"]:not([href*="docs.venafi.cloud"], [href*="docs.cyberark.com"], [href*="8000"], [href*="clouddocsdev"], [href*="staging"])::after,
+div.tx-hero div.admonition a[href^="http"]:not([href*="docs.venafi.cloud"], [href*="docs.cyberark.com"], [href*="8000"], [href*="clouddocsdev"], [href*="staging"])::after {
+  margin-left: 3px;
+}
+
+/*/ Disable when in featured-content and in nav /*/
+div.tx-hero .featured-content a[href^="http"]:not([href*="docs.venafi.cloud"], [href*="docs.cyberark.com"], [href*="8000"], [href*="clouddocsdev"], [href*="staging"])::after,
+div.tx-hero code a[href^="http"]:not([href*="docs.venafi.cloud"], [href*="docs.cyberark.com"], [href*="8000"], [href*="clouddocsdev"], [href*="staging"])::after,
+a.md-nav__link::after, .trailheads .trailhead a.link.button::after {
+  display: none;
+}
+
+.role {
+    font-size: .6rem;
+    background-color:var(--third-background);
+    padding: 5px;
+    border: 1px solid var(--img-border);
+    border-radius: 3px;
+    border-left: 4px solid var(--img-border);
+}
+.whatsnew {
+    padding: .5rem .8rem 1.1rem .8rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+    font-size: .7rem;
+}
+.whatsnew h2 {
+        margin-top: 0;
+}
+
+.whatsnew ul li {
+    margin-bottom: 0;
+    list-style-type: circle;
+}
+
+.stepIntro {
+    font-style:italic;
+    border-bottom:1px solid var(--img-border);
+    padding-bottom: .8rem;
+}
+
+img[alt=Weblink] {
+    width:17px;
+}
+
+img.icon {
+    height:1.4rem;
+    border:1px solid var(--img-border);
+}
+
+.vaas-img {
+    border-width: 1px;
+    border-style: solid;
+    border-color:var(--img-border);
+    border-radius:4px;
+    text-align: center;
+}
+
+/* Reset the default counters */
+ol {
+  counter-reset: mainCounter;
+}
+
+/* Style for main list items */
+ol > li {
+  counter-increment: mainCounter;
+  list-style: none;
+  position: relative;
+  padding-left: 0; /* Adjust this value to align text properly */
+}
+
+ol > li::before {
+  content: counter(mainCounter) " ";
+  font-weight: bold;
+  font-family: var(--md-text-font-family);
+  position: absolute;
+  left: -1.5em; /* Adjust this value to move the number outside the margin */
+}
+
+/* Style for nested list items */
+ol > li > ol {
+  counter-reset: subCounter;
+  list-style-type: none;
+}
+
+ol > li > ol > li {
+  counter-increment: subCounter;
+  list-style: none;
+  position: relative;
+  padding-left: 0; /* Adjust this value to align text properly */
+}
+
+ol > li > ol > li::before {
+  content: counter(subCounter, lower-alpha) " ";
+  font-weight: bold;
+  font-family: var(--md-text-font-family);
+  position: absolute;
+  left: -1.5em; /* Adjust this value to move the number outside the margin */
+}
+
+
+/*reduce font size for code samples*/
+
+.md-typeset pre>code {
+    font-size: .75em
+}
+
+/*unset width and height for the logo image*/
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg,
+.md-nav__title .md-nav__button.md-logo img,
+.md-nav__title .md-nav__button.md-logo svg,
+.md-header__button.md-logo :-webkit-any(img, svg) {
+    height: auto;
+    width: 8rem;
+    /* margin-left: -1rem; */
+}
+
+/* keeps code samples in table cells from wrapping */
+
+.md-typeset td code {
+    white-space: nowrap;
+}
+
+/* footer styles */
+
+footer .md-copyright,
+footer .md-footer-links {
+    margin: 0.6em;
+}
+
+/* prevent search box from covering feedback tab for small screens */
+@media screen and (min-width: 60em) {
+    [data-md-toggle=search]:checked~.md-header .md-search__inner {
+        margin-right:10px;
+    }
+}
+
+md-typeset, :target { /* so anchor destinations aren't behind header */
+  scroll-margin-top:135px !important;
+}
+
+/* prevent search box from covering feedback tab for small screens */
+@media screen and (min-width: 60em) {
+    [data-md-toggle=search]:checked~.md-header .md-search__inner {
+        margin-right:10px;
+    }
+}
+
+
+.md-typeset .admonition,
+.md-typeset details {
+    font-size:.8rem;
+ }
+pre > code { /*/ reduce font size for code samples /*/
+        font-size:.75em;
+    }
+
+/*  ###  HOME  ###  */
+.ven-main .ven-main-container {
+  display: grid;
+  grid-template-columns: 1.5fr 0.5fr;
+  /* featured content column is wider than getting started column */
+  grid-template-rows: 1fr;
+  /* This grid is only one row. */
+  gap: 20px 25px;
+  grid-auto-flow: row;
+  grid-template-areas: "featured-content getting-started";
+}
+.ven-main .ven-main-container .featured-content {
+  grid-area: featured-content;
+  padding: 10px;
+}
+.ven-main .ven-main-container .featured-content .featured-boxes-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px 16px;
+  align-items: start;
+}
+.ven-main .ven-main-container .featured-content .featured-boxes-container .featured-box {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  grid-template-rows: auto auto;
+  grid-column-gap: 10px;
+  grid-row-gap: 2px;
+  grid-template-areas: "img heading" "img info";
+  width: 100%;
+  max-width: none;
+  border: 1px solid transparent;
+  /* so when a border is added on hover the rest of the page doesn't move */
+  padding: 8px;
+  align-items: start;
+  text-decoration: none;
+  border:var(--featured-content-border);
+  border-radius: 3px;
+  background-color: var(--featured-content-bg);
+  box-shadow: none;
+  color: var(--featured-content-fg);
+}
+.ven-main .ven-main-container .featured-content .featured-boxes-container .featured-box img {
+  grid-area: img;
+  width: 40px;
+  height: 40px;
+  align-self: start;
+}
+.ven-main .ven-main-container .featured-content .featured-boxes-container .featured-box h3 {
+  font-weight: 200;
+  font-size: 1rem;
+  grid-area: heading;
+  margin: 0 0 2px;
+  line-height: 1.2;
+  color: var(--featured-content-heading-color);
+  font-weight: 400;
+}
+.ven-main .ven-main-container .featured-content .featured-boxes-container .featured-box p {
+  grid-area: info;
+  margin: 0;
+  font-size: 0.9em;
+  line-height: 1.2;
+  padding-top: 0.25em;
+  font-weight: 300;
+  color: var(--featured-content-fg);
+}
+.ven-main .ven-main-container .featured-content .featured-boxes-container .featured-box:hover {
+  border: 1px solid var(--featured-content-hover-border);
+  border-radius: 10px;
+  background-color: var(--featured-content-hover-bg-color);
+  box-shadow:var(--featured-content-hover-box-shadow);
+}
+.ven-main .ven-main-container .getting-started {
+  grid-area: getting-started;
+  border-left: 1px dotted var(--getting-started-border-left-color);
+  padding: 10px;
+  padding-left: 30px;
+  position: relative;
+}
+.getting-started{
+    position:relative;
+}
+
+.getting-started .icon.gs-icon {
+    position:absolute;
+    top:25px; right:25px;
+    height:45px;
+    width:45px;
+    margin-top:30px;
+    z-index:-10;
+}
+.geting-started h3, .getting-started p, .getting-started ul {
+    position:relative;
+    z-index:1;
+}
+
+.gs-rocket {
+    opacity: .8;
+}
+
+[data-md-color-scheme="slate"] .gs-rocket {
+    opacity:1;
+}
+
+[data-md-color-scheme="slate"] .homepage .getting-started:hover .gs-rocket {
+    animation-duration: 3s;
+    animation-name: slideOff;
+    animation-iteration-count: 1;
+    animation-delay:1s;
+    animation-timing-function:ease-in;
+}
+
+@keyframes slideOff {
+    from {
+        right: 0;
+        top: 0;
+
+    }
+
+    to {
+        right: -300px;
+        top: -300px;
+        height: 0;
+        width:0;
+        opacity:0;
+    }
+}
+
+.md-typeset svg.icon {
+    height:45px;
+    height:45px;
+}
+
+.ven-main .ven-main-container .getting-started .getting-started-icon {
+  color: var(--getting-started-icon-color);
+  font-size: 3em;
+  padding: 15px 5px;
+  position: relative;
+  z-index: -1;
+  margin: 0 auto;
+  display: block;
+  float: right;
+  height: 80px;
+}
+.ven-main .ven-main-container .getting-started span.bullet {
+  float: left;
+  color: var(--getting-started-bullet-color);
+  height: 2em;
+  padding-right: 3px;
+}
+.ven-main .ven-main-container .getting-started h3 {
+  font-weight: 400;
+  margin: 5px 5px 20px 5px;
+}
+.ven-main .ven-main-container .getting-started p {
+  font-size: 0.9em;
+  line-height: 1.2;
+  font-weight: 250;
+}
+.ven-main .ven-main-container .getting-started .item {
+  display: grid;
+  grid-template-columns: 2em auto;
+  gap: 0;
+  grid-template-areas: "icon text";
+}
+.ven-main .ven-main-container .getting-started .item p {
+  margin-top: 0;
+  padding-top: 0;
+  grid-area: text;
+}
+.ven-main .ven-main-container .getting-started .item p a {
+  text-decoration: none;
+}
+.ven-main .ven-main-container .getting-started .item .bullet {
+  padding-top: 5px;
+  grid-area: icon;
+}
+.ven-main .trailheads {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+  gap: 40px;
+  grid-auto-flow: row;
+  grid-template-areas: "trailhead trailhead trailhead";
+  padding: 0 25px 25px 25px;
+}
+.ven-main .trailheads .trailhead {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 0.25fr 0.25fr 1fr 0.25fr;
+  grid-template-areas: "img" "heading" "info" "link";
+  background-color: var(--trailheads-bg-color);
+  color: var(--trailheads-fg-color);
+  border: 0;
+  border-radius: 10px;
+  padding: 10px;
+  max-width: 350px;
+}
+.ven-main .trailheads .trailhead h3 {
+  text-align: center;
+  font-weight: bold;
+  margin: 0;
+  color: var(--trailheads-heading-color);
+}
+.ven-main .trailheads .trailhead .img {
+  grid-area: img;
+  height: calc(20vw);
+  width: calc(100% + 30px);
+  max-height: 175px;
+  margin: -15px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  position: relative;
+  background-position: center;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  border: 0px;
+  border-radius: 300px / 40px;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  filter: saturate(40%);
+}
+.ven-main .trailheads .trailhead .img:hover {
+  filter: saturate(100%);
+}
+.ven-main .trailheads .trailhead h3 {
+  grid-area: heading;
+}
+.ven-main .trailheads .trailhead .info {
+  grid-area: info;
+}
+.ven-main .trailheads .trailhead .link {
+  grid-area: link;
+}
+.ven-main .trailheads .trailhead .link::after {
+  content: "";
+  background-image: none;
+  display: none;
+}
+
+.md-grid.md-typeset .page-header {
+  width: 100%;
+  max-width: 650px;
+  margin: auto;
+  text-align: center;
+}
+.md-grid.md-typeset .page-header h1 {
+  font-weight: 500;
+  margin: 0;
+  padding-top: 20px;
+}
+.md-grid.md-typeset .ven-main-container {
+  margin-bottom: 60px;
+}
+.featured-box .img,
+.trailhead .img {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+.featured-content a {
+  color: var(--featured-content-fg);
+  text-decoration: none;
+}
+.featured-content a:hover {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--featured-content-fg-hover);
+  box-shadow: var(--box-shadow);
+  transition: all 0.4s ease-in-out;
+}
+.getting-started a {
+  color: var(--getting-started-link-color);
+  text-decoration: none;
+}
+.getting-started a:active,
+.getting-started a:focus,
+.getting-started a:hover {
+  text-decoration: underline;
+  color: var(--getting-started-link-hover);
+}
+
+[data-md-component="main"] {
+  min-height: 70vh;
+}
+
+
+html body[data-md-color-scheme="slate"] .md-header .md-header__inner img {
+    /*/ Hide normal dark-color logo in dark mode   /*/
+    display:none;
+}
+html body[data-md-color-scheme="slate"] .md-header .md-header__inner a.md-logo {
+    /*/ Hide normal dark-color logo in dark mode   /*/
+    background-image: url("../images/logos/CyberArk_Logo_white.png");
+    width:176px;
+    height:39px;
+    background-repeat:no-repeat;
+    background-position: center left;
+    background-size:contain;
+}
+
+
+
+
+/* 404 PAGE */
+
+  .s404 {
+    display:grid;
+    grid-template-columns: .35fr .65fr;
+    grid-template-rows: 1fr;
+    grid-auto-flow:row;
+    grid-template-areas:
+        "left right"
+  }
+  .s404 .blank{
+    grid-area:"blank";
+  }
+  .s404 .left {
+    grid-area:"left";
+    padding-top:50px;
+
+  }
+
+  .s404 .right {
+    grid-area: "right";
+    font-size:30px;
+    padding:30px 60px;
+    text-align:center;
+    position:relative;
+  }
+
+  .s404 .material-icons-outlined.alert-icon.warning-icon.background{
+    color:rgba(255, 121, 4, 0.03);
+    font-size:500px;
+    position:absolute;
+    z-index:-1;
+    top:50%;
+    left:50%;
+    transform: translate(-50%,-50%);
+  }
+
+  .page-header.h1404 {
+    padding-top:1em;
+  }
+
+  @media screen and (max-width:1020px){
+    .s404 {
+      display:flex;
+      flex-flow: column wrap;
+    }
+    .left {
+      order: 2;
+      text-align:center;
+      display:none;
+    }
+    .s404 .right {
+      order: 1;
+      color:var(--venafi-neutral-black);
+      border:0;
+      text-align:center;
+      background-image:none;
+      font-size:20px;
+      float:right;
+    }
+  }
+
+  /* HOMEPAGE RESPONSIVE STYLES */
+
+  @media screen and (max-width:1020px){
+
+    .page-header h1{
+      margin-top:30px;
+      padding-top:0;
+    }
+
+    .material-icons.alert-icon {
+      vertical-align:top;
+    }
+
+    .ven-main-container {
+      display:block;
+      margin:0 auto;
+      max-width:500px;
+    }
+
+    .featured-boxes-container {
+      display:block;
+    }
+
+    .featured-box  {
+      margin-bottom:25px;
+      border-bottom:1px dotted var(--venafi-blue-gray);
+      padding-bottom:25px;
+    }
+
+    .trailheads {
+      grid-template-areas:
+        "trailhead"
+        "trailhead"
+        "trailhead";
+      grid-template-columns: 1fr;
+      max-width:400px;
+      margin:0 auto;
+    }
+    .trailhead {
+      margin-bottom:30px;
+    }
+    .trailhead .img {
+      height: 100px;
+      width:calc(100% + 20px);
+      /* margin:-15px */
+      margin:-10px;
+      margin-bottom:20px;
+      overflow:hidden;
+      position:relative;
+      background-position:center;
+      background-repeat:no-repeat;
+      border:0;
+      border-bottom:1px solid var(--venafi-blue-gray);
+      border-radius: 0px;
+      border-top-right-radius: 10px;
+      border-top-left-radius: 10px;
+    }
+
+    .getting-started {
+      border-left:0;
+      margin:25px 0 0 0;
+    }
+
+    .trailheads::before{
+      content: "Paths for success";
+      font-size:1.5em;
+      font-weight:bold;
+      padding-bottom:25px;
+      margin-top:-10px;
+      margin-left:-20px;
+    }
+  }
+
+  .float.end {
+    float:right;
+    max-width:35%;
+    margin-left:15px;
+  }
+
+  .float.beginning {
+    float:left;
+    max-width:35%;
+    margin-left:15px;
+  }
