@@ -88,9 +88,11 @@ function Find-CmCertificate {
 
     .PARAMETER ExpireAfter
     Find certificates that expire after a certain date.
+    Cannot be combined with -IsExpired:$false; both set the same underlying filter.
 
     .PARAMETER ExpireBefore
     Find certificates that expire before a certain date.
+    Cannot be combined with -IsExpired; both set the same underlying filter.
 
     .PARAMETER Enabled
     Include only certificates that are enabled or disabled.
@@ -105,7 +107,9 @@ function Find-CmCertificate {
     Only include wilcard certificates
 
     .PARAMETER IsExpired
-    Only include expired certificates
+    Only include expired certificates.
+    -IsExpired is equivalent to -ExpireBefore (Get-Date) and cannot be combined with -ExpireBefore.
+    -IsExpired:$false is equivalent to -ExpireAfter (Get-Date) and cannot be combined with -ExpireAfter.
 
     .PARAMETER NetworkValidationEnabled
     Only include certificates with network validation enabled or disabled.
@@ -426,6 +430,18 @@ function Find-CmCertificate {
 
         if ( $CountOnly.IsPresent ) {
             $params.Method = 'Head'
+        }
+
+        # IsExpired and ExpireBefore/ExpireAfter both ultimately set the same filter key (ValidToLess/ValidToGreater)
+        # in the switch below.  Catch the conflict here with a clear error instead of letting it fail deep in the
+        # switch with a confusing 'key already added to dictionary' exception.  See #418.
+        if ( $PSBoundParameters.ContainsKey('IsExpired') ) {
+            if ( $IsExpired.IsPresent -and $PSBoundParameters.ContainsKey('ExpireBefore') ) {
+                throw '-IsExpired and -ExpireBefore cannot be used together.  -IsExpired is equivalent to -ExpireBefore (Get-Date).'
+            }
+            if ( -not $IsExpired.IsPresent -and $PSBoundParameters.ContainsKey('ExpireAfter') ) {
+                throw '-IsExpired:$false and -ExpireAfter cannot be used together.  -IsExpired:$false is equivalent to -ExpireAfter (Get-Date).'
+            }
         }
 
         switch ($PSBoundParameters.Keys) {

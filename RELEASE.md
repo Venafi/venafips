@@ -1,1 +1,1 @@
-- Replace `New-TrustMachineIis` with `New-TrustMachineMicrosoft` to support IIS, Windows (PowerShell), and SQL machine types
+- Fix `Find-CmCertificate` throwing a confusing error when combining `-IsExpired`/`-IsExpired:$false` with the conflicting `-ExpireBefore`/`-ExpireAfter` parameter, [#418](https://github.com/Venafi/VenafiPS/issues/418).  Thanks @mstsbe and @CedricConday!
