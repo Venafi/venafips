@@ -38,8 +38,19 @@ jobs:
       - name: Lint with PSScriptAnalyzer
         shell: pwsh
         run: |
-          # https://github.com/PowerShell/PSScriptAnalyzer/issues/1867
-          Invoke-ScriptAnalyzer -Path ./VenafiPS -Recurse -Outvariable issues -Verbose
+          # https://github.com/PowerShell/PSScriptAnalyzer/issues/1867 -- Invoke-ScriptAnalyzer intermittently
+          # throws 'Object reference not set to an instance of an object'; retry before failing the job.
+          $maxAttempts = 3
+          for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+              try {
+                  $issues = Invoke-ScriptAnalyzer -Path ./VenafiPS -Recurse -Verbose
+                  break
+              } catch {
+                  if ($attempt -eq $maxAttempts) { throw }
+                  Write-Warning "Invoke-ScriptAnalyzer failed (attempt $attempt/$maxAttempts): $_. Retrying..."
+                  Start-Sleep -Seconds 5
+              }
+          }
           if ($null -eq $issues) {
               Write-Output "No issues found by PSScriptAnalyzer."
           } else {
