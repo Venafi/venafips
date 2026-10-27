@@ -95,7 +95,8 @@ function Get-TrustMcpIssuerChain {
             validFrom          = $X509.NotBefore.ToUniversalTime()
             validTo            = $X509.NotAfter.ToUniversalTime()
             keyAlgorithm       = $X509.PublicKey.Oid.FriendlyName
-            keySize            = if ( $key ) { $key.KeySize } else { $null }
+            # on Linux the key is an internal OpenSSL type whose KeySize PowerShell can't read, so use the public base class
+            keySize            = if ( $key ) { [System.Security.Cryptography.AsymmetricAlgorithm].GetProperty('KeySize').GetValue($key) } else { $null }
             signatureAlgorithm = $X509.SignatureAlgorithm.FriendlyName
             isCA               = [bool]($basicConstraints.CertificateAuthority)
             selfSigned         = $X509.Subject -eq $X509.Issuer

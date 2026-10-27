@@ -523,6 +523,9 @@ Describe 'CM Session Refresh Vault Write-Back' -Tags 'Unit' {
         if ( -not (Get-Command 'Get-SecretInfo' -ErrorAction SilentlyContinue) ) {
             function global:Get-SecretInfo { param($Name, $Vault) }
         }
+        if ( -not (Get-Command 'Get-SecretVault' -ErrorAction SilentlyContinue) ) {
+            function global:Get-SecretVault { param($Name) }
+        }
     }
 
     BeforeEach {
@@ -581,6 +584,8 @@ Describe 'CM Session Refresh Vault Write-Back' -Tags 'Unit' {
     }
 
     It 'Should remember the vault entry when New-TrustClient saves a refresh token' {
+        Mock -CommandName 'Get-Module' -ModuleName $ModuleName -ParameterFilter { $Name -eq 'Microsoft.PowerShell.SecretManagement' } -MockWith { [pscustomobject]@{ Name = $Name } }
+        Mock -CommandName 'Get-SecretVault' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Name = 'VenafiPS' } }
         $newSess = New-TrustClient -Server 'venafi.example.com' -RefreshToken 'old-refresh' -ClientId 'VenafiPS-MyApp' -VaultRefreshTokenName 'mcp' -PassThru
 
         $newSess.VaultRefreshTokenName | Should -Be 'mcp'

@@ -1250,7 +1250,11 @@ Start-TrustMcpServer -TrustClient `$tc
             '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
         )
 
-        $out = @($requests | & $exe -NoLogo -NoProfile -NonInteractive -File $launcher 2>$null)
+        # Windows PowerShell turns native stderr into errors even when redirected, and Pester stops on errors
+        $out = & {
+            $ErrorActionPreference = 'Continue'
+            @($requests | & $exe -NoLogo -NoProfile -NonInteractive -File $launcher 2>$null)
+        }
 
         $LASTEXITCODE | Should -Be 0
         # one response per request with an id plus the parse error, nothing for the notification

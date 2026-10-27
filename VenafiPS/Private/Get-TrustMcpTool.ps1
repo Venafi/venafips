@@ -542,7 +542,7 @@ function Get-TrustMcpTool {
                 $certs = @(Find-CmCertificate @base -OptionalField Issuer, Subject -First $limit | Where-Object { $_.X509.Issuer })
 
                 $contains = { param([string] $Text) $Text -and $Text.IndexOf($ca, [System.StringComparison]::OrdinalIgnoreCase) -ge 0 }
-                $groups = @($certs | Group-Object { $_.X509.Issuer } | Sort-Object Count -Descending)
+                $groups = @($certs | Group-Object { $_.X509.Issuer } | Sort-Object @{ Expression = 'Count'; Descending = $true }, Name)
 
                 $hits = [System.Collections.Generic.List[object]]::new()
                 $warnings = [System.Collections.Generic.List[string]]::new()
@@ -707,7 +707,7 @@ function Get-TrustMcpTool {
                             $times = @($g.timestamp | Sort-Object)
                             # text2 usually holds the error, otherwise the first decoded data
                             $message = @($g | ForEach-Object { if ( $_.text2 ) { $_.text2 } else { @($_.data | Where-Object { $_ })[0] } } | Where-Object { $_ }) |
-                                Group-Object -NoElement | Sort-Object Count -Descending | Select-Object -First 1 -ExpandProperty Name
+                                Group-Object -NoElement | Sort-Object @{ Expression = 'Count'; Descending = $true }, Name | Select-Object -First 1 -ExpandProperty Name
                             $out = [ordered]@{}
                             if ( $Arguments.group_by -ne 'event' ) { $out.component = $g[0].component }
                             if ( $Arguments.group_by -ne 'component' ) { $out.event = $g[0].name } else { $out.events = @($g.name | Sort-Object -Unique) }
@@ -1606,7 +1606,7 @@ function Get-TrustMcpTool {
                 }
 
                 $hits = [ordered]@{}
-                foreach ( $g in @($certs | Group-Object { & $issuerOf $_ } | Sort-Object Count -Descending) ) {
+                foreach ( $g in @($certs | Group-Object { & $issuerOf $_ } | Sort-Object @{ Expression = 'Count'; Descending = $true }, Name) ) {
                     if ( & $contains $g.Name ) {
                         $hits[$g.Name] = [ordered]@{ issuer = $g.Name; count = $g.Count; matchedBy = 'issuer'; chain = @(); certs = $g.Group }
                         continue
