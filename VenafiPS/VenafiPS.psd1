@@ -12,7 +12,7 @@
 RootModule = 'VenafiPS.psm1'
 
 # Version number of this module.
-ModuleVersion = '7.0.7'
+ModuleVersion = '7.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -103,7 +103,7 @@ FunctionsToExport = 'Add-CmsTeamMember', 'Add-CmsTeamOwner', 'Add-CmAdaptableHas
                'Remove-CmCertificateAssociation', 'Remove-CmClient',
                'Remove-CmEngineFolder', 'Remove-CmObject', 'Remove-CmPermission',
                'Remove-CmTeam', 'Remove-CmTeamMember', 'Remove-CmTeamOwner',
-               'Rename-CmObject', 'Revoke-CmGrant', 'Set-CmsApplication',
+               'Rename-CmObject', 'Revoke-CmGrant', 'Start-TrustMcpServer', 'Set-CmsApplication',
                'Set-TrustConnector', 'Set-CmsTeam', 'Set-CmAttribute',
                'Set-CmCredential', 'Set-CmPermission', 'Set-CmWorkflowTicketStatus',
                'Test-CmIdentity', 'Test-CmObject', 'Write-CmLog',

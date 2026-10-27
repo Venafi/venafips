@@ -150,6 +150,11 @@ function Find-CmCertificate {
     .PARAMETER Algorithm
     Name or OID for the PKIX algorithm, first introduced in v25.1.
 
+    .PARAMETER OptionalField
+    Include additional certificate details in the output, in an X509 property.
+    Choose one or more of Issuer, Subject, KeyAlgorithm, and KeySize.
+    X509 will also include CN, SANS, Serial, Thumbprint, ValidFrom, and ValidTo.
+
     .PARAMETER CountOnly
     Return the count of certificates found from the query as opposed to the certificates themselves
 
@@ -172,6 +177,11 @@ function Find-CmCertificate {
     Find-CmCertificate -IsExpired
 
     Find expired certificates
+
+    .EXAMPLE
+    Find-CmCertificate -OptionalField Issuer | Where-Object { $_.X509.Issuer -like '*Issuing CA*' }
+
+    Find certificates with additional X509 details, eg. to filter on part of the issuer
 
     .EXAMPLE
     Find-CmCertificate -ExpireBefore '2018-01-01'
@@ -400,6 +410,10 @@ function Find-CmCertificate {
         [string] $Algorithm,
 
         [Parameter()]
+        [ValidateSet('Issuer', 'Subject', 'KeyAlgorithm', 'KeySize')]
+        [string[]] $OptionalField,
+
+        [Parameter()]
         [Switch] $CountOnly,
 
         [Parameter()]
@@ -580,10 +594,23 @@ function Find-CmCertificate {
             'Algorithm' {
                 $params.Body.Add('PkixParameterSet', $Algorithm)
             }
+
+            'OptionalField' {
+                $params.Body.Add('OptionalFields', ($OptionalField | Select-Object -Unique) -join ',')
+            }
         }
     }
 
     process {
+
+        $newCert = {
+            param($Cert)
+            $out = [CmObject]::new($Cert.DN, $Cert.Guid, $Cert.SchemaClass)
+            if ( $OptionalField ) {
+                $out | Add-Member -NotePropertyName 'X509' -NotePropertyValue $Cert.X509
+            }
+            $out
+        }
 
         if ( $PSBoundParameters.ContainsKey('Path') ) {
             $thisPath = $Path | ConvertTo-CmFullPath
@@ -625,7 +652,7 @@ function Find-CmCertificate {
 
         $content = $response.content | ConvertFrom-Json
         $content.Certificates.ForEach{
-            [CmObject]::new($_.DN, $_.Guid, $_.SchemaClass)
+            & $newCert $_
         }
 
         if ($PSBoundParameters.ContainsKey('First')) {
@@ -658,7 +685,7 @@ function Find-CmCertificate {
 
             $content = $response.content | ConvertFrom-Json
             $content.Certificates.ForEach{
-                [CmObject]::new($_.DN, $_.Guid, $_.SchemaClass)
+                & $newCert $_
             }
         }
     }

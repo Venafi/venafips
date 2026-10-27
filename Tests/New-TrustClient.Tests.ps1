@@ -512,3 +512,83 @@ Describe 'CMS ApiKey Session Refresh' -Tags 'Unit' {
         Should -Invoke -CommandName 'Update-CmsApiKey' -ModuleName $ModuleName -Times 0
     }
 }
+
+Describe 'CM Session Refresh Vault Write-Back' -Tags 'Unit' {
+
+    BeforeAll {
+        # SecretManagement may not be installed where tests run, Mock needs the commands to exist
+        if ( -not (Get-Command 'Set-Secret' -ErrorAction SilentlyContinue) ) {
+            function global:Set-Secret { param($Name, $Secret, $Vault, $Metadata) }
+        }
+        if ( -not (Get-Command 'Get-SecretInfo' -ErrorAction SilentlyContinue) ) {
+            function global:Get-SecretInfo { param($Name, $Vault) }
+        }
+        if ( -not (Get-Command 'Get-SecretVault' -ErrorAction SilentlyContinue) ) {
+            function global:Get-SecretVault { param($Name) }
+        }
+    }
+
+    BeforeEach {
+        Mock -CommandName 'New-CmToken' -ModuleName $ModuleName -MockWith {
+            $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
+            $token.Server       = 'https://venafi.example.com'
+            $token.AccessToken  = (New-TestCredential -UserName 'AccessToken' -Password 'new-access')
+            $token.RefreshToken = (New-TestCredential -UserName 'RefreshToken' -Password 'new-refresh')
+            $token.ClientId     = 'VenafiPS-MyApp'
+            $token.Expires      = [DateTime]::UtcNow.AddMinutes(30)
+            $token
+        }
+        Mock -CommandName 'Get-SecretInfo' -ModuleName $ModuleName -MockWith {
+            [pscustomobject]@{ Name = $Name; Metadata = @{ AuthServer = 'https://venafi.example.com'; ClientId = 'VenafiPS-MyApp' } }
+        }
+        Mock -CommandName 'Set-Secret' -ModuleName $ModuleName
+        Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -MockWith { @{} }
+        Mock -CommandName 'Get-CmCustomField' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Items = @() } }
+
+        $sess = New-TrustClient -CmsAccessToken 'dummy' -PassThru
+        $sess.Platform = 'CM'
+        $sess.AuthServer = 'https://venafi.example.com'
+        $sess.ClientId = 'VenafiPS-MyApp'
+        $sess.RefreshToken = New-TestCredential -UserName 'RefreshToken' -Password 'old-refresh'
+    }
+
+    It 'Should save the new refresh token and existing metadata to the vault' {
+        $sess.VaultRefreshTokenName = 'mcp'
+
+        & (Get-Module $ModuleName) { Invoke-SessionRefresh -Session $args[0] } $sess
+
+        $sess.RefreshToken.GetNetworkCredential().Password | Should -Be 'new-refresh'
+        Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 1 -ParameterFilter {
+            $Name -eq 'mcp' -and $Vault -eq 'VenafiPS' -and
+            $Secret.GetNetworkCredential().Password -eq 'new-refresh' -and
+            $Metadata.ClientId -eq 'VenafiPS-MyApp' -and $Metadata.AuthServer -eq 'https://venafi.example.com'
+        }
+    }
+
+    It 'Should not touch the vault when the session did not come from one' {
+        & (Get-Module $ModuleName) { Invoke-SessionRefresh -Session $args[0] } $sess
+
+        Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 0
+    }
+
+    It 'Should keep the refreshed session and warn when the vault cannot be updated' {
+        Mock -CommandName 'Set-Secret' -ModuleName $ModuleName -MockWith { throw 'vault locked' }
+        $sess.VaultRefreshTokenName = 'mcp'
+
+        $warn = & (Get-Module $ModuleName) { Invoke-SessionRefresh -Session $args[0] } $sess 3>&1 |
+            Where-Object { $_ -is [System.Management.Automation.WarningRecord] }
+
+        $sess.AccessToken.GetNetworkCredential().Password | Should -Be 'new-access'
+        $warn | Should -Match "vault entry 'mcp'"
+        $warn | Should -Match 'vault locked'
+    }
+
+    It 'Should remember the vault entry when New-TrustClient saves a refresh token' {
+        Mock -CommandName 'Get-Module' -ModuleName $ModuleName -ParameterFilter { $Name -eq 'Microsoft.PowerShell.SecretManagement' } -MockWith { [pscustomobject]@{ Name = $Name } }
+        Mock -CommandName 'Get-SecretVault' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Name = 'VenafiPS' } }
+        $newSess = New-TrustClient -Server 'venafi.example.com' -RefreshToken 'old-refresh' -ClientId 'VenafiPS-MyApp' -VaultRefreshTokenName 'mcp' -PassThru
+
+        $newSess.VaultRefreshTokenName | Should -Be 'mcp'
+        Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 1 -ParameterFilter { $Name -eq 'mcp' }
+    }
+}

@@ -102,6 +102,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Changelog: changelog.md
+  - MCP Server: mcp.md
   - Functions:
     - Invoke-TrustRestMethod: functions/Invoke-TrustRestMethod.md
     - New-TrustClient: functions/New-TrustClient.md
