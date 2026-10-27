@@ -148,6 +148,12 @@ To prepare your environment, execute the following:
 
 Note, extension vaults are registered to the current logged in user context, and will be available only to that user (unless also registered to other users).
 
+## MCP Server
+
+VenafiPS includes a [Model Context Protocol (MCP)](https://modelcontextprotocol.io) server so AI assistants, eg. Claude Code, Claude Desktop, VS Code, and Cursor, can answer questions about your certificate inventory.  All tools are read-only and secrets are never returned.  Self-Hosted, SaaS, and NGTS are supported.
+
+See [MCP Server](https://venafi.github.io/venafips/mcp/) for production setup, including a least privileged account, sign in options, and client configuration.
+
 ## Contributing
 
 Please feel free to log an issue for any new features you would like, bugs you come across, or just simply a question.  We are happy to have people contribute to the codebase as well.

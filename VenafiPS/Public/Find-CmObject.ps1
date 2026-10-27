@@ -224,7 +224,8 @@ function Find-CmObject {
             $params.Body.Pattern = $Pattern
         }
 
-        if ( $PSBoundParameters.ContainsKey('Recursive') ) {
+        # -Recursive:$false is bound too, so check the value
+        if ( $Recursive.IsPresent ) {
             $params.Body.Recursive = 'true'
         }
 

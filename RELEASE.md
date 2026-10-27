@@ -1,1 +1,10 @@
-- Fix `Find-CmCertificate` throwing a confusing error when combining `-IsExpired`/`-IsExpired:$false` with the conflicting `-ExpireBefore`/`-ExpireAfter` parameter, [#418](https://github.com/Venafi/VenafiPS/issues/418).  Thanks @mstsbe and @CedricConday!
+- Add `Start-TrustMcpServer` (preview), a Model Context Protocol (MCP) server so AI assistants such as Claude Code, Claude Desktop, VS Code, and Cursor can answer questions about your certificate inventory, eg. *which certificates expire this month* or *why did this certificate fail to renew*.  Supports Certificate Manager Self-Hosted, SaaS, and NGTS, with the tools offered matching the platform.
+  - Find and summarize certificates, including expiry, inventory and crypto posture, readiness for shorter maximum validity (CA/B Forum SC-081), and certificates issued by or chaining to a CA
+  - Troubleshoot with logs, workflow tickets, and where certificates are installed
+  - Explore configuration such as the CM policy tree, attributes, CA templates, and permissions, and SaaS applications, machines, issuing templates, and VSatellites
+  - Read-only, and secrets, private keys, and connection details are never returned.  The assistant can only see what the signed in account can see.
+  - Use `-Connect` to authenticate with any non-interactive `New-TrustClient` method.  The session is refreshed for as long as the server runs, and if a token is revoked the server connects again.
+  - See the [MCP setup guide](https://venafi.github.io/venafips/mcp/) for client configuration, least-privileged accounts, and credential storage
+- Add `-OptionalField` to `Find-CmCertificate` to include issuer, subject, and key details in the results, eg. `Find-CmCertificate -OptionalField Issuer | Where-Object { $_.X509.Issuer -like '*Issuing CA*' }`
+- Fix Certificate Manager, Self-Hosted sessions created with `New-TrustClient -VaultRefreshTokenName` leaving an already used refresh token in the vault when the session automatically refreshed, causing the next `New-TrustClient -VaultRefreshTokenName` to fail.  The new refresh token is now saved to the vault on refresh.
+- Fix `Find-CmObject -Recursive:$false` searching recursively

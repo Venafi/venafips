@@ -100,4 +100,37 @@ Describe 'Find-CmCertificate' -Tags 'Unit' {
             }
         }
     }
+
+    Context 'OptionalField' {
+
+        BeforeEach {
+            $certResponse = [pscustomobject]@{
+                content = '{"Certificates":[{"DN":"\\\\VED\\\\Policy\\\\c1","Guid":"{11111111-1111-1111-1111-111111111111}","SchemaClass":"X509 Server Certificate","X509":{"CN":"c1","Issuer":"CN=Example Issuing CA, DC=example, DC=com"}}]}'
+                Headers = if ($PSVersionTable.PSVersion.Major -lt 6) { @{ 'X-Record-Count' = '1' } } else { @{ 'X-Record-Count' = @('1') } }
+            }
+            Mock -CommandName 'Invoke-TrustRestMethod' -MockWith { $certResponse } -ModuleName $ModuleName
+        }
+
+        It 'Should request the optional fields' {
+            $null = Find-CmCertificate -OptionalField Issuer, Subject, Issuer
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $Body.OptionalFields -eq 'Issuer,Subject'
+            }
+        }
+
+        It 'Should add X509 details when optional fields are requested' {
+            $out = Find-CmCertificate -OptionalField Issuer
+            $out.Path | Should -Be '\VED\Policy\c1'
+            $out.X509.Issuer | Should -Be 'CN=Example Issuing CA, DC=example, DC=com'
+        }
+
+        It 'Should not change the output when optional fields are not requested' {
+            $out = Find-CmCertificate
+            $out.Path | Should -Be '\VED\Policy\c1'
+            $out.PSObject.Properties.Name | Should -Not -Contain 'X509'
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                -not $Body.ContainsKey('OptionalFields')
+            }
+        }
+    }
 }

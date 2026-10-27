@@ -67,7 +67,7 @@ jobs:
             $newEntry = "    - {0}: functions/{1}" -f $functionName, $_.Name
             $newEntry
 
-            if ( $functionName -in 'New-TrustClient', 'Invoke-TrustRestMethod' ) {
+            if ( $functionName -in 'New-TrustClient', 'Invoke-TrustRestMethod', 'Start-TrustMcpServer' ) {
                 $YMLText += $newEntry
             }
             elseif ( $functionName -match '-Trust' ) {

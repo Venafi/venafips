@@ -204,6 +204,10 @@ $script:functionConfig = @{
         'CmVersion'    = ''
         'CmTokenScope' = 'any scope'
     }
+    'Read-CmLog'                      = @{
+        'CmVersion'    = ''
+        'CmTokenScope' = 'any scope'
+    }
     'Remove-CmCertificate'            = @{
         'CmVersion'    = ''
         'CmTokenScope' = 'certificate=delete.  If using KeepAssociatedApps, configuration=$null,certificate=manage as well.'

@@ -62,6 +62,7 @@ function New-TrustClient {
     This value can be provided standalone or with credentials.  Each time this is used, a new access and refresh token will be obtained.
     First time use requires it to be provided with credentials to retrieve the refresh token and populate the vault.
     With subsequent uses, it can be provided standalone and the refresh token will be retrieved without the need for credentials.
+    If the session is automatically refreshed, eg. a long running script or Start-TrustMcpServer, the new refresh token is also saved to the vault.
 
     .PARAMETER AuthServer
     If you host your authentication service, vedauth, is on a separate server than vedsdk, use this parameter to specify the url eg., venafi.company.com or https://venafi.company.com.
@@ -715,6 +716,8 @@ function New-TrustClient {
         else {
             if ( $newClient.RefreshToken ) {
                 Set-Secret -Name $VaultRefreshTokenName -Secret $newClient.RefreshToken -Vault 'VenafiPS' -Metadata $metadata
+                # refresh tokens are single use, auto-refresh needs to know where to save the new one
+                $newClient.VaultRefreshTokenName = $VaultRefreshTokenName
             }
             else {
                 Write-Warning 'Refresh token not provided by server and will not be saved in the vault'

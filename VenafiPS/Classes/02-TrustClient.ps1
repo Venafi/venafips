@@ -14,6 +14,7 @@
     [object] $Scope
     [datetime] $Expires
     [datetime] $RefreshExpires
+    [string] $VaultRefreshTokenName
     [hashtable] $PlatformData
 
     TrustClient() {
@@ -31,6 +32,7 @@
         $this.Scope = $null
         $this.Expires = [datetime]::MinValue
         $this.RefreshExpires = [datetime]::MinValue
+        $this.VaultRefreshTokenName = ''
         $this.PlatformData = @{}
     }
 
