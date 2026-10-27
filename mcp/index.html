@@ -1,0 +1,3792 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../changelog/">
+      
+      
+        <link rel="next" href="../functions/Invoke-TrustRestMethod/">
+      
+      
+      <link rel="icon" href="../assets/images/logos/cyberark.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.17">
+    
+    
+      
+        <title>MCP Server - VenafiPS PowerShell Module</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.bcfcd587.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 13h-4v4h-2v-4H7v-2h4V7h2v4h4m-5-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2Z"/></svg>');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/css/branding.css">
+    
+      <link rel="stylesheet" href="../assets/css/custom.css">
+    
+      <link rel="stylesheet" href="../assets/css/mini-card.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#mcp-server" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="VenafiPS PowerShell Module" class="md-header__button md-logo" aria-label="VenafiPS PowerShell Module" data-md-component="logo">
+      
+  <img src="../assets/images/logos/cyberark-logo-tagline.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VenafiPS PowerShell Module
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MCP Server
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 6H7c-3.31 0-6 2.69-6 6s2.69 6 6 6h10c3.31 0 6-2.69 6-6s-2.69-6-6-6zm0 10H7c-2.21 0-4-1.79-4-4s1.79-4 4-4h10c2.21 0 4 1.79 4 4s-1.79 4-4 4zM7 9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 0 0-5 5 5 5 0 0 0 5 5h10a5 5 0 0 0 5-5 5 5 0 0 0-5-5m0 8a3 3 0 0 1-3-3 3 3 0 0 1 3-3 3 3 0 0 1 3 3 3 3 0 0 1-3 3Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Venafi/venafips" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    VenafiPS
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="VenafiPS PowerShell Module" class="md-nav__button md-logo" aria-label="VenafiPS PowerShell Module" data-md-component="logo">
+      
+  <img src="../assets/images/logos/cyberark-logo-tagline.svg" alt="logo">
+
+    </a>
+    VenafiPS PowerShell Module
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Venafi/venafips" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    VenafiPS
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Changelog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    MCP Server
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    MCP Server
+  </span>
+  
+
+      </a>
+      
+        
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data protection
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production checklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Functions
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Functions
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Invoke-TrustRestMethod/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Invoke-TrustRestMethod
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustClient/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustClient
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Start-TrustMcpServer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Start-TrustMcpServer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Certificate Manager Self-Hosted
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            Certificate Manager Self-Hosted
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Add-CmAdaptableHash/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-CmAdaptableHash
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Add-CmCertificateAssociation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-CmCertificateAssociation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Add-CmEngineFolder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-CmEngineFolder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Add-CmTeamMember/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-CmTeamMember
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Add-CmTeamOwner/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-CmTeamOwner
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Convert-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Convert-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Export-CmCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Export-CmCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Export-CmVaultObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Export-CmVaultObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-CmCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-CmCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-CmClient/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-CmClient
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-CmEngine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-CmEngine
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-CmIdentity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-CmIdentity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-CmVaultId/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-CmVaultId
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmAttribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmAttribute
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmClassAttribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmClassAttribute
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmCredential/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmCredential
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmCustomField/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmCustomField
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmEngineFolder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmEngineFolder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmIdentity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmIdentity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmIdentityAttribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmIdentityAttribute
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmPermission/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmPermission
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmTeam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmTeam
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmWorkflowTicket/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmWorkflowTicket
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Import-CmCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Import-CmCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Invoke-CmCertificateAction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Invoke-CmCertificateAction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Move-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Move-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmCapiApplication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmCapiApplication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmCredential/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmCredential
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmCustomField/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmCustomField
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmDevice/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmDevice
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmPolicy/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmPolicy
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmTeam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmTeam
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Read-CmLog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Read-CmLog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmCertificateAssociation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmCertificateAssociation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmClient/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmClient
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmEngineFolder/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmEngineFolder
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmPermission/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmPermission
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmTeam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmTeam
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmTeamMember/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmTeamMember
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmTeamOwner/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmTeamOwner
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Rename-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rename-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Revoke-CmGrant/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Revoke-CmGrant
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-CmAttribute/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-CmAttribute
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-CmCredential/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-CmCredential
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-CmPermission/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-CmPermission
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-CmWorkflowTicketStatus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-CmWorkflowTicketStatus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Test-CmIdentity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Test-CmIdentity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Test-CmObject/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Test-CmObject
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Write-CmLog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Write-CmLog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    NGTS/Certificate Manager SaaS
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            NGTS/Certificate Manager SaaS
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Export-TrustCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Export-TrustCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Export-TrustReport/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Export-TrustReport
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-TrustCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-TrustCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-TrustCertificateInstance/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-TrustCertificateInstance
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-TrustCertificateRequest/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-TrustCertificateRequest
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-TrustLog/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-TrustLog
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-TrustMachine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-TrustMachine
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Find-TrustMachineIdentity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Find-TrustMachineIdentity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustCertificateAuthority/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustCertificateAuthority
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustCertificateRequest/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustCertificateRequest
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustCloudKeystore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustCloudKeystore
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustCloudProvider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustCloudProvider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustConnector/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustConnector
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustIssuingTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustIssuingTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustMachine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustMachine
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustMachineIdentity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustMachineIdentity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustSatellite/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustSatellite
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustSatelliteWorker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustSatelliteWorker
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustTag/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustTag
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-TrustWebhook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-TrustWebhook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Import-TrustCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Import-TrustCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Invoke-TrustCertificateAction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Invoke-TrustCertificateAction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Invoke-TrustWorkflow/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Invoke-TrustWorkflow
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustCloudKeystore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustCloudKeystore
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustCloudProvider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustCloudProvider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustConnector/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustConnector
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustMachine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustMachine
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustMachineCommonKeystore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustMachineCommonKeystore
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustMachineMicrosoft/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustMachineMicrosoft
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-TrustWebhook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-TrustWebhook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustCloudKeystore/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustCloudKeystore
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustCloudProvider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustCloudProvider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustConnector/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustConnector
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustIssuingTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustIssuingTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustMachine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustMachine
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustMachineIdentity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustMachineIdentity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustSatelliteWorker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustSatelliteWorker
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustTag/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustTag
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-TrustWebhook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-TrustWebhook
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-TrustCertificate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-TrustCertificate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-TrustCertificateRequest/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-TrustCertificateRequest
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-TrustCloudProvider/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-TrustCloudProvider
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-TrustConnector/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-TrustConnector
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-TrustIssuingTemplate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-TrustIssuingTemplate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-TrustMachine/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-TrustMachine
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-TrustMachineIdentity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-TrustMachineIdentity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_6" id="__nav_4_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Certificate Manager SaaS only
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            Certificate Manager SaaS only
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Add-CmsTeamMember/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-CmsTeamMember
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Add-CmsTeamOwner/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Add-CmsTeamOwner
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmsApplication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmsApplication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmsTeam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmsTeam
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmsUser/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmsUser
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Get-CmSystemStatus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Get-CmSystemStatus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmsApplication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmsApplication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/New-CmsTeam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    New-CmsTeam
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmsApplication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmsApplication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmsTeam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmsTeam
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmsTeamMember/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmsTeamMember
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Remove-CmsTeamOwner/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Remove-CmsTeamOwner
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-CmsApplication/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-CmsApplication
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-CmsTeam/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-CmsTeam
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../functions/Set-CmsUser/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Set-CmsUser
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-protection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data protection
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#production-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Production checklist
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="mcp-server">MCP Server<a class="headerlink" href="#mcp-server" title="Permanent link">&para;</a></h1>
+<p><code>Start-TrustMcpServer</code> lets AI assistants such as Claude Code, Claude Desktop, VS Code, and Cursor answer questions about your certificate inventory using the <a href="https://modelcontextprotocol.io">Model Context Protocol (MCP)</a>, eg. <em>which certificates expire this month</em> or <em>why did this certificate fail to renew</em>.  Self-Hosted, SaaS, and NGTS are supported.</p>
+<ul>
+<li><strong>Read-only.</strong>  Tools only read data; nothing is created, changed, or deleted.</li>
+<li><strong>Secrets are kept out.</strong>  Tools never retrieve private keys or credentials, and fields holding passwords, tokens, and keys are redacted.  See <a href="#data-protection">Data protection</a> for what is and isn't sent.</li>
+<li><strong>Your permissions apply.</strong>  The assistant can only see what the account it signs in with can see.</li>
+</ul>
+<blockquote>
+<p><strong>⚠️ Warning:</strong>  Tool results, eg. certificate names, SANs, and policy paths, are sent to the AI model used by your MCP client.  Check this is allowed by your organization's policies before connecting a production environment.</p>
+<p><strong>Preview:</strong>  The MCP server is in preview.  Tool names and output may change in future releases.</p>
+</blockquote>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<h3 id="1-install-venafips">1. Install VenafiPS<a class="headerlink" href="#1-install-venafips" title="Permanent link">&para;</a></h3>
+<p>Use Windows PowerShell 5.1 or PowerShell 7, which is recommended and required on macOS and Linux.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">Install-Module</span> <span class="n">VenafiPS</span> <span class="n">-Scope</span> <span class="n">CurrentUser</span>
+</code></pre></div>
+<h3 id="2-create-a-launcher-script">2. Create a launcher script<a class="headerlink" href="#2-create-a-launcher-script" title="Permanent link">&para;</a></h3>
+<p>Save this as <code>start-mcp.ps1</code>, eg. in <code>~/.venafips</code>, and change the <code>New-TrustClient</code> line to match how you connect.</p>
+<h4 id="self-hosted">Self-Hosted<a class="headerlink" href="#self-hosted" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nv">$ErrorActionPreference</span> <span class="p">=</span> <span class="s1">&#39;Stop&#39;</span>
+<span class="nb">Import-Module</span> <span class="n">VenafiPS</span>
+
+<span class="nb">Start-TrustMcpServer</span> <span class="n">-Connect</span> <span class="p">{</span>
+    <span class="nv">$password</span> <span class="p">=</span> <span class="nb">ConvertTo-SecureString</span> <span class="nv">$env:CM_PASSWORD</span> <span class="n">-AsPlainText</span> <span class="n">-Force</span>
+    <span class="nv">$params</span> <span class="p">=</span> <span class="p">@{</span>
+        <span class="n">Server</span>     <span class="p">=</span> <span class="s1">&#39;cm.company.com&#39;</span>
+        <span class="n">ClientId</span>   <span class="p">=</span> <span class="s1">&#39;VenafiPS-MCP&#39;</span>
+        <span class="n">Scope</span>      <span class="p">=</span> <span class="p">@{</span> <span class="n">certificate</span> <span class="p">=</span> <span class="nv">$null</span><span class="p">;</span> <span class="n">configuration</span> <span class="p">=</span> <span class="nv">$null</span> <span class="p">}</span>
+        <span class="n">Credential</span> <span class="p">=</span> <span class="no">[pscredential]</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="nv">$env:CM_USERNAME</span><span class="p">,</span> <span class="nv">$password</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nb">New-TrustClient</span> <span class="nv">@params</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>This gets an OAuth token for the <code>VenafiPS-MCP</code> API integration with read-only scopes, and refreshes it for as long as the server runs.  To use Windows integrated authentication instead, leave out <code>Credential</code>.  See <a href="#production-checklist">Production checklist</a> for other options.</p>
+<h4 id="saas">SaaS<a class="headerlink" href="#saas" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nv">$ErrorActionPreference</span> <span class="p">=</span> <span class="s1">&#39;Stop&#39;</span>
+<span class="nb">Import-Module</span> <span class="n">VenafiPS</span>
+
+<span class="nb">Start-TrustMcpServer</span> <span class="n">-Connect</span> <span class="p">{</span> <span class="nb">New-TrustClient</span> <span class="n">-CmsKey</span> <span class="nv">$env:CMS_KEY</span> <span class="p">}</span>
+</code></pre></div>
+<p>Add <code>-CmsRegion</code>, eg. <code>-CmsRegion eu</code>, if you are not in the US region.</p>
+<h4 id="ngts">NGTS<a class="headerlink" href="#ngts" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code><span class="nv">$ErrorActionPreference</span> <span class="p">=</span> <span class="s1">&#39;Stop&#39;</span>
+<span class="nb">Import-Module</span> <span class="n">VenafiPS</span>
+
+<span class="nb">Start-TrustMcpServer</span> <span class="n">-Connect</span> <span class="p">{</span>
+    <span class="nv">$secret</span> <span class="p">=</span> <span class="nb">ConvertTo-SecureString</span> <span class="nv">$env:NGTS_CLIENT_SECRET</span> <span class="n">-AsPlainText</span> <span class="n">-Force</span>
+    <span class="nb">New-TrustClient</span> <span class="n">-NgtsCredential</span> <span class="p">(</span><span class="no">[pscredential]</span><span class="p">::</span><span class="n">new</span><span class="p">(</span><span class="nv">$env:NGTS_CLIENT_ID</span><span class="p">,</span> <span class="nv">$secret</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>-Connect</code> accepts any <a href="../functions/New-TrustClient/">New-TrustClient</a> options as long as they don't prompt for input, since the server runs in the background.</p>
+<h3 id="3-add-it-to-your-mcp-client">3. Add it to your MCP client<a class="headerlink" href="#3-add-it-to-your-mcp-client" title="Permanent link">&para;</a></h3>
+<h4 id="claude-code">Claude Code<a class="headerlink" href="#claude-code" title="Permanent link">&para;</a></h4>
+<div class="highlight"><pre><span></span><code>claude<span class="w"> </span>mcp<span class="w"> </span>add<span class="w"> </span>venafips<span class="w"> </span>--scope<span class="w"> </span>user<span class="w"> </span>--<span class="w"> </span>pwsh<span class="w"> </span>-NoProfile<span class="w"> </span>-NonInteractive<span class="w"> </span>-File<span class="w"> </span>~/.venafips/start-mcp.ps1
+</code></pre></div>
+<p>To pass environment variables, add them before <code>--</code>, eg. <code>-e CM_USERNAME=&lt;username&gt; -e CM_PASSWORD=&lt;password&gt;</code> for Self-Hosted or <code>-e CMS_KEY=&lt;your key&gt;</code> for SaaS.</p>
+<h4 id="other-clients">Other clients<a class="headerlink" href="#other-clients" title="Permanent link">&para;</a></h4>
+<p>Most clients use JSON like this; check your client's documentation for the file location.  Use the full path to the script.</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;mcpServers&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;venafips&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pwsh&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;args&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;-NoProfile&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-NonInteractive&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-File&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;/Users/me/.venafips/start-mcp.ps1&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;env&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;CMS_KEY&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;your key&gt;&quot;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>Use <code>powershell.exe</code> instead of <code>pwsh</code> for Windows PowerShell 5.1.  <code>-NoProfile</code> keeps your profile from interfering with the server and <code>-NonInteractive</code> makes it fail rather than hang if anything prompts.</p>
+<h3 id="4-try-it">4. Try it<a class="headerlink" href="#4-try-it" title="Permanent link">&para;</a></h3>
+<p>Ask your assistant <em>"What VenafiPS server am I connected to?"</em>.  It should use the <code>whoami</code> tool and reply with your platform and server.  If not, see <a href="#troubleshooting">Troubleshooting</a>.</p>
+<h2 id="data-protection">Data protection<a class="headerlink" href="#data-protection" title="Permanent link">&para;</a></h2>
+<p>Every tool result is sent to the AI model used by your MCP client.  The server limits what it receives as follows.</p>
+<h3 id="what-the-server-does">What the server does<a class="headerlink" href="#what-the-server-does" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Read-only tools.</strong>  Every tool only reads data and is marked read-only to the client.  Nothing can be created, changed, or deleted.</li>
+<li><strong>No calls which return secrets.</strong>  No tool retrieves a private key, a credential, or a vault object.  <code>get_certificate_chain</code> builds the chain from certificate details and the CA certificates published at each certificate's Authority Information Access url, rather than retrieving the certificate from Certificate Manager.</li>
+<li><strong>Secret fields are redacted.</strong>  Before a result is returned, any field whose name contains password, passphrase, secret, private key, API key, token, PKCS #12, PFX, credential, connection details, or pairing code is replaced with <code>[redacted]</code>, at any depth.  Names which only describe a secret, eg. <code>tokenType</code>, <code>apiKeyId</code>, or <code>OAuth Token Scope</code>, are kept.  Credential and secure string values are always redacted.</li>
+<li><strong>Fields are removed per tool.</strong>  Machine connection details, VSatellite encryption keys, and connector manifests are not returned.  Permissions are returned as a list of names, eg. <code>privateKeyRead</code>, rather than the underlying fields.</li>
+<li><strong>Error details are limited.</strong>  A failed API call returns only its status, eg. <code>404 (Not Found)</code>, not the response.  On Self-Hosted, a <code>403</code> is replaced by the token scope the function needs.  Tokens are sent in headers, so they never appear in error text.</li>
+<li><strong>Other output is discarded.</strong>  Verbose, debug, warning, and information output, which can include full API requests and responses, is never sent to the client.</li>
+<li><strong>Results are size limited.</strong>  Strings over 2,000 characters, lists over 200 items, and objects nested more than 8 levels are truncated.  Most tools also return 25 results by default, up to 200.</li>
+<li><strong>Your permissions and scopes apply.</strong>  The server can only see what the account it signs in with can see, so the account's permissions are how you limit it to specific policy folders, applications, or teams.  See <a href="#tools">Tools</a> for the Self-Hosted scope each tool needs.</li>
+</ul>
+<h3 id="what-the-ai-model-receives">What the AI model receives<a class="headerlink" href="#what-the-ai-model-receives" title="Permanent link">&para;</a></h3>
+<p>Certificate metadata such as names, common names, SANs, serial numbers, thumbprints, validity, and key details; issuer and subject DNs; hostnames and IP addresses of machines and installations; policy folder paths and attribute values; user and group names, email addresses, and directory DNs; and event and activity log entries, with Self-Hosted event data decoded.  Treat this as you would an inventory export.</p>
+<h3 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Redaction is by field name.</strong>  A secret stored in a general purpose field isn't recognized, eg. an Adaptable application or CA <code>Text Field</code>, <code>Option</code>, or <code>Driver Arguments</code> value, a custom field, or a value in event data.  <code>get_attributes</code> returns these fields as they are.  Don't store secrets in them; use a credential object.</li>
+<li><strong>Some error text is returned as it is</strong>: a <code>403</code> from SaaS or NGTS includes the API's message, and errors raised by VenafiPS or the tools themselves, eg. an invalid attribute name or an AIA url which couldn't be downloaded, are returned as written.</li>
+<li><strong>There is no masking or folder limit in the server.</strong>  Use the account's permissions to limit what it can see.</li>
+<li><strong>The server doesn't keep an audit log</strong> of tool calls or of what was returned.  Your MCP client may log them.</li>
+</ul>
+<h2 id="production-checklist">Production checklist<a class="headerlink" href="#production-checklist" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Use a dedicated account with read-only access.</strong><ul>
+<li>Self-Hosted: create an API integration, eg. <code>VenafiPS-MCP</code>, which allows only the <strong>Certificate</strong> and <strong>Configuration</strong> scopes with no privilege restrictions, and give the account View and Read permission on just the policy folders it needs.  Add the <strong>Security</strong> scope, also with no privilege restrictions, only if you want <code>get_permissions</code>; it lets the account read the permissions of objects it can see.</li>
+<li>SaaS and NGTS: use a service account, or a dedicated user's API key, with the least privileged role that can see the certificates you want to query.</li>
+</ul>
+</li>
+<li><strong>Sign in without prompts, with a method that refreshes.</strong>  The server runs as long as your MCP client.<ul>
+<li>Self-Hosted: a username and password (<code>-Server -ClientId -Scope -Credential</code>), Windows integrated (the same without <code>-Credential</code>), a client certificate (<code>-Certificate</code>), or a refresh token stored in a vault (<code>-VaultRefreshTokenName</code>) all keep working.  Avoid <code>-AccessToken</code>, which stops when the token expires, and <code>-RefreshToken</code> from a file or variable, which only works once.</li>
+<li>SaaS: API key.  NGTS: service account.</li>
+</ul>
+</li>
+<li><strong>Keep secrets out of client configuration.</strong>  Environment variables in a client's configuration are stored in plain text.  Prefer a method with no secret, eg. Windows integrated, or read the secret in the launcher from a <a href="../#tokenkey-secret-storage">SecretManagement</a> vault, eg. <code>-VaultCmsKeyName</code>, or from your secret manager.</li>
+<li><strong>Pin the version.</strong>  Use <code>Import-Module VenafiPS -RequiredVersion x.y.z</code> so updates don't change behavior until you've tested them.  Start a new client session after upgrading.</li>
+<li><strong>Know how to revoke access.</strong>  Revoke the integration's grant (<code>Revoke-CmGrant</code>), API key, or service account.</li>
+</ul>
+<h2 id="tools">Tools<a class="headerlink" href="#tools" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th style="text-align: center;">Self-Hosted</th>
+<th style="text-align: center;">SaaS / NGTS</th>
+<th>Self-Hosted scope</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>whoami</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><code>configuration</code></td>
+<td>Platform, server, and token expiration of the current connection</td>
+</tr>
+<tr>
+<td><code>find_certificates</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><code>certificate</code></td>
+<td>Search certificates, eg. by name, CN, SAN, issuer, expiration, or error state.  On Self-Hosted also by management type, key, signature algorithm, wildcard, or self-signed</td>
+</tr>
+<tr>
+<td><code>get_certificate</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><code>certificate</code></td>
+<td>Full details for a single certificate, and on Self-Hosted its previous versions</td>
+</tr>
+<tr>
+<td><code>certificate_expiry_summary</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><code>certificate</code></td>
+<td>Counts of certificates expired or expiring in 7, 30, and 90 days</td>
+</tr>
+<tr>
+<td><code>certificate_inventory_summary</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>certificate</code></td>
+<td>Counts by folder, issuer, key, expiry, class, management type, and lifetime, readiness for shorter maximum validity (CA/B Forum SC-081), and crypto posture, in one call</td>
+</tr>
+<tr>
+<td><code>find_certificates_by_ca</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><code>certificate</code></td>
+<td>Certificates issued by, or chaining to, a CA, eg. when a CA is distrusted</td>
+</tr>
+<tr>
+<td><code>search_logs</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><code>any</code></td>
+<td>Event or activity log, most recent first.  On Self-Hosted, event data is decoded and can be searched, and event ids are matched by the server across the whole time range</td>
+</tr>
+<tr>
+<td><code>get_identity</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;">✓</td>
+<td><code>configuration</code></td>
+<td>Resolve users, groups, and teams, eg. contacts and owners</td>
+</tr>
+<tr>
+<td><code>browse_policy_tree</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>configuration</code></td>
+<td>List folders and objects in the policy tree</td>
+</tr>
+<tr>
+<td><code>get_attributes</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>configuration</code></td>
+<td>Object and policy attributes, including which folders use a CA template</td>
+</tr>
+<tr>
+<td><code>list_ca_templates</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>configuration</code></td>
+<td>CA templates and Adaptable CA driver scripts</td>
+</tr>
+<tr>
+<td><code>find_workflow_tickets</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>certificate</code></td>
+<td>Pending approvals and their approvers</td>
+</tr>
+<tr>
+<td><code>get_certificate_consumers</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>configuration</code></td>
+<td>Where a certificate is installed</td>
+</tr>
+<tr>
+<td><code>get_certificate_chain</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>certificate</code></td>
+<td>A certificate and its intermediate and root CAs, downloaded from the certificates' AIA urls</td>
+</tr>
+<tr>
+<td><code>find_objects_by_attribute</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>configuration</code></td>
+<td>Objects with an attribute value set on them, eg. apps using a PowerShell script</td>
+</tr>
+<tr>
+<td><code>list_class_attributes</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>any</code></td>
+<td>Attribute names and custom fields for a class</td>
+</tr>
+<tr>
+<td><code>get_system_status</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>configuration</code></td>
+<td>Service status and processing engine folder assignments</td>
+</tr>
+<tr>
+<td><code>get_permissions</code></td>
+<td style="text-align: center;">✓</td>
+<td style="text-align: center;"></td>
+<td><code>security</code></td>
+<td>Who has which permissions on an object</td>
+</tr>
+<tr>
+<td><code>find_machines</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>Machines where certificates are provisioned, without connection details</td>
+</tr>
+<tr>
+<td><code>list_applications</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>Applications and their renewal configuration</td>
+</tr>
+<tr>
+<td><code>find_certificate_requests</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>Certificate requests, eg. failed or pending approval</td>
+</tr>
+<tr>
+<td><code>list_vsatellites</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>VSatellite and worker status</td>
+</tr>
+<tr>
+<td><code>list_connectors</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>Connectors and whether they are global or custom</td>
+</tr>
+<tr>
+<td><code>find_machine_identities</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>Where a certificate is installed, eg. a virtual server or site, or what a machine hosts</td>
+</tr>
+<tr>
+<td><code>list_certificate_authorities</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>Certificate authority accounts and their product options</td>
+</tr>
+<tr>
+<td><code>list_issuing_templates</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">✓</td>
+<td></td>
+<td>Issuing templates, their CA, and the keys, subjects, and SANs they allow</td>
+</tr>
+</tbody>
+</table>
+<p>Self-Hosted scopes come from the functions each tool calls, and are also in each tool's description so your assistant can explain a scope error.  <code>any</code> works with any scope.  The read-only <strong>Certificate</strong> and <strong>Configuration</strong> scopes cover every tool except <code>get_permissions</code>, which needs <strong>Security</strong>.</p>
+<p><code>get_certificate_chain</code>, and <code>find_certificates_by_ca</code> on Self-Hosted, download each issuing CA certificate from the Authority Information Access (AIA) url in the certificate below it, so the computer running the MCP server needs to reach those urls, eg. your internal PKI or <code>cacerts.digicert.com</code>.  If it can't, the tools return what they could follow with a warning.</p>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<p>Errors are written to stderr, which your MCP client shows in its logs, eg. <code>claude --debug</code>.  To see them directly, run the launcher yourself with a request piped in; it should print one line of JSON and a <code>VenafiPS MCP server started</code> message:</p>
+<div class="highlight"><pre><span></span><code><span class="s1">&#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;initialize&quot;,&quot;params&quot;:{&quot;protocolVersion&quot;:&quot;2025-06-18&quot;}}&#39;</span> <span class="p">|</span> <span class="n">pwsh</span> <span class="n">-NoProfile</span> <span class="n">-NonInteractive</span> <span class="o">-File</span> <span class="p">~/.</span><span class="n">venafips</span><span class="p">/</span><span class="nb">start-mcp</span><span class="p">.</span><span class="n">ps1</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server won't start</td>
+<td>Run the command above to see the error.  Check VenafiPS is installed for the same user that runs the client.</td>
+</tr>
+<tr>
+<td>Hangs on startup</td>
+<td>Something is prompting, eg. <code>Get-Credential</code> or a vault password.  Provide every value non-interactively.</td>
+</tr>
+<tr>
+<td><code>401 (Unauthorized)</code></td>
+<td>The token or key was revoked or expired.  A Self-Hosted refresh token may have already been used; sign in again.</td>
+</tr>
+<tr>
+<td><code>cannot be automatically refreshed</code></td>
+<td>The sign-in method can't refresh, eg. <code>-AccessToken</code>.  Restart the server or use a method that refreshes.</td>
+</tr>
+<tr>
+<td>Protocol or JSON errors</td>
+<td>Something wrote to the console.  Use <code>-NoProfile</code> and sign in inside <code>-Connect</code>.</td>
+</tr>
+<tr>
+<td>Tool descriptions are out of date after upgrading</td>
+<td>Start a new client session.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../changelog/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Changelog">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Changelog
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../functions/Invoke-TrustRestMethod/" class="md-footer__link md-footer__link--next" aria-label="Next: Invoke-TrustRestMethod">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Invoke-TrustRestMethod
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 CyberArk Software Ltd. All rights reserved.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/venafi" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://x.com/CyberArk" target="_blank" rel="noopener" title="x.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9L389.2 48zm-24.8 373.8h39.1L151.1 88h-42l255.3 333.8z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/company/CyberArk/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.youtube.com/user/VenafiCo" target="_blank" rel="noopener" title="www.youtube.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M549.655 124.083c-6.281-23.65-24.787-42.276-48.284-48.597C458.781 64 288 64 288 64S117.22 64 74.629 75.486c-23.497 6.322-42.003 24.947-48.284 48.597-11.412 42.867-11.412 132.305-11.412 132.305s0 89.438 11.412 132.305c6.281 23.65 24.787 41.5 48.284 47.821C117.22 448 288 448 288 448s170.78 0 213.371-11.486c23.497-6.321 42.003-24.171 48.284-47.821 11.412-42.867 11.412-132.305 11.412-132.305s0-89.438-11.412-132.305zm-317.51 213.508V175.185l142.739 81.205-142.739 81.201z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.facebook.com/CyberArk" target="_blank" rel="noopener" title="www.facebook.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M80 299.3V512h116V299.3h86.5l18-97.8H196v-34.6c0-51.7 20.3-71.5 72.7-71.5 16.3 0 29.4.4 37 1.2V7.9C291.4 4 256.4 0 236.2 0 129.3 0 80 50.5 80 159.4v42.1H14v97.8h66z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.instagram.com/cyberark_corp/" target="_blank" rel="noopener" title="www.instagram.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.cyberark.com/resources/all-blog-posts" target="_blank" rel="noopener" title="www.cyberark.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M0 64c0-17.7 14.3-32 32-32 229.8 0 416 186.2 416 416 0 17.7-14.3 32-32 32s-32-14.3-32-32C384 253.6 226.4 96 32 96 14.3 96 0 81.7 0 64zm0 352a64 64 0 1 1 128 0 64 64 0 1 1-128 0zm32-256c159.1 0 288 128.9 288 288 0 17.7-14.3 32-32 32s-32-14.3-32-32c0-123.7-100.3-224-224-224-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.instant", "navigation.footer", "search.highlight", "search.suggest", "search.share", "announce.dismiss", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.1e8ae164.min.js"></script>
+      
+    
+  </body>
+</html>

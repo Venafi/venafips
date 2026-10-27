@@ -1,0 +1,68 @@
+/* ==========================
+    BRAND TOKENS
+========================== */
+:root {
+
+/* Company Colors */
+--cyberark-navy:              #082233; /*  30%   Bkg, Highlight Bkg, Workmark, Headlines, Subtitles, Body Copy, Eyebrow Copy, logo, Mark, infographics, iconography, badges, CTAs, section dividers */
+--cyberark-white:             #FFFFFF; /*  30%   Background  */
+--primary-white:              var(--cyberark-white); /*  Generic white  */
+--cyberark-electric-cyan:     #29B5E8; /*  13%   Highlight Bkg, Mark, Headline (on dark), Subtitles (on dark), Border accents, infographics, iconography, Badges, CTAs, Section dividers */
+--cyberark-bright-chartreuse: #D6F77A; /*  12%   Border accents, Headline Accents (on dark), Subtitle highlights (on Dark), infographics, Iconography, Badges */
+--cyberark-amethyst:          #8874FF; /*   5%   Infographics, Iconography, Quote Graphic device, Infographics, Eyebrow Underlines, Badges */
+--cyberark-sand:              #E8E8E3; /*   5%   Highlight backgrounds, Backgrounds, Section Divders */
+--cyberark-slate:             #5383A2; /*   5%   Headlines, subtitles, Callouts, Section Dividers */
+
+/* Foreground colors (light scheme) */
+--primary-color: var(--cyberark-navy);
+--secondary-color: var(--cyberark-electric-cyan);
+--third-color: var(--cyberark-bright-chartreuse);
+--fourth-color: var(--cyberark-amethyst);
+--fifth-color: var(--cyberark-slate);
+
+/* Background colors (light scheme) */
+--primary-background: var(--primary-white);
+--secondary-background:	var(--cyberark-sand);
+--third-background: color-mix(in oklch, var(--cyberark-electric-cyan), var(--primary-white) 95%);
+
+/* Define variants of core colors using math */
+--lighten-step: 20%;   /* Determines the step size for the color lightening math below */
+
+--primary-80: color-mix(in oklch, var(--primary-color), var(--primary-white) var(--lighten-step));
+--primary-60: color-mix(in oklch, var(--primary-color), var(--primary-white) calc(var(--lighten-step) * 2));
+--primary-40: color-mix(in oklch, var(--primary-color), var(--primary-white) calc(var(--lighten-step) * 3));
+--primary-20: color-mix(in oklch, var(--primary-color), var(--primary-white) calc(var(--lighten-step) * 4));
+
+--secondary-80: color-mix(in oklch, var(--secondary-color), var(--primary-white) var(--lighten-step));
+--secondary-60: color-mix(in oklch, var(--secondary-color), var(--primary-white) calc(var(--lighten-step) * 2));
+--secondary-40: color-mix(in oklch, var(--secondary-color), var(--primary-white) calc(var(--lighten-step) * 3));
+--secondary-20: color-mix(in oklch, var(--secondary-color), var(--primary-white) calc(var(--lighten-step) * 4));
+
+--third-80: color-mix(in oklch, var(--third-color), var(--primary-white) var(--lighten-step));
+--third-60: color-mix(in oklch, var(--third-color), var(--primary-white) calc(var(--lighten-step) * 2));
+--third-40: color-mix(in oklch, var(--third-color), var(--primary-white) calc(var(--lighten-step) * 3));
+--third-20: color-mix(in oklch, var(--third-color), var(--primary-white) calc(var(--lighten-step) * 4));
+
+--fourth-80: color-mix(in oklch, var(--fourth-color), var(--primary-white) var(--lighten-step));
+--fourth-60: color-mix(in oklch, var(--fourth-color), var(--primary-white) calc(var(--lighten-step) * 2));
+--fourth-40: color-mix(in oklch, var(--fourth-color), var(--primary-white) calc(var(--lighten-step) * 3));
+--fourth-20: color-mix(in oklch, var(--fourth-color), var(--primary-white) calc(var(--lighten-step) * 4));
+
+
+--fifth-80: color-mix(in oklch, var(--fifth-color), var(--primary-white) var(--lighten-step));
+--fifth-60: color-mix(in oklch, var(--fifth-color), var(--primary-white) calc(var(--lighten-step) * 2));
+--fifth-40: color-mix(in oklch, var(--fifth-color), var(--primary-white) calc(var(--lighten-step) * 3));
+--fifth-20: color-mix(in oklch, var(--fifth-color), var(--primary-white) calc(var(--lighten-step) * 4));
+
+/* CyberArk Docs colors - These aren't official, but I found them used on their docs site. */
+/* START - Don't use, as they are for reference */
+
+--alternate-background: #FCFCFC;
+--cyberark-menu-blue: #3165BD;
+--cyberark-menu-gray: #333333;
+--cyberark-link-blue: #047AD4;
+--cyberark-text-black: #000000;
+--cyberark-table-header-background: #F3F6F9;
+--cyberark-table-header-border: #DDD;
+/* END - Don't use  */
+}
