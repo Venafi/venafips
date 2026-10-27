@@ -12,7 +12,7 @@
 RootModule = 'VenafiPS.psm1'
 
 # Version number of this module.
-ModuleVersion = '7.0.7'
+ModuleVersion = '7.1'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
