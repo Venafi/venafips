@@ -106,6 +106,7 @@ nav:
   - Functions:
     - Invoke-TrustRestMethod: functions/Invoke-TrustRestMethod.md
     - New-TrustClient: functions/New-TrustClient.md
+    - Start-TrustMcpServer: functions/Start-TrustMcpServer.md
     - Certificate Manager Self-Hosted:
       - Add-CmAdaptableHash: functions/Add-CmAdaptableHash.md
       - Add-CmCertificateAssociation: functions/Add-CmCertificateAssociation.md

@@ -433,6 +433,8 @@ This value can be provided standalone or with credentials.
 Each time this is used, a new access and refresh token will be obtained.
 First time use requires it to be provided with credentials to retrieve the refresh token and populate the vault.
 With subsequent uses, it can be provided standalone and the refresh token will be retrieved without the need for credentials.
+If the session is automatically refreshed, eg.
+a long running script or Start-TrustMcpServer, the new refresh token is also saved to the vault.
 
 ```yaml
 Type: String

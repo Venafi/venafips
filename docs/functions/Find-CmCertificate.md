@@ -18,8 +18,9 @@ Find-CmCertificate [[-Path] <String>] [[-Guid] <Guid>] [-Recursive] [[-Country] 
  [[-CreatedBefore] <DateTime>] [[-CertificateType] <String[]>] [[-ManagementType] <CmManagementType[]>]
  [-PendingWorkflow] [[-Stage] <CmCertificateStage[]>] [[-StageGreaterThan] <CmCertificateStage>]
  [[-StageLessThan] <CmCertificateStage>] [-ValidationEnabled] [[-ValidationState] <String[]>]
- [[-Algorithm] <String>] [-CountOnly] [[-TrustClient] <TrustClient>] [-ProgressAction <ActionPreference>]
- [-IncludeTotalCount] [-Skip <UInt64>] [-First <UInt64>] [<CommonParameters>]
+ [[-Algorithm] <String>] [[-OptionalField] <String[]>] [-CountOnly] [[-TrustClient] <TrustClient>]
+ [-ProgressAction <ActionPreference>] [-IncludeTotalCount] [-Skip <UInt64>] [-First <UInt64>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,61 +46,69 @@ Find expired certificates
 
 ### EXAMPLE 3
 ```
+Find-CmCertificate -OptionalField Issuer | Where-Object { $_.X509.Issuer -like '*Issuing CA*' }
+```
+
+Find certificates with additional X509 details, eg.
+to filter on part of the issuer
+
+### EXAMPLE 4
+```
 Find-CmCertificate -ExpireBefore '2018-01-01'
 ```
 
 Find certificates expiring before a certain date
 
-### EXAMPLE 4
+### EXAMPLE 5
 ```
 Find-CmCertificate -ExpireBefore "2018-01-01" -First 5
 ```
 
 Find 5 certificates expiring before a certain date
 
-### EXAMPLE 5
+### EXAMPLE 6
 ```
 Find-CmCertificate -ExpireBefore "2018-01-01" -First 5 -Skip 2
 ```
 
 Find 5 certificates expiring before a certain date, starting at the 3rd certificate found.
 
-### EXAMPLE 6
+### EXAMPLE 7
 ```
 Find-CmCertificate -Path '\VED\Policy\My Policy'
 ```
 
 Find certificates in a specific path
 
-### EXAMPLE 7
+### EXAMPLE 8
 ```
 Find-CmCertificate -Issuer 'CN=Example Root CA, O=Venafi,Inc., L=Salt Lake City, S=Utah, C=US'
 ```
 
 Find certificates by issuer
 
-### EXAMPLE 8
+### EXAMPLE 9
 ```
 Find-CmCertificate -Path '\VED\Policy\My Policy' -Recursive
 ```
 
 Find certificates in a specific path and all subfolders
 
-### EXAMPLE 9
+### EXAMPLE 10
 ```
 Find-CmCertificate | Get-CmCertificate
 ```
 
 Get detailed certificate info
 
-### EXAMPLE 10
+### EXAMPLE 11
 ```
 Find-CmCertificate -ExpireBefore "2019-09-01" | Invoke-CmCertificateAction -Renew
 ```
 
 Renew all certificates expiring before a certain date
 
-### EXAMPLE 11
+### EXAMPLE 12
 ```
 Find-CmCertificate -First 500
 ```
@@ -810,6 +819,23 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -OptionalField
+Include additional certificate details in the output, in an X509 property.
+Choose one or more of Issuer, Subject, KeyAlgorithm, and KeySize.
+X509 will also include CN, SANS, Serial, Thumbprint, ValidFrom, and ValidTo.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 39
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -CountOnly
 Return the count of certificates found from the query as opposed to the certificates themselves
 
@@ -835,7 +861,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 39
+Position: 40
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
