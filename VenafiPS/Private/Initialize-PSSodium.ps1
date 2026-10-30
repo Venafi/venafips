@@ -15,7 +15,7 @@ function Initialize-PSSodium {
 
     if ( -not $module ) {
         if ( $Force ) {
-            $module = Install-Module -Name PSSodium -Repository PSGallery -Force -RequiredVersion $script:pssodiumVersion -PassThru
+            $module = Install-Module -Name PSSodium -Repository PSGallery -Force -RequiredVersion $script:pssodiumVersion -PassThru -WhatIf:$false -Confirm:$false
 
             # validate hash
             $modulePath = $module.InstalledLocation

@@ -33,6 +33,7 @@ function Export-CmCertificate {
 
     .PARAMETER OutPath
     Folder path to save the certificate/key to.  The name of the file will be determined automatically.
+    With -WhatIf, the files are not written.
 
     .PARAMETER IncludeChain
     Include the certificate chain with the exported certificate.
@@ -117,7 +118,7 @@ function Export-CmCertificate {
     #>
 
     [Alias('Export-VdcCertificate')]
-    [CmdletBinding(DefaultParameterSetName = 'X509ByPath')]
+    [CmdletBinding(DefaultParameterSetName = 'X509ByPath', SupportsShouldProcess)]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting to a secure string, its already plaintext')]
 
     param (
@@ -288,6 +289,11 @@ function Export-CmCertificate {
     }
 
     end {
+        # the decision to write to OutPath is made once here, the parallel scriptblock cannot prompt
+        if ( $OutPath -and $allCerts.Count -and -not $PSCmdlet.ShouldProcess($OutPath, ('Export {0} certificate(s)' -f $allCerts.Count)) ) {
+            return
+        }
+
         $parallelParams = @{
             InputObject   = $allCerts
             ThrottleLimit = $ThrottleLimit

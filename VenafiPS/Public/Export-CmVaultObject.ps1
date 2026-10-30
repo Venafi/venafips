@@ -14,6 +14,7 @@ function Export-CmVaultObject {
     .PARAMETER OutPath
     Folder path to save the certificate/key to.  The name of the file will be determined automatically.
     If not provided, details will be provided to the pipeline.
+    With -WhatIf, the files are not written.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -48,7 +49,7 @@ function Export-CmVaultObject {
     #>
 
     [Alias('Export-VdcVaultObject')]
-    [CmdletBinding(DefaultParameterSetName = 'ToPipeline')]
+    [CmdletBinding(DefaultParameterSetName = 'ToPipeline', SupportsShouldProcess)]
 
     param (
 
@@ -135,9 +136,13 @@ function Export-CmVaultObject {
                 if ( $ext ) {
 
                     $outFile = Join-Path -Path (Resolve-Path -Path $OutPath) -ChildPath ('{0}.{1}' -f $vaultId, $ext)
+                    if ( -not $PSCmdlet.ShouldProcess($outFile, 'Export vault object') ) {
+                        continue
+                    }
+
                     if ($header) {
                         # output text file
-                        "{0}`r`n{1}`r`n{2}" -f $header, $response.Base64Data, $footer | Out-File -FilePath $outFile -Encoding ascii
+                        "{0}`r`n{1}`r`n{2}" -f $header, $response.Base64Data, $footer | Out-File -FilePath $outFile -Encoding ascii -WhatIf:$false -Confirm:$false
                     }
                     else {
                         # output bytes
