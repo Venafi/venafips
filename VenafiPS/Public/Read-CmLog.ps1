@@ -40,6 +40,9 @@ function Read-CmLog {
     Authentication for the function.
     The value defaults to the script session object $TrustClient created by New-TrustClient.
 
+    .NOTES
+    The account needs read permission to the log server's default SQL channel, eg. \VED\Logging\Channels\Default SQL Channel.
+
     .INPUTS
     Path
 

@@ -170,7 +170,7 @@ Certificate metadata such as names, common names, SANs, serial numbers, thumbpri
 | `list_certificate_authorities` |  | ✓ |  | Certificate authority accounts and their product options |
 | `list_issuing_templates` |  | ✓ |  | Issuing templates, their CA, and the keys, subjects, and SANs they allow |
 
-Self-Hosted scopes come from the functions each tool calls, and are also in each tool's description so your assistant can explain a scope error.  `any` works with any scope.  The read-only **Certificate** and **Configuration** scopes cover every tool except `get_permissions`, which needs **Security**.
+Self-Hosted scopes come from the functions each tool calls, and are also in each tool's description so your assistant can explain a scope error.  `any` works with any scope.  On Self-Hosted, `search_logs` also needs the account to have read permission to the log server's default SQL channel, eg. `\VED\Logging\Channels\Default SQL Channel`.  The read-only **Certificate** and **Configuration** scopes cover every tool except `get_permissions`, which needs **Security**.
 
 `get_certificate_chain`, and `find_certificates_by_ca` on Self-Hosted, download each issuing CA certificate from the Authority Information Access (AIA) url in the certificate below it, so the computer running the MCP server needs to reach those urls, eg. your internal PKI or `cacerts.digicert.com`.  If it can't, the tools return what they could follow with a warning.
 
