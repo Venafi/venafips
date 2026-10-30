@@ -267,25 +267,29 @@ function Invoke-TrustRestMethod {
         switch ($statusCode) {
             403 {
 
-                $permMsg = ''
+                $permMsg = $originalError.ErrorDetails.Message
 
-                # get scope details for cmsh
                 if ( $TrustClient.Platform -eq 'CM' ) {
-                    $callingFunction = @(Get-PSCallStack)[1].InvocationInfo.MyCommand.Name
-                    $callingFunctionScope = ($script:functionConfig).$callingFunction.CmTokenScope
-                    if ( $callingFunctionScope ) { $permMsg += "$callingFunction requires a token scope of '$callingFunctionScope'." }
-
                     $rejectedScope = Select-String -InputObject $originalError.ErrorDetails.Message -Pattern 'Grant rejected scope ([^.]+)'
 
+                    # 403 is returned for both an insufficient token scope and a missing permission.
+                    # only point to the token scope when the server says that's the cause.
                     if ( $rejectedScope.Matches.Groups.Count -gt 1 ) {
-                        $permMsg += ("  The current scope of {0} is insufficient." -f $rejectedScope.Matches.Groups[1].Value.Replace('\u0027', "'"))
+                        $permMsg = ''
+                        $callingFunction = @(Get-PSCallStack)[1].InvocationInfo.MyCommand.Name
+                        $callingFunctionScope = ($script:functionConfig).$callingFunction.CmTokenScope
+                        if ( $callingFunctionScope ) { $permMsg += "$callingFunction requires a token scope of '$callingFunctionScope'.  " }
+                        $permMsg += ('The current scope of {0} is insufficient.  Call New-TrustClient with the correct scope.' -f $rejectedScope.Matches.Groups[1].Value.Replace('\u0027', "'"))
                     }
-                    $permMsg += '  Call New-TrustClient with the correct scope.'
+                    else {
+                        # a permission issue, provide the server's reason if it gave one
+                        $serverMsg = $originalError.ErrorDetails.Message
+                        $serverJson = $null
+                        try { $serverJson = $serverMsg | ConvertFrom-Json -ErrorAction Stop } catch { Write-Verbose 'The 403 response is not json, using it as is' }
+                        if ( $serverJson.Error ) { $serverMsg = $serverJson.Error }
+                        $permMsg = if ( $serverMsg ) { "Permission denied: $serverMsg" } else { 'Permission denied.  Check the account has permission to the object.' }
+                    }
                 }
-                else {
-                    $permMsg = $originalError.ErrorDetails.Message
-                }
-
 
                 throw $permMsg
             }
