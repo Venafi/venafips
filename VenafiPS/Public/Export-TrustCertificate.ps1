@@ -23,6 +23,7 @@ function Export-TrustCertificate {
     Folder path to save the certificate to.  The name of the file will be determined automatically.
     For each certificate a directory will be created in this folder with the format Name-ID.
     In the case of PKCS12, the file will be saved to the root of the folder.
+    With -WhatIf, the files are not written.
 
     .PARAMETER PKCS12
     Export the certificate and private key in PKCS12 format.  The default is PEM.
@@ -82,7 +83,7 @@ function Export-TrustCertificate {
     On Windows, the latest Visual C++ redist must be installed.  See https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist.
     #>
 
-    [CmdletBinding(DefaultParameterSetName = 'PEM')]
+    [CmdletBinding(DefaultParameterSetName = 'PEM', SupportsShouldProcess)]
     [Alias('Export-VcCertificate')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting to a secure string, its already plaintext')]
 
@@ -240,7 +241,8 @@ function Export-TrustCertificate {
 
                 # pem format returns a byte array of a zip file so lots more processing to do
 
-                $zipFile = '{0}.zip' -f (New-TemporaryFile)
+                # temporary files are needed for the export, regardless of -WhatIf
+                $zipFile = '{0}.zip' -f (New-TemporaryFile -WhatIf:$false -Confirm:$false)
                 $unzipPath = Join-Path -Path (Split-Path -Path $zipFile -Parent) -ChildPath $id
 
                 try {
@@ -249,7 +251,8 @@ function Export-TrustCertificate {
 
                     Write-Verbose ('Expanding {0} to {1}' -f $zipFile, $unzipPath)
 
-                    Expand-Archive -Path $zipFile -DestinationPath $unzipPath
+                    # Expand-Archive follows a caller's -WhatIf, which can't be turned off for it, so extract with .net
+                    [IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $unzipPath)
                     $unzipFiles = Get-ChildItem -Path $unzipPath
 
                     if ( $using:OutPath ) {
@@ -267,7 +270,7 @@ function Export-TrustCertificate {
                             $crtPath = $keyPath.Replace('.key', '.crt')
                             $cert = [System.Security.Cryptography.X509Certificates.x509Certificate2]::CreateFromEncryptedPemFile($crtPath, $pkPassString, $keyPath)
                             # export content type of 3 is for pfx
-                            $cert.Export(3, $pkPassString) | Set-Content -Path (Join-Path -Path $using:OutPath -ChildPath ('{0}.pfx' -f $keyFile.BaseName)) -AsByteStream
+                            $cert.Export(3, $pkPassString) | Set-Content -Path (Join-Path -Path $using:OutPath -ChildPath ('{0}.pfx' -f $keyFile.BaseName)) -AsByteStream -WhatIf:$false -Confirm:$false
                         }
                         else {
                             # copy files from zip to final desination since they are already in pem format
@@ -276,8 +279,8 @@ function Export-TrustCertificate {
                                 throw "Invalid certificate name: path traversal detected in '$($thisCert.certificateName)'"
                             }
                             $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath $safeName
-                            $null = New-Item -Path $dest -ItemType Directory -Force
-                            $unzipFiles | Copy-Item -Destination $dest -Force
+                            $null = New-Item -Path $dest -ItemType Directory -Force -WhatIf:$false -Confirm:$false
+                            $unzipFiles | Copy-Item -Destination $dest -Force -WhatIf:$false -Confirm:$false
                             $out | Add-Member @{'outPath' = $dest }
                         }
                     }
@@ -301,8 +304,8 @@ function Export-TrustCertificate {
                     $out
                 }
                 finally {
-                    Remove-Item -Path $unzipPath -Recurse -Force -ErrorAction SilentlyContinue
-                    Remove-Item -Path $zipFile -Force -ErrorAction SilentlyContinue
+                    Remove-Item -Path $unzipPath -Recurse -Force -ErrorAction SilentlyContinue -WhatIf:$false -Confirm:$false
+                    Remove-Item -Path $zipFile -Force -ErrorAction SilentlyContinue -WhatIf:$false -Confirm:$false
                 }
             }
         }
@@ -349,7 +352,7 @@ function Export-TrustCertificate {
                             throw "Invalid certificate name: path traversal detected in '$($thisCert.certificateName)'"
                         }
                         $dest = Join-Path -Path (Resolve-Path -Path $using:OutPath) -ChildPath $safeName
-                        $null = New-Item -Path $dest -ItemType Directory -Force
+                        $null = New-Item -Path $dest -ItemType Directory -Force -WhatIf:$false -Confirm:$false
                         $outFile = Join-Path -Path $dest -ChildPath ('{0}.{1}' -f $PSItem, $params.Body.format)
                         try {
                             $sw = [IO.StreamWriter]::new($outFile, $false, [Text.Encoding]::ASCII)
@@ -377,6 +380,11 @@ function Export-TrustCertificate {
 
     end {
         if ( $allCerts.Count -eq 0 ) {
+            return
+        }
+
+        # the decision to write to OutPath is made once here, the parallel scriptblock cannot prompt
+        if ( $OutPath -and -not $PSCmdlet.ShouldProcess($OutPath, ('Export {0} certificate(s)' -f $allCerts.Count)) ) {
             return
         }
 

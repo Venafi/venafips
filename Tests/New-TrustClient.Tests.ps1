@@ -518,7 +518,7 @@ Describe 'CM Session Refresh Vault Write-Back' -Tags 'Unit' {
     BeforeAll {
         # SecretManagement may not be installed where tests run, Mock needs the commands to exist
         if ( -not (Get-Command 'Set-Secret' -ErrorAction SilentlyContinue) ) {
-            function global:Set-Secret { param($Name, $Secret, $Vault, $Metadata) }
+            function global:Set-Secret { [CmdletBinding(SupportsShouldProcess)] param($Name, $Secret, $Vault, $Metadata) }
         }
         if ( -not (Get-Command 'Get-SecretInfo' -ErrorAction SilentlyContinue) ) {
             function global:Get-SecretInfo { param($Name, $Vault) }
@@ -562,6 +562,22 @@ Describe 'CM Session Refresh Vault Write-Back' -Tags 'Unit' {
             $Name -eq 'mcp' -and $Vault -eq 'VenafiPS' -and
             $Secret.GetNetworkCredential().Password -eq 'new-refresh' -and
             $Metadata.ClientId -eq 'VenafiPS-MyApp' -and $Metadata.AuthServer -eq 'https://venafi.example.com'
+        }
+    }
+
+    It 'Should save the new refresh token when the caller has WhatIf on' {
+        $sess.VaultRefreshTokenName = 'mcp'
+
+        try {
+            $global:WhatIfPreference = $true
+            & (Get-Module $ModuleName) { Invoke-SessionRefresh -Session $args[0] } $sess
+        }
+        finally {
+            $global:WhatIfPreference = $false
+        }
+
+        Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 1 -ParameterFilter {
+            $Name -eq 'mcp' -and $PesterBoundParameters.ContainsKey('WhatIf') -and -not $WhatIf
         }
     }
 

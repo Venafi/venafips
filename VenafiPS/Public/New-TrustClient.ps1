@@ -618,7 +618,7 @@ function New-TrustClient {
                     Server     = $newClient.Server
                     TimeoutSec = [int]$newClient.TimeoutSec
                 }
-                Set-Secret -Name $VaultCmsKeyName -Secret $newClient.ApiKey -Vault 'VenafiPS' -Metadata $metadata
+                Set-Secret -Name $VaultCmsKeyName -Secret $newClient.ApiKey -Vault 'VenafiPS' -Metadata $metadata -WhatIf:$false -Confirm:$false
             }
         }
 
@@ -711,11 +711,11 @@ function New-TrustClient {
         $metadata | ConvertTo-Json | Write-Verbose
 
         if ( $VaultAccessTokenName ) {
-            Set-Secret -Name $VaultAccessTokenName -Secret $newClient.AccessToken -Vault 'VenafiPS' -Metadata $metadata
+            Set-Secret -Name $VaultAccessTokenName -Secret $newClient.AccessToken -Vault 'VenafiPS' -Metadata $metadata -WhatIf:$false -Confirm:$false
         }
         else {
             if ( $newClient.RefreshToken ) {
-                Set-Secret -Name $VaultRefreshTokenName -Secret $newClient.RefreshToken -Vault 'VenafiPS' -Metadata $metadata
+                Set-Secret -Name $VaultRefreshTokenName -Secret $newClient.RefreshToken -Vault 'VenafiPS' -Metadata $metadata -WhatIf:$false -Confirm:$false
                 # refresh tokens are single use, auto-refresh needs to know where to save the new one
                 $newClient.VaultRefreshTokenName = $VaultRefreshTokenName
             }

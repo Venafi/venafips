@@ -114,7 +114,7 @@ function Select-TrustBatch {
 
             , ($Batch)
             $Batch.Clear()
-            Remove-Variable Batch
+            Remove-Variable Batch -WhatIf:$false -Confirm:$false
 
             If ($TotalCount) {
                 Write-Progress -Activity 'Completed' -Completed

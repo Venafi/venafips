@@ -12,6 +12,7 @@ function Export-TrustReport {
     .PARAMETER OutPath
     Optional path to write the output to.
     This is just the directory; the file name will be the Report name, eg. MyReport.csv.
+    With -WhatIf, the file is not written.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -33,7 +34,7 @@ function Export-TrustReport {
 
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     [Alias('Export-VcReport')]
     param (
 
@@ -121,17 +122,21 @@ function Export-TrustReport {
         if ( $getReportResponse ) {
             if ( $OutPath ) {
                 $reportPath = Join-Path -Path (Resolve-Path -Path $OutPath) -ChildPath ('{0}.csv' -f $Report)
+                if ( -not $PSCmdlet.ShouldProcess($reportPath, 'Save report') ) {
+                    return
+                }
                 Invoke-WebRequest -Uri $getReportResponse.reportDownloadDetails.url -OutFile $reportPath
                 Write-Verbose "Saved report to $reportPath"
             }
             else {
-                $tempFile = New-TemporaryFile
+                # a temporary file is needed for the download, regardless of -WhatIf
+                $tempFile = New-TemporaryFile -WhatIf:$false -Confirm:$false
                 try {
                     Invoke-WebRequest -Uri $getReportResponse.reportDownloadDetails.url -OutFile $tempFile.FullName
                     Import-Csv -Path $tempFile.FullName
                 }
                 finally {
-                    Remove-Item -Path $tempFile.FullName -Force -ErrorAction SilentlyContinue
+                    Remove-Item -Path $tempFile.FullName -Force -ErrorAction SilentlyContinue -WhatIf:$false -Confirm:$false
                 }
             }
         }

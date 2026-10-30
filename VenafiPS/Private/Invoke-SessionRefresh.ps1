@@ -61,7 +61,7 @@
             if ($secretInfo.Metadata) {
                 foreach ($key in $secretInfo.Metadata.Keys) { $metadata[$key] = $secretInfo.Metadata[$key] }
             }
-            Set-Secret -Name $Session.VaultRefreshTokenName -Secret $newToken.RefreshToken -Vault 'VenafiPS' -Metadata $metadata -ErrorAction Stop
+            Set-Secret -Name $Session.VaultRefreshTokenName -Secret $newToken.RefreshToken -Vault 'VenafiPS' -Metadata $metadata -ErrorAction Stop -WhatIf:$false -Confirm:$false
         }
         catch {
             Write-Warning ("The access token was refreshed, but the new refresh token could not be saved to vault entry '{0}'.  The next New-TrustClient -VaultRefreshTokenName {0} will fail until the entry is recreated with credentials.  {1}" -f $Session.VaultRefreshTokenName, $_.Exception.Message)
