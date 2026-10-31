@@ -1528,7 +1528,7 @@ function Get-TrustMcpTool {
         @{
             name        = 'list_certificate_authorities'
             platforms   = 'CMS', 'NGTS'
-            description = 'List certificate authority accounts, eg. DigiCert, Sectigo, Entrust, the built-in CA, or a CA connector, with their type, status, and product options.  Use list_issuing_templates to see which templates use each CA.'
+            description = 'List certificate authority accounts, eg. DigiCert, Sectigo, Entrust, Let''s Encrypt and other ACME CAs, the built-in CA, or a CA connector, with their type, status, and product options.  Use list_issuing_templates to see which templates use each CA.  For the ACME servers ACME clients connect to, use list_acme_servers.'
             inputSchema = @{
                 type       = 'object'
                 properties = @{
@@ -1550,6 +1550,40 @@ function Get-TrustMcpTool {
                 [ordered]@{
                     total                  = $cas.Count
                     certificateAuthorities = @($cas | Select-Object -Property * -ExcludeProperty companyId)
+                }
+            }
+        }
+        #endregion
+
+        #region list_acme_servers
+        @{
+            name        = 'list_acme_servers'
+            platforms   = 'CMS', 'NGTS'
+            description = 'List ACME servers, the ACMEv2 endpoints ACME clients such as cert-manager or Lego connect to for certificates, from Configurations > ACME Servers.  Returns each server''s directory url, application, issuing template (shown as Request Policy in the UI), certificate tags, account, order, and issued certificate counts, and whether it is deactivated.  Certificate authorities of type ACME, eg. Let''s Encrypt, are in list_certificate_authorities.'
+            inputSchema = @{
+                type       = 'object'
+                properties = [ordered]@{
+                    acme_server = @{ type = 'string'; description = 'ACME server name, not case sensitive, or id.  All servers are returned if not provided.' }
+                    status      = @{ type = 'string'; enum = @('all', 'active', 'deactivated'); description = 'Only active or deactivated servers.  Default all, with deactivated shown for each.' }
+                    first       = $firstSchema
+                }
+            }
+            handler     = {
+                param($Arguments, $TrustClient)
+
+                $params = @{ TrustClient = $TrustClient }
+                if ( $Arguments.acme_server ) { $params.AcmeServer = $Arguments.acme_server } else { $params.All = $true }
+                switch ( $Arguments.status ) {
+                    'active' { $params.Deactivated = $false }
+                    'deactivated' { $params.Deactivated = $true }
+                }
+
+                $servers = @(Get-TrustAcmeServer @params)
+                $first = Resolve-TrustMcpFirst $Arguments.first
+
+                [ordered]@{
+                    total       = $servers.Count
+                    acmeServers = @($servers | Select-Object -First $first -Property * -ExcludeProperty eabKID, workspaceId)
                 }
             }
         }
