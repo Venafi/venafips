@@ -342,6 +342,93 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
         }
     }
 
+    Context 'NGTS credential vault' {
+        BeforeAll {
+            # SecretManagement may not be installed where tests run, Mock needs the commands to exist
+            if ( -not (Get-Command 'Set-Secret' -ErrorAction SilentlyContinue) ) {
+                function global:Set-Secret { [CmdletBinding(SupportsShouldProcess)] param($Name, $Secret, $Vault, $Metadata) }
+            }
+            if ( -not (Get-Command 'Get-Secret' -ErrorAction SilentlyContinue) ) {
+                function global:Get-Secret { param($Name, $Vault) }
+            }
+            if ( -not (Get-Command 'Get-SecretInfo' -ErrorAction SilentlyContinue) ) {
+                function global:Get-SecretInfo { param($Name, $Vault) }
+            }
+            if ( -not (Get-Command 'Get-SecretVault' -ErrorAction SilentlyContinue) ) {
+                function global:Get-SecretVault { param($Name) }
+            }
+        }
+
+        BeforeEach {
+            Mock -CommandName 'New-NgtsToken' -ModuleName $ModuleName -MockWith {
+                $token = & (Get-Module $ModuleName) { [TrustToken]::new() }
+                $token.Server      = 'https://auth.apps.paloaltonetworks.com'
+                $token.AccessToken = (New-TestCredential -UserName 'AccessToken' -Password 'ngts-access')
+                $token.Expires     = [DateTime]::UtcNow.AddMinutes(30)
+                $token.Scope       = 'tsg_id:1234567890 logging-service:read'
+                $token
+            }
+            Mock -CommandName 'Get-Module' -ModuleName $ModuleName -ParameterFilter { $Name -eq 'Microsoft.PowerShell.SecretManagement' } -MockWith { [pscustomobject]@{ Name = $Name } }
+            Mock -CommandName 'Get-SecretVault' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Name = 'VenafiPS' } }
+            Mock -CommandName 'Set-Secret' -ModuleName $ModuleName
+            $ngtsCred = New-TestCredential -UserName 'svcaccount@1234567890.iam.panserviceaccount.com' -Password 'client-secret'
+        }
+
+        It 'Should save the credential to the vault once the session is created' {
+            $sess = New-TrustClient -NgtsCredential $ngtsCred -VaultNgtsCredentialName 'ngts' -PassThru
+
+            $sess.Platform | Should -Be 'NGTS'
+            Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter {
+                $Name -eq 'ngts' -and $Vault -eq 'VenafiPS' -and
+                $Secret.UserName -eq 'svcaccount@1234567890.iam.panserviceaccount.com' -and $Secret.GetNetworkCredential().Password -eq 'client-secret' -and
+                -not $Metadata.Tsg
+            }
+        }
+
+        It 'Should save the Tsg with the credential when provided' {
+            $null = New-TrustClient -NgtsCredential $ngtsCred -Tsg 9999999999 -VaultNgtsCredentialName 'ngts' -PassThru
+
+            Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter { $Metadata.Tsg -eq '9999999999' }
+        }
+
+        It 'Should not save the credential when it fails to authenticate' {
+            Mock -CommandName 'New-NgtsToken' -ModuleName $ModuleName -MockWith { throw 'invalid_client' }
+
+            { New-TrustClient -NgtsCredential $ngtsCred -VaultNgtsCredentialName 'ngts' } | Should -Throw '*invalid_client*'
+            Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 0 -Exactly
+        }
+
+        It 'Should create a session from the credential in the vault' {
+            Mock -CommandName 'Get-Secret' -ModuleName $ModuleName -MockWith { $ngtsCred }
+            Mock -CommandName 'Get-SecretInfo' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Name = $Name; Metadata = @{} } }
+
+            $sess = New-TrustClient -VaultNgtsCredentialName 'ngts' -PassThru
+
+            $sess.Platform | Should -Be 'NGTS'
+            $sess.Credential.UserName | Should -Be 'svcaccount@1234567890.iam.panserviceaccount.com'
+            $sess.PlatformData.Tsg | Should -Be '1234567890'
+            Should -Invoke -CommandName 'New-NgtsToken' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter { $Credential.UserName -eq 'svcaccount@1234567890.iam.panserviceaccount.com' -and -not $Tsg }
+            Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 0 -Exactly
+        }
+
+        It 'Should use the Tsg saved with the credential' {
+            Mock -CommandName 'Get-Secret' -ModuleName $ModuleName -MockWith { $ngtsCred }
+            Mock -CommandName 'Get-SecretInfo' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Name = $Name; Metadata = @{ Tsg = '9999999999' } } }
+
+            $sess = New-TrustClient -VaultNgtsCredentialName 'ngts' -PassThru
+
+            $sess.PlatformData.Tsg | Should -Be 9999999999
+            Should -Invoke -CommandName 'New-NgtsToken' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter { $Tsg -eq 9999999999 }
+        }
+
+        It 'Should throw when the vault entry is not found' {
+            Mock -CommandName 'Get-Secret' -ModuleName $ModuleName -MockWith {}
+
+            { New-TrustClient -VaultNgtsCredentialName 'missing' } | Should -Throw "*'missing' NGTS credential not found*"
+            Should -Invoke -CommandName 'New-NgtsToken' -ModuleName $ModuleName -Times 0 -Exactly
+        }
+    }
+
     Context 'VC string key' {
         It 'Should accept a plain string for VcKey' {
             $sess = New-TrustClient -CmsKey 'my-api-key-string' -PassThru
