@@ -134,7 +134,7 @@ Most of the same functionality from the above examples exist for CMSaaS/NGTS as 
 
 ## Token/Key Secret Storage
 
-To securely store and retrieve secrets, VenafiPS has added support for the [PowerShell SecretManagement module](https://github.com/PowerShell/SecretManagement).  This can be used to store your access tokens, refresh tokens, or vaas key.  To use this feature, a vault will need to be created.  You can use [SecretStore](https://github.com/PowerShell/SecretStore) provided by the PowerShell team or any other vault type.  All of this functionality has been added to `New-TrustClient`.
+To securely store and retrieve secrets, VenafiPS has added support for the [PowerShell SecretManagement module](https://github.com/PowerShell/SecretManagement).  This can be used to store your access tokens, refresh tokens, Certificate Manager SaaS key, or NGTS service account credential.  To use this feature, a vault will need to be created.  You can use [SecretStore](https://github.com/PowerShell/SecretStore) provided by the PowerShell team or any other vault type.  All of this functionality has been added to `New-TrustClient`.
 
 To prepare your environment, execute the following:
 
@@ -145,6 +145,7 @@ To prepare your environment, execute the following:
 - Check out the help for `New-TrustClient` for the many ways you can store and retrieve secrets from the vault, but the easiest way to get started is:
   - `New-TrustClient -Server cmsh.company.com -Credential $myCred -ClientId MyApp -Scope $scope -VaultRefreshTokenName mytoken`.  This will create a new token based session and store the refresh token in the vault.  The server and clientid will be stored with the refresh token as metadata.  Scope does not need to be stored as it is inherent in the token.
   - To create a new session going forward, `New-TrustClient -VaultRefreshTokenName mytoken`.  This will retrieve the refresh token and associated metadata from the vault, retrieve a new access token based on that refresh token and create a new session.
+  - For NGTS, `New-TrustClient -NgtsCredential $ngtsCred -VaultNgtsCredentialName ngts` creates a session and stores the service account credential, and the TSG if `-Tsg` is provided.  Going forward, `New-TrustClient -VaultNgtsCredentialName ngts` creates a session from the vault.
 
 Note, extension vaults are registered to the current logged in user context, and will be available only to that user (unless also registered to other users).
 

@@ -7,7 +7,7 @@ function New-TrustClient {
     Authenticate a user and create a new session with which future calls can be made.
     Key based username/password and windows integrated are supported as well as token-based integrated, oauth, and certificate.
     By default, a session variable will be created and automatically used with other functions unless -PassThru is used.
-    Tokens and Certificate Manager, SaaS keys can be saved in a vault for future calls.
+    Tokens, Certificate Manager, SaaS keys, and NGTS credentials can be saved in a vault for future calls.
 
     .PARAMETER Server
     Server or url to access vedsdk, venafi.company.com or https://venafi.company.com.
@@ -104,6 +104,11 @@ function New-TrustClient {
     .PARAMETER Tsg
     Tenant Service Group ID for NGTS.  Only required if the TSG ID in the credential username is not the target.
 
+    .PARAMETER VaultNgtsCredentialName
+    Name of the SecretManagement vault entry for the NGTS credential; the name of the vault must be VenafiPS.
+    First time use requires it to be provided with -NgtsCredential to populate the vault.  -Tsg, if provided, is saved with it.
+    The credential is saved after the session is created, so a credential which fails to authenticate is not saved.
+
     .PARAMETER SkipCertificateCheck
     Bypass certificate validation when connecting to the server.
     This can be helpful for pre-prod environments where ssl isn't setup on the website or you are connecting via IP.
@@ -183,6 +188,16 @@ function New-TrustClient {
 
     Create session against NGTS with the provided credential and override the TSG specified in the credential username
 
+    .EXAMPLE
+    New-TrustClient -NgtsCredential $cred -VaultNgtsCredentialName ngts
+
+    Create session against NGTS and save the credential to the vault
+
+    .EXAMPLE
+    New-TrustClient -VaultNgtsCredentialName ngts
+
+    Create session against NGTS with a credential, and TSG if one was saved, stored in a vault
+
     .LINK
     https://venafi.github.io/VenafiPS/functions/New-TrustClient/
 
@@ -220,6 +235,7 @@ function New-TrustClient {
     [CmdletBinding(DefaultParameterSetName = 'TokenIntegrated')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseShouldProcessForStateChangingFunctions', '', Justification = 'Not needed')]
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification = 'Converting secret to credential')]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingPlainTextForPassword', 'VaultNgtsCredentialName', Justification = 'The name of the vault entry, not the credential')]
     [Alias('New-VenafiSession')]
 
     param(
@@ -375,6 +391,10 @@ function New-TrustClient {
         [Parameter(ParameterSetName = 'Ngts')]
         [ValidateRange(1000000000, 9999999999)]
         [long] $Tsg,
+
+        [Parameter(ParameterSetName = 'Ngts')]
+        [Parameter(Mandatory, ParameterSetName = 'VaultNgtsCredential')]
+        [string] $VaultNgtsCredentialName,
 
         [Parameter(Mandatory, ParameterSetName = 'RefreshSession')]
         [switch] $RefreshSession,
@@ -656,7 +676,20 @@ function New-TrustClient {
             }
         }
 
-        'Ngts' {
+        { $_ -in 'Ngts', 'VaultNgtsCredential' } {
+            if ( $PSCmdlet.ParameterSetName -eq 'VaultNgtsCredential' ) {
+                $vaultCredential = Get-Secret -Name $VaultNgtsCredentialName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
+                if ( $vaultCredential -isnot [pscredential] ) {
+                    throw "'$VaultNgtsCredentialName' NGTS credential not found in vault VenafiPS.  Execute New-TrustClient -NgtsCredential `$cred -VaultNgtsCredentialName $VaultNgtsCredentialName to save it."
+                }
+                $NgtsCredential = $vaultCredential
+
+                $secretInfo = Get-SecretInfo -Name $VaultNgtsCredentialName -Vault 'VenafiPS' -ErrorAction SilentlyContinue
+                if ( $secretInfo.Metadata.Tsg ) {
+                    $Tsg = [long]$secretInfo.Metadata.Tsg
+                }
+            }
+
             $params = @{
                 Credential = $NgtsCredential
             }
@@ -674,6 +707,15 @@ function New-TrustClient {
             }
             elseif ( $token.Scope -match '(?:^|\s)tsg_id:([^\s]+)' ) {
                 $newClient.PlatformData.Tsg = $Matches[1]
+            }
+
+            # save once authenticated so a bad credential isn't stored
+            if ( $PSCmdlet.ParameterSetName -eq 'Ngts' -and $VaultNgtsCredentialName ) {
+                $metadata = @{}
+                if ( $Tsg ) {
+                    $metadata.Tsg = [string]$Tsg
+                }
+                Set-Secret -Name $VaultNgtsCredentialName -Secret $NgtsCredential -Vault 'VenafiPS' -Metadata $metadata -WhatIf:$false -Confirm:$false
             }
         }
 
