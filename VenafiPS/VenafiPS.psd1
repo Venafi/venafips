@@ -115,7 +115,7 @@ FunctionsToExport = 'Add-CmsTeamMember', 'Add-CmsTeamOwner', 'Add-CmAdaptableHas
                'Remove-TrustCloudProvider', 'Set-CmsUser', 'Export-TrustReport',
                'Get-TrustCertificateAuthority', 'Set-TrustIssuingTemplate',
                'New-CmCredential', 'Set-TrustMachine', 'Set-TrustMachineIdentity',
-               'Set-TrustCloudProvider'
+               'Set-TrustCloudProvider', 'Get-TrustAcmeServer'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

@@ -168,6 +168,7 @@ Certificate metadata such as names, common names, SANs, serial numbers, thumbpri
 | `list_connectors` |  | ✓ |  | Connectors and whether they are global or custom |
 | `find_machine_identities` |  | ✓ |  | Where a certificate is installed, eg. a virtual server or site, or what a machine hosts |
 | `list_certificate_authorities` |  | ✓ |  | Certificate authority accounts and their product options |
+| `list_acme_servers` |  | ✓ |  | ACME servers that ACME clients connect to, active and deactivated |
 | `list_issuing_templates` |  | ✓ |  | Issuing templates, their CA, and the keys, subjects, and SANs they allow |
 
 Self-Hosted scopes come from the functions each tool calls, and are also in each tool's description so your assistant can explain a scope error.  `any` works with any scope.  On Self-Hosted, `search_logs` also needs the account to have read permission to the log server's default SQL channel, eg. `\VED\Logging\Channels\Default SQL Channel`.  The read-only **Certificate** and **Configuration** scopes cover every tool except `get_permissions`, which needs **Security**.
