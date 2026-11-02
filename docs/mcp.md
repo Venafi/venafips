@@ -67,6 +67,8 @@ Start-TrustMcpServer -Connect {
 }
 ```
 
+Or save the service account credential to the `VenafiPS` vault once with `New-TrustClient -NgtsCredential $cred -VaultNgtsCredentialName venafips-mcp`, and connect with `Start-TrustMcpServer -Connect { New-TrustClient -VaultNgtsCredentialName venafips-mcp }`.
+
 `-Connect` accepts any [New-TrustClient](functions/New-TrustClient.md) options as long as they don't prompt for input, since the server runs in the background.
 
 ### 3. Add it to your MCP client
