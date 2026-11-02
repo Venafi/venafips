@@ -86,6 +86,12 @@ Describe 'Get-TrustMcpTool' -Tags 'Unit' {
         $cm | Should -Contain 'get_identity'
         $cms | Should -Contain 'get_identity'
     }
+
+    It 'Should point <_> to list_acme_servers so ACME servers are not confused with it' -ForEach @('list_connectors', 'list_certificate_authorities') {
+        $name = $_
+        $tool = InModuleScope $ModuleName -Parameters @{ Name = $name } { Get-TrustMcpTool -Platform CMS | Where-Object name -eq $Name }
+        $tool.description | Should -BeLike '*list_acme_servers*'
+    }
 }
 
 Describe 'Invoke-TrustMcpConnect' -Tags 'Unit' {
@@ -144,6 +150,11 @@ Describe 'Invoke-TrustMcpRequest' -Tags 'Unit' {
             $r.result.protocolVersion | Should -Be '2025-06-18'
             $r.result.serverInfo.name | Should -Be 'VenafiPS'
             $r.result.capabilities.tools | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Should tell the assistant to say an object type is unsupported rather than substitute another' {
+            $r = Invoke-TestRequest '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            $r.result.instructions | Should -BeLike '*say VenafiPS does not support it rather than answering with a different kind of object*'
         }
 
         It 'Should fall back to the newest version for an unknown protocol version' {

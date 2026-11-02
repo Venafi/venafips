@@ -1388,7 +1388,7 @@ function Get-TrustMcpTool {
         @{
             name        = 'list_connectors'
             platforms   = 'CMS', 'NGTS'
-            description = 'List connectors, the plugins which integrate with machines, CAs, and credential managers, with their type, maintainer, image, and source.  source is GLOBAL for connectors published by Venafi and CUSTOM for those uploaded to this tenant; it is inferred from the maintainer and image registry as the API does not provide it.'
+            description = 'List connectors, the plugins which integrate with machines, CAs, and credential managers, with their type, maintainer, image, and source.  source is GLOBAL for connectors published by Venafi and CUSTOM for those uploaded to this tenant; it is inferred from the maintainer and image registry as the API does not provide it.  ACME servers are not connectors, use list_acme_servers.'
             inputSchema = @{
                 type       = 'object'
                 properties = [ordered]@{
