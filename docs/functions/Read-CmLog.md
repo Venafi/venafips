@@ -247,6 +247,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ###     Value1
 ###     Value2
 ## NOTES
+The account needs read permission to the log server's default SQL channel, eg.
+\VED\Logging\Channels\Default SQL Channel.
 
 ## RELATED LINKS
 

@@ -98,7 +98,13 @@ New-TrustClient -VaultCmsKeyName <String> [-TimeoutSec <Int32>] [-PassThru]
 
 ### Ngts
 ```
-New-TrustClient -NgtsCredential <PSCredential> [-Tsg <Int64>] [-TimeoutSec <Int32>] [-PassThru]
+New-TrustClient -NgtsCredential <PSCredential> [-Tsg <Int64>] [-VaultNgtsCredentialName <String>]
+ [-TimeoutSec <Int32>] [-PassThru] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+```
+
+### VaultNgtsCredential
+```
+New-TrustClient -VaultNgtsCredentialName <String> [-TimeoutSec <Int32>] [-PassThru]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -112,7 +118,7 @@ New-TrustClient [-RefreshSession] [-TimeoutSec <Int32>] [-PassThru] [-ProgressAc
 Authenticate a user and create a new session with which future calls can be made.
 Key based username/password and windows integrated are supported as well as token-based integrated, oauth, and certificate.
 By default, a session variable will be created and automatically used with other functions unless -PassThru is used.
-Tokens and Certificate Manager, SaaS keys can be saved in a vault for future calls.
+Tokens, Certificate Manager, SaaS keys, and NGTS credentials can be saved in a vault for future calls.
 
 ## EXAMPLES
 
@@ -206,6 +212,20 @@ New-TrustClient -NgtsCredential $cred -Tsg 1234567890
 ```
 
 Create session against NGTS with the provided credential and override the TSG specified in the credential username
+
+### EXAMPLE 14
+```
+New-TrustClient -NgtsCredential $cred -VaultNgtsCredentialName ngts
+```
+
+Create session against NGTS and save the credential to the vault
+
+### EXAMPLE 15
+```
+New-TrustClient -VaultNgtsCredentialName ngts
+```
+
+Create session against NGTS with a credential, and TSG if one was saved, stored in a vault
 
 ## PARAMETERS
 
@@ -604,6 +624,36 @@ Aliases:
 Required: False
 Position: Named
 Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -VaultNgtsCredentialName
+Name of the SecretManagement vault entry for the NGTS credential; the name of the vault must be VenafiPS.
+First time use requires it to be provided with -NgtsCredential to populate the vault. 
+-Tsg, if provided, is saved with it.
+The credential is saved after the session is created, so a credential which fails to authenticate is not saved.
+
+```yaml
+Type: String
+Parameter Sets: Ngts
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+```yaml
+Type: String
+Parameter Sets: VaultNgtsCredential
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

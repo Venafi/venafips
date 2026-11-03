@@ -8,15 +8,15 @@ Export certificate data from Certificate Manager, SaaS
 ### PEM (Default)
 ```
 Export-TrustCertificate -ID <String> [-PrivateKeyPassword <PSObject>] [-IncludeChain] [-OutPath <String>]
- [-ThrottleLimit <Int32>] [-Force] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-ThrottleLimit <Int32>] [-Force] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### PKCS12
 ```
 Export-TrustCertificate -ID <String> -PrivateKeyPassword <PSObject> [-OutPath <String>] [-PKCS12] [-UseLegacy]
- [-ThrottleLimit <Int32>] [-Force] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-ThrottleLimit <Int32>] [-Force] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -129,6 +129,7 @@ Folder path to save the certificate to.
 The name of the file will be determined automatically.
 For each certificate a directory will be created in this folder with the format Name-ID.
 In the case of PKCS12, the file will be saved to the root of the folder.
+With -WhatIf, the files are not written.
 
 ```yaml
 Type: String
@@ -221,6 +222,37 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-TrustClient)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

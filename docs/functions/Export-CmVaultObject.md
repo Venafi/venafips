@@ -7,14 +7,14 @@ Export an object from the vault
 
 ### ToPipeline (Default)
 ```
-Export-CmVaultObject -ID <PSObject> [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+Export-CmVaultObject -ID <PSObject> [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### ToFile
 ```
 Export-CmVaultObject -ID <PSObject> -OutPath <String> [-TrustClient <TrustClient>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -74,6 +74,7 @@ Accept wildcard characters: False
 Folder path to save the certificate/key to. 
 The name of the file will be determined automatically.
 If not provided, details will be provided to the pipeline.
+With -WhatIf, the files are not written.
 
 ```yaml
 Type: String
@@ -95,6 +96,37 @@ The value defaults to the script session object $TrustClient created by New-Trus
 Type: TrustClient
 Parameter Sets: (All)
 Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
 
 Required: False
 Position: Named

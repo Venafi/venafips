@@ -173,6 +173,7 @@ nav:
       - Find-TrustLog: functions/Find-TrustLog.md
       - Find-TrustMachine: functions/Find-TrustMachine.md
       - Find-TrustMachineIdentity: functions/Find-TrustMachineIdentity.md
+      - Get-TrustAcmeServer: functions/Get-TrustAcmeServer.md
       - Get-TrustCertificate: functions/Get-TrustCertificate.md
       - Get-TrustCertificateAuthority: functions/Get-TrustCertificateAuthority.md
       - Get-TrustCertificateRequest: functions/Get-TrustCertificateRequest.md

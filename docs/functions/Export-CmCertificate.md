@@ -8,81 +8,81 @@ Export certificate data from Certificate Manager, Self-Hosted
 ### X509ByPath (Default)
 ```
 Export-CmCertificate -Path <String> [-X509] [-IncludeChain] [-FriendlyName <String>] [-OutPath <String>]
- [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### JksByPath
 ```
 Export-CmCertificate -Path <String> [-Jks] [-PrivateKeyPassword <PSObject>] [-IncludeChain]
  -FriendlyName <String> -KeystorePassword <PSObject> [-OutPath <String>] [-ThrottleLimit <Int32>]
- [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Pkcs12ByPath
 ```
 Export-CmCertificate -Path <String> [-Pkcs12] -PrivateKeyPassword <PSObject> [-IncludeChain]
  [-FriendlyName <String>] [-OutPath <String>] [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### DerByPath
 ```
 Export-CmCertificate -Path <String> [-Der] [-OutPath <String>] [-ThrottleLimit <Int32>]
- [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Pkcs8ByPath
 ```
 Export-CmCertificate -Path <String> [-Pkcs8] [-PrivateKeyPassword <PSObject>] [-IncludeChain]
  [-OutPath <String>] [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Pkcs7ByPath
 ```
 Export-CmCertificate -Path <String> [-Pkcs7] [-IncludeChain] [-OutPath <String>] [-ThrottleLimit <Int32>]
- [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### JksByVault
 ```
 Export-CmCertificate -VaultId <PSObject> [-Jks] [-PrivateKeyPassword <PSObject>] [-IncludeChain]
  -FriendlyName <String> -KeystorePassword <PSObject> [-OutPath <String>] [-ThrottleLimit <Int32>]
- [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Pkcs12ByVault
 ```
 Export-CmCertificate -VaultId <PSObject> [-Pkcs12] -PrivateKeyPassword <PSObject> [-IncludeChain]
  [-FriendlyName <String>] [-OutPath <String>] [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>]
- [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### DerByVault
 ```
 Export-CmCertificate -VaultId <PSObject> [-Der] [-OutPath <String>] [-ThrottleLimit <Int32>]
- [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Pkcs8ByVault
 ```
 Export-CmCertificate -VaultId <PSObject> [-Pkcs8] [-PrivateKeyPassword <PSObject>] [-IncludeChain]
  [-OutPath <String>] [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Pkcs7ByVault
 ```
 Export-CmCertificate -VaultId <PSObject> [-Pkcs7] [-IncludeChain] [-OutPath <String>] [-ThrottleLimit <Int32>]
- [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### X509ByVault
 ```
 Export-CmCertificate -VaultId <PSObject> [-X509] [-IncludeChain] [-FriendlyName <String>] [-OutPath <String>]
- [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-ThrottleLimit <Int32>] [-TrustClient <TrustClient>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -372,6 +372,7 @@ Accept wildcard characters: False
 ### -OutPath
 Folder path to save the certificate/key to. 
 The name of the file will be determined automatically.
+With -WhatIf, the files are not written.
 
 ```yaml
 Type: String
@@ -415,6 +416,37 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-TrustClient)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

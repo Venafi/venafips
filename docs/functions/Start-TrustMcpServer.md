@@ -46,10 +46,10 @@ Start a server for Certificate Manager SaaS using an API key from an environment
 
 ### EXAMPLE 4
 ```
-Start-TrustMcpServer -Connect { New-TrustClient -NgtsCredential (Get-Secret -Vault VenafiPS -Name 'venafips-mcp') }
+Start-TrustMcpServer -Connect { New-TrustClient -VaultNgtsCredentialName 'venafips-mcp' }
 ```
 
-Start a server for NGTS using a service account credential from a SecretManagement vault
+Start a server for NGTS using a service account credential saved to the vault with New-TrustClient -NgtsCredential $cred -VaultNgtsCredentialName venafips-mcp
 
 ### EXAMPLE 5
 ```

@@ -1,3 +1,13 @@
+## 7.1.1
+- Fix Certificate Manager, Self-Hosted 403 errors always being reported as a token scope error, eg. `Read-CmLog requires a token scope of 'any scope'`, [#425](https://github.com/Venafi/VenafiPS/issues/425).  A token scope is now only reported when the server rejected the scope.  Otherwise the reason from the server is provided, eg. a missing permission.  `Read-CmLog` and the MCP `search_logs` tool need read permission to the log server's default SQL channel.  Thanks @Kevinf63!
+- Fix `Export-TrustCertificate` and `Export-TrustReport` failing with *Cannot bind argument to parameter 'Path' because it is an empty string* when the calling script was run with `-WhatIf`, [#423](https://github.com/Venafi/VenafiPS/issues/423).  Temporary files, and saving a refreshed token to the vault, are no longer affected by `-WhatIf`.  Thanks @andreaalloway2!
+- `Export-TrustCertificate`, `Export-TrustReport`, `Export-CmCertificate`, and `Export-CmVaultObject` now support `-WhatIf`.  With `-OutPath`, the files are not written.  Without `-OutPath`, the export is returned as before.
+- Add `-VaultNgtsCredentialName` to `New-TrustClient` to save an NGTS service account credential, and the TSG if `-Tsg` is provided, to the `VenafiPS` vault, eg. `New-TrustClient -NgtsCredential $cred -VaultNgtsCredentialName ngts`, and to create a session from it, `New-TrustClient -VaultNgtsCredentialName ngts`.  The credential is only saved once it authenticates.
+- Add `Get-TrustAcmeServer` to get the ACME servers ACME clients connect to on Certificate Manager SaaS and NGTS, including whether each is deactivated
+- `Start-TrustMcpServer`: add `list_acme_servers` for SaaS and NGTS, eg. *list all deactivated ACME servers*, [#424](https://github.com/Venafi/VenafiPS/issues/424).  Thanks @kevvaria!
+- `Start-TrustMcpServer`: when no tool covers the kind of object asked about, the assistant is told to say it isn't supported rather than answer with a different kind of object, eg. CA connectors when asked for ACME servers.  `list_connectors` also points to `list_acme_servers`.
+
+
 ## 7.1.0
 - Add `Start-TrustMcpServer` (preview), a Model Context Protocol (MCP) server so AI assistants such as Claude Code, Claude Desktop, VS Code, and Cursor can answer questions about your certificate inventory, eg. *which certificates expire this month* or *why did this certificate fail to renew*.  Supports Certificate Manager Self-Hosted, SaaS, and NGTS, with the tools offered matching the platform.
   - Find and summarize certificates, including expiry, inventory and crypto posture, readiness for shorter maximum validity (CA/B Forum SC-081), and certificates issued by or chaining to a CA
@@ -982,6 +992,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 
