@@ -79,12 +79,18 @@ Describe 'Get-TrustMcpTool' -Tags 'Unit' {
             $cm | Should -Contain $_
             $cms | Should -Not -Contain $_
         }
-        'list_applications', 'find_certificate_requests', 'list_vsatellites', 'list_connectors', 'find_machine_identities', 'list_certificate_authorities', 'list_issuing_templates' | ForEach-Object {
+        'list_applications', 'find_certificate_requests', 'list_vsatellites', 'list_connectors', 'find_machine_identities', 'list_certificate_authorities', 'list_acme_servers', 'list_issuing_templates' | ForEach-Object {
             $cms | Should -Contain $_
             $cm | Should -Not -Contain $_
         }
         $cm | Should -Contain 'get_identity'
         $cms | Should -Contain 'get_identity'
+    }
+
+    It 'Should point <_> to list_acme_servers so ACME servers are not confused with it' -ForEach @('list_connectors', 'list_certificate_authorities') {
+        $name = $_
+        $tool = InModuleScope $ModuleName -Parameters @{ Name = $name } { Get-TrustMcpTool -Platform CMS | Where-Object name -eq $Name }
+        $tool.description | Should -BeLike '*list_acme_servers*'
     }
 }
 
@@ -144,6 +150,11 @@ Describe 'Invoke-TrustMcpRequest' -Tags 'Unit' {
             $r.result.protocolVersion | Should -Be '2025-06-18'
             $r.result.serverInfo.name | Should -Be 'VenafiPS'
             $r.result.capabilities.tools | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Should tell the assistant to say an object type is unsupported rather than substitute another' {
+            $r = Invoke-TestRequest '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}'
+            $r.result.instructions | Should -BeLike '*say VenafiPS does not support it rather than answering with a different kind of object*'
         }
 
         It 'Should fall back to the newest version for an unknown protocol version' {
@@ -1122,6 +1133,49 @@ Describe 'Invoke-TrustMcpRequest' -Tags 'Unit' {
 
             $null = Invoke-TestRequest '{"jsonrpc":"2.0","id":53,"method":"tools/call","params":{"name":"list_certificate_authorities","arguments":{"certificate_authority":"DigiCert"}}}' -Platform CMS
             Should -Invoke -CommandName 'Get-TrustCertificateAuthority' -ModuleName $ModuleName -Times 1 -ParameterFilter { $CertificateAuthority -eq 'DigiCert' }
+        }
+
+        It 'Should list ACME servers without the EAB key id or workspace' {
+            Mock -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -MockWith {
+                [pscustomobject]@{ acmeServerId = 'a1'; name = 'GM ACME'; deactivated = $false; directoryUrl = 'https://api.venafi.cloud/v1/acme/a1/directory'; totalAccounts = 4; workspaceId = 'w1'; eabKID = 'kid1' }
+            }
+
+            $r = Invoke-TestRequest '{"jsonrpc":"2.0","id":56,"method":"tools/call","params":{"name":"list_acme_servers"}}' -Platform CMS
+            $r.result.isError | Should -BeFalse
+            $out = $r.result.content[0].text | ConvertFrom-Json
+            $out.total | Should -Be 1
+            $out.acmeServers[0].name | Should -Be 'GM ACME'
+            $out.acmeServers[0].totalAccounts | Should -Be 4
+            $out.acmeServers[0].PSObject.Properties.Name | Should -Not -Contain 'eabKID'
+            $out.acmeServers[0].PSObject.Properties.Name | Should -Not -Contain 'workspaceId'
+            Should -Invoke -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -Times 1 -ParameterFilter { $All -and -not $PesterBoundParameters.ContainsKey('Deactivated') }
+        }
+
+        It 'Should pass status <Status> to Get-TrustAcmeServer' -ForEach @(
+            @{ Status = 'active'; Expected = $false }
+            @{ Status = 'deactivated'; Expected = $true }
+        ) {
+            Mock -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -MockWith {}
+
+            $null = Invoke-TestRequest ('{"jsonrpc":"2.0","id":57,"method":"tools/call","params":{"name":"list_acme_servers","arguments":{"status":"' + $Status + '"}}}') -Platform CMS
+
+            Should -Invoke -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -Times 1 -ParameterFilter { $PesterBoundParameters.ContainsKey('Deactivated') -and $Deactivated -eq $Expected }
+        }
+
+        It 'Should not filter on deactivated for status all' {
+            Mock -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -MockWith {}
+
+            $null = Invoke-TestRequest '{"jsonrpc":"2.0","id":58,"method":"tools/call","params":{"name":"list_acme_servers","arguments":{"status":"all"}}}' -Platform CMS
+
+            Should -Invoke -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -Times 1 -ParameterFilter { -not $PesterBoundParameters.ContainsKey('Deactivated') }
+        }
+
+        It 'Should get one ACME server by name or id' {
+            Mock -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -MockWith {}
+
+            $null = Invoke-TestRequest '{"jsonrpc":"2.0","id":59,"method":"tools/call","params":{"name":"list_acme_servers","arguments":{"acme_server":"GM ACME"}}}' -Platform CMS
+
+            Should -Invoke -CommandName 'Get-TrustAcmeServer' -ModuleName $ModuleName -Times 1 -ParameterFilter { $AcmeServer -eq 'GM ACME' -and -not $All }
         }
 
         It 'Should list issuing templates, optionally for one CA' {

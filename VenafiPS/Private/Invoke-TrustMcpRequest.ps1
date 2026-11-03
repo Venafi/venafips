@@ -72,7 +72,7 @@ function Invoke-TrustMcpRequest {
                         protocolVersion = $version
                         capabilities    = @{ tools = @{ listChanged = $false } }
                         serverInfo      = [ordered]@{ name = 'VenafiPS'; version = "$script:ModuleVersion" }
-                        instructions    = ('Connected to {0} ({1}).  Tools are read-only.  Start with whoami, then certificate_expiry_summary or find_certificates.' -f $TrustClient.Platform, $TrustClient.Server)
+                        instructions    = ('Connected to {0} ({1}).  Tools are read-only.  Start with whoami, then certificate_expiry_summary or find_certificates.  If no tool covers the kind of object asked about, say VenafiPS does not support it rather than answering with a different kind of object.' -f $TrustClient.Platform, $TrustClient.Server)
                     }))
         }
 
