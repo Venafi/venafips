@@ -33,9 +33,8 @@ If you are on a server without internet access or unable to reach/install from t
 ### Additional Modules
 
 - If running on Windows with PowerShell v5, multithreading is supported with [Microsoft.PowerShell.ThreadJob](https://github.com/PowerShell/ThreadJob), a Microsoft PowerShell module.  Install this via `Install-Module -Name Microsoft.PowerShell.ThreadJob` for increased performance on the functions that support it.  Version 2.1.0 has been tested.
-- There are a few SaaS functions which require Sodium encryption.  These functions require the `PSSodium` module be installed from the PowerShell Gallery via `Install-Module -Name PSSodium`; version 0.4.2 has been tested.  Optionally, you can provide `-Force` to the VenafiPS function for the module to be automatically installed.  Also for those functions, on Windows, the latest C++ runtime must be installed.
 
-As some users are on Self-Hosted and others on SaaS, it was decided to not include these modules by default.
+SaaS functions which encrypt data for a VSatellite, eg. importing keys or creating machines, use the [BouncyCastle](https://www.bouncycastle.org/) cryptography library which is included with the module.  No additional modules are required.
 
 ## Usage
 

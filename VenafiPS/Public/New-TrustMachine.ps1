@@ -66,7 +66,7 @@ function New-TrustMachine {
     Return newly created object
 
     .PARAMETER Force
-    Force installation of PSSodium if not already installed
+    This parameter is no longer used and will be removed in a future release.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -111,10 +111,6 @@ function New-TrustMachine {
 
     .NOTES
     To see a full list of tab-completion options, be sure to set the Tab option, Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete.
-
-    This function requires the use of sodium encryption via the PSSodium PowerShell module.
-    Dotnet standard 2.0 or greater is required via PS Core (recommended) or supporting .net runtime.
-    On Windows, the latest Visual C++ redist must be installed.  See https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist.
     #>
 
 
@@ -177,9 +173,6 @@ function New-TrustMachine {
 
     begin {
 
-
-        Initialize-PSSodium -Force:$Force
-
         $allMachines = [System.Collections.Generic.List[hashtable]]::new()
     }
 
@@ -240,8 +233,8 @@ function New-TrustMachine {
 
             if ( $Credential -is [pscredential] ) {
 
-                $userEnc = ConvertTo-SodiumEncryptedString -text $Credential.UserName -PublicKey $vSat.encryptionKey
-                $pwEnc = ConvertTo-SodiumEncryptedString -text $Credential.GetNetworkCredential().Password -PublicKey $vSat.encryptionKey
+                $userEnc = ConvertTo-DekEncryptedString -Text $Credential.UserName -PublicKey $vSat.encryptionKey -KeyAlgorithm $vSat.encryptionKeyAlgorithm -CompanyId $vSat.companyId
+                $pwEnc = ConvertTo-DekEncryptedString -Text $Credential.GetNetworkCredential().Password -PublicKey $vSat.encryptionKey -KeyAlgorithm $vSat.encryptionKeyAlgorithm -CompanyId $vSat.companyId
 
                 $thisConnectionDetail.username = $userEnc
                 $thisConnectionDetail.password = $pwEnc

@@ -40,7 +40,7 @@ function Export-TrustCertificate {
     On PS v5 the ThreadJob module is required.  If not found, multithreading will be disabled.
 
     .PARAMETER Force
-    Force installation of PSSodium if not already installed
+    This parameter is no longer used and will be removed in a future release.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -78,9 +78,7 @@ function Export-TrustCertificate {
     Get certificate data with the certificate chain included.
 
     .NOTES
-    This function requires PSSodium.  Install it from the PSGallery or use -Force to automatically install.
     PS v7.1+ is required.
-    On Windows, the latest Visual C++ redist must be installed.  See https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist.
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'PEM', SupportsShouldProcess)]
@@ -153,8 +151,6 @@ function Export-TrustCertificate {
     )
 
     begin {
-        Initialize-PSSodium -Force:$Force
-
         $allCerts = [System.Collections.Generic.List[string]]::new()
         $pset = $PSCmdlet.ParameterSetName
 
@@ -201,9 +197,8 @@ function Export-TrustCertificate {
                 }
 
                 # build the encrypted private key password
-                Import-Module PSSodium -Force
-                $publicKey = Invoke-TrustRestMethod -UriLeaf "edgeencryptionkeys/$($thisCert.dekHash)" | Select-Object -ExpandProperty key
-                $privateKeyPasswordEnc = ConvertTo-SodiumEncryptedString -Text $pkPassString -PublicKey $publicKey
+                $dek = Invoke-TrustRestMethod -UriLeaf "edgeencryptionkeys/$($thisCert.dekHash)"
+                $privateKeyPasswordEnc = ConvertTo-DekEncryptedString -Text $pkPassString -PublicKey $dek.key -KeyAlgorithm $dek.keyAlgorithm -CompanyId $dek.companyId
                 $params.Body.encryptedPrivateKeyPassphrase = $privateKeyPasswordEnc
 
                 $innerResponse = Invoke-TrustRestMethod @params

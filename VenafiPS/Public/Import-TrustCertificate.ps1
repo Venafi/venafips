@@ -34,7 +34,7 @@ function Import-TrustCertificate {
     100 keystores will be imported at a time so it's less important to have a very high throttle limit.
 
     .PARAMETER Force
-    Force installation of PSSodium if not already installed.  This is required for the import of keys.
+    This parameter is no longer used and will be removed in a future release.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -70,10 +70,6 @@ function Import-TrustCertificate {
     https://developer.venafi.com/tlsprotectcloud/reference/certificates_import
 
     .NOTES
-    This function requires the use of sodium encryption via the PSSodium PowerShell module.
-    Dotnet standard 2.0 or greater is required via PS Core (recommended) or supporting .net runtime.
-    On Windows, the latest Visual C++ redist must be installed.  See https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist.
-
     Non keystore imports, just certs no keys, will override the blocklist by default.
     To honor the blocklist, set the environment variable VC_ENABLE_BLOCKLIST to 'true'.
     #>
@@ -123,9 +119,6 @@ function Import-TrustCertificate {
     )
 
     begin {
-
-
-        Initialize-PSSodium -Force:$Force
 
         $vSat = Get-TrustData -Type 'VSatellite' -First
         if ( -not $vSat ) { throw 'No active VSatellites were found' }
@@ -252,7 +245,7 @@ function Import-TrustCertificate {
                 throw [System.ArgumentNullException]::new('PrivateKeyPassword', 'When importing certificates with private keys, a private key password is required.')
             }
 
-            $dekEncryptedPassword = ConvertTo-SodiumEncryptedString -Text $pkPassString -PublicKey $vSat.encryptionKey
+            $dekEncryptedPassword = ConvertTo-DekEncryptedString -Text $pkPassString -PublicKey $vSat.encryptionKey -KeyAlgorithm $vSat.encryptionKeyAlgorithm -CompanyId $vSat.companyId
 
             # rebuild invoke params as the payload can contain multiple keys at once
             # max 100 certs and keys at a time
