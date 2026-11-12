@@ -738,6 +738,142 @@ Describe 'CMSaaS Satellites' -Tags 'Functional', 'CMS' -Skip:$skipAll {
     }
 }
 
+# ── VSatellite Encryption ─────────────────────────────────────────────────────
+
+Describe 'CMSaaS VSatellite Encryption' -Tags 'Functional', 'CMS', 'Write' -Skip:$skipAll {
+
+    BeforeAll {
+        $script:vcSession = New-CmsFunctionalSession
+        $script:vSat = Get-TrustSatellite -All -TrustClient $script:vcSession | Where-Object edgeStatus -eq 'ACTIVE' | Select-Object -First 1
+        $script:password = 'VenafiPS-{0}!' -f [guid]::NewGuid().ToString('N').Substring(0, 12)
+        $script:certIds = [System.Collections.Generic.List[string]]::new()
+        $script:exportCertId = $null
+
+        function New-TestKeyPair {
+            param([string] $CommonName)
+            $rsa = [System.Security.Cryptography.RSA]::Create(2048)
+            $req = [System.Security.Cryptography.X509Certificates.CertificateRequest]::new("CN=$CommonName", $rsa, [System.Security.Cryptography.HashAlgorithmName]::SHA256, [System.Security.Cryptography.RSASignaturePadding]::Pkcs1)
+            $cert = $req.CreateSelfSigned([datetimeoffset]::UtcNow.AddDays(-1), [datetimeoffset]::UtcNow.AddDays(30))
+            [pscustomobject]@{ Rsa = $rsa; Certificate = $cert }
+        }
+
+        # a certificate with a private key held by the VSatellite under a current DEK.
+        # if the tenant doesn't have one, issue one with a VSatellite generated key when
+        # VENAFIPS_CMS_APPLICATION and VENAFIPS_CMS_ISSUING_TEMPLATE are set
+        function Get-TestExportableCertificate {
+            if ( $script:exportCertId ) { return $script:exportCertId }
+
+            $dekIds = (Invoke-TrustRestMethod -UriLeaf 'edgeencryptionkeys' -TrustClient $script:vcSession).encryptionKeys.id
+            $existing = Find-TrustCertificate -First 500 -TrustClient $script:vcSession |
+                Where-Object { $_.dekHash -in $dekIds -and $_.certificateName -notlike 'venafips-*' } |
+                Select-Object -First 1
+            if ( $existing ) {
+                $script:exportCertId = $existing.certificateId
+            }
+            elseif ( $env:VENAFIPS_CMS_APPLICATION -and $env:VENAFIPS_CMS_ISSUING_TEMPLATE ) {
+                $params = @{
+                    Application     = $env:VENAFIPS_CMS_APPLICATION
+                    IssuingTemplate = $env:VENAFIPS_CMS_ISSUING_TEMPLATE
+                    CommonName      = '{0}.venafips.test' -f (New-TestName -Prefix 'venafips-ask')
+                    ValidUntil      = [datetime]::Now.AddDays(2)
+                    Wait            = $true
+                    PassThru        = $true
+                    TrustClient     = $script:vcSession
+                }
+                $issued = New-TrustCertificate @params
+                $script:exportCertId = @($issued.certificateId)[0]
+                if ( $script:exportCertId ) { $script:certIds.Add($script:exportCertId) }
+            }
+            $script:exportCertId
+        }
+
+        function Get-TestCertificateId {
+            param([string] $Thumbprint)
+            # the inventory can take a moment to reflect an import
+            for ($i = 0; $i -lt 10; $i++) {
+                $found = Find-TrustCertificate -Fingerprint $Thumbprint -TrustClient $script:vcSession
+                if ( $found ) { return @($found)[0].certificateId }
+                Start-Sleep -Seconds 3
+            }
+        }
+
+    }
+
+    It 'Should provide the encryption key algorithm and company for the VSatellite' {
+        if (-not $script:vSat) { Set-ItResult -Skipped -Because 'No active VSatellite found'; return }
+        Write-Host ('    VSatellite {0} key algorithm: {1}' -f $script:vSat.name, $script:vSat.encryptionKeyAlgorithm)
+
+        $script:vSat.encryptionKeyAlgorithm | Should -BeIn 'ED25519', 'VSAT_HPKE'
+        { [guid] $script:vSat.companyId } | Should -Not -Throw
+        $expectedLength = if ($script:vSat.encryptionKeyAlgorithm -eq 'ED25519') { 32 } else { 97 }
+        [System.Convert]::FromBase64String($script:vSat.encryptionKey).Length | Should -Be $expectedLength
+    }
+
+    It 'Should import a PKCS12 certificate and private key' {
+        if (-not $script:vSat) { Set-ItResult -Skipped -Because 'No active VSatellite found'; return }
+        $pair = New-TestKeyPair -CommonName ('{0}.venafips.test' -f (New-TestName -Prefix 'venafips-p12'))
+        $pfxPath = Join-Path $TestDrive 'test.pfx'
+        [System.IO.File]::WriteAllBytes($pfxPath, $pair.Certificate.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $script:password))
+
+        $result = Import-TrustCertificate -Path $pfxPath -PrivateKeyPassword $script:password -TrustClient $script:vcSession
+        $result | Should -Not -BeNullOrEmpty
+
+        $id = Get-TestCertificateId -Thumbprint $pair.Certificate.Thumbprint
+        $id | Should -Not -BeNullOrEmpty
+        $script:certIds.Add($id)
+        (Get-TrustCertificate -Certificate $id -TrustClient $script:vcSession).dekHash | Should -Not -BeNullOrEmpty
+    }
+
+    It 'Should import a PEM certificate and encrypted private key' {
+        if (-not $script:vSat) { Set-ItResult -Skipped -Because 'No active VSatellite found'; return }
+        $pair = New-TestKeyPair -CommonName ('{0}.venafips.test' -f (New-TestName -Prefix 'venafips-pem'))
+        $pbe = [System.Security.Cryptography.PbeParameters]::new([System.Security.Cryptography.PbeEncryptionAlgorithm]::Aes256Cbc, [System.Security.Cryptography.HashAlgorithmName]::SHA256, 100000)
+        $keyPem = [System.Security.Cryptography.PemEncoding]::Write('ENCRYPTED PRIVATE KEY', $pair.Rsa.ExportEncryptedPkcs8PrivateKey($script:password, $pbe))
+        $certPem = [System.Security.Cryptography.PemEncoding]::Write('CERTIFICATE', $pair.Certificate.RawData)
+        $pemPath = Join-Path $TestDrive 'test.pem'
+        Set-Content -Path $pemPath -Value ((-join $certPem) + "`n" + (-join $keyPem)) -NoNewline
+
+        $result = Import-TrustCertificate -Path $pemPath -PrivateKeyPassword $script:password -TrustClient $script:vcSession
+        $result | Should -Not -BeNullOrEmpty
+
+        $id = Get-TestCertificateId -Thumbprint $pair.Certificate.Thumbprint
+        $id | Should -Not -BeNullOrEmpty
+        $script:certIds.Add($id)
+        (Get-TrustCertificate -Certificate $id -TrustClient $script:vcSession).dekHash | Should -Not -BeNullOrEmpty
+    }
+
+    # keys of certificates imported with a private key can't be exported so use a certificate whose key the VSatellite holds
+    It 'Should export a private key as PEM' {
+        $certId = Get-TestExportableCertificate
+        if (-not $certId) { Set-ItResult -Skipped -Because 'No certificate with an exportable private key found'; return }
+        $result = Export-TrustCertificate -ID $certId -PrivateKeyPassword $script:password -TrustClient $script:vcSession
+        $result.error | Should -BeNullOrEmpty
+        $result.KeyPem | Should -Match 'BEGIN ENCRYPTED PRIVATE KEY'
+
+        # the VSatellite encrypts the key with the password it decrypted
+        $publicKey = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new([System.Text.Encoding]::ASCII.GetBytes($result.CertPem)).PublicKey
+        $key = if ($publicKey.Oid.Value -eq '1.2.840.10045.2.1') { [System.Security.Cryptography.ECDsa]::Create() } else { [System.Security.Cryptography.RSA]::Create() }
+        { $key.ImportFromEncryptedPem($result.KeyPem, $script:password) } | Should -Not -Throw
+    }
+
+    It 'Should export a private key as PKCS12' {
+        $certId = Get-TestExportableCertificate
+        if (-not $certId) { Set-ItResult -Skipped -Because 'No certificate with an exportable private key found'; return }
+        $result = Export-TrustCertificate -ID $certId -PrivateKeyPassword $script:password -PKCS12 -TrustClient $script:vcSession
+        $result.error | Should -BeNullOrEmpty
+
+        $exported = [System.Security.Cryptography.X509Certificates.X509Certificate2]::new([System.Convert]::FromBase64String($result.certificateData), $script:password, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::DefaultKeySet)
+        $exported.HasPrivateKey | Should -BeTrue
+    }
+
+    AfterAll {
+        foreach ($id in $script:certIds) {
+            Invoke-TrustCertificateAction -ID $id -Retire -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+            Invoke-TrustCertificateAction -ID $id -Delete -TrustClient $script:vcSession -Confirm:$false -ErrorAction SilentlyContinue
+        }
+    }
+}
+
 # ── Cloud Keystores & Providers ───────────────────────────────────────────────
 
 Describe 'CMSaaS Cloud Providers' -Tags 'Functional', 'CMS' -Skip:$skipAll {
