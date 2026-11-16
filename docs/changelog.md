@@ -1,3 +1,9 @@
+## 7.2.0
+- Fix `Import-TrustCertificate` with private keys failing with *recipientPublicKey must be 32 bytes in length*, followed by *Certificate import with private key at index 0 is missing its encrypted password*, when the VSatellite encryption key is `VSAT_HPKE`, eg. VSatellites deployed with an HSM-protected DEK, [#430](https://github.com/Venafi/VenafiPS/issues/430).  `Export-TrustCertificate` with `-PrivateKeyPassword`, `New-TrustMachine`, `New-TrustMachineMicrosoft`, and `New-TrustMachineCommonKeystore` had the same issue.  Thanks @ipitythebug for reporting it!
+- PSSodium has been replaced with the [BouncyCastle](https://www.bouncycastle.org/) cryptography library, which is included with the module.  PSSodium only supports the sealed box encryption used by `ED25519` VSatellite keys, not the HPKE (P-384) encryption used by `VSAT_HPKE` keys; BouncyCastle supports both.  As it's a fully managed .NET library, there is nothing additional to install, the Visual C++ runtime is no longer needed on Windows, and `Import-TrustCertificate` with private keys and `New-TrustMachine`, `New-TrustMachineMicrosoft`, and `New-TrustMachineCommonKeystore` with credentials now also work on Windows PowerShell 5.1.  `-Force`, previously used to install PSSodium, is no longer used and will be removed in a future release.
+- If encrypting for the VSatellite fails, the function now stops with the reason instead of sending the request without the encrypted value.
+
+
 ## 7.1.1
 - Fix Certificate Manager, Self-Hosted 403 errors always being reported as a token scope error, eg. `Read-CmLog requires a token scope of 'any scope'`, [#425](https://github.com/Venafi/VenafiPS/issues/425).  A token scope is now only reported when the server rejected the scope.  Otherwise the reason from the server is provided, eg. a missing permission.  `Read-CmLog` and the MCP `search_logs` tool need read permission to the log server's default SQL channel.  Thanks @Kevinf63!
 - Fix `Export-TrustCertificate` and `Export-TrustReport` failing with *Cannot bind argument to parameter 'Path' because it is an empty string* when the calling script was run with `-WhatIf`, [#423](https://github.com/Venafi/VenafiPS/issues/423).  Temporary files, and saving a refreshed token to the vault, are no longer affected by `-WhatIf`.  Thanks @andreaalloway2!
@@ -992,6 +998,7 @@ This is a major release.  Although every attempt has been made to be backwards c
 - Breaking change: Update New-TppObject to simplify the attributes provided, now just pass a hashtable of object key/value pairs.
 - Better parameter support for New-TppCertificate with Name and CommonName
 - Rename Get-TppLog to Read-TppLog
+
 
 
 

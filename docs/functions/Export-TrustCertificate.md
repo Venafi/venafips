@@ -196,7 +196,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-Force installation of PSSodium if not already installed
+This parameter is no longer used and will be removed in a future release.
 
 ```yaml
 Type: SwitchParameter
@@ -282,10 +282,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### PSCustomObject
 ## NOTES
-This function requires PSSodium. 
-Install it from the PSGallery or use -Force to automatically install.
 PS v7.1+ is required.
-On Windows, the latest Visual C++ redist must be installed. 
-See https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist.
 
 ## RELATED LINKS

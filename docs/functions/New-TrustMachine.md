@@ -314,7 +314,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-Force installation of PSSodium if not already installed
+This parameter is no longer used and will be removed in a future release.
 
 ```yaml
 Type: SwitchParameter
@@ -368,10 +368,5 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## NOTES
 To see a full list of tab-completion options, be sure to set the Tab option, Set-PSReadlineKeyHandler -Key Tab -Function MenuComplete.
-
-This function requires the use of sodium encryption via the PSSodium PowerShell module.
-Dotnet standard 2.0 or greater is required via PS Core (recommended) or supporting .net runtime.
-On Windows, the latest Visual C++ redist must be installed. 
-See https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist.
 
 ## RELATED LINKS
