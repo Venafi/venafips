@@ -1,22 +1,16 @@
 ﻿BeforeAll {
     . $PSScriptRoot/ModuleCommonTrust.ps1
 
-    # Ensure ConvertTo-SodiumEncryptedString is available in the module scope for mocking
-    # PSSodium may not be installed (e.g., CI runners)
-    InModuleScope $ModuleName {
-        if (-not (Get-Command 'ConvertTo-SodiumEncryptedString' -ErrorAction SilentlyContinue)) {
-            function script:ConvertTo-SodiumEncryptedString { param($Text, $PublicKey) }
-        }
-    }
-
     $testVsatId = '0bc771e1-7abe-4339-9fcd-93fffe9cba7f'
     $testEncKeyId = 'aaaa1111-bbbb-2222-cccc-333344445555'
     $testEncKey = 'dGVzdGVuY3J5cHRpb25rZXk='
 
     $mockVSat = [pscustomobject]@{
-        vsatelliteId    = $testVsatId
-        encryptionKeyId = $testEncKeyId
-        encryptionKey   = $testEncKey
+        vsatelliteId           = $testVsatId
+        encryptionKeyId        = $testEncKeyId
+        encryptionKey          = $testEncKey
+        encryptionKeyAlgorithm = 'VSAT_HPKE'
+        companyId              = 'e2d60b61-9a8c-4a3a-985c-92498bd1fc77'
     }
 
     $mockKeyImportResults = @(
@@ -73,9 +67,8 @@ MIIFLjBYBgkqhkiG9w0BBQ0wSzAqBgkqhkiG9w0BBQww
 Describe 'Import-TrustCertificate' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Initialize-PSSodium' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $mockVSat } -ModuleName $ModuleName
-        Mock -CommandName 'ConvertTo-SodiumEncryptedString' -MockWith { 'encrypted-password' } -ModuleName $ModuleName
+        Mock -CommandName 'ConvertTo-DekEncryptedString' -MockWith { 'encrypted-password' } -ModuleName $ModuleName
         Mock -CommandName 'ConvertTo-PlaintextString' -MockWith { 'plaintext' } -ModuleName $ModuleName
         Mock -CommandName 'Invoke-TrustParallel' -MockWith { $mockKeyImportResults } -ModuleName $ModuleName
     }
@@ -221,16 +214,34 @@ Describe 'Import-TrustCertificate' -Tags 'Unit' {
         }
     }
 
-    Context 'Sodium encryption' {
+    Context 'DEK encryption' {
 
-        It 'Should call Initialize-PSSodium in begin' {
+        It 'Should encrypt the password with the VSatellite key, algorithm, and company' {
             Import-TrustCertificate -Data $testPkcs12Data -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'Initialize-PSSodium' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'ConvertTo-DekEncryptedString' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $Text -eq 'plaintext' -and
+                $PublicKey -eq $testEncKey -and
+                $KeyAlgorithm -eq 'VSAT_HPKE' -and
+                $CompanyId -eq 'e2d60b61-9a8c-4a3a-985c-92498bd1fc77'
+            }
         }
 
-        It 'Should call ConvertTo-SodiumEncryptedString for keyed imports' {
+        It 'Should include the encrypted password in the import payload' {
             Import-TrustCertificate -Data $testPkcs12Data -PrivateKeyPassword 'pass'
-            Should -Invoke -CommandName 'ConvertTo-SodiumEncryptedString' -Times 1 -ModuleName $ModuleName
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $InputObject[0].Body.importInformation[0].dekEncryptedPassword -eq 'encrypted-password'
+            }
+        }
+
+        It 'Should stop and not import when encryption fails' {
+            Mock -CommandName 'ConvertTo-DekEncryptedString' -MockWith { throw 'bad key' } -ModuleName $ModuleName
+            { Import-TrustCertificate -Data $testPkcs12Data -PrivateKeyPassword 'pass' } | Should -Throw '*bad key*'
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 0 -ModuleName $ModuleName
+        }
+
+        It 'Should not encrypt when importing certificates without keys' {
+            Import-TrustCertificate -Data $testCertPemBase64
+            Should -Invoke -CommandName 'ConvertTo-DekEncryptedString' -Times 0 -ModuleName $ModuleName
         }
     }
 }

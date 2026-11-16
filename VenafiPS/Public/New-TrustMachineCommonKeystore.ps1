@@ -82,7 +82,7 @@ function New-TrustMachineCommonKeystore {
     Return newly created object
 
     .PARAMETER Force
-    Force installation of PSSodium if not already installed
+    This parameter is no longer used and will be removed in a future release.
 
     .PARAMETER TrustClient
     Authentication for the function.
@@ -108,11 +108,6 @@ function New-TrustMachineCommonKeystore {
     owningTeamId     : 59920180-a3e2-11ec-8dcd-3fcbf84c7da7
 
     Create a new machine with SSH password authentication
-
-    .NOTES
-    This function requires the use of sodium encryption via the PSSodium PowerShell module.
-    Dotnet standard 2.0 or greater is required via PS Core (recommended) or supporting .net runtime.
-    On Windows, the latest Visual C++ redist must be installed.  See https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist.
     #>
 
     [CmdletBinding(DefaultParameterSetName = 'SshPassword')]
@@ -196,8 +191,6 @@ function New-TrustMachineCommonKeystore {
 
         $allMachines = [System.Collections.Generic.List[pscustomobject]]::new()
         $machineTypeId = Get-TrustData -InputObject 'Common KeyStore (PEM, JKS, PKCS#12)' -Type 'Plugin'
-
-        Initialize-PSSodium -Force:$Force
     }
 
     process {
@@ -218,8 +211,8 @@ function New-TrustMachineCommonKeystore {
 
         $credDetail = if ( $Credential -is [pscredential] ) {
 
-            $userEnc = ConvertTo-SodiumEncryptedString -text $Credential.UserName -PublicKey $vSat.encryptionKey
-            $pwEnc = ConvertTo-SodiumEncryptedString -text $Credential.GetNetworkCredential().Password -PublicKey $vSat.encryptionKey
+            $userEnc = ConvertTo-DekEncryptedString -Text $Credential.UserName -PublicKey $vSat.encryptionKey -KeyAlgorithm $vSat.encryptionKeyAlgorithm -CompanyId $vSat.companyId
+            $pwEnc = ConvertTo-DekEncryptedString -Text $Credential.GetNetworkCredential().Password -PublicKey $vSat.encryptionKey -KeyAlgorithm $vSat.encryptionKeyAlgorithm -CompanyId $vSat.companyId
 
             @{
                 username       = $userEnc

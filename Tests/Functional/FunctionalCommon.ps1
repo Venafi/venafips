@@ -7,6 +7,7 @@
 # Required env vars per platform (only needed when no session exists):
 #   CM:  VENAFIPS_CM_SERVER, VENAFIPS_CM_USERNAME, VENAFIPS_CM_PASSWORD, VENAFIPS_CM_CLIENTID, VENAFIPS_CM_SCOPE
 #   VC:   VENAFIPS_CMS_APIKEY (and optionally VENAFIPS_CMS_REGION)
+#         optionally VENAFIPS_CMS_APPLICATION and VENAFIPS_CMS_ISSUING_TEMPLATE to issue a certificate for the private key export tests
 #   NGTS: VENAFIPS_NGTS_USERNAME, VENAFIPS_NGTS_SECRET
 
 $ModuleName = 'VenafiPS'

@@ -1,14 +1,6 @@
 ﻿BeforeAll {
     . $PSScriptRoot/ModuleCommonTrust.ps1
 
-    # Ensure ConvertTo-SodiumEncryptedString is available in the module scope for mocking
-    # PSSodium may not be installed (e.g., CI runners)
-    InModuleScope $ModuleName {
-        if (-not (Get-Command 'ConvertTo-SodiumEncryptedString' -ErrorAction SilentlyContinue)) {
-            function script:ConvertTo-SodiumEncryptedString { param($Text, $PublicKey) }
-        }
-    }
-
     $testMachineId = 'cf7cfdc0-2b2a-11ee-9546-5136c4b21504'
     $testTeamId = '59920180-a3e2-11ec-8dcd-3fcbf84c7da7'
     $testPluginId = 'ff645e14-bd1a-11ed-a009-ce063932f86d'
@@ -22,10 +14,12 @@
     }
 
     $mockVSat = [pscustomobject]@{
-        vsatelliteId    = $testVsatId
-        encryptionKeyId = $testEncKeyId
-        encryptionKey   = $testEncKey
-        edgeStatus      = 'ACTIVE'
+        vsatelliteId           = $testVsatId
+        encryptionKeyId        = $testEncKeyId
+        encryptionKey          = $testEncKey
+        edgeStatus             = 'ACTIVE'
+        encryptionKeyAlgorithm = 'VSAT_HPKE'
+        companyId              = 'e2d60b61-9a8c-4a3a-985c-92498bd1fc77'
     }
 
     $mockCreateResponse = [pscustomobject]@{
@@ -71,11 +65,10 @@
 Describe 'New-TrustMachine' -Tags 'Unit' {
 
     BeforeEach {
-        Mock -CommandName 'Initialize-PSSodium' -MockWith {} -ModuleName $ModuleName
         Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Plugin' } -MockWith { $mockPlugin } -ModuleName $ModuleName
         Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'Team' } -MockWith { $testTeamId } -ModuleName $ModuleName
         Mock -CommandName 'Get-TrustData' -ParameterFilter { $Type -eq 'VSatellite' } -MockWith { $mockVSat } -ModuleName $ModuleName
-        Mock -CommandName 'ConvertTo-SodiumEncryptedString' -MockWith { 'encrypted' } -ModuleName $ModuleName
+        Mock -CommandName 'ConvertTo-DekEncryptedString' -MockWith { 'encrypted' } -ModuleName $ModuleName
         # Mock Invoke-TrustParallel to avoid needing Invoke-TrustRestMethod/Invoke-TrustWorkflow inside scriptblock
         Mock -CommandName 'Invoke-TrustParallel' -MockWith { $mockParallelResponseWithVerify } -ModuleName $ModuleName
     }
@@ -103,6 +96,22 @@ Describe 'New-TrustMachine' -Tags 'Unit' {
             New-TrustMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
             Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
                 $InputObject[0].pluginId -eq $testPluginId
+            }
+        }
+
+        It 'Should encrypt the credential with the VSatellite key, algorithm, and company' {
+            $cred = New-Object PSCredential('user', ('pass' | ConvertTo-SecureString -AsPlainText -Force))
+            New-TrustMachine -Name 'c1' -MachineType 'Citrix ADC' -Owner 'MyTeam' -Credential $cred
+            foreach ($value in 'user', 'pass') {
+                Should -Invoke -CommandName 'ConvertTo-DekEncryptedString' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                    $Text -eq $value -and
+                    $PublicKey -eq $testEncKey -and
+                    $KeyAlgorithm -eq 'VSAT_HPKE' -and
+                    $CompanyId -eq 'e2d60b61-9a8c-4a3a-985c-92498bd1fc77'
+                }
+            }
+            Should -Invoke -CommandName 'Invoke-TrustParallel' -Times 1 -ModuleName $ModuleName -ParameterFilter {
+                $InputObject[0].connectionDetails.username -eq 'encrypted' -and $InputObject[0].connectionDetails.password -eq 'encrypted'
             }
         }
     }

@@ -10,6 +10,8 @@ $script:TrustClient = $null
 # Don't check at load time, check when needed via Get-ThreadJobAvailability
 $script:ThreadJobAvailable = $null
 $script:ParallelImportPath = $PSCommandPath
+# loaded on demand by Initialize-BouncyCastle
+$script:BouncyCastlePath = Join-Path -Path $PSScriptRoot -ChildPath 'lib/BouncyCastle.Cryptography.dll'
 
 # ModuleVersion will get updated during the build and this will not run
 # this is only needed during development since all files will be merged into one psm1

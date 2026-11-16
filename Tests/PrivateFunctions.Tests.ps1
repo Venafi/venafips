@@ -932,66 +932,6 @@ Describe 'Select-TrustBatch' {
 }
 #endregion
 
-#region Initialize-PSSodium
-Describe 'Initialize-PSSodium' -Tags 'Unit' {
-    Context 'Module already loaded' {
-        It 'should return early if PSSodium is already loaded' {
-            Mock Get-Module {
-                return [PSCustomObject]@{ Name = 'PSSodium'; Version = '0.4.2' }
-            } -ParameterFilter { $Name -eq 'PSSodium' -or $PSBoundParameters.Count -eq 0 }
-
-            Mock Import-Module { }
-
-            { Initialize-PSSodium } | Should -Not -Throw
-
-            Assert-MockCalled Import-Module -Times 0
-        }
-    }
-
-    Context 'Module not installed' {
-        It 'should throw error when module not installed and Force not specified' {
-            Mock Get-Module { $null }
-
-            { Initialize-PSSodium } | Should -Throw '*PSSodium module is not installed*'
-        }
-    }
-
-    Context 'Module installed but not loaded' {
-        It 'should import module when installed but not loaded' {
-            Mock Get-Module {
-                param($Name, [switch]$ListAvailable)
-                if ($ListAvailable) {
-                    [PSCustomObject]@{ Name = 'PSSodium'; Version = '0.4.2' }
-                } else {
-                    $null
-                }
-            }
-            Mock Import-Module { }
-
-            { Initialize-PSSodium } | Should -Not -Throw
-
-            Assert-MockCalled Import-Module -Times 1 -ParameterFilter {
-                $Name -eq 'PSSodium' -and $Force -eq $true
-            }
-        }
-
-        It 'should throw custom error when import fails' {
-            Mock Get-Module {
-                param($Name, [switch]$ListAvailable)
-                if ($ListAvailable) {
-                    [PSCustomObject]@{ Name = 'PSSodium'; Version = '0.4.2' }
-                } else {
-                    $null
-                }
-            }
-            Mock Import-Module { throw 'Import failed' }
-
-            { Initialize-PSSodium } | Should -Throw '*Sodium encryption could not be loaded*'
-        }
-    }
-}
-#endregion
-
 Describe "Test-CmDnPath" -Tags 'Unit' {
 
     Context "Valid DN Paths" {

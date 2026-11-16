@@ -1,11 +1,6 @@
 BeforeAll {
     . $PSScriptRoot/ModuleCommonTrust.ps1
 
-    # Mock needs the command to exist, PSSodium may not be installed where tests run
-    if ( -not (Get-Command 'ConvertTo-SodiumEncryptedString' -ErrorAction SilentlyContinue) ) {
-        function global:ConvertTo-SodiumEncryptedString { param($Text, $PublicKey) }
-    }
-
     # the keystore api returns a zip of pem files
     function New-KeystoreZip {
         param ([string] $Name)
@@ -37,18 +32,35 @@ Describe 'Export-TrustCertificate' -Tags 'Unit' -Skip:($PSVersionTable.PSVersion
         $certId = '22222222-2222-2222-2222-222222222222'
         $zipBytes = New-KeystoreZip -Name 'test.company.com'
 
-        Mock -CommandName 'Initialize-PSSodium' -ModuleName $ModuleName -MockWith {}
-        Mock -CommandName 'Import-Module' -ModuleName $ModuleName -ParameterFilter { $Name -eq 'PSSodium' } -MockWith {}
-        Mock -CommandName 'ConvertTo-SodiumEncryptedString' -ModuleName $ModuleName -MockWith { 'encrypted' }
+        Mock -CommandName 'ConvertTo-DekEncryptedString' -ModuleName $ModuleName -MockWith { 'encrypted' }
         Mock -CommandName 'Get-TrustCertificate' -ModuleName $ModuleName -MockWith {
             [pscustomobject]@{ certificateId = $certId; certificateName = 'test.company.com'; dekHash = 'abc' }
         }
         Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -ParameterFilter { $UriLeaf -like 'edgeencryptionkeys/*' } -MockWith {
-            [pscustomobject]@{ key = 'publickey' }
+            [pscustomobject]@{ key = 'publickey'; keyAlgorithm = 'VSAT_HPKE'; companyId = 'e2d60b61-9a8c-4a3a-985c-92498bd1fc77' }
         }
         Mock -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -ParameterFilter { $UriLeaf -like 'certificates/*/keystore' } -MockWith {
             [pscustomobject]@{ StatusCode = 200; Content = $zipBytes }
         }.GetNewClosure()
+    }
+
+    Context 'DEK encryption' {
+
+        It 'Should encrypt the password with the key, algorithm, and company of the certificate DEK' {
+            $result = Export-TrustCertificate -ID $certId -PrivateKeyPassword 'myPassw0rd!' -ThrottleLimit 1
+
+            $result.error | Should -BeNullOrEmpty
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter { $UriLeaf -eq 'edgeencryptionkeys/abc' }
+            Should -Invoke -CommandName 'ConvertTo-DekEncryptedString' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter {
+                $Text -eq 'myPassw0rd!' -and
+                $PublicKey -eq 'publickey' -and
+                $KeyAlgorithm -eq 'VSAT_HPKE' -and
+                $CompanyId -eq 'e2d60b61-9a8c-4a3a-985c-92498bd1fc77'
+            }
+            Should -Invoke -CommandName 'Invoke-TrustRestMethod' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter {
+                $UriLeaf -like 'certificates/*/keystore' -and $Body.encryptedPrivateKeyPassphrase -eq 'encrypted'
+            }
+        }
     }
 
     Context 'WhatIf' {
