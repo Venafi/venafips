@@ -14,6 +14,60 @@ BeforeAll {
 
 Describe 'Invoke-TrustRestMethod' -Tags 'Unit' {
 
+    Context 'NGTS workspace' {
+
+        BeforeAll {
+            function New-PlatformClient {
+                param ([string] $Platform, [string] $Server, [string] $Workspace)
+                $client = & (Get-Module $ModuleName) { [TrustClient]::new() }
+                $client.Platform = $Platform
+                $client.Server = $Server
+                $client.AuthType = 'BearerToken'
+                $client.AccessToken = New-Object System.Management.Automation.PSCredential('AccessToken', ('token' | ConvertTo-SecureString -AsPlainText -Force))
+                $client.Expires = [DateTime]::UtcNow.AddMinutes(30)
+                if ( $Workspace ) { $client.PlatformData.Workspace = $Workspace }
+                $client
+            }
+        }
+
+        BeforeEach {
+            $script:sentUri = $null
+            Mock -CommandName 'Invoke-RestMethod' -ModuleName $ModuleName -MockWith { $script:sentUri = $Uri; @{} }
+        }
+
+        It 'Should send the workspace on every NGTS request' {
+            $client = New-PlatformClient -Platform 'NGTS' -Server 'https://api.strata.paloaltonetworks.com' -Workspace '1000'
+
+            $null = Invoke-TrustRestMethod -TrustClient $client -UriLeaf 'certificateissuingtemplates'
+
+            $sentUri | Should -Be 'https://api.strata.paloaltonetworks.com/ngts/v1/certificateissuingtemplates?workspace_id=1000'
+        }
+
+        It 'Should add the workspace to an existing query string' {
+            $client = New-PlatformClient -Platform 'NGTS' -Server 'https://api.strata.paloaltonetworks.com' -Workspace '1000'
+
+            $null = Invoke-TrustRestMethod -TrustClient $client -UriRoot 'outagedetection/v1' -UriLeaf 'certificates/abc?ownershipTree=true'
+
+            $sentUri | Should -Be 'https://api.strata.paloaltonetworks.com/ngts/outagedetection/v1/certificates/abc?ownershipTree=true&workspace_id=1000'
+        }
+
+        It 'Should not change the request when there is no workspace' {
+            $client = New-PlatformClient -Platform 'NGTS' -Server 'https://api.strata.paloaltonetworks.com'
+
+            $null = Invoke-TrustRestMethod -TrustClient $client -UriLeaf 'certificateissuingtemplates'
+
+            $sentUri | Should -Be 'https://api.strata.paloaltonetworks.com/ngts/v1/certificateissuingtemplates'
+        }
+
+        It 'Should not send a workspace to other platforms' {
+            $client = New-PlatformClient -Platform 'CMS' -Server 'https://api.venafi.cloud' -Workspace '1000'
+
+            $null = Invoke-TrustRestMethod -TrustClient $client -UriLeaf 'certificateissuingtemplates'
+
+            $sentUri | Should -Be 'https://api.venafi.cloud/v1/certificateissuingtemplates'
+        }
+    }
+
     Context 'Self-Hosted 403' {
 
         BeforeEach {
