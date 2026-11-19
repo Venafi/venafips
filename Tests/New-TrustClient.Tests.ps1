@@ -340,6 +340,29 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
 
             $sess.PlatformData.Tsg | Should -Be 9999999999
         }
+
+        It 'Should not set a workspace by default' {
+            $ngtsCred = New-TestCredential -UserName 'svcaccount@1234567890.iam.panserviceaccount.com' -Password 'client-secret'
+
+            $sess = New-TrustClient -NgtsCredential $ngtsCred -PassThru
+
+            $sess.PlatformData.Workspace | Should -BeNullOrEmpty
+        }
+
+        It 'Should set the workspace when a numeric ID is provided' {
+            $ngtsCred = New-TestCredential -UserName 'svcaccount@1234567890.iam.panserviceaccount.com' -Password 'client-secret'
+
+            $sess = New-TrustClient -NgtsCredential $ngtsCred -Workspace 1000 -PassThru
+
+            $sess.PlatformData.Workspace | Should -Be '1000'
+        }
+
+        It 'Should reject a workspace name or scope name' {
+            $ngtsCred = New-TestCredential -UserName 'svcaccount@1234567890.iam.panserviceaccount.com' -Password 'client-secret'
+
+            { New-TrustClient -NgtsCredential $ngtsCred -Workspace 'ngts_venafips_8pb5l9' } | Should -Throw '*numeric Workspace ID*'
+            { New-TrustClient -NgtsCredential $ngtsCred -Workspace 'venafips' } | Should -Throw '*numeric Workspace ID*'
+        }
     }
 
     Context 'NGTS credential vault' {
@@ -389,6 +412,21 @@ Describe 'New-TrustClient Additional Parameter Sets' -Tags 'Unit' {
             $null = New-TrustClient -NgtsCredential $ngtsCred -Tsg 9999999999 -VaultNgtsCredentialName 'ngts' -PassThru
 
             Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter { $Metadata.Tsg -eq '9999999999' }
+        }
+
+        It 'Should save the workspace with the credential when provided' {
+            $null = New-TrustClient -NgtsCredential $ngtsCred -Workspace 1000 -VaultNgtsCredentialName 'ngts' -PassThru
+
+            Should -Invoke -CommandName 'Set-Secret' -ModuleName $ModuleName -Times 1 -Exactly -ParameterFilter { $Metadata.Workspace -eq '1000' }
+        }
+
+        It 'Should use the workspace saved with the credential' {
+            Mock -CommandName 'Get-Secret' -ModuleName $ModuleName -MockWith { $ngtsCred }
+            Mock -CommandName 'Get-SecretInfo' -ModuleName $ModuleName -MockWith { [pscustomobject]@{ Name = $Name; Metadata = @{ Workspace = '1000' } } }
+
+            $sess = New-TrustClient -VaultNgtsCredentialName 'ngts' -PassThru
+
+            $sess.PlatformData.Workspace | Should -Be '1000'
         }
 
         It 'Should not save the credential when it fails to authenticate' {

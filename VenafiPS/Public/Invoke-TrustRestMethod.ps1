@@ -180,6 +180,12 @@ function Invoke-TrustRestMethod {
 
     $params.Uri = '{0}/{1}/{2}' -f $Server, $UriRoot, $UriLeaf
 
+    # NGTS workspace-scoped sessions send the workspace on every request
+    if ( $TrustClient.Platform -eq 'NGTS' -and $TrustClient.PlatformData.Workspace ) {
+        $workspaceSeparator = if ( $params.Uri.Contains('?') ) { '&' } else { '?' }
+        $params.Uri = '{0}{1}workspace_id={2}' -f $params.Uri, $workspaceSeparator, [uri]::EscapeDataString([string]$TrustClient.PlatformData.Workspace)
+    }
+
     if ( $null -ne $Body ) {
         switch ($Method.ToLower()) {
             'head' {

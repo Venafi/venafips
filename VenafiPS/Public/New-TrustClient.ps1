@@ -104,9 +104,14 @@ function New-TrustClient {
     .PARAMETER Tsg
     Tenant Service Group ID for NGTS.  Only required if the TSG ID in the credential username is not the target.
 
+    .PARAMETER Workspace
+    Numeric ID of the NGTS workspace to target, eg. 1000.  Required when the service account's access is limited to a workspace scope, otherwise requests are denied.
+    Use the Workspace ID shown on the workspace page.  This is not the scope name, eg. ngts_myworkspace_a1b2c3, which is only an identity and access management scope.
+    The workspace is sent on every request made with the session.
+
     .PARAMETER VaultNgtsCredentialName
     Name of the SecretManagement vault entry for the NGTS credential; the name of the vault must be VenafiPS.
-    First time use requires it to be provided with -NgtsCredential to populate the vault.  -Tsg, if provided, is saved with it.
+    First time use requires it to be provided with -NgtsCredential to populate the vault.  -Tsg and -Workspace, if provided, are saved with it.
     The credential is saved after the session is created, so a credential which fails to authenticate is not saved.
 
     .PARAMETER SkipCertificateCheck
@@ -187,6 +192,11 @@ function New-TrustClient {
     New-TrustClient -NgtsCredential $cred -Tsg 1234567890
 
     Create session against NGTS with the provided credential and override the TSG specified in the credential username
+
+    .EXAMPLE
+    New-TrustClient -NgtsCredential $cred -Workspace 1000
+
+    Create session against NGTS and target workspace 1000, eg. when the service account is limited to a workspace scope
 
     .EXAMPLE
     New-TrustClient -NgtsCredential $cred -VaultNgtsCredentialName ngts
@@ -395,6 +405,19 @@ function New-TrustClient {
         [Parameter(ParameterSetName = 'Ngts')]
         [Parameter(Mandatory, ParameterSetName = 'VaultNgtsCredential')]
         [string] $VaultNgtsCredentialName,
+
+        [Parameter(ParameterSetName = 'Ngts')]
+        [Parameter(ParameterSetName = 'VaultNgtsCredential')]
+        [ValidateScript(
+            {
+                if ( $_ -notmatch '^\d+$' ) {
+                    throw 'Workspace must be the numeric Workspace ID shown on the workspace page, not the workspace name or scope name'
+                }
+
+                $true
+            }
+        )]
+        [string] $Workspace,
 
         [Parameter(Mandatory, ParameterSetName = 'RefreshSession')]
         [switch] $RefreshSession,
@@ -688,6 +711,9 @@ function New-TrustClient {
                 if ( $secretInfo.Metadata.Tsg ) {
                     $Tsg = [long]$secretInfo.Metadata.Tsg
                 }
+                if ( -not $Workspace -and $secretInfo.Metadata.Workspace ) {
+                    $Workspace = [string]$secretInfo.Metadata.Workspace
+                }
             }
 
             $params = @{
@@ -709,11 +735,18 @@ function New-TrustClient {
                 $newClient.PlatformData.Tsg = $Matches[1]
             }
 
+            if ( $Workspace ) {
+                $newClient.PlatformData.Workspace = $Workspace
+            }
+
             # save once authenticated so a bad credential isn't stored
             if ( $PSCmdlet.ParameterSetName -eq 'Ngts' -and $VaultNgtsCredentialName ) {
                 $metadata = @{}
                 if ( $Tsg ) {
                     $metadata.Tsg = [string]$Tsg
+                }
+                if ( $Workspace ) {
+                    $metadata.Workspace = $Workspace
                 }
                 Set-Secret -Name $VaultNgtsCredentialName -Secret $NgtsCredential -Vault 'VenafiPS' -Metadata $metadata -WhatIf:$false -Confirm:$false
             }
