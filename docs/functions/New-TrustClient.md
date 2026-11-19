@@ -99,12 +99,13 @@ New-TrustClient -VaultCmsKeyName <String> [-TimeoutSec <Int32>] [-PassThru]
 ### Ngts
 ```
 New-TrustClient -NgtsCredential <PSCredential> [-Tsg <Int64>] [-VaultNgtsCredentialName <String>]
- [-TimeoutSec <Int32>] [-PassThru] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-Workspace <String>] [-TimeoutSec <Int32>] [-PassThru] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### VaultNgtsCredential
 ```
-New-TrustClient -VaultNgtsCredentialName <String> [-TimeoutSec <Int32>] [-PassThru]
+New-TrustClient -VaultNgtsCredentialName <String> [-Workspace <String>] [-TimeoutSec <Int32>] [-PassThru]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -215,12 +216,20 @@ Create session against NGTS with the provided credential and override the TSG sp
 
 ### EXAMPLE 14
 ```
+New-TrustClient -NgtsCredential $cred -Workspace 1000
+```
+
+Create session against NGTS and target workspace 1000, eg.
+when the service account is limited to a workspace scope
+
+### EXAMPLE 15
+```
 New-TrustClient -NgtsCredential $cred -VaultNgtsCredentialName ngts
 ```
 
 Create session against NGTS and save the credential to the vault
 
-### EXAMPLE 15
+### EXAMPLE 16
 ```
 New-TrustClient -VaultNgtsCredentialName ngts
 ```
@@ -631,7 +640,7 @@ Accept wildcard characters: False
 ### -VaultNgtsCredentialName
 Name of the SecretManagement vault entry for the NGTS credential; the name of the vault must be VenafiPS.
 First time use requires it to be provided with -NgtsCredential to populate the vault. 
--Tsg, if provided, is saved with it.
+-Tsg and -Workspace, if provided, are saved with it.
 The credential is saved after the session is created, so a credential which fails to authenticate is not saved.
 
 ```yaml
@@ -652,6 +661,27 @@ Parameter Sets: VaultNgtsCredential
 Aliases:
 
 Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Workspace
+Numeric ID of the NGTS workspace to target, eg.
+1000. 
+Required when the service account's access is limited to a workspace scope, otherwise requests are denied.
+Use the Workspace ID shown on the workspace page. 
+This is not the scope name, eg.
+ngts_myworkspace_a1b2c3, which is only an identity and access management scope.
+The workspace is sent on every request made with the session.
+
+```yaml
+Type: String
+Parameter Sets: Ngts, VaultNgtsCredential
+Aliases:
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
