@@ -147,7 +147,11 @@ function ConvertTo-DekEncryptedString {
 
             # hkdf-expand with the hpke label
             function Get-LabeledExpand([string] $Hash, [byte[]] $SuiteId, [byte[]] $Prk, [string] $Label, [byte[]] $Info, [int] $Length) {
-                $labeledInfo = [byte[]]([byte[]](($Length -shr 8), ($Length -band 0xff)) + $hpkeLabel + $SuiteId + [System.Text.Encoding]::ASCII.GetBytes($Label) + $Info)
+                # length as a 2 byte big endian integer.
+                # this is built with BitConverter, not shifts and masks, as the shifts and masks version of this line made Microsoft Defender block the module, #433
+                $lengthBytes = [System.BitConverter]::GetBytes([uint16] $Length)
+                [System.Array]::Reverse($lengthBytes)
+                $labeledInfo = [byte[]]($lengthBytes + $hpkeLabel + $SuiteId + [System.Text.Encoding]::ASCII.GetBytes($Label) + $Info)
                 $okm = [byte[]]@()
                 $t = [byte[]]@()
                 for ($counter = 1; $okm.Length -lt $Length; $counter++) {
